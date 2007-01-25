@@ -35,7 +35,7 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...)
 {
 	struct emu_logging *el = emu_logging_get(e);
 
-	if ( el->loglevel == EMU_LOG_NOT )
+	if ( el->loglevel == EMU_LOG_NONE )
 		return;
 
 	if ( el->loglevel < level )

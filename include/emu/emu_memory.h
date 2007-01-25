@@ -2,15 +2,30 @@
 #define HAVE_EMU_MEMORY_H
 
 #include <inttypes.h>
+#include <sys/types.h>
+
+/*enum emu_allocation_mode {
+	alloc_mode_list, 
+	alloc_mode_map, 
+};*/
 
 struct emu;
 struct emu_memory;
 
-struct emu_memory *emu_memory_new();
+struct emu_memory *emu_memory_new(struct emu *e);
 void emu_memory_free(struct emu_memory *em);
 
-uint32_t emu_memory_read_dword(struct emu *e, struct emu_memory *em, void *p, uint32_t *dword);
-void emu_memory_write_dword(struct emu *e, struct emu_memory *em, void *p, uint32_t dword);
+/* read access, these functions return -1 on error  */
+uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte);
+uint32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word);
+uint32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword);
+uint32_t emu_memory_read_block(struct emu_memory *m, uint32_t src, void *dest, size_t len);
+
+/* write access */
+uint32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte);
+uint32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word);
+uint32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword);
+uint32_t emu_memory_write_block(struct emu_memory *m, uint32_t dest, void *src, size_t len);
 
 
 #endif // HAVE_EMU_MEMORY_H

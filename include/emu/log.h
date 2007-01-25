@@ -5,7 +5,7 @@ struct emu;
 
 enum emu_log_level
 {
-	EMU_LOG_NOT,
+	EMU_LOG_NONE,
 	EMU_LOG_INFO,
 	EMU_LOG_DEBUG
 };

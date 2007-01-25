@@ -18,7 +18,7 @@ struct emu *emu_new()
 	struct emu *e = (struct emu *)malloc(sizeof(struct emu));
 	memset(e,0,sizeof(struct emu));
 	e->log = emu_log_new();
-	e->memory = emu_memory_new();
+	e->memory = emu_memory_new(e);
 	logDebug(e,"%s %x\n",__PRETTY_FUNCTION__,(unsigned int)e);
 	return e;
 }
@@ -31,7 +31,12 @@ void emu_free(struct emu *e)
 	free(e);
 }
 
-struct emu_logging* emu_logging_get(struct emu *e)
+inline struct emu_memory *emu_memory_get(struct emu *e)
+{
+	return e->memory;
+}
+
+inline struct emu_logging *emu_logging_get(struct emu *e)
 {
 	return e->log;
 }
