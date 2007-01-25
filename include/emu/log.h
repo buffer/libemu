@@ -11,9 +11,10 @@ enum emu_log_level
 };
 
 
-struct emu_logging *log_new();
-void log_free(struct emu_logging *el);
+struct emu_logging *emu_log_new();
+void emu_log_free(struct emu_logging *el);
 
+void emu_log_level_set(struct emu_logging *el, enum emu_log_level level);
 
 void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...);
 
