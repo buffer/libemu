@@ -22,12 +22,12 @@ void emu_memory_free(struct emu_memory *em)
 	free(em);
 }
 
-uint32_t emu_memory_read_dword(struct emu *e, struct emu_memory *em, void *p)
+uint32_t emu_memory_read_dword(struct emu *e, struct emu_memory *em, void *p, uint32_t *dword)
 {
 	return 0;
 }
 
-void emu_memory_write_dword(struct emu *e, struct emu_memory *em, void *p, uint32_t word)
+void emu_memory_write_dword(struct emu *e, struct emu_memory *em, void *p, uint32_t dword)
 {
 
 }
