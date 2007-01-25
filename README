@@ -1,0 +1,2 @@
+building from svn
+  autoreconf -v -i

@@ -8,6 +8,7 @@ struct emu
 	int i;
 
 	struct emu_logging log;
+	struct emu_memory *memory; 
 };
 
 
