@@ -3,11 +3,14 @@
 
 #include <inttypes.h>
 
+struct emu;
 struct emu_memory;
 
 struct emu_memory *emu_memory_new();
-uint32_t emu_memory_read_word(struct emu_memory *e, void *p);
-void emu_memory_write_word(struct emu_memory *e, void *p, uint32_t word);
-void emu_memory_free(struct emu_memory *e);
+void emu_memory_free(struct emu_memory *em);
+
+uint32_t emu_memory_read_dword(struct emu *e, struct emu_memory *em, void *p);
+void emu_memory_write_dword(struct emu *e, struct emu_memory *em, void *p, uint32_t word);
+
 
 #endif // HAVE_EMU_MEMORY_H

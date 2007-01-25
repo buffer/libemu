@@ -1,18 +1,15 @@
 #ifndef HAVE_EMU_H
 #define HAVE_EMU_H
 
-#include <emu/log.h>
 
-struct emu
-{
-	int i;
+struct emu;
+struct emu_logging;
 
-	struct emu_logging log;
-	struct emu_memory *memory; 
-};
 
 
 struct emu *emu_new();
 void emu_free(struct emu *e);
+
+struct emu_logging* emu_logging_get(struct emu *e);
 
 #endif // HAVE_EMU_H
