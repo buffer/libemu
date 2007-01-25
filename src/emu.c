@@ -1,5 +1,8 @@
-#include <emu/emu.h>
+#include <string.h>
 
+
+#include <emu/emu.h>
+#include <emu/log.h>
 
 
 struct emu *emu_new()
