@@ -12,5 +12,6 @@ struct emu
 
 
 struct emu *emu_new();
+void emu_free(struct emu *e);
 
 #endif // HAVE_EMU_H
