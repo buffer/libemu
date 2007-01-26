@@ -5,12 +5,15 @@
 #include <sys/select.h>
 #include <unistd.h>
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <getopt.h>
 
 
 #include <emu/emu.h>
 #include <emu/emu_memory.h>
+#include <emu/emu_cpu.h>
 #include <emu/log.h>
 
 
@@ -150,9 +153,10 @@ int main(int argc, char *argv[])
 		
 		emu_memory_write_byte(mem, static_offset+i, scode[i]);
 	}
-	emu_memory_write_byte(mem, static_offset+i+1, '\xcc');
+	emu_memory_write_byte(mem, static_offset+i, '\xcc');
 
-//	emu_cpu_run(emu_cpu_get(e));
+	emu_cpu_eip_set(emu_cpu_get(e), static_offset);
+	emu_cpu_run(emu_cpu_get(e));
 
 	emu_free(e);
 

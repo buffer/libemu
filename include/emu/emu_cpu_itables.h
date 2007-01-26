@@ -23,14 +23,14 @@ struct emu_cpu;
 #define II_IMM16 3
 #define II_IMM32 4
 
-#define II_DISPF 0
-#define II_DISP8 1
-#define II_DISP16 2
-#define II_DISP32 3
+#define II_DISPF 1
+#define II_DISP8 2
+#define II_DISP16 3
+#define II_DISP32 4
 
-#define II_LEVEL8 1
+/*#define II_LEVEL8 1 -- implementation pending
 
-#define II_TYPE 1
+#define II_TYPE 1 -- impementation pending*/
 
 struct instruction_info
 {
@@ -51,12 +51,12 @@ struct instruction_info
 
 
 struct instruction_info ii_onebyte[0x100] = {
-	/* 00 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* 01 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* 02 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* 03 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* 04 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* 05 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
+	/* 00 */ {instr_add, "add", {0, 1, II_MOD_REG_RM, 0, 0, 0, 0}},
+	/* 01 */ {instr_add, "add", {0, 1, II_MOD_REG_RM, 0, 0, 0, 0}},
+	/* 02 */ {instr_add, "add", {0, 1, II_MOD_REG_RM, 0, 0, 0, 0}},
+	/* 03 */ {instr_add, "add", {0, 1, II_MOD_REG_RM, 0, 0, 0, 0}},
+	/* 04 */ {instr_add, "add", {0, 1, 0, II_IMM, 0, 0, 0}},
+	/* 05 */ {instr_add, "add", {0, 1, 0, II_IMM, 0, 0, 0}},
 	/* 06 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 07 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 08 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
@@ -179,7 +179,7 @@ struct instruction_info ii_onebyte[0x100] = {
 	/* 7d */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 7e */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 7f */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* 80 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
+	/* 80 */ {group_1, "", {1, 1, II_MOD_YYY_RM, II_IMM, 0, 0, 0}},
 	/* 81 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 82 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 83 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},

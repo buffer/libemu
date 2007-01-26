@@ -6,10 +6,6 @@
 
 struct emu_cpu;
 
-const char *emu_regm[] = {
-	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
-};
-
 enum emu_reg {
 	eax = 0, ecx, edx, ebx, esp, ebp, esi, edi
 };

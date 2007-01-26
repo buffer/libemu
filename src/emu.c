@@ -4,12 +4,14 @@
 #include <emu/emu.h>
 #include <emu/log.h>
 #include <emu/emu_memory.h>
+#include <emu/emu_cpu.h>
 
 
 struct emu
 {
 	struct emu_logging *log;
 	struct emu_memory *memory; 
+	struct emu_cpu *cpu;
 };
 
 
@@ -19,6 +21,7 @@ struct emu *emu_new()
 	memset(e,0,sizeof(struct emu));
 	e->log = emu_log_new();
 	e->memory = emu_memory_new(e);
+	e->cpu = emu_cpu_new(e);
 	logDebug(e,"%s %x\n",__PRETTY_FUNCTION__,(unsigned int)e);
 	return e;
 }
@@ -39,4 +42,9 @@ inline struct emu_memory *emu_memory_get(struct emu *e)
 inline struct emu_logging *emu_logging_get(struct emu *e)
 {
 	return e->log;
+}
+
+inline struct emu_cpu *emu_cpu_get(struct emu *e)
+{
+	return e->cpu;
 }
