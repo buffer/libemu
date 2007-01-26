@@ -97,6 +97,8 @@ uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte
 
 uint32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word)
 {
+	/* TODO handle overlapping pages */
+
 	void *address = translate_addr(m, addr);
 
 	if( address == NULL )
@@ -109,6 +111,8 @@ uint32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *wor
 
 uint32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword)
 {
+	/* TODO handle overlapping pages */
+
 	void *address = translate_addr(m, addr);
 
 	if( address == NULL )
@@ -153,6 +157,8 @@ uint32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte
 
 uint32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word)
 {
+	/* TODO handle overlapping pages */
+
 	if( m->page_map[PAGE(addr)] == NULL )
 		if( page_alloc(m, addr) == -1 )
 			return -1;
@@ -166,6 +172,8 @@ uint32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t wor
 
 uint32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword)
 {
+	/* TODO handle overlapping pages */
+
 	if( m->page_map[PAGE(addr)] == NULL )
 		if( page_alloc(m, addr) == -1 )
 			return -1;
@@ -179,6 +187,8 @@ uint32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dw
 
 uint32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
 {
+	/* TODO handle overlapping pages */
+
 	if( m->page_map[PAGE(addr)] == NULL )
 		if( page_alloc(m, addr) == -1 )
 			return -1;
