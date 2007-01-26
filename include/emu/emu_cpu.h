@@ -16,10 +16,10 @@ enum emu_reg {
 
 struct cpu *emu_cpu_new(struct emu *e);
 
-void emu_cpu_set_register(struct emu_cpu *c, enum emu_reg r, uint32_t val);
-uint32_t emu_cpu_get_register(struct emu_cpu *c, enum emu_reg r, uint32_t val);
-void emu_cpu_set_eip(struct emu_cpu *c, uint32_t eip);
-uint32_t emu_cpu_get_eip(struct emu_cpu *c);
+void emu_cpu_register_set(struct emu_cpu *c, enum emu_reg r, uint32_t val);
+uint32_t emu_cpu_register_get(struct emu_cpu *c, enum emu_reg r, uint32_t val);
+void emu_cpu_eip_set(struct emu_cpu *c, uint32_t eip);
+uint32_t emu_cpu_eip_get(struct emu_cpu *c);
 
 void emu_cpu_step(struct emu_cpu *c);
 void emu_cpu_run(struct emu_cpu *c);
