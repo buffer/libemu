@@ -15,5 +15,6 @@ pkglib_LTLIBRARIES = libemu.la
 libemu_la_SOURCES = emu.c
 libemu_la_SOURCES += log.c
 libemu_la_SOURCES += emu_memory.c
+libemu_la_SOURCES += emu_cpu.c
 
 libemu_la_LDFLAGS = -no-undefined -version-info @libemu_soname@ -export-symbols-regex "^emu_"
