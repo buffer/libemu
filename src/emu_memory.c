@@ -95,6 +95,49 @@ uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte
 	return 0;
 }
 
+uint32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word)
+{
+	void *address = translate_addr(m, addr);
+
+	if( address == NULL )
+		return -1;
+
+	*word = *((uint16_t *)address);		
+
+	return 0;
+}
+
+uint32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword)
+{
+	void *address = translate_addr(m, addr);
+
+	if( address == NULL )
+		return -1;
+
+	*dword = *((uint32_t *)address);		
+
+	return 0;
+}
+
+uint32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
+{
+	void *address = translate_addr(m, addr);
+
+	if( address == NULL )
+		return -1;
+
+	int i;
+	for (i=0;i<len;i++)
+	{
+		*((uint8_t *)dest) = *((uint8_t *)address);
+		address++;
+		dest++;
+	}
+
+	return 0;
+}
+
+
 uint32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte)
 {
 	if( m->page_map[PAGE(addr)] == NULL )
@@ -106,5 +149,52 @@ uint32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte
 	*((uint8_t *)address) = byte;
 	
 	return 0;
+}
+
+uint32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word)
+{
+	if( m->page_map[PAGE(addr)] == NULL )
+		if( page_alloc(m, addr) == -1 )
+			return -1;
+
+	void *address = translate_addr(m, addr);
+
+	*((uint16_t *)address) = word;
+
+	return 0;
+}
+
+uint32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword)
+{
+	if( m->page_map[PAGE(addr)] == NULL )
+		if( page_alloc(m, addr) == -1 )
+			return -1;
+
+	void *address = translate_addr(m, addr);
+
+	*((uint32_t *)address) = dword;
+
+	return 0;
+}
+
+uint32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
+{
+	if( m->page_map[PAGE(addr)] == NULL )
+		if( page_alloc(m, addr) == -1 )
+			return -1;
+
+	void *address = translate_addr(m, addr);
+
+	int i;
+	for (i=0;i<len;i++)
+	{
+		*((uint8_t *)address) = *((uint8_t *)src);
+		address++;
+		src++;
+	}
+
+
+	return 0;
+
 }
 
