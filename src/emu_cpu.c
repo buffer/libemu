@@ -269,7 +269,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 				}
 				else if( ii->format.imm_data == II_IMM32 )
 				{
-					ret = emu_memory_read_word(c->mem, c->eip, &i.imm.s16);
+					ret = emu_memory_read_dword(c->mem, c->eip, &i.imm.s32);
 					c->eip += 4;
 				}
 
@@ -277,9 +277,30 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 					return ret;
 			}
 			
-			/* TODO disp */
+			/* disp */
+			if( ii->format.disp_data != 0 )
+			{
+				if( (ii->format.disp_data == II_DISPF && i.prefixes & PREFIX_OPSIZE) ||
+					ii->format.disp_data == II_DISP16 )
+				{
+					ret = emu_read_memory_word(c->mem, c->eip, &i.disp.s16);
+					c->eip += 2;
+				}
+				else if( ii->format.disp_data == II_DISPF || ii->format.disp_data == II_DISP32 )
+				{
+					ret = emu_read_memory_dword(c->mem, c->eip, &i.disp.s32);
+					c->eip += 4;
+				}
+				else if( ii->format.disp_data == II_DISP8 )
+				{
+					ret = emu_read_memory_byte(c->mem, c->eip++, &i.disp.s8);
+				}
+
+				if( ret != 0 )
+					return ret;
+			}
 			
-			/* TODO ... */
+			/* TODO level type ... */
 
 			/* call the function */			
 			ii->function(c, &i);
