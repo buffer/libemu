@@ -137,7 +137,34 @@ int main(int argc, char *argv[])
 		size = len;
 	}else
 	{
-		printf("stdin is the way to go!\n");
+		printf("reading from file %s\n",argv[optind]);
+		FILE *f;
+		if (( f = fopen(argv[optind],"r")) == NULL)
+			perror("could not open file");
+
+		int16_t bytes_read=0;
+		uint32_t len=0;
+
+		while (feof(f) == 0)
+		{
+			unsigned buffer[BUFSIZ];
+			bytes_read = fread(buffer,1,1,f);
+			printf("read %i bytes %s %i\n",bytes_read,strerror(errno),ferror(f));
+			if ( (scode = (unsigned char *) realloc(scode, len+bytes_read)) == NULL )
+			{
+				fprintf(stderr, "Error while allocating memory: %s.\n", strerror(errno));
+				exit(1);
+			}
+			memcpy(scode+len, buffer, bytes_read);
+			len += bytes_read;
+		}
+		printf("read %i bytes\n",len);
+		int i;
+		for (i=0;i<len;i++)
+		{
+			printf("%02x ",scode[i]);
+		}
+		size = len;
 	}
 
 
