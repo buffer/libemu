@@ -135,9 +135,9 @@ int main(int argc, char *argv[])
 
 		case 'Y': // esp
 			if (strncmp(optarg,"0x",2) == 0)
-				opt.esp = strtoul(optarg,NULL,16);
+				opt.esp = strtoul(optarg+2,NULL,16);
 			else
-
+				opt.esp = strtoul(optarg,NULL,10);
 			break;
 
 		default:
