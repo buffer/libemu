@@ -22,6 +22,16 @@ struct run_options
 	uint8_t single_step;
 	uint8_t append_no_break;
 	uint8_t stdin;
+
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
+	uint32_t edi;
+	uint32_t ebp;
+	uint32_t esi;
+	uint32_t esp;
+
 };
 
 int main(int argc, char *argv[])
@@ -38,13 +48,21 @@ int main(int argc, char *argv[])
 //		int this_option_optind = optind ? optind : 1;
 		int option_index = 0;
 		static struct option long_options[] = {
-			{"append-no-break"   , 0, 0, 'a'},
-			{"single-step"       , 0, 0, 's'},
-			{"stdin"             , 0, 0, 'S'},
+			{"append-no-break"	, 0, 0, 'a'},
+			{"single-step"		, 0, 0, 's'},
+			{"eax"				, 1, 0, 'A'},
+			{"ebx"				, 1, 0, 'B'},
+			{"ecx"				, 1, 0, 'C'},
+			{"edx"				, 1, 0, 'D'}, 
+			{"edi"				, 1, 0, 'I'},
+			{"ebp"				, 1, 0, 'P'},
+			{"esi"				, 1, 0, 'X'},
+			{"esp"				, 1, 0, 'Y'},
+			{"stdin"			, 0, 0, 'S'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "asS", long_options, &option_index);
+		c = getopt_long (argc, argv, "asSA:B:C:D:I:P:X:Y:", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -65,6 +83,63 @@ int main(int argc, char *argv[])
 			printf("reading from stdin\n");
 			break;
 
+		case 'A': // eax
+			if ( strncmp(optarg,"0x",2) == 0 )
+				opt.eax = strtoul(optarg+2,NULL,16);
+			else
+				opt.eax	= strtoul(optarg,NULL,10);
+
+			break;
+
+		case 'B': // ebx
+			if ( strncmp(optarg,"0x",2) == 0 )
+				opt.ebx = strtoul(optarg+2,NULL,16);
+			else
+				opt.ebx	= strtoul(optarg,NULL,10);
+			break;
+
+		case 'C': // ecx
+			if ( strncmp(optarg,"0x",2) == 0 )
+				opt.ecx = strtoul(optarg+2,NULL,16);
+			else
+				opt.ecx	= strtoul(optarg,NULL,10);
+			break;
+
+		case 'D': // edx
+			if ( strncmp(optarg,"0x",2) == 0 )
+				opt.edx = strtoul(optarg+2,NULL,16);
+			else
+				opt.edx	= strtoul(optarg,NULL,10);
+			break;
+
+		case 'I': // edi
+			if ( strncmp(optarg,"0x",2) == 0 )
+				opt.edi = strtoul(optarg+2,NULL,16);
+			else
+				opt.edi	= strtoul(optarg,NULL,10);
+			break;
+
+		case 'P': // ebp
+			if ( strncmp(optarg,"0x",2) == 0 )
+				opt.ebp = strtoul(optarg+2,NULL,16);
+			else
+				opt.ebp	= strtoul(optarg,NULL,10);
+			break;
+
+		case 'X': // esi
+			if ( strncmp(optarg,"0x",2) == 0 )
+				opt.esi = strtoul(optarg+2,NULL,16);
+			else
+				opt.esi	= strtoul(optarg,NULL,10);
+			break;
+
+		case 'Y': // esp
+			if (strncmp(optarg,"0x",2) == 0)
+				opt.esp = strtoul(optarg,NULL,16);
+			else
+
+			break;
+
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
 			break;
@@ -81,7 +156,17 @@ int main(int argc, char *argv[])
 	}
 */
 
-	
+	printf("eax is %08x\n",(unsigned int)opt.eax );
+	printf("ebx is %08x\n",(unsigned int)opt.ebx );
+	printf("ecx is %08x\n",(unsigned int)opt.ecx );
+	printf("edx is %08x\n",(unsigned int)opt.edx );
+	printf("edi is %08x\n",(unsigned int)opt.edi );
+	printf("ebp is %08x\n",(unsigned int)opt.ebp );
+	printf("esi is %08x\n",(unsigned int)opt.esi );
+	printf("esp is %08x\n",(unsigned int)opt.esp );
+
+
+
 	unsigned char *scode=NULL;
 	uint32_t size;
 
@@ -149,7 +234,7 @@ int main(int argc, char *argv[])
 		{
 			unsigned buffer[BUFSIZ];
 			bytes_read = fread(buffer,1,1,f);
-			printf("read %i bytes %s %i\n",bytes_read,strerror(errno),ferror(f));
+//			printf("read %i bytes %s %i\n",bytes_read,strerror(errno),ferror(f));
 			if ( (scode = (unsigned char *) realloc(scode, len+bytes_read)) == NULL )
 			{
 				fprintf(stderr, "Error while allocating memory: %s.\n", strerror(errno));
@@ -169,6 +254,15 @@ int main(int argc, char *argv[])
 
 
 	struct emu *e = emu_new();
+	emu_cpu_register_set(emu_cpu_get(e),eax ,opt.eax);
+	emu_cpu_register_set(emu_cpu_get(e),ecx ,opt.ecx);
+	emu_cpu_register_set(emu_cpu_get(e),edx ,opt.edx);
+	emu_cpu_register_set(emu_cpu_get(e),ebx ,opt.ebx);
+	emu_cpu_register_set(emu_cpu_get(e),esp ,opt.esp);
+	emu_cpu_register_set(emu_cpu_get(e),ebp ,opt.ebp);
+	emu_cpu_register_set(emu_cpu_get(e),esi ,opt.esi);
+	emu_cpu_register_set(emu_cpu_get(e),edi ,opt.edi);
+
 	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 
 
