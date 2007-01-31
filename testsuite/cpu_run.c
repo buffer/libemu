@@ -16,6 +16,9 @@
 #include <emu/emu_cpu.h>
 #include <emu/log.h>
 
+static const char *regm[] = {
+	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
+};
 
 struct run_options
 {
@@ -23,15 +26,7 @@ struct run_options
 	uint8_t append_no_break;
 	uint8_t stdin;
 
-	uint32_t eax;
-	uint32_t ebx;
-	uint32_t ecx;
-	uint32_t edx;
-	uint32_t edi;
-	uint32_t ebp;
-	uint32_t esi;
-	uint32_t esp;
-
+	uint32_t regs[8];
 };
 
 int main(int argc, char *argv[])
@@ -41,6 +36,7 @@ int main(int argc, char *argv[])
 	memset(&opt,0,sizeof(struct run_options));
 
 	int c;
+	int i;
 //	int digit_optind = 0;
 
 	while ( 1 )
@@ -85,59 +81,59 @@ int main(int argc, char *argv[])
 
 		case 'A': // eax
 			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.eax = strtoul(optarg+2,NULL,16);
+				opt.regs[eax] = strtoul(optarg+2,NULL,16);
 			else
-				opt.eax	= strtoul(optarg,NULL,10);
+				opt.regs[eax] = strtoul(optarg,NULL,10);
 
 			break;
 
 		case 'B': // ebx
 			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.ebx = strtoul(optarg+2,NULL,16);
+				opt.regs[ebx] = strtoul(optarg+2,NULL,16);
 			else
-				opt.ebx	= strtoul(optarg,NULL,10);
+				opt.regs[ebx]	= strtoul(optarg,NULL,10);
 			break;
 
 		case 'C': // ecx
 			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.ecx = strtoul(optarg+2,NULL,16);
+				opt.regs[ecx] = strtoul(optarg+2,NULL,16);
 			else
-				opt.ecx	= strtoul(optarg,NULL,10);
+				opt.regs[ecx]	= strtoul(optarg,NULL,10);
 			break;
 
 		case 'D': // edx
 			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.edx = strtoul(optarg+2,NULL,16);
+				opt.regs[edx] = strtoul(optarg+2,NULL,16);
 			else
-				opt.edx	= strtoul(optarg,NULL,10);
+				opt.regs[edx]	= strtoul(optarg,NULL,10);
 			break;
 
 		case 'I': // edi
 			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.edi = strtoul(optarg+2,NULL,16);
+				opt.regs[edi] = strtoul(optarg+2,NULL,16);
 			else
-				opt.edi	= strtoul(optarg,NULL,10);
+				opt.regs[edi]	= strtoul(optarg,NULL,10);
 			break;
 
 		case 'P': // ebp
 			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.ebp = strtoul(optarg+2,NULL,16);
+				opt.regs[ebp] = strtoul(optarg+2,NULL,16);
 			else
-				opt.ebp	= strtoul(optarg,NULL,10);
+				opt.regs[ebp]	= strtoul(optarg,NULL,10);
 			break;
 
 		case 'X': // esi
 			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.esi = strtoul(optarg+2,NULL,16);
+				opt.regs[esi] = strtoul(optarg+2,NULL,16);
 			else
-				opt.esi	= strtoul(optarg,NULL,10);
+				opt.regs[esi]	= strtoul(optarg,NULL,10);
 			break;
 
 		case 'Y': // esp
 			if (strncmp(optarg,"0x",2) == 0)
-				opt.esp = strtoul(optarg+2,NULL,16);
+				opt.regs[esp] = strtoul(optarg+2,NULL,16);
 			else
-				opt.esp = strtoul(optarg,NULL,10);
+				opt.regs[esp] = strtoul(optarg,NULL,10);
 			break;
 
 		default:
@@ -155,15 +151,11 @@ int main(int argc, char *argv[])
 		printf ("\n");
 	}
 */
+	for ( i=0;i<8;i++ )
+	{
+		printf("%s is %08x\n",regm[i],(unsigned int)opt.regs[i]);
+	}
 
-	printf("eax is %08x\n",(unsigned int)opt.eax );
-	printf("ebx is %08x\n",(unsigned int)opt.ebx );
-	printf("ecx is %08x\n",(unsigned int)opt.ecx );
-	printf("edx is %08x\n",(unsigned int)opt.edx );
-	printf("edi is %08x\n",(unsigned int)opt.edi );
-	printf("ebp is %08x\n",(unsigned int)opt.ebp );
-	printf("esi is %08x\n",(unsigned int)opt.esi );
-	printf("esp is %08x\n",(unsigned int)opt.esp );
 
 
 
@@ -254,24 +246,18 @@ int main(int argc, char *argv[])
 
 
 	struct emu *e = emu_new();
-	emu_cpu_register_set(emu_cpu_get(e),eax ,opt.eax);
-	emu_cpu_register_set(emu_cpu_get(e),ecx ,opt.ecx);
-	emu_cpu_register_set(emu_cpu_get(e),edx ,opt.edx);
-	emu_cpu_register_set(emu_cpu_get(e),ebx ,opt.ebx);
-	emu_cpu_register_set(emu_cpu_get(e),esp ,opt.esp);
-	emu_cpu_register_set(emu_cpu_get(e),ebp ,opt.ebp);
-	emu_cpu_register_set(emu_cpu_get(e),esi ,opt.esi);
-	emu_cpu_register_set(emu_cpu_get(e),edi ,opt.edi);
+	for ( i=0;i<8;i++ )
+	{
+		emu_cpu_register_set(emu_cpu_get(e),i ,opt.regs[i]);
+	}
 
 	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 
 
 	struct emu_memory *mem = emu_memory_get(e);
-	int i;
 	int static_offset = 4711;
 	for( i = 0; i < size; i++ )
 	{
-		
 		emu_memory_write_byte(mem, static_offset+i, scode[i]);
 	}
 	emu_memory_write_byte(mem, static_offset+i, '\xcc');
