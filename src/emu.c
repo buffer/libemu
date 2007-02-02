@@ -1,5 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 #include <emu/emu.h>
 #include <emu/log.h>
@@ -12,6 +14,9 @@ struct emu
 	struct emu_logging *log;
 	struct emu_memory *memory; 
 	struct emu_cpu *cpu;
+
+	int 	errno;
+	char 	*errorstr;
 };
 
 
@@ -48,3 +53,35 @@ inline struct emu_cpu *emu_cpu_get(struct emu *e)
 {
 	return e->cpu;
 }
+
+
+
+void emu_errno_set(struct emu *e, int err)
+{
+	e->errno = err;
+}
+
+int emu_errno(struct emu *c)
+{
+	return c->errno;
+}
+
+void emu_strerror_set(struct emu *e, const char *format, ...)
+{
+	if (e->errorstr != NULL)
+    	free(e->errorstr);
+
+	va_list         ap;
+	char            *message;
+	va_start(ap, format);
+	vasprintf(&message, format, ap);
+	va_end(ap);
+
+	e->errorstr = message;
+}
+
+const char *emu_strerror(struct emu *e)
+{
+	return e->errorstr;
+}
+
