@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 	struct emu *e = emu_new();
 	for ( i=0;i<8;i++ )
 	{
-		emu_cpu_register_set(emu_cpu_get(e),i ,opt.regs[i]);
+		emu_cpu_reg32_set(emu_cpu_get(e),i ,opt.regs[i]);
 	}
 
 	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);

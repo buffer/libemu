@@ -134,15 +134,41 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 	return c;
 }
 
-void emu_cpu_register_set(struct emu_cpu *c, enum emu_reg r, uint32_t val)
+uint32_t emu_cpu_reg32_get(struct emu_cpu *cpu_p, enum emu_reg reg)
 {
-	c->regs[r] = val;
+	return cpu_p->regs[reg];
 }
 
-uint32_t emu_cpu_register_get(struct emu_cpu *c, enum emu_reg r)
+void  emu_cpu_reg32_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint32_t val)
 {
-	return c->regs[r];
+	cpu_p->regs[reg] = val;
 }
+
+uint16_t emu_cpu_reg16_get(struct emu_cpu *cpu_p, enum emu_reg reg)
+{
+	return (uint16_t)((cpu_p->regs[reg]) & 0xffff);
+}
+
+void emu_cpu_re16_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint16_t val)
+{
+	cpu_p->regs[reg] = ((cpu_p->regs[reg] & 0xffff0000) | (val & 0xffff));
+}
+
+uint8_t emu_cpu_get8_get(struct emu_cpu *cpu_p, enum emu_reg reg)
+{
+	return (uint8_t)(((reg & 0x4) == 0) ? (cpu_p->regs[reg] & 0xff) : ((cpu_p->regs[(reg & 0x3)] & 0xff00) >> 8));
+}
+
+
+void emu_cpu_reg8_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint8_t val)
+{
+	if ( (reg & 0x4) == 0 )
+		cpu_p->regs[reg] = (cpu_p->regs[reg] & 0xffffff00) | (val & 0xff);
+	else
+		cpu_p->regs[(reg & 0x4)] = (cpu_p->regs[(reg & 0x4)] & 0xffff00ff) | ((val & 0xff) << 8);
+
+}
+
 
 void emu_cpu_eip_set(struct emu_cpu *c, uint32_t val)
 {
@@ -491,4 +517,5 @@ int32_t emu_cpu_run(struct emu_cpu *c)
 {
 	return emu_cpu_step(c);
 }
+
 
