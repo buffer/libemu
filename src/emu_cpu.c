@@ -2,7 +2,6 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #include <emu/emu_cpu.h>
 #include <emu/emu_cpu_itables.h>
@@ -275,7 +274,6 @@ static void debug_instruction(struct instruction *i)
 	printf("\n");
 }
 
-
 uint32_t emu_cpu_step(struct emu_cpu *c)
 {
 	static uint8_t byte;
@@ -287,17 +285,14 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 	i.prefixes = 0;
 	
 	printf("decoding\n");
-	emu_errno_set(c->lib,0);
+	
 	while( 1 )
 	{
 		
 		ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
 		
 		if( ret != 0 )
-		{
-			emu_errno_set(c->lib,EFAULT);
 			return ret;
-		}
 		
 		ii = &ii_onebyte[byte];
 
@@ -315,10 +310,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 				ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
 		
 				if( ret != 0 )
-				{
-					emu_errno_set(c->lib,EFAULT);
 					return ret;
-				}
 					
 				i.opc_2nd = byte;
 				opcode = &i.opc_2nd;
@@ -331,9 +323,8 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 			
 			if( ii->function == 0 )
 			{
-				emu_strerror_set(c->lib,"opcode %02x not supported\n", i.opc);
-				emu_errno_set(c->lib,ENOTSUP);
-				return -1;
+				printf("opcode %02x not supported\n", i.opc);
+				exit(-1);
 			}
 			
 			i.w_bit = *opcode & 1;
@@ -345,10 +336,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 				ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
 		
 				if( ret != 0 )
-				{
-					emu_errno_set(c->lib,EFAULT);
 					return ret;
-				}
 					
 				i.modrm.mod = MODRM_MOD(byte);
 				i.modrm.opc = MODRM_REGOPC(byte);
@@ -369,10 +357,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 							ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
 		
 							if( ret != 0 )
-							{
-								emu_errno_set(c->lib,EFAULT);
 								return ret;
-							}
 								
 							i.modrm.sib.base = SIB_BASE(byte);
 							i.modrm.sib.scale = SIB_SCALE(byte);
@@ -398,10 +383,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 							ret = emu_memory_read_byte(c->mem, c->eip++, &i.modrm.disp.s8);
 		
 							if( ret != 0 )
-							{
-								emu_errno_set(c->lib,EFAULT);
 								return ret;
-							}
 							
 							i.modrm.ea += i.modrm.disp.s8;
 						}
@@ -411,10 +393,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 							c->eip += 4;
 		
 							if( ret != 0 )
-							{
-								emu_errno_set(c->lib,EFAULT);
 								return ret;
-							}
 
 							i.modrm.ea += i.modrm.disp.s32;
 						}
@@ -463,10 +442,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 				}
 
 				if( ret != 0 )
-				{
-					emu_errno_set(c->lib,EFAULT);
 					return ret;
-				}
 			}
 			
 			/* disp */
@@ -488,10 +464,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 				}
 
 				if( ret != 0 )
-				{
-					emu_errno_set(c->lib,EFAULT);
 					return ret;
-				}
 			}
 			
 			/* TODO level type ... */
