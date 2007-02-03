@@ -20,7 +20,7 @@ static uint8_t scalem[] = {
 
 struct emu_cpu
 {
-	struct emu *lib;
+	struct emu *emu;
 	struct emu_memory *mem;
 	
 	uint32_t eip;
@@ -134,7 +134,7 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 	struct emu_cpu *c = malloc(sizeof(struct emu_cpu));
 	memset((void *)c, 0, sizeof(c));
 	
-	c->lib = e;
+	c->emu = e;
 	c->mem = emu_memory_get(e);
 	
 	memset((void *)c->regs, 0, sizeof(c->regs)); 
@@ -324,8 +324,8 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 			
 			if ( ii->function == 0 )
 			{
-				emu_strerror_set(c->lib,"opcode %02x not supported\n", i.opc);
-				emu_errno_set(c->lib,ENOTSUP);
+				emu_strerror_set(c->emu,"opcode %02x not supported\n", i.opc);
+				emu_errno_set(c->emu,ENOTSUP);
 				return -1;
 			}
 			

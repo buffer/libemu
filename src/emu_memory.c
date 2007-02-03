@@ -21,7 +21,7 @@
 
 struct emu_memory
 {
-	struct emu *ctx;
+	struct emu *emu;
 /*	enum emu_allocation_mode alloc_mode;*/
 /*	struct page *pages;*/
 	void **page_map;
@@ -34,7 +34,7 @@ struct emu_memory *emu_memory_new(struct emu *e)
 	
 /*	printf("memory page size is %d bytes\n", PAGE_SIZE);*/
 	
-	em->ctx = e;
+	em->emu = e;
 /*	em->alloc_mode = m;
 	
 	if( m == alloc_mode_map )
@@ -74,7 +74,7 @@ static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 	/*printf("page 0x%08x maps to 0x%08x\n", PAGE(addr), (uint32_t)em->page_map[PAGE(addr)]);*/
 	if ( em->page_map[PAGE(addr)] == NULL )
 	{
-		emu_errno_set(em->ctx,errno);
+		emu_errno_set(em->emu,errno);
 		return -1;
 	} else
 		return 0;
@@ -93,7 +93,7 @@ uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte
 	
 	if( address == NULL )
 	{
-		emu_errno_set(m->ctx,EFAULT);
+		emu_errno_set(m->emu,EFAULT);
 		return -1;
 	}
 	
