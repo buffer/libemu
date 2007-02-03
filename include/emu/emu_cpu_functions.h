@@ -32,13 +32,13 @@
  if( ret != 0 ) \
   return ret; }
 
-uint32_t prefix_fn(struct emu_cpu *c, struct instruction *i)
+int32_t prefix_fn(struct emu_cpu *c, struct instruction *i)
 {
 	/* dummy */
 	return 0;
 }
 
-uint32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
 {
 	if( i->modrm.mod != 3 )
 	{
@@ -63,7 +63,7 @@ uint32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-uint32_t instr_add_04(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_04(struct emu_cpu *c, struct instruction *i)
 {
 	uint8_t byte = CPU_REG8_GET(c, eax);
 	byte += (uint8_t)i->imm;
@@ -71,7 +71,7 @@ uint32_t instr_add_04(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-uint32_t instr_add_05(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_05(struct emu_cpu *c, struct instruction *i)
 {
 	if( i->prefixes & PREFIX_OPSIZE )
 	{

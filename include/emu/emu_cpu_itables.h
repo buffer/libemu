@@ -34,7 +34,7 @@ struct emu_cpu;
 
 struct instruction_info
 {
-	uint32_t (*function)(struct emu_cpu *, struct instruction *);
+	int32_t (*function)(struct emu_cpu *, struct instruction *);
 	const char *name;
     
 	struct

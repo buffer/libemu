@@ -87,7 +87,7 @@ static inline void *translate_addr(struct emu_memory *em, uint32_t addr)
 	return em->page_map[PAGE(addr)] + OFFSET(addr);
 }
 
-uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
+int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
 {
 	void *address = translate_addr(m, addr);
 	
@@ -102,17 +102,17 @@ uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte
 	return 0;
 }
 
-uint32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word)
+int32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word)
 {
 	return emu_memory_read_block(m,addr,word,2);
 }
 
-uint32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword)
+int32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword)
 {
 	return emu_memory_read_block(m,addr,dword,4);
 }
 
-uint32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
+int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
 {
 	int i;
 	for (i=0;i<len;i++)
@@ -125,7 +125,7 @@ uint32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, 
 }
 
 
-uint32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte)
+int32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte)
 {
 	if( m->page_map[PAGE(addr)] == NULL )
 		if( page_alloc(m, addr) == -1 )
@@ -138,17 +138,17 @@ uint32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte
 	return 0;
 }
 
-uint32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word)
+int32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word)
 {
 	return emu_memory_write_block(m,addr,&word,2);
 }
 
-uint32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword)
+int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword)
 {
 	return emu_memory_write_block(m,addr,&dword,4);
 }
 
-uint32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
+int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
 {
 	int i;
 	

@@ -265,7 +265,7 @@ static void debug_instruction(struct instruction *i)
 	printf("\n");
 }
 
-uint32_t emu_cpu_step(struct emu_cpu *c)
+int32_t emu_cpu_step(struct emu_cpu *c)
 {
 	static uint8_t byte;
 	static uint8_t *opcode;
@@ -487,7 +487,7 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 	return 0;
 }
 
-uint32_t emu_cpu_run(struct emu_cpu *c)
+int32_t emu_cpu_run(struct emu_cpu *c)
 {
 	return emu_cpu_step(c);
 }

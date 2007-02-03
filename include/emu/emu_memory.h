@@ -16,16 +16,16 @@ struct emu_memory *emu_memory_new(struct emu *e);
 void emu_memory_free(struct emu_memory *em);
 
 /* read access, these functions return -1 on error  */
-uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte);
-uint32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word);
-uint32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword);
-uint32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len);
+int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte);
+int32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word);
+int32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword);
+int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len);
 
 /* write access */
-uint32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte);
-uint32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word);
-uint32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword);
-uint32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len);
+int32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte);
+int32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word);
+int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword);
+int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len);
 
 
 #endif // HAVE_EMU_MEMORY_H
