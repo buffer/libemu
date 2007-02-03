@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <emu/emu_cpu.h>
 #include <emu/emu_cpu_itables.h>
@@ -321,10 +322,11 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 				opcode = &i.opc;
 			}
 			
-			if( ii->function == 0 )
+			if ( ii->function == 0 )
 			{
-				printf("opcode %02x not supported\n", i.opc);
-				exit(-1);
+				emu_strerror_set(c->lib,"opcode %02x not supported\n", i.opc);
+				emu_errno_set(c->lib,ENOTSUP);
+				return -1;
 			}
 			
 			i.w_bit = *opcode & 1;

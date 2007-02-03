@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <emu/emu.h>
 #include <emu/log.h>
@@ -47,6 +48,7 @@ struct emu_memory *emu_memory_new(struct emu *e)
 
 void emu_memory_free(struct emu_memory *em)
 {
+	// TODO free the mallocs
 	free(em);
 }
 
@@ -70,9 +72,11 @@ static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 	em->page_map[PAGE(addr)] = malloc(PAGE_SIZE);
 	
 	/*printf("page 0x%08x maps to 0x%08x\n", PAGE(addr), (uint32_t)em->page_map[PAGE(addr)]);*/
-	if( em->page_map[PAGE(addr)] == NULL )
+	if ( em->page_map[PAGE(addr)] == NULL )
+	{
+		emu_errno_set(em->ctx,errno);
 		return -1;
-	else
+	} else
 		return 0;
 }
 
@@ -88,7 +92,10 @@ uint32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte
 	void *address = translate_addr(m, addr);
 	
 	if( address == NULL )
+	{
+		emu_errno_set(m->ctx,EFAULT);
 		return -1;
+	}
 	
 	*byte = *((uint8_t *)address);		
 	
