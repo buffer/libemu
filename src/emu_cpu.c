@@ -5,7 +5,6 @@
 #include <errno.h>
 
 #include <emu/emu_cpu.h>
-#include <emu/emu_cpu_itables.h>
 #include <emu/emu_memory.h>
 
 
@@ -77,19 +76,8 @@ struct instruction
 		uint32_t ea;
 	} modrm;
 
-	union /* immediate */
-    {
-		uint8_t s8;
-		uint16_t s16;
-		uint32_t s32;
-	} imm;
-
-	union /* displacement (non-mod-r/m) */
-	{
-		uint8_t s8;
-		uint16_t s16;
-		uint32_t s32;
-	} disp;
+	uint32_t imm;
+	uint32_t disp;
 };
 
 #define MODRM_MOD(x) (((x) >> 6) & 3)
@@ -115,6 +103,8 @@ struct instruction
 #define OPSIZE_32 3
 
 static uint16_t prefix_map[0x100];
+
+#include <emu/emu_cpu_itables.h>
 
 static void init_prefix_map()
 {
@@ -430,16 +420,22 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 			{
 				if( i.operand_size == OPSIZE_32 )
 				{
-					ret = emu_memory_read_dword(c->mem, c->eip, &i.imm.s32);
+					uint32_t imm32;
+					ret = emu_memory_read_dword(c->mem, c->eip, &imm32);
+					i.imm = imm32;
 					c->eip += 4;
 				}
 				else if( i.operand_size == OPSIZE_8 )
 				{
-					ret = emu_memory_read_byte(c->mem, c->eip++, &i.imm.s8);
+					uint8_t imm8;
+					ret = emu_memory_read_byte(c->mem, c->eip++, &imm8);
+					i.imm = imm8;
 				}
 				else if( i.operand_size == OPSIZE_16 )
 				{
-					ret = emu_memory_read_word(c->mem, c->eip, &i.imm.s16);
+					uint16_t imm16;
+					ret = emu_memory_read_word(c->mem, c->eip, &imm16);
+					i.imm = imm16;
 					c->eip += 2;
 				}
 
@@ -452,17 +448,23 @@ uint32_t emu_cpu_step(struct emu_cpu *c)
 			{
 				if( i.operand_size == OPSIZE_32 )
 				{
-					ret = emu_memory_read_dword(c->mem, c->eip, &i.disp.s32);
+					uint32_t disp32;
+					ret = emu_memory_read_dword(c->mem, c->eip, &disp32);
+					i.disp = disp32;
 					c->eip += 4;
 				}
 				else if( i.operand_size == OPSIZE_16 )
 				{
-					ret = emu_memory_read_word(c->mem, c->eip, &i.disp.s16);
+					uint16_t disp16;
+					ret = emu_memory_read_word(c->mem, c->eip, &disp16);
+					i.disp = disp16;
 					c->eip += 2;
 				}
 				else if( i.operand_size == OPSIZE_8 )
 				{
-					ret = emu_memory_read_byte(c->mem, c->eip++, &i.disp.s8);
+					uint8_t disp8;
+					ret = emu_memory_read_byte(c->mem, c->eip++, &disp8);
+					i.disp = disp8;
 				}
 
 				if( ret != 0 )
