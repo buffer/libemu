@@ -358,6 +358,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	}
 	
 	logDebug(c->emu,"decoding\n");
+				debug_cpu(c);
 	
 	while( 1 )
 	{
@@ -550,7 +551,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			/* TODO level type ... */
 
 			/* call the function */			
-			//ii->function(c, &i);
+			ii->function(c, &i);
 			debug_instruction(&i);
 			debug_cpu(c);
 			
