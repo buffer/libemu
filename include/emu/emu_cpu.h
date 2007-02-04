@@ -3,8 +3,8 @@
 #define HAVE_EMU_CPU_H
 
 #include <inttypes.h>
-#include <emu/emu.h>
 
+struct emu;
 struct emu_cpu;
 
 enum emu_reg {

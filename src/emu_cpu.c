@@ -7,6 +7,7 @@
 
 #include <emu/emu_cpu.h>
 #include <emu/emu_memory.h>
+#include <emu/emu.h>
 
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
