@@ -17,8 +17,12 @@
 #include <emu/emu_cpu.h>
 #include <emu/emu_log.h>
 
-#define FAILED "\033[31;1mfailed\033[0m\n"
-#define SUCCESS "\033[32;1msuccess\033[0m\n"
+#define FAILED "\033[31;1mfailed\033[0m"
+#define SUCCESS "\033[32;1msuccess\033[0m"
+
+static const char *regm[] = {
+	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
+};
 
 
 struct instr_test
@@ -30,12 +34,12 @@ struct instr_test
 
 	struct 
 	{
-		uint32_t eax , ecx, edx, ebx, esp, ebp, esi, edi;
+		uint32_t reg[8];
 	} start;
 
 	struct 
 	{
-		uint32_t eax , ecx, edx, ebx, esp, ebp, esi, edi;
+		uint32_t reg[8];
 		uint32_t		mem_state_0[2];
 	}stopp;
 };
@@ -45,14 +49,15 @@ struct instr_test tests[] =
 {
 	{
 		.instr = "add [ebx],bh",
-		.start.eax = 0,
+		.start.reg  = {0,0,0,0,0,0,0,0 },
 	},
 	{
 		.instr = "add cx,ax",
-		.start.eax = 0,
+		.start.reg  = {0,0,0,0,0,0,0,0 },
 	},
 	{
 		.instr = "add ebx,ecx",
+		.start.reg  = {0,0,0,0,0,0,0,0 },
 	}
 };
 
@@ -103,14 +108,10 @@ int test()
 		struct emu_cpu *cpu = emu_cpu_get(e);
 
 		// for i in eax  ecx edx ebx esp ebp esi edi; do echo "emu_cpu_reg32_set(cpu, $i, tests[i].start.$i );" ; done
-		emu_cpu_reg32_set(cpu, eax, tests[i].start.eax );
-		emu_cpu_reg32_set(cpu, ecx, tests[i].start.ecx );
-		emu_cpu_reg32_set(cpu, edx, tests[i].start.edx );
-		emu_cpu_reg32_set(cpu, ebx, tests[i].start.ebx );
-		emu_cpu_reg32_set(cpu, esp, tests[i].start.esp );
-		emu_cpu_reg32_set(cpu, ebp, tests[i].start.ebp );
-		emu_cpu_reg32_set(cpu, esi, tests[i].start.esi );
-		emu_cpu_reg32_set(cpu, edi, tests[i].start.edi );
+		for ( j=0;j<8;j++ )
+		{
+			emu_cpu_reg32_set(cpu,j ,tests[i].start.reg[j]);
+		}
    	
 
 
@@ -126,63 +127,16 @@ int test()
 
 		// for i in eax  ecx edx ebx esp ebp esi edi; do echo "if (emu_cpu_reg32_get(cpu, $i) ==  tests[i].stopp.$i ) { printf(\"\t $i \"SUCCESS); } else { printf(\"\t $i "FAILED" %i expected %i\n\",emu_cpu_reg32_get(cpu, $i),tests[i].stopp.$i); }" ; done
 
-		if ( emu_cpu_reg32_get(cpu, eax) ==  tests[i].stopp.eax )
+		for ( j=0;j<8;j++ )
 		{
-			printf("\t eax "SUCCESS);
-		} else
-		{
-			printf("\t eax FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, eax),tests[i].stopp.eax);
+			if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].stopp.reg[j] )
+			{
+				printf("\t %s "SUCCESS"\n",regm[j]);
+			} else
+			{
+				printf("\t %s "FAILED" got %i expected %i\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].stopp.reg[j]);
+			}
 		}
-		if ( emu_cpu_reg32_get(cpu, ecx) ==  tests[i].stopp.ecx )
-		{
-			printf("\t ecx "SUCCESS);
-		} else
-		{
-			printf("\t ecx FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, ecx),tests[i].stopp.ecx);
-		}
-		if ( emu_cpu_reg32_get(cpu, edx) ==  tests[i].stopp.edx )
-		{
-			printf("\t edx "SUCCESS);
-		} else
-		{
-			printf("\t edx FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, edx),tests[i].stopp.edx);
-		}
-		if ( emu_cpu_reg32_get(cpu, ebx) ==  tests[i].stopp.ebx )
-		{
-			printf("\t ebx "SUCCESS);
-		} else
-		{
-			printf("\t ebx FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, ebx),tests[i].stopp.ebx);
-		}
-		if ( emu_cpu_reg32_get(cpu, esp) ==  tests[i].stopp.esp )
-		{
-			printf("\t esp "SUCCESS);
-		} else
-		{
-			printf("\t esp FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, esp),tests[i].stopp.esp);
-		}
-		if ( emu_cpu_reg32_get(cpu, ebp) ==  tests[i].stopp.ebp )
-		{
-			printf("\t ebp "SUCCESS);
-		} else
-		{
-			printf("\t ebp FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, ebp),tests[i].stopp.ebp);
-		}
-		if ( emu_cpu_reg32_get(cpu, esi) ==  tests[i].stopp.esi )
-		{
-			printf("\t esi "SUCCESS);
-		} else
-		{
-			printf("\t esi FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, esi),tests[i].stopp.esi);
-		}
-		if ( emu_cpu_reg32_get(cpu, edi) ==  tests[i].stopp.edi )
-		{
-			printf("\t edi "SUCCESS);
-		} else
-		{
-			printf("\t edi FAILED %i expected %i\n",emu_cpu_reg32_get(cpu, edi),tests[i].stopp.edi);
-		}
-
 	}
 	return 0;
 }
