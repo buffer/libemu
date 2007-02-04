@@ -225,22 +225,11 @@ void emu_cpu_free(struct emu_cpu *c)
 	free(c);
 }
 
-static void debug_cpu(struct emu_cpu *c)
+void emu_cpu_debug_print(struct emu_cpu *c)
 {
-	int i;
-	
 	logDebug(c->emu,"cpu state    eip=0x%08x\n", c->eip);
-	
-	for( i = 0; i < 4; i++ )
-	{
-		logDebug(c->emu,"%s=0x%08x  ", regm[i], c->reg[i]);
-	} 
-	logDebug(c->emu,"\n");
-	for( i = 4; i < 8; i++ )
-	{
-		logDebug(c->emu,"%s=0x%08x  ", regm[i], c->reg[i]);
-	} 
-	logDebug(c->emu,"\n");
+	logDebug(c->emu,"eax=0x%08x  ecx=0x%08x  edx=0x%08x  ebx=0x%08x\n",c->reg[eax], c->reg[ecx], c->reg[edx], c->reg[ebx]);
+	logDebug(c->emu,"esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n",c->reg[esp], c->reg[ebp], c->reg[esi], c->reg[edi]);
 }
 
 static void debug_instruction(struct instruction *i)
@@ -358,7 +347,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	}
 	
 	logDebug(c->emu,"decoding\n");
-				debug_cpu(c);
+				emu_cpu_debug_print(c);
 	
 	while( 1 )
 	{
@@ -553,7 +542,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			/* call the function */			
 			ii->function(c, &i);
 			debug_instruction(&i);
-			debug_cpu(c);
+			emu_cpu_debug_print(c);
 			
 			break;
 		}

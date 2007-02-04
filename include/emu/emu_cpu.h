@@ -31,6 +31,6 @@ int32_t emu_cpu_run(struct emu_cpu *c);
 
 void emu_cpu_free(struct emu_cpu *c);
 
-
+void emu_cpu_debug_print(struct emu_cpu *c);
 
 #endif /* HAVEEMU_CPU_H */

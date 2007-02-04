@@ -50,34 +50,21 @@ struct instr_test
 
 struct instr_test tests[] = 
 {
-/*	{
-		.instr = "instr",
+	{
+		.instr = "add [ebx],bh",
 		.in_state.reg  = {0,0,0,0,0,0,0,0 },
-		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0,0,0,0,0,0,0,0 },
-		.out_state.mem_state = {0, 0},
-	},*/
-	{
-		.instr = "add ah,al",
-		.in_state.reg  = {0xff01,0,0,0,0,0,0,0 },
-		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0x01,0,0,0,0,0,0,0 },
-		.out_state.mem_state = {0, 0},
+		.out_state.mem_state = { 0x4711, 0x01010102 },
 	},
 	{
-		.instr = "add ch,dl",
-		.in_state.reg  = {0,0x1000,0x20,0,0,0,0,0 },
-		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0,0x3000,0x20,0,0,0,0,0 },
-		.out_state.mem_state = {0, 0},
+		.instr = "add cx,ax",
+		.in_state.reg  = {0,0,0,0,0,0,0,0 },
+		.in_state.mem_state = { 0x4711, 0x01010101 },
+		.out_state.mem_state = { 0x4711, 0x01010102 },
 	},
 	{
-		.instr = "add [ecx],al",
-		.in_state.reg  = {0x10,0x40000,0,0,0,0,0,0 },
-		.in_state.mem_state = {0x40000, 0x10101010},
-		.out_state.reg  = {0x10,0x40000,0,0,0,0,0,0 },
-		.out_state.mem_state = {0x40000, 0x10101020},
-	},
+		.instr = "add ebx,ecx",
+		.in_state.reg  = {0,0,0,0,0,0,0,0 },
+	}
 };
 
 int prepare()
@@ -146,20 +133,33 @@ int test()
 			emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
 		}
 
-		if( tests[i].in_state.mem_state[0] != 0 )
-		{
-			emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
-		}
+		emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
 
-/*		emu_memory_write_byte(mem, static_offset+i, '\xcc');*/
+		emu_memory_write_byte(mem, static_offset+i, '\xcc');
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
+
+		if (verbose == 1)
+		{
+        	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+			emu_cpu_debug_print(cpu);
+			emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+		}
 		
-		int ret = emu_cpu_step(emu_cpu_get(e));
-		
-		if( ret != 0 )
+		int ret = emu_cpu_run(emu_cpu_get(e));
+
+		if ( ret != 0 )
 		{
 			printf("cpu error %s\n", emu_strerror(e));
 		}
+   
+
+		if (verbose == 1)
+		{
+			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+			emu_cpu_debug_print(cpu);
+			emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+		}
+        	
 
 		// for i in eax  ecx edx ebx esp ebp esi edi; do echo "if (emu_cpu_reg32_get(cpu, $i) ==  tests[i].stopp.$i ) { printf(\"\t $i \"SUCCESS); } else { printf(\"\t $i "FAILED" %i expected %i\n\",emu_cpu_reg32_get(cpu, $i),tests[i].stopp.$i); }" ; done
 
@@ -178,7 +178,7 @@ int test()
 
 		uint32_t value;
 
-		if ( tests[i].out_state.mem_state[0] != 0 )
+		if ( tests[i].out_state.mem_state[0] != -1 )
 		{
 			if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
 			{
@@ -218,9 +218,37 @@ void cleanup()
 		
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	verbose = 0;
+
+	while ( 1 )
+	{	
+		int c;
+		int option_index = 0;
+		static struct option long_options[] = {
+			{"verbose"			, 0, 0, 'v'},
+			{0, 0, 0, 0}
+		};
+
+		c = getopt_long (argc, argv, "v", long_options, &option_index);
+		if ( c == -1 )
+			break;
+
+		switch ( c )
+		{
+		case 'v':
+			verbose = 1;
+			break;
+
+		default:
+			printf ("?? getopt returned character code 0%o ??\n", c);
+			break;
+		}
+	}
+
+
+
 	prepare();
 	test();
 	cleanup();
