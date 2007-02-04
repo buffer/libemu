@@ -145,7 +145,7 @@ int test()
 
 		emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
 
-		emu_memory_write_byte(mem, static_offset+i, '\xcc');
+//		emu_memory_write_byte(mem, static_offset+i, '\xcc');
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
 		if (verbose == 1)
