@@ -72,24 +72,32 @@ int prepare()
 	int i;
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
 	{
-		const char *use = "USE32\n";
-		FILE *f=fopen("/tmp/foo.S","w+");
+		if ( tests[i].code != NULL )
+		{ // dup it so we can free it
+			uint8_t *c = (uint8_t *)malloc(tests[i].codesize);
+			memcpy(c,tests[i].code,tests[i].codesize);
+			tests[i].code = c;
+		} else
+		{
+			const char *use = "USE32\n";
+			FILE *f=fopen("/tmp/foo.S","w+");
 
-		fwrite(use,strlen(use),1,f);
-		fwrite(tests[i].instr,1,strlen(tests[i].instr),f);
-		fclose(f);
-		system("cd /tmp/; nasm foo.S");
-		f=fopen("/tmp/foo","r");
-		fseek(f,0,SEEK_END);
+			fwrite(use,strlen(use),1,f);
+			fwrite(tests[i].instr,1,strlen(tests[i].instr),f);
+			fclose(f);
+			system("cd /tmp/; nasm foo.S");
+			f=fopen("/tmp/foo","r");
+			fseek(f,0,SEEK_END);
 
-		tests[i].codesize = ftell(f);
-		tests[i].code = malloc(tests[i].codesize);
-		fseek(f,0,SEEK_SET);
-		fread(tests[i].code,1,tests[i].codesize,f);
-		fclose(f);
+			tests[i].codesize = ftell(f);
+			tests[i].code = malloc(tests[i].codesize);
+			fseek(f,0,SEEK_SET);
+			fread(tests[i].code,1,tests[i].codesize,f);
+			fclose(f);
 
-		unlink("/tmp/foo.S");
-		unlink("/tmp/foo");
+			unlink("/tmp/foo.S");
+			unlink("/tmp/foo");
+		}
 	}
 	return 0;
 }
