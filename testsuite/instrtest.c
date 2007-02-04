@@ -111,6 +111,7 @@ struct instr_test tests[] =
 	},
 	/* 02 */
 	{
+		.instr = "add c1,bh",
 		.code = "\x02\xcf", /* add cl,bh */
  		.codesize = 2,
 		.in_state.reg  = {0,0xff,0,0x100,0,0,0,0 },
@@ -127,6 +128,7 @@ struct instr_test tests[] =
 	},
 	/* 03 */
 	{
+		.instr = "add cx,di",
 		.code = "\x66\x03\xcf", /* add cx,di */
  		.codesize = 3,
 		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202 },
@@ -142,6 +144,7 @@ struct instr_test tests[] =
 		.out_state.mem_state = {0x40000, 0x44443333},
 	},
 	{
+		.instr = "add ecx,edi",
 		.code = "\x03\xcf", /* add ecx,edi */
  		.codesize = 2,
 		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202 },
