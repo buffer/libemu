@@ -50,21 +50,73 @@ struct instr_test
 
 struct instr_test tests[] = 
 {
+
+/*  {
+        .instr = "instr",
+        .in_state.reg  = {0,0,0,0,0,0,0,0 },
+        .in_state.mem_state = {0, 0},
+        .out_state.reg  = {0,0,0,0,0,0,0,0 },
+        .out_state.mem_state = {0, 0},
+    },*/
+    /* 00 */
+    {
+        .instr = "add ah,al",
+        .in_state.reg  = {0xff01,0,0,0,0,0,0,0 },
+        .in_state.mem_state = {0, 0},
+        .out_state.reg  = {0x01,0,0,0,0,0,0,0 },
+        .out_state.mem_state = {0, 0},
+    },
+    {
+        .instr = "add ch,dl",
+        .in_state.reg  = {0,0x1000,0x20,0,0,0,0,0 },
+        .in_state.mem_state = {0, 0},
+        .out_state.reg  = {0,0x3000,0x20,0,0,0,0,0 },
+        .out_state.mem_state = {0, 0},
+    },
+    {
+        .instr = "add [ecx],al",
+        .in_state.reg  = {0x10,0x40000,0,0,0,0,0,0 },
+        .in_state.mem_state = {0x40000, 0x10101010},
+        .out_state.reg  = {0x10,0x40000,0,0,0,0,0,0 },
+        .out_state.mem_state = {0x40000, 0x10101020},
+    },
+	/* 01 */
 	{
-		.instr = "add [ebx],bh",
-		.in_state.reg  = {0,0,0,0,0,0,0,0 },
-		.out_state.mem_state = { 0x4711, 0x01010102 },
+		.instr = "add ax,cx",
+		.in_state.reg  = {0xffff1111,0xffff2222,0,0,0,0,0,0 },
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0xffff3333,0xffff2222,0,0,0,0,0,0 },
+		.out_state.mem_state = {0, 0},
 	},
 	{
-		.instr = "add cx,ax",
-		.in_state.reg  = {0,0,0,0,0,0,0,0 },
-		.in_state.mem_state = { 0x4711, 0x01010101 },
-		.out_state.mem_state = { 0x4711, 0x01010102 },
+		.instr = "add [ecx],ax",
+		.in_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0 },
+		.in_state.mem_state = {0x40000, 0x22224444},
+		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0 },
+		.out_state.mem_state = {0x40000, 0x22225555},
 	},
 	{
-		.instr = "add ebx,ecx",
-		.in_state.reg  = {0,0,0,0,0,0,0,0 },
-	}
+		.instr = "add eax,ecx",
+		.in_state.reg  = {0x11112222,0x22221111,0,0,0,0,0,0 },
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x33333333,0x22221111,0,0,0,0,0,0 },
+		.out_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "add [ecx],eax",
+		.in_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0 },
+		.in_state.mem_state = {0x40000, 0x22224444},
+		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0 },
+		.out_state.mem_state = {0x40000, 0x44445555},
+	},
+	/* 02 */
+/*	{
+		.instr = "add ah,al",
+		.in_state.reg  = {0xff01,0,0,0,0,0,0,0 },
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x01,0,0,0,0,0,0,0 },
+		.out_state.mem_state = {0, 0},
+	},*/
 };
 
 int prepare()
@@ -145,7 +197,8 @@ int test()
 
 		emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
 
-//		emu_memory_write_byte(mem, static_offset+i, '\xcc');
+/*		emu_memory_write_byte(mem, static_offset+i, '\xcc');*/
+
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
 		if (verbose == 1)
@@ -181,7 +234,7 @@ int test()
 					printf("\t %s "SUCCESS"\n",regm[j]);
 			} else
 			{
-				printf("\t %s "FAILED" got %i expected %i\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
+				printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
 				failed = 1;
 			}
 		}
