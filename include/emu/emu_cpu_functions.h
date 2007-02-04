@@ -38,7 +38,12 @@ int32_t prefix_fn(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-/* ADD (00, 01, 02, 03, 04, 05 */
-#include "emu/functions/add.h"
+/* add */
+int32_t instr_add_00(struct emu_cpu *c, struct instruction *i);
+int32_t instr_add_01(struct emu_cpu *c, struct instruction *i);
+int32_t instr_add_02(struct emu_cpu *c, struct instruction *i);
+int32_t instr_add_03(struct emu_cpu *c, struct instruction *i);
+int32_t instr_add_04(struct emu_cpu *c, struct instruction *i);
+int32_t instr_add_05(struct emu_cpu *c, struct instruction *i);
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/
