@@ -1,4 +1,8 @@
+#include <stdint.h>
+
 #include "emu/emu_cpu_functions.h"
+#include "emu/emu_cpu.h"
+#include "emu/emu_memory.h"
 
 int32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
 {

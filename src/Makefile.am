@@ -10,11 +10,12 @@ AM_CFLAGS = -pipe -D _GNU_SOURCE -I../include -Wall -Werror
 
 pkglib_LTLIBRARIES = libemu.la
 
-
+SUBDIRS = functions
 
 libemu_la_SOURCES = emu.c
 libemu_la_SOURCES += emu_log.c
 libemu_la_SOURCES += emu_memory.c
 libemu_la_SOURCES += emu_cpu.c
+libemu_la_SOURCES += functions/add.c
 
 libemu_la_LDFLAGS = -no-undefined -version-info @libemu_soname@ -export-symbols-regex "^emu_"

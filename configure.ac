@@ -138,6 +138,7 @@ AC_SUBST(emu_data_dir)
 
 AC_CONFIG_FILES([Makefile
 		src/Makefile
+		src/functions/Makefile
 		include/Makefile
 		include/emu/Makefile
 		testsuite/Makefile])
