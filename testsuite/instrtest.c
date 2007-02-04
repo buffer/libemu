@@ -146,4 +146,5 @@ int main()
 	prepare();
 	test();
 
+	return 0;
 }

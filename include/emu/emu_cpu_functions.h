@@ -32,11 +32,8 @@
  if( ret != 0 ) \
   return ret; }
 
-int32_t prefix_fn(struct emu_cpu *c, struct instruction *i)
-{
-	/* dummy */
-	return 0;
-}
+/* misc */
+int32_t prefix_fn(struct emu_cpu *c, struct instruction *i);
 
 /* add */
 int32_t instr_add_00(struct emu_cpu *c, struct instruction *i);

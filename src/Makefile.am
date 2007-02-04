@@ -17,5 +17,6 @@ libemu_la_SOURCES += emu_log.c
 libemu_la_SOURCES += emu_memory.c
 libemu_la_SOURCES += emu_cpu.c
 libemu_la_SOURCES += functions/add.c
+libemu_la_SOURCES += functions/misc.c
 
 libemu_la_LDFLAGS = -no-undefined -version-info @libemu_soname@ -export-symbols-regex "^emu_"
