@@ -137,14 +137,25 @@ int test()
 				printf("\t %s "FAILED" got %i expected %i\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].stopp.reg[j]);
 			}
 		}
+		emu_free(e);
 	}
 	return 0;
+}
+
+void cleanup()
+{
+	int i;
+	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
+    	if (tests[i].code != NULL)
+    		free(tests[i].code);
+		
 }
 
 int main()
 {
 	prepare();
 	test();
+	cleanup();
 
 	return 0;
 }
