@@ -35,12 +35,13 @@ struct instr_test
 	struct 
 	{
 		uint32_t reg[8];
+		uint32_t		mem_state[2];
 	} in_state;
 
 	struct 
 	{
 		uint32_t reg[8];
-		uint32_t		mem_state_0[2];
+		uint32_t		mem_state[2];
 	}out_state;
 };
 
@@ -50,10 +51,13 @@ struct instr_test tests[] =
 	{
 		.instr = "add [ebx],bh",
 		.in_state.reg  = {0,0,0,0,0,0,0,0 },
+		.out_state.mem_state = { 0x4711, 0x01010102 },
 	},
 	{
 		.instr = "add cx,ax",
 		.in_state.reg  = {0,0,0,0,0,0,0,0 },
+		.in_state.mem_state = { 0x4711, 0x01010101 },
+		.out_state.mem_state = { 0x4711, 0x01010102 },
 	},
 	{
 		.instr = "add ebx,ecx",
@@ -121,6 +125,9 @@ int test()
 		{
 			emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
 		}
+
+		emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
+
 		emu_memory_write_byte(mem, static_offset+i, '\xcc');
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 		emu_cpu_run(emu_cpu_get(e));
@@ -136,6 +143,21 @@ int test()
 			{
 				printf("\t %s "FAILED" got %i expected %i\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
 			}
+		}
+
+		uint32_t value;
+
+		if ( tests[i].out_state.mem_state[0] != -1 )
+		{
+			if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
+			{
+				if ( value == tests[i].out_state.mem_state[1] )
+
+					printf("\t memory "SUCCESS"\n");
+				else
+					printf("\t memory "FAILED" got %08x expected %08x\n",value, tests[i].out_state.mem_state[1]);
+			} else
+				printf("error %s\n", strerror(emu_errno(e)));
 		}
 		emu_free(e);
 	}
