@@ -97,13 +97,13 @@ static inline void *translate_addr(struct emu_memory *em, uint32_t addr)
 
 int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
 {
-	void *address = translate_addr(m, addr);
-	
-	if( address == NULL )
+	if( m->page_map[PAGE(addr)] == NULL )
 	{
 		emu_errno_set(m->emu,EFAULT);
 		return -1;
 	}
+
+	void *address = translate_addr(m, addr);
 	
 	*byte = *((uint8_t *)address);		
 	
