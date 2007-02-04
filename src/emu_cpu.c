@@ -346,13 +346,13 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	if( *((uint8_t *)&ret) == 1 )
 	{
 		/* le */
-		i.imm16 = (uint16_t *)&i.imm;
+		i.imm16 = (uint16_t *)((void *)&i.imm);
 		i.imm8 = (uint8_t *)&i.imm;
 	}
 	else
 	{
 		/* be */
-		i.imm16 = (uint16_t *)&i.imm + 1;
+		i.imm16 = (uint16_t *)((void *)&i.imm + 1);
 		i.imm8 = (uint8_t *)&i.imm + 3;
 	}
 	
