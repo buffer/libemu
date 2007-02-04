@@ -35,13 +35,13 @@ struct instr_test
 	struct 
 	{
 		uint32_t reg[8];
-	} start;
+	} in_state;
 
 	struct 
 	{
 		uint32_t reg[8];
 		uint32_t		mem_state_0[2];
-	}stopp;
+	}out_state;
 };
 
 
@@ -49,15 +49,15 @@ struct instr_test tests[] =
 {
 	{
 		.instr = "add [ebx],bh",
-		.start.reg  = {0,0,0,0,0,0,0,0 },
+		.in_state.reg  = {0,0,0,0,0,0,0,0 },
 	},
 	{
 		.instr = "add cx,ax",
-		.start.reg  = {0,0,0,0,0,0,0,0 },
+		.in_state.reg  = {0,0,0,0,0,0,0,0 },
 	},
 	{
 		.instr = "add ebx,ecx",
-		.start.reg  = {0,0,0,0,0,0,0,0 },
+		.in_state.reg  = {0,0,0,0,0,0,0,0 },
 	}
 };
 
@@ -110,7 +110,7 @@ int test()
 		// for i in eax  ecx edx ebx esp ebp esi edi; do echo "emu_cpu_reg32_set(cpu, $i, tests[i].start.$i );" ; done
 		for ( j=0;j<8;j++ )
 		{
-			emu_cpu_reg32_set(cpu,j ,tests[i].start.reg[j]);
+			emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
 		}
    	
 
@@ -129,12 +129,12 @@ int test()
 
 		for ( j=0;j<8;j++ )
 		{
-			if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].stopp.reg[j] )
+			if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
 			{
 				printf("\t %s "SUCCESS"\n",regm[j]);
 			} else
 			{
-				printf("\t %s "FAILED" got %i expected %i\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].stopp.reg[j]);
+				printf("\t %s "FAILED" got %i expected %i\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
 			}
 		}
 		emu_free(e);
