@@ -110,13 +110,75 @@ struct instr_test tests[] =
 		.out_state.mem_state = {0x40000, 0x44445555},
 	},
 	/* 02 */
-/*	{
-		.instr = "add ah,al",
-		.in_state.reg  = {0xff01,0,0,0,0,0,0,0 },
+	{
+		.code = "\x02\xcf", /* add cl,bh */
+ 		.codesize = 2,
+		.in_state.reg  = {0,0xff,0,0x100,0,0,0,0 },
 		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0x01,0,0,0,0,0,0,0 },
+		.out_state.reg  = {0,0,0,0x100,0,0,0,0 },
 		.out_state.mem_state = {0, 0},
-	},*/
+	},
+	{
+		.instr = "add al,[ecx]",
+		.in_state.reg  = {0x3,0x40000,0,0,0,0,0,0 },
+		.in_state.mem_state = {0x40000, 0x30303030},
+		.out_state.reg  = {0x33,0x40000,0,0,0,0,0,0 },
+		.out_state.mem_state = {0x40000, 0x30303030},
+	},
+	/* 03 */
+	{
+		.code = "\x66\x03\xcf", /* add cx,di */
+ 		.codesize = 3,
+		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202 },
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0,0x10101212,0,0,0,0,0,0x02020202 },
+		.out_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "add ax,[ecx]",
+		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0 },
+		.in_state.mem_state = {0x40000, 0x44443333},
+		.out_state.reg  = {0x11115555,0x40000,0,0,0,0,0,0 },
+		.out_state.mem_state = {0x40000, 0x44443333},
+	},
+	{
+		.code = "\x03\xcf", /* add ecx,edi */
+ 		.codesize = 2,
+		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202 },
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0,0x12121212,0,0,0,0,0,0x02020202 },
+		.out_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "add eax,[ecx]",
+		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0 },
+		.in_state.mem_state = {0x40000, 0x44443333},
+		.out_state.reg  = {0x55555555,0x40000,0,0,0,0,0,0 },
+		.out_state.mem_state = {0x40000, 0x44443333},
+	},
+	/* 04 */
+	{
+        .instr = "add al,0x11",
+        .in_state.reg  = {0x22222222,0,0,0,0,0,0,0 },
+        .in_state.mem_state = {0, 0},
+        .out_state.reg  = {0x22222233,0,0,0,0,0,0,0 },
+        .out_state.mem_state = {0, 0},
+    },
+	/* 05 */
+	{
+        .instr = "add ax,0x1111",
+        .in_state.reg  = {0x22222222,0,0,0,0,0,0,0 },
+        .in_state.mem_state = {0, 0},
+        .out_state.reg  = {0x22223333,0,0,0,0,0,0,0 },
+        .out_state.mem_state = {0, 0},
+    },
+	{
+        .instr = "add eax,0x11111111",
+        .in_state.reg  = {0x22222222,0,0,0,0,0,0,0 },
+        .in_state.mem_state = {0, 0},
+        .out_state.reg  = {0x33333333,0,0,0,0,0,0,0 },
+        .out_state.mem_state = {0, 0},
+    },
 };
 
 int prepare()
