@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
-AM_CPPFLAGS = -I../include -I ../.. -Wall
-AM_LDFLAGS = -lemu -L../src
+AM_CPPFLAGS = -I../include -I ../.. -Wall -g
+AM_LDFLAGS = -lemu -L../src 
 
 bin_PROGRAMS = testsuite cpurun instrtest
 
