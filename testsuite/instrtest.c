@@ -107,14 +107,16 @@ int test()
 		printf("testing '%s' \t",tests[i].instr);
 		int j=0;
 
-/*		printf("'");
-
-		for (j=0;j<tests[i].codesize;j++)
+		if ( verbose == 1 )
 		{
-			printf("%02x ",tests[i].code[j]);
+			printf("code '");
+			for ( j=0;j<tests[i].codesize;j++ )
+			{
+				printf("%02x ",tests[i].code[j]);
+			}
+			printf("' ");
 		}
-		printf("'");
-*/
+
 		struct emu *e = emu_new();
 		struct emu_cpu *cpu = emu_cpu_get(e);
 
