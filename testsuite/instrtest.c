@@ -20,6 +20,8 @@
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
 
+int verbose;
+
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
 };
@@ -99,15 +101,20 @@ int test()
 
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
 	{
-		printf("testing '%s'\n",tests[i].instr);
-		printf("\t code '");
+		int failed = 0;
+
+
+		printf("testing '%s' \t",tests[i].instr);
 		int j=0;
+
+/*		printf("'");
+
 		for (j=0;j<tests[i].codesize;j++)
 		{
 			printf("%02x ",tests[i].code[j]);
 		}
-		printf("'\n");
-
+		printf("'");
+*/
 		struct emu *e = emu_new();
 		struct emu_cpu *cpu = emu_cpu_get(e);
 
@@ -138,10 +145,12 @@ int test()
 		{
 			if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
 			{
-				printf("\t %s "SUCCESS"\n",regm[j]);
+				if (verbose == 1)
+					printf("\t %s "SUCCESS"\n",regm[j]);
 			} else
 			{
 				printf("\t %s "FAILED" got %i expected %i\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
+				failed = 1;
 			}
 		}
 
@@ -152,12 +161,26 @@ int test()
 			if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
 			{
 				if ( value == tests[i].out_state.mem_state[1] )
-
-					printf("\t memory "SUCCESS"\n");
+				{
+					if (verbose == 1)
+						printf("\t memory "SUCCESS"\n");
+				}
 				else
+				{
 					printf("\t memory "FAILED" got %08x expected %08x\n",value, tests[i].out_state.mem_state[1]);
+					failed = 1;
+				}
+
 			} else
-				printf("error %s\n", strerror(emu_errno(e)));
+			{
+				printf("\t"FAILED" emu says: '%s' when accessing %08x\n", strerror(emu_errno(e)),tests[i].out_state.mem_state[0]);
+				failed = 1;
+			}
+
+		}
+		if (failed == 0)
+		{
+			printf(SUCCESS"\n");
 		}
 		emu_free(e);
 	}
@@ -175,6 +198,7 @@ void cleanup()
 
 int main()
 {
+	verbose = 0;
 	prepare();
 	test();
 	cleanup();

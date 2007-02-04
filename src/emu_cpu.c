@@ -8,6 +8,7 @@
 #include <emu/emu_cpu.h>
 #include <emu/emu_memory.h>
 #include <emu/emu.h>
+#include <emu/emu_log.h>
 
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
@@ -136,7 +137,7 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 
 	if( *((uint8_t *)&i) == 1 )
 	{
-		printf("little endian\n");
+		logDebug(e,"little endian\n");
 
 		for( i = 0; i < 8; i++ )
 		{
@@ -154,7 +155,7 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 	}
 	else
 	{
-		printf("big endian\n");
+		logDebug(e,"big endian\n");
 
 		for( i = 0; i < 8; i++ )
 		{
@@ -228,18 +229,18 @@ static void debug_cpu(struct emu_cpu *c)
 {
 	int i;
 	
-	printf("cpu state    eip=0x%08x\n", c->eip);
+	logDebug(c->emu,"cpu state    eip=0x%08x\n", c->eip);
 	
 	for( i = 0; i < 4; i++ )
 	{
-		printf("%s=0x%08x  ", regm[i], c->reg[i]);
+		logDebug(c->emu,"%s=0x%08x  ", regm[i], c->reg[i]);
 	} 
-	printf("\n");
+	logDebug(c->emu,"\n");
 	for( i = 4; i < 8; i++ )
 	{
-		printf("%s=0x%08x  ", regm[i], c->reg[i]);
+		logDebug(c->emu,"%s=0x%08x  ", regm[i], c->reg[i]);
 	} 
-	printf("\n");
+	logDebug(c->emu,"\n");
 }
 
 static void debug_instruction(struct instruction *i)
@@ -356,7 +357,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 		i.imm8 = (uint8_t *)&i.imm + 3;
 	}
 	
-	printf("decoding\n");
+	logDebug(c->emu,"decoding\n");
 	
 	while( 1 )
 	{
@@ -556,7 +557,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			break;
 		}
 		
-		printf("\n");
+		logDebug(c->emu,"\n");
 	}
 	
 	return 0;
