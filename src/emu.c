@@ -36,7 +36,12 @@ struct emu *emu_new()
 void emu_free(struct emu *e)
 {
 	logDebug(e,"%s %x\n",__PRETTY_FUNCTION__,(unsigned int)e);
+	emu_cpu_free(e->cpu);
+	emu_memory_free(e->memory);
 	emu_log_free(e->log);
+	if (e->errorstr != NULL)
+		free(e->errorstr);
+
 	free(e);
 }
 

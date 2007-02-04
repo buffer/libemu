@@ -49,7 +49,14 @@ struct emu_memory *emu_memory_new(struct emu *e)
 
 void emu_memory_free(struct emu_memory *em)
 {
-	// TODO free the mallocs
+	int i;
+	for (i=0; i < (1 << (32 - PAGE_BITS));i++)
+	{
+		if (em->page_map[i] != NULL)
+        	free(em->page_map[i]);
+		
+	}
+	free(em->page_map);
 	free(em);
 }
 
