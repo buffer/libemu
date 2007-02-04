@@ -1,9 +1,10 @@
+/* @header@ */
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 
 #include <emu/emu.h>
-#include <emu/log.h>
+#include <emu/emu_log.h>
 #include <emu/emu_memory.h>
 
 #define PAGE_BITS 12 /* 2^12 = 4096 */

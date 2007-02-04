@@ -6,14 +6,14 @@ AUTOMAKE_OPTIONS = foreign
 
 
 
-AM_CFLAGS = -pipe -D _GNU_SOURCE -I../include -Wall -Werror
+AM_CFLAGS = -pipe -D _GNU_SOURCE -I../include -Wall -Werror -fno-strict-aliasing
 
 pkglib_LTLIBRARIES = libemu.la
 
 
 
 libemu_la_SOURCES = emu.c
-libemu_la_SOURCES += log.c
+libemu_la_SOURCES += emu_log.c
 libemu_la_SOURCES += emu_memory.c
 libemu_la_SOURCES += emu_cpu.c
 

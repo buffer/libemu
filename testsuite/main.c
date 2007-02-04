@@ -3,7 +3,7 @@
 
 #include <emu/emu.h>
 #include <emu/emu_memory.h>
-#include <emu/log.h>
+#include <emu/emu_log.h>
 
 int main()
 {

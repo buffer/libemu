@@ -1,10 +1,11 @@
+/* @header@ */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 
 #include <emu/emu.h>
-#include <emu/log.h>
+#include <emu/emu_log.h>
 #include <emu/emu_memory.h>
 #include <emu/emu_cpu.h>
 

@@ -1,3 +1,4 @@
+/* @header@ */
 #include <malloc.h>
 #include <memory.h>
 #include <stdio.h>
@@ -6,7 +7,6 @@
 
 #include <emu/emu_cpu.h>
 #include <emu/emu_memory.h>
-
 
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
@@ -23,7 +23,9 @@ struct emu_cpu
 	struct emu_memory *mem;
 	
 	uint32_t eip;
-	uint32_t regs[8];
+	uint32_t reg[8];
+	uint16_t *reg16[8];
+	uint8_t *reg8[8];
 };
 
 struct instruction
@@ -77,6 +79,8 @@ struct instruction
 	} modrm;
 
 	uint32_t imm;
+	uint16_t *imm16;
+	uint8_t *imm8;
 	uint32_t disp;
 };
 
@@ -126,9 +130,47 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 	
 	c->emu = e;
 	c->mem = emu_memory_get(e);
-	
-	memset((void *)c->regs, 0, sizeof(c->regs)); 
 
+	int i = 1;
+
+	if( *((uint8_t *)&i) == 1 )
+	{
+		printf("little endian\n");
+
+		for( i = 0; i < 8; i++ )
+		{
+			c->reg16[i] = (uint16_t *)&c->reg[i];
+
+			if( i < 4 )
+			{
+				c->reg8[i] = (uint8_t *)&c->reg[i];
+			}
+			else
+			{
+				c->reg8[i] = (uint8_t *)&c->reg[i & 3] + 1;
+			}
+		}
+	}
+	else
+	{
+		printf("big endian\n");
+
+		for( i = 0; i < 8; i++ )
+		{
+			c->reg16[i] = (uint16_t *)&c->reg[i] + 1;
+
+			if( i < 4 )
+			{
+				c->reg8[i] = (uint8_t *)&c->reg[i] + 3;
+			}
+			else
+			{
+				c->reg8[i] = (uint8_t *)&c->reg[i & 3] + 2;
+			}
+		}
+	}
+	
+	
 	init_prefix_map();
 	
 	return c;
@@ -136,37 +178,33 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 
 inline uint32_t emu_cpu_reg32_get(struct emu_cpu *cpu_p, enum emu_reg reg)
 {
-	return cpu_p->regs[reg];
+	return cpu_p->reg[reg];
 }
 
 inline void  emu_cpu_reg32_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint32_t val)
 {
-	cpu_p->regs[reg] = val;
+	cpu_p->reg[reg] = val;
 }
 
 inline uint16_t emu_cpu_reg16_get(struct emu_cpu *cpu_p, enum emu_reg reg)
 {
-	return (uint16_t)((cpu_p->regs[reg]) & 0xffff);
+	return *cpu_p->reg16[reg];
 }
 
-inline void emu_cpu_re16_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint16_t val)
+inline void emu_cpu_reg16_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint16_t val)
 {
-	cpu_p->regs[reg] = ((cpu_p->regs[reg] & 0xffff0000) | (val & 0xffff));
+	*cpu_p->reg16[reg] = val; 
 }
 
-inline uint8_t emu_cpu_get8_get(struct emu_cpu *cpu_p, enum emu_reg reg)
+inline uint8_t emu_cpu_reg8_get(struct emu_cpu *cpu_p, enum emu_reg reg)
 {
-	return (uint8_t)(((reg & 0x4) == 0) ? (cpu_p->regs[reg] & 0xff) : ((cpu_p->regs[(reg & 0x3)] & 0xff00) >> 8));
+	return *cpu_p->reg8[reg];
 }
 
 
 inline void emu_cpu_reg8_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint8_t val)
 {
-	if ( (reg & 0x4) == 0 )
-		cpu_p->regs[reg] = (cpu_p->regs[reg] & 0xffffff00) | (val & 0xff);
-	else
-		cpu_p->regs[(reg & 0x4)] = (cpu_p->regs[(reg & 0x4)] & 0xffff00ff) | ((val & 0xff) << 8);
-
+	*cpu_p->reg8[reg] = val;
 }
 
 
@@ -193,12 +231,12 @@ static void debug_cpu(struct emu_cpu *c)
 	
 	for( i = 0; i < 4; i++ )
 	{
-		printf("%s=0x%08x  ", regm[i], c->regs[i]);
+		printf("%s=0x%08x  ", regm[i], c->reg[i]);
 	} 
 	printf("\n");
 	for( i = 4; i < 8; i++ )
 	{
-		printf("%s=0x%08x  ", regm[i], c->regs[i]);
+		printf("%s=0x%08x  ", regm[i], c->reg[i]);
 	} 
 	printf("\n");
 }
@@ -293,6 +331,7 @@ static void debug_instruction(struct instruction *i)
 
 int32_t emu_cpu_step(struct emu_cpu *c)
 {
+	/* TODO make unstatic for threadsafety */
 	static uint8_t byte;
 	static uint8_t *opcode;
 	static uint32_t ret;
@@ -300,6 +339,21 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	static struct instruction_info *ii;
 	
 	i.prefixes = 0;
+	
+	/* TODO move to somewhere else */
+	ret = 1;
+	if( *((uint8_t *)&ret) == 1 )
+	{
+		/* le */
+		i.imm16 = (uint16_t *)&i.imm;
+		i.imm8 = (uint8_t *)&i.imm;
+	}
+	else
+	{
+		/* be */
+		i.imm16 = (uint16_t *)&i.imm + 1;
+		i.imm8 = (uint8_t *)&i.imm + 3;
+	}
 	
 	printf("decoding\n");
 	
@@ -366,7 +420,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 					if( i.modrm.mod != 3 )
 					{
 						if( i.modrm.rm != 4 && !(i.modrm.mod == 0 && i.modrm.rm == 5) )
-							i.modrm.ea = c->regs[i.modrm.rm];
+							i.modrm.ea = c->reg[i.modrm.rm];
 						else
 							i.modrm.ea = 0;
 						
@@ -383,16 +437,16 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 							
 							if( i.modrm.sib.base != 5 )
 							{
-								i.modrm.ea += c->regs[i.modrm.sib.base];
+								i.modrm.ea += c->reg[i.modrm.sib.base];
 							}
 							else if( i.modrm.mod != 0 )
 							{
-								i.modrm.ea += c->regs[ebp];
+								i.modrm.ea += c->reg[ebp];
 							}
 
 							if( i.modrm.sib.index != 4 )
 							{
-								i.modrm.ea += c->regs[i.modrm.sib.index] * scalem[i.modrm.sib.scale];
+								i.modrm.ea += c->reg[i.modrm.sib.index] * scalem[i.modrm.sib.scale];
 							}
 						}
 						
@@ -446,22 +500,16 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			{
 				if( i.operand_size == OPSIZE_32 )
 				{
-					uint32_t imm32;
-					ret = emu_memory_read_dword(c->mem, c->eip, &imm32);
-					i.imm = imm32;
+					ret = emu_memory_read_dword(c->mem, c->eip, &i.imm);
 					c->eip += 4;
 				}
 				else if( i.operand_size == OPSIZE_8 )
 				{
-					uint8_t imm8;
-					ret = emu_memory_read_byte(c->mem, c->eip++, &imm8);
-					i.imm = imm8;
+					ret = emu_memory_read_byte(c->mem, c->eip++, i.imm8);
 				}
 				else if( i.operand_size == OPSIZE_16 )
 				{
-					uint16_t imm16;
-					ret = emu_memory_read_word(c->mem, c->eip, &imm16);
-					i.imm = imm16;
+					ret = emu_memory_read_word(c->mem, c->eip, i.imm16);
 					c->eip += 2;
 				}
 

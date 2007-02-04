@@ -1,3 +1,4 @@
+/* @header@ */
 #ifndef HAVE_EMU_CPU_ITABLES_H
 #define HAVE_EMU_CPU_ITABLES_H
 
@@ -6,7 +7,7 @@
 struct instruction;
 struct emu_cpu;
 
-#include <emu/emu_cpu_functions.h>
+#include "emu/emu_cpu_functions.h"
 
 #define II_SBIT 1
 #define II_WBIT 1

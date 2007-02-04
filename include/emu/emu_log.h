@@ -1,5 +1,6 @@
-#ifndef HAVE_LOG_H
-#define HAVE_LOG_H
+/* @header@ */
+#ifndef HAVE_EMU_LOG_H
+#define HAVE_EMU_LOG_H
 
 struct emu;
 
@@ -22,4 +23,4 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...);
 #define logInfo(e,format,...) emu_log(e,EMU_LOG_INFO,format,__VA_ARGS__)
 #define logDebug(e,format,...) emu_log(e,EMU_LOG_DEBUG,format,__VA_ARGS__)
 
-#endif // HAVE_LOG_H
+#endif // HAVE_EMU_LOG_H
