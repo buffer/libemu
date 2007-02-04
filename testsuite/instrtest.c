@@ -159,6 +159,13 @@ struct instr_test tests[] =
 		.out_state.reg  = {0x55555555,0x40000,0,0,0,0,0,0 },
 		.out_state.mem_state = {0x40000, 0x44443333},
 	},
+	{
+		.instr = "add ecx,[ebx+eax*4+0xdeadbeef]",
+		.in_state.reg  = {0x2,0x1,0,0x1,0,0,0,0 },
+		.in_state.mem_state = {0xdeadbef8, 0x44443333},
+		.out_state.reg  = {0x2,0x44443334,0,0x1,0,0,0,0 },
+		.out_state.mem_state = {0xdeadbef8, 0x44443333},
+	},
 	/* 04 */
 	{
         .instr = "add al,0x11",
