@@ -230,6 +230,9 @@ int prepare()
 int test()
 {
 	int i=0;
+	struct emu *e = emu_new();
+	struct emu_cpu *cpu = emu_cpu_get(e);
+	struct emu_memory *mem = emu_memory_get(e);
 
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
 	{
@@ -249,8 +252,6 @@ int test()
 			printf("' ");
 		}
 
-		struct emu *e = emu_new();
-		struct emu_cpu *cpu = emu_cpu_get(e);
 
 		// for i in eax  ecx edx ebx esp ebp esi edi; do echo "emu_cpu_reg32_set(cpu, $i, tests[i].start.$i );" ; done
 		for ( j=0;j<8;j++ )
@@ -260,7 +261,7 @@ int test()
    	
 
 
-		struct emu_memory *mem = emu_memory_get(e);
+		
 		int static_offset = 4711;
 		for( j = 0; j < tests[i].codesize; j++ )
 		{
@@ -339,8 +340,9 @@ int test()
 		{
 			printf(SUCCESS"\n");
 		}
-		emu_free(e);
+		
 	}
+	emu_free(e);
 	return 0;
 }
 
