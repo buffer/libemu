@@ -130,7 +130,7 @@ static void init_prefix_map()
 struct emu_cpu *emu_cpu_new(struct emu *e)
 {
 	struct emu_cpu *c = malloc(sizeof(struct emu_cpu));
-	memset((void *)c, 0, sizeof(c));
+	memset((void *)c, 0, sizeof(struct emu_cpu));
 	
 	c->emu = e;
 	c->mem = emu_memory_get(e);
@@ -232,6 +232,24 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	logDebug(c->emu,"cpu state    eip=0x%08x\n", c->eip);
 	logDebug(c->emu,"eax=0x%08x  ecx=0x%08x  edx=0x%08x  ebx=0x%08x\n",c->reg[eax], c->reg[ecx], c->reg[edx], c->reg[ebx]);
 	logDebug(c->emu,"esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n",c->reg[esp], c->reg[ebp], c->reg[esi], c->reg[edi]);
+
+	const char *flags[] = { "CF", "  ", "PF", "  ",  "AF", "  ", "ZF", "SF", 
+	                        "TF", "IF", "DF", "OF"};
+
+	char *fmsg;
+	fmsg = (char *)malloc(32*3+1);
+	memset(fmsg,0,32*3+1);
+	int i;
+	for ( i=0;i<32;i++ )
+	{
+		if ( CPU_FLAG_ISSET(c,i) )
+		{
+			strcat(fmsg,flags[i]);
+			strcat(fmsg," ");
+		}
+	}
+	logDebug(c->emu,"Flags: %s\n",fmsg);
+	free(fmsg);
 }
 
 static void debug_instruction(struct instruction *i)
