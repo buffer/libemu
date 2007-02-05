@@ -339,6 +339,9 @@ int test()
 		if (failed == 0)
 		{
 			printf(SUCCESS"\n");
+		}else
+		{
+			return -1;
 		}
 		
 	}
