@@ -20,7 +20,11 @@
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
 
-int verbose;
+static struct run_time_options
+{
+	int verbose;
+	int nasm_force;
+} opts;
 
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
@@ -59,136 +63,164 @@ struct instr_test tests[] =
         .out_state.mem_state = {0, 0},
     },*/
     /* 00 */
-    {
-        .instr = "add ah,al",
-        .in_state.reg  = {0xff01,0,0,0,0,0,0,0 },
-        .in_state.mem_state = {0, 0},
-        .out_state.reg  = {0x01,0,0,0,0,0,0,0 },
-        .out_state.mem_state = {0, 0},
-    },
-    {
-        .instr = "add ch,dl",
-        .in_state.reg  = {0,0x1000,0x20,0,0,0,0,0 },
-        .in_state.mem_state = {0, 0},
-        .out_state.reg  = {0,0x3000,0x20,0,0,0,0,0 },
-        .out_state.mem_state = {0, 0},
-    },
-    {
-        .instr = "add [ecx],al",
-        .in_state.reg  = {0x10,0x40000,0,0,0,0,0,0 },
-        .in_state.mem_state = {0x40000, 0x10101010},
-        .out_state.reg  = {0x10,0x40000,0,0,0,0,0,0 },
-        .out_state.mem_state = {0x40000, 0x10101020},
-    },
+	{
+		.instr = "add ah,al",
+		.code = "\x00\xc4",
+		.codesize = 2,
+		.in_state.reg  = {0xff01,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x01,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "add ch,dl",
+		.code = "\x00\xd5",
+		.codesize = 2,
+		.in_state.reg  = {0,0x1000,0x20,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0,0x3000,0x20,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "add [ecx],al",
+		.code = "\x00\x01",
+		.codesize = 2,
+		.in_state.reg  = {0x10,0x40000,0,0,0,0,0,0},
+		.in_state.mem_state = {0x40000, 0x10101010},
+		.out_state.reg  = {0x10,0x40000,0,0,0,0,0,0},
+		.out_state.mem_state = {0x40000, 0x10101020},
+	},
 	/* 01 */
 	{
 		.instr = "add ax,cx",
-		.in_state.reg  = {0xffff1111,0xffff2222,0,0,0,0,0,0 },
+		.code = "\x66\x01\xc8",
+		.codesize = 3,
+		.in_state.reg  = {0xffff1111,0xffff2222,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0xffff3333,0xffff2222,0,0,0,0,0,0 },
+		.out_state.reg  = {0xffff3333,0xffff2222,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
 	},
 	{
 		.instr = "add [ecx],ax",
-		.in_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0 },
+		.code = "\x66\x01\x01",
+		.codesize = 3,
+		.in_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x22224444},
-		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0 },
+		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x22225555},
 	},
 	{
 		.instr = "add eax,ecx",
-		.in_state.reg  = {0x11112222,0x22221111,0,0,0,0,0,0 },
+		.code = "\x01\xc8",
+		.codesize = 2,
+		.in_state.reg  = {0x11112222,0x22221111,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0x33333333,0x22221111,0,0,0,0,0,0 },
+		.out_state.reg  = {0x33333333,0x22221111,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
 	},
 	{
 		.instr = "add [ecx],eax",
-		.in_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0 },
+		.code = "\x01\x01",
+		.codesize = 2,
+		.in_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x22224444},
-		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0 },
+		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44445555},
 	},
 	/* 02 */
 	{
-		.instr = "add c1,bh",
-		.code = "\x02\xcf", /* add cl,bh */
- 		.codesize = 2,
-		.in_state.reg  = {0,0xff,0,0x100,0,0,0,0 },
+		.instr = "add cl,bh",
+		.code = "\x02\xcf",	/* add cl,bh */
+		.codesize = 2,
+		.in_state.reg  = {0,0xff,0,0x100,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0,0,0,0x100,0,0,0,0 },
+		.out_state.reg  = {0,0,0,0x100,0,0,0,0},
 		.out_state.mem_state = {0, 0},
 	},
 	{
 		.instr = "add al,[ecx]",
-		.in_state.reg  = {0x3,0x40000,0,0,0,0,0,0 },
+		.code = "\x02\x01",
+		.codesize = 2,
+		.in_state.reg  = {0x3,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x30303030},
-		.out_state.reg  = {0x33,0x40000,0,0,0,0,0,0 },
+		.out_state.reg  = {0x33,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x30303030},
 	},
 	/* 03 */
 	{
 		.instr = "add cx,di",
-		.code = "\x66\x03\xcf", /* add cx,di */
- 		.codesize = 3,
-		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202 },
+		.code = "\x66\x03\xcf",	/* add cx,di */
+		.codesize = 3,
+		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202},
 		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0,0x10101212,0,0,0,0,0,0x02020202 },
+		.out_state.reg  = {0,0x10101212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
 	},
 	{
 		.instr = "add ax,[ecx]",
-		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0 },
+		.code = "\x66\x03\x01",
+		.codesize = 3,
+		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x44443333},
-		.out_state.reg  = {0x11115555,0x40000,0,0,0,0,0,0 },
+		.out_state.reg  = {0x11115555,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
 	},
 	{
 		.instr = "add ecx,edi",
-		.code = "\x03\xcf", /* add ecx,edi */
- 		.codesize = 2,
-		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202 },
+		.code = "\x03\xcf",	/* add ecx,edi */
+		.codesize = 2,
+		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202},
 		.in_state.mem_state = {0, 0},
-		.out_state.reg  = {0,0x12121212,0,0,0,0,0,0x02020202 },
+		.out_state.reg  = {0,0x12121212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
 	},
 	{
 		.instr = "add eax,[ecx]",
-		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0 },
+		.code = "\x03\x01",
+		.codesize = 2,
+		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x44443333},
-		.out_state.reg  = {0x55555555,0x40000,0,0,0,0,0,0 },
+		.out_state.reg  = {0x55555555,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
 	},
 	{
 		.instr = "add ecx,[ebx+eax*4+0xdeadbeef]",
-		.in_state.reg  = {0x2,0x1,0,0x1,0,0,0,0 },
+		.code = "\x03\x8c\x83\xef\xbe\xad\xde",
+		.codesize = 7,
+		.in_state.reg  = {0x2,0x1,0,0x1,0,0,0,0},
 		.in_state.mem_state = {0xdeadbef8, 0x44443333},
-		.out_state.reg  = {0x2,0x44443334,0,0x1,0,0,0,0 },
+		.out_state.reg  = {0x2,0x44443334,0,0x1,0,0,0,0},
 		.out_state.mem_state = {0xdeadbef8, 0x44443333},
 	},
 	/* 04 */
 	{
-        .instr = "add al,0x11",
-        .in_state.reg  = {0x22222222,0,0,0,0,0,0,0 },
-        .in_state.mem_state = {0, 0},
-        .out_state.reg  = {0x22222233,0,0,0,0,0,0,0 },
-        .out_state.mem_state = {0, 0},
-    },
+		.instr = "add al,0x11",
+		.code = "\x04\x11",
+		.codesize = 2,
+		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x22222233,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+	},
 	/* 05 */
 	{
-        .instr = "add ax,0x1111",
-        .in_state.reg  = {0x22222222,0,0,0,0,0,0,0 },
-        .in_state.mem_state = {0, 0},
-        .out_state.reg  = {0x22223333,0,0,0,0,0,0,0 },
-        .out_state.mem_state = {0, 0},
-    },
+		.instr = "add ax,0x1111",
+		.code = "\x66\x05\x11\x11",
+		.codesize = 4,
+		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+	},
 	{
-        .instr = "add eax,0x11111111",
-        .in_state.reg  = {0x22222222,0,0,0,0,0,0,0 },
-        .in_state.mem_state = {0, 0},
-        .out_state.reg  = {0x33333333,0,0,0,0,0,0,0 },
-        .out_state.mem_state = {0, 0},
-    },
+		.instr = "add eax,0x11111111",
+		.code = "\x05\x11\x11\x11\x11",
+		.codesize = 5,
+		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+	},
 };
 
 int prepare()
@@ -196,7 +228,7 @@ int prepare()
 	int i;
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
 	{
-		if ( tests[i].code != NULL )
+		if ( opts.nasm_force == 0 && tests[i].code != NULL )
 		{ // dup it so we can free it
 			uint8_t *c = (uint8_t *)malloc(tests[i].codesize);
 			memcpy(c,tests[i].code,tests[i].codesize);
@@ -206,11 +238,23 @@ int prepare()
 			const char *use = "USE32\n";
 			FILE *f=fopen("/tmp/foo.S","w+");
 
+			if (f == NULL)
+			{
+				printf("failed to create asm file for nasm instruction %s\n\n\t%s",tests[i].instr,strerror(errno));
+				return -1;
+			}
+
 			fwrite(use,strlen(use),1,f);
 			fwrite(tests[i].instr,1,strlen(tests[i].instr),f);
 			fclose(f);
 			system("cd /tmp/; nasm foo.S");
 			f=fopen("/tmp/foo","r");
+			if (f == NULL)
+			{
+				printf("failed to open compiled nasm file for read for instruction %s\n\n\t%s",tests[i].instr,strerror(errno));
+				return -1;
+			}
+
 			fseek(f,0,SEEK_END);
 
 			tests[i].codesize = ftell(f);
@@ -242,7 +286,7 @@ int test()
 		printf("testing '%s' \t",tests[i].instr);
 		int j=0;
 
-		if ( verbose == 1 )
+		if ( opts.verbose == 1 )
 		{
 			printf("code '");
 			for ( j=0;j<tests[i].codesize;j++ )
@@ -274,7 +318,7 @@ int test()
 
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
-		if (verbose == 1)
+		if (opts.verbose == 1)
 		{
         	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -289,7 +333,7 @@ int test()
 		}
    
 
-		if (verbose == 1)
+		if (opts.verbose == 1)
 		{
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -303,7 +347,7 @@ int test()
 		{
 			if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
 			{
-				if (verbose == 1)
+				if (opts.verbose == 1)
 					printf("\t %s "SUCCESS"\n",regm[j]);
 			} else
 			{
@@ -320,7 +364,7 @@ int test()
 			{
 				if ( value == tests[i].out_state.mem_state[1] )
 				{
-					if (verbose == 1)
+					if (opts.verbose == 1)
 						printf("\t memory "SUCCESS"\n");
 				}
 				else
@@ -360,7 +404,7 @@ void cleanup()
 
 int main(int argc, char *argv[])
 {
-	verbose = 0;
+	memset(&opts,0,sizeof(struct run_time_options));
 
 	while ( 1 )
 	{	
@@ -368,18 +412,24 @@ int main(int argc, char *argv[])
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"verbose"			, 0, 0, 'v'},
+			{"nasm-force"		, 0, 0, 'n'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "v", long_options, &option_index);
+		c = getopt_long (argc, argv, "vn", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
 		switch ( c )
 		{
 		case 'v':
-			verbose = 1;
+			opts.verbose = 1;
 			break;
+
+		case 'n':
+			opts.nasm_force = 1;
+			break;
+
 
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
