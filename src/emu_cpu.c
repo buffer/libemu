@@ -233,8 +233,11 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	logDebug(c->emu,"eax=0x%08x  ecx=0x%08x  edx=0x%08x  ebx=0x%08x\n",c->reg[eax], c->reg[ecx], c->reg[edx], c->reg[ebx]);
 	logDebug(c->emu,"esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n",c->reg[esp], c->reg[ebp], c->reg[esi], c->reg[edi]);
 
-	const char *flags[] = { "CF", "  ", "PF", "  ",  "AF", "  ", "ZF", "SF", 
-	                        "TF", "IF", "DF", "OF"};
+	                      /* 0     1     2     3      4       5       6     7 */
+	const char *flags[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
+	                        "TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
+	                        "RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
+	                        "  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "};
 
 	char *fmsg;
 	fmsg = (char *)malloc(32*3+1);
