@@ -6,6 +6,7 @@
 #include <errno.h>
 
 #include <emu/emu_cpu.h>
+#include <emu/emu_cpu_data.h>
 #include <emu/emu_memory.h>
 #include <emu/emu.h>
 #include <emu/emu_log.h>
@@ -19,18 +20,19 @@ static uint8_t scalem[] = {
 };
 
 
-struct emu_cpu
+/*struct emu_cpu
 {
 	struct emu *emu;
 	struct emu_memory *mem;
 	
 	uint32_t eip;
+	uint32_t eflags;
 	uint32_t reg[8];
 	uint16_t *reg16[8];
 	uint8_t *reg8[8];
-};
+};*/
 
-struct instruction
+/*struct instruction
 {
 	uint8_t opc;
 	uint8_t opc_2nd;
@@ -39,7 +41,7 @@ struct instruction
 	uint8_t w_bit : 1;
 	uint8_t operand_size : 2;
 
-	struct /* mod r/m data */
+	struct 
 	{
 		union
 		{
@@ -84,9 +86,9 @@ struct instruction
 	uint16_t *imm16;
 	uint8_t *imm8;
 	uint32_t disp;
-};
+};*/
 
-#define MODRM_MOD(x) (((x) >> 6) & 3)
+/*#define MODRM_MOD(x) (((x) >> 6) & 3)
 #define MODRM_REGOPC(x) (((x) >> 3) & 7)
 #define MODRM_RM(x) ((x) & 7)
     
@@ -106,7 +108,7 @@ struct instruction
 
 #define OPSIZE_8 1
 #define OPSIZE_16 2
-#define OPSIZE_32 3
+#define OPSIZE_32 3*/
 
 static uint16_t prefix_map[0x100];
 

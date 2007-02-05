@@ -1,12 +1,23 @@
 #ifndef EMU_CPU_DATA_H_
 #define EMU_CPU_DATA_H_
 
+enum emu_cpu_flag {
+	f_cf = 0, f_pf = 2, f_af = 4, f_zf = 6, f_sf = 7, f_tf = 8, f_if = 9,
+	f_df = 10, f_of = 11
+};
+
+#define CPU_FLAG_SET(cpu_p, fl) (cpu_p)->eflags |= 1 << (fl)
+#define CPU_FLAG_UNSET(cpu_p, fl) (cpu_p)->eflags &= ~(1 << (fl))
+#define CPU_FLAG_TOGGLE(cpu_p, fl) (cpu_p)->eflags ^= 1 << (fl)
+#define CPU_FLAG_ISSET(cpu_p, fl) ((cpu_p)->eflags & (1 << (fl)))
+
 struct emu_cpu
 {
 	struct emu *emu;
 	struct emu_memory *mem;
 	
 	uint32_t eip;
+	uint32_t eflags;
 	uint32_t reg[8];
 	uint16_t *reg16[8];
 	uint8_t *reg8[8];
