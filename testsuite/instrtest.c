@@ -20,6 +20,9 @@
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
 
+#define F(x) (1 << (x))
+
+
 static struct run_time_options
 {
 	int verbose;
@@ -42,12 +45,14 @@ struct instr_test
 	{
 		uint32_t reg[8];
 		uint32_t		mem_state[2];
+		uint32_t	eflags;
 	} in_state;
 
 	struct 
 	{
 		uint32_t reg[8];
 		uint32_t		mem_state[2];
+		uint32_t	eflags;
 	}out_state;
 };
 
@@ -380,6 +385,18 @@ int test()
 			}
 
 		}
+
+		if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
+		{
+			printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
+			failed = 1;
+		}else
+		{
+			if (opts.verbose == 1)
+				printf("\t flags "SUCCESS"\n");
+		}
+
+
 		if (failed == 0)
 		{
 			printf(SUCCESS"\n");
@@ -439,8 +456,12 @@ int main(int argc, char *argv[])
 
 
 
-	prepare();
-	test();
+	if ( prepare() != 0)
+		return -1;
+
+	if ( test() != 0 )
+		return -1;
+
 	cleanup();
 
 	return 0;

@@ -22,6 +22,8 @@ inline void emu_cpu_reg16_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint16_t 
 inline uint8_t emu_cpu_reg8_get(struct emu_cpu *cpu_p, enum emu_reg reg);
 inline void emu_cpu_reg8_set(struct emu_cpu *cpu_p, enum emu_reg reg, uint8_t val);
 
+uint32_t emu_cpu_eflags_get(struct emu_cpu *c);
+
 
 void emu_cpu_eip_set(struct emu_cpu *c, uint32_t eip);
 uint32_t emu_cpu_eip_get(struct emu_cpu *c);
