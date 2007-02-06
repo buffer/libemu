@@ -34,6 +34,13 @@ static const char *regm[] = {
 };
 
 
+	                         /* 0     1     2     3      4       5       6     7 */
+static const char *flags[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
+	                           "TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
+	                           "RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
+	                           "  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "};
+
+
 struct instr_test
 {
 	const char *instr;
@@ -389,6 +396,15 @@ int test()
 		if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
 		{
 			printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
+			for(j=0;j<32;j++)
+			{
+				uint32_t f = emu_cpu_eflags_get(cpu);
+				if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)))
+					printf("\t flag %s failed, expected %i is %i\n",flags[j], 
+						   tests[i].out_state.eflags & (1 << j),
+						   f & (1 <<j));
+			}
+
 			failed = 1;
 		}else
 		{
