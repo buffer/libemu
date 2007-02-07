@@ -45,7 +45,7 @@ struct instr_test
 {
 	const char *instr;
 
-	uint8_t  *code;
+	char  *code;
 	uint16_t codesize;
 
 	struct 
@@ -242,7 +242,7 @@ int prepare()
 	{
 		if ( opts.nasm_force == 0 && tests[i].code != NULL )
 		{ // dup it so we can free it
-			uint8_t *c = (uint8_t *)malloc(tests[i].codesize);
+			char *c = (char *)malloc(tests[i].codesize);
 			memcpy(c,tests[i].code,tests[i].codesize);
 			tests[i].code = c;
 		} else
