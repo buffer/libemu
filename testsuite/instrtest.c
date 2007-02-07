@@ -309,7 +309,7 @@ int test()
 		}
 
 
-		// for i in eax  ecx edx ebx esp ebp esi edi; do echo "emu_cpu_reg32_set(cpu, $i, tests[i].start.$i );" ; done
+		/* set the registers to the initial values */
 		for ( j=0;j<8;j++ )
 		{
 			emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
@@ -317,7 +317,7 @@ int test()
    	
 
 
-		
+		/* write the code to the offset */
 		int static_offset = 4711;
 		for( j = 0; j < tests[i].codesize; j++ )
 		{
@@ -326,10 +326,11 @@ int test()
 
 		emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
 
-/*		emu_memory_write_byte(mem, static_offset+i, '\xcc');*/
 
+		/* set eip to the code */
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
+		/* run the code */
 		if (opts.verbose == 1)
 		{
         	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
@@ -353,7 +354,7 @@ int test()
 		}
         	
 
-		// for i in eax  ecx edx ebx esp ebp esi edi; do echo "if (emu_cpu_reg32_get(cpu, $i) ==  tests[i].stopp.$i ) { printf(\"\t $i \"SUCCESS); } else { printf(\"\t $i "FAILED" %i expected %i\n\",emu_cpu_reg32_get(cpu, $i),tests[i].stopp.$i); }" ; done
+		/* check the registers for the exptected values */
 
 		for ( j=0;j<8;j++ )
 		{
@@ -368,6 +369,8 @@ int test()
 			}
 		}
 
+
+		/* check the memory for expected values */
 		uint32_t value;
 
 		if ( tests[i].out_state.mem_state[0] != -1 )
@@ -393,6 +396,7 @@ int test()
 
 		}
 
+		/* check the cpu flags for expected values */
 		if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
 		{
 			printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
@@ -400,9 +404,9 @@ int test()
 			{
 				uint32_t f = emu_cpu_eflags_get(cpu);
 				if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)))
-					printf("\t flag %s failed, expected %i is %i\n",flags[j], 
-						   tests[i].out_state.eflags & (1 << j),
-						   f & (1 <<j));
+					printf("\t flag %s (bit %i) failed, expected %i is %i\n",flags[j], j, 
+						   (tests[i].out_state.eflags & (1 << j)),
+						   (f & (1 <<j)));
 			}
 
 			failed = 1;
@@ -413,6 +417,7 @@ int test()
 		}
 
 
+		/* bail out on *any* error */
 		if (failed == 0)
 		{
 			printf(SUCCESS"\n");
