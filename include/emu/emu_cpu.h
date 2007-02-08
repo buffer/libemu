@@ -58,4 +58,10 @@ void emu_cpu_free(struct emu_cpu *c);
 
 void emu_cpu_debug_print(struct emu_cpu *c);
 
+
+inline void result8_flags_update(struct emu_cpu *c, uint8_t result);
+inline void result16_flags_update(struct emu_cpu *c, uint16_t result);
+inline void result32_flags_update(struct emu_cpu *c, uint32_t result);
+
+
 #endif /* HAVEEMU_CPU_H */
