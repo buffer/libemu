@@ -28,10 +28,15 @@ enum emu_reg16
 
 enum emu_reg8
 {
-	al=0, ah, 	/* eax */
-	cl, ch, 	/* ecx */
-	dl, dh, 	/* edx */
-	bl, bh  	/* ebx */
+	al=0,  	/* eax */
+	cl,    	/* ecx */
+	dl,    	/* edx */
+	bl,    	/* ebx */
+	ah,     /* eax */
+	ch,     /* ecx */
+	dh,     /* edx */
+	bh      /* ebx */
+
 };
 
 struct emu_cpu *emu_cpu_new(struct emu *e);
@@ -59,9 +64,6 @@ void emu_cpu_free(struct emu_cpu *c);
 void emu_cpu_debug_print(struct emu_cpu *c);
 
 
-inline void result8_flags_update(struct emu_cpu *c, uint8_t result);
-inline void result16_flags_update(struct emu_cpu *c, uint16_t result);
-inline void result32_flags_update(struct emu_cpu *c, uint32_t result);
 
 
 #endif /* HAVEEMU_CPU_H */

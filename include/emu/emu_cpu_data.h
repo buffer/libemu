@@ -102,4 +102,9 @@ struct instruction
 #define OPSIZE_32 3
 
 
+inline void result8_flags_update(struct emu_cpu *c, uint8_t result);
+inline void result16_flags_update(struct emu_cpu *c, uint16_t result);
+inline void result32_flags_update(struct emu_cpu *c, uint32_t result);
+
+
 #endif /*EMU_CPU_DATA_H_*/

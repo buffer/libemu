@@ -216,58 +216,36 @@ uint32_t emu_cpu_eflags_get(struct emu_cpu *c)
 	return c->eflags;
 }
 
-inline void result8_flags_update(struct emu_cpu *c, uint8_t result)
-{
-	int i;
-	int num_bits=0;
-	for ( i=0;i<sizeof(result);i++ )
-		if (result & (1 << i) )
-			num_bits++;
 
-	if (num_bits == 0)
-		CPU_FLAG_SET(c,f_zf);
+#define flags_update(name,size) 												\
+																				\
+inline void name##_flags_update(struct emu_cpu *c, size##_t result)				\
+{																				\
+	int i;																		\
+	int num_bits=0;																\
+	for ( i=0;i<sizeof(result)*8;i++ )											\
+		if (result & (1 << i) )													\
+			num_bits++;															\
+																				\
+	int num_p_bits=0;															\
+	for ( i=0;i<8;i++ )															\
+		if (result & (1 << i) )													\
+			num_p_bits++;														\
+																				\
+	if (num_bits == 0)															\
+		CPU_FLAG_SET(c,f_zf);													\
+																				\
+	if ((num_p_bits % 2) == 0)													\
+		CPU_FLAG_SET(c,f_pf);													\
+																				\
+	if (result & (1 << (sizeof(result) - 1)))									\
+		CPU_FLAG_SET(c,f_sf);													\
+}																				\
 
-	if ((num_bits %2) == 0)
-		CPU_FLAG_SET(c,f_pf);
 
-	if (result & (1 << (sizeof(result) - 1)))
-		CPU_FLAG_SET(c,f_sf);
-}
-
-inline void result16_flags_update(struct emu_cpu *c, uint16_t result)
-{
-	int i;
-	int num_bits=0;
-	for ( i=0;i<sizeof(result);i++ )
-		if (result & (1 << i) )
-			num_bits++;
-
-	if (num_bits == 0)
-		CPU_FLAG_SET(c,f_zf);
-
-	if ((num_bits %2) == 0)
-		CPU_FLAG_SET(c,f_pf);
-
-	if (result & (1 << (sizeof(result) - 1)))
-		CPU_FLAG_SET(c,f_sf);}
-
-inline void result32_flags_update(struct emu_cpu *c, uint32_t result)
-{
-	int i;
-	int num_bits=0;
-	for ( i=0;i<sizeof(result);i++ )
-		if (result & (1 << i) )
-			num_bits++;
-
-	if (num_bits == 0)
-		CPU_FLAG_SET(c,f_zf);
-
-	if ((num_bits %2) == 0)
-		CPU_FLAG_SET(c,f_pf);
-
-	if (result & (1 << (sizeof(result) - 1)))
-		CPU_FLAG_SET(c,f_sf);
-}
+flags_update(result8,uint8)
+flags_update(result16,uint16)
+flags_update(result32,uint32)
 
 void emu_cpu_eip_set(struct emu_cpu *c, uint32_t val)
 {
