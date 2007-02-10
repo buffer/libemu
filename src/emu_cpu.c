@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stdint.h>
 
 #include <emu/emu_cpu.h>
 #include <emu/emu_cpu_data.h>
@@ -217,9 +218,9 @@ uint32_t emu_cpu_eflags_get(struct emu_cpu *c)
 }
 
 
+
 #define flags_update(name,size) 												\
-																				\
-inline void name##_flags_update(struct emu_cpu *c, size##_t result)				\
+inline void name##_flags_update(struct emu_cpu *cpu, size##_t a, size##_t b, char op, size##_t result)				\
 {																				\
 	int i;																		\
 	int num_bits=0;																\
@@ -233,15 +234,84 @@ inline void name##_flags_update(struct emu_cpu *c, size##_t result)				\
 			num_p_bits++;														\
 																				\
 	if (num_bits == 0)															\
-		CPU_FLAG_SET(c,f_zf);													\
+		CPU_FLAG_SET(cpu,f_zf);													\
 																				\
 	if ((num_p_bits % 2) == 0)													\
-		CPU_FLAG_SET(c,f_pf);													\
+		CPU_FLAG_SET(cpu,f_pf);													\
 																				\
 	if (result & (1 << (sizeof(result) - 1)))									\
-		CPU_FLAG_SET(c,f_sf);													\
+		CPU_FLAG_SET(cpu,f_sf);													\
+																				\
+	static int64_t borders[][2][2] =                                   \
+	{                                                                           \
+		{                                                                       \
+			{0,0},                                                              \
+			{0,0},                                                              \
+		},                                                                      \
+		{                                                                       \
+			{MIN_INT8, MAX_INT8},                                               \
+			{MIN_UINT8, MAX_UINT8},                                             \
+		},                                                                      \
+		{                                                                       \
+			{MIN_INT16, MAX_INT16},                                             \
+			{MIN_UINT16, MAX_UINT16},                                           \
+		},                                                                      \
+		{                                                                       \
+			{0,0},                                                              \
+			{0,0},                                                              \
+		},                                                                      \
+		{                                                                       \
+			{MIN_INT32, MAX_INT32},                                             \
+			{MIN_UINT32, MAX_UINT32},                                           \
+		}                                                                       \
+	};																			\
+																				\
+	int64_t x = a;                                                             \
+	int64_t y = b;                                                             \
+	int64_t z = 0;                                                             \
+																				\
+	switch (op)                                                                 \
+	{                                                                           \
+	case '+':                                                                   \
+		z = x + y;                                                              \
+		break;                                                                  \
+																				\
+	case '-':                                                                   \
+		z = x - y;                                                              \
+		break;                                                                  \
+																				\
+	case '*':                                                                   \
+		z = x - y;                                                              \
+		break;                                                                  \
+																				\
+	case '/':                                                                   \
+		z = x / y;                                                              \
+		break;                                                                  \
+																				\
+	default:                                                                    \
+		break;																	\
+	}                                                                           \
+																				\
+																				\
+	if (z < borders[sizeof(result)/8][0][0] || z > borders[sizeof(result)/8][0][1] \
+	|| z != result )   											                \
+	{                                                                           \
+		CPU_FLAG_SET(cpu,f_of);                                                 \
+	}else                                                                       \
+	{                                                                           \
+		CPU_FLAG_UNSET(cpu,f_of);                                               \
+	}                                                                           \
+																				\
+	if (z < borders[sizeof(result)/8][1][0] || z > borders[sizeof(result)/8][1][1] \
+		|| z != result )                                                        \
+	{                                                                           \
+		CPU_FLAG_SET(cpu,f_cf);                                                 \
+	}else                                                                       \
+	{                                                                           \
+		CPU_FLAG_UNSET(cpu,f_cf);                                               \
+	}                                                                           \
+																				\
 }																				\
-
 
 flags_update(result8,uint8)
 flags_update(result16,uint16)

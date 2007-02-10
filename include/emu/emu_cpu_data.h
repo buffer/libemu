@@ -102,9 +102,28 @@ struct instruction
 #define OPSIZE_32 3
 
 
-inline void result8_flags_update(struct emu_cpu *c, uint8_t result);
-inline void result16_flags_update(struct emu_cpu *c, uint16_t result);
-inline void result32_flags_update(struct emu_cpu *c, uint32_t result);
+#define MAX_INT8           127
+#define MIN_INT8          -128
 
+#define MAX_UINT8          255
+#define MIN_UINT8            0
+
+#define MAX_INT16        32767
+#define MIN_INT16       -MAX_INT16 -1
+
+#define MAX_UINT16       65535
+#define MIN_UINT16           0
+
+
+#define MAX_INT32   2147483647
+#define MIN_INT32  -MAX_INT32 -1
+
+#define MAX_UINT32	4294967295U
+#define MIN_UINT32           0
+
+
+inline void result8_flags_update(struct emu_cpu *c, uint8_t a, uint8_t b, char op, uint8_t result);
+inline void result16_flags_update(struct emu_cpu *c, uint16_t a, uint16_t b, char op, uint16_t result);
+inline void result32_flags_update(struct emu_cpu *c, uint32_t a, uint32_t b, char op, uint32_t result);
 
 #endif /*EMU_CPU_DATA_H_*/
