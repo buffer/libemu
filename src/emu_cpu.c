@@ -223,17 +223,13 @@ uint32_t emu_cpu_eflags_get(struct emu_cpu *c)
 inline void name##_flags_update(struct emu_cpu *cpu, size##_t a, size##_t b, char op, size##_t result)				\
 {																				\
 	int i;																		\
-	int num_bits=0;																\
-	for ( i=0;i<sizeof(result)*8;i++ )											\
-		if (result & (1 << i) )													\
-			num_bits++;															\
 																				\
 	int num_p_bits=0;															\
 	for ( i=0;i<8;i++ )															\
 		if (result & (1 << i) )													\
 			num_p_bits++;														\
 																				\
-	if (num_bits == 0)															\
+	if (result == 0)															\
 		CPU_FLAG_SET(cpu,f_zf);													\
 																				\
 	if ((num_p_bits % 2) == 0)													\
