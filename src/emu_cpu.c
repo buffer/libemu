@@ -242,7 +242,7 @@ inline void name##_flags_update(struct emu_cpu *cpu, size##_t a, size##_t b, cha
 	if (result & (1 << (sizeof(result) - 1)))									\
 		CPU_FLAG_SET(cpu,f_sf);													\
 																				\
-	static int64_t borders[][2][2] =                                   \
+	static int64_t borders[][2][2] =                                   			\
 	{                                                                           \
 		{                                                                       \
 			{0,0},                                                              \
@@ -266,26 +266,35 @@ inline void name##_flags_update(struct emu_cpu *cpu, size##_t a, size##_t b, cha
 		}                                                                       \
 	};																			\
 																				\
-	int64_t x = a;                                                             \
-	int64_t y = b;                                                             \
-	int64_t z = 0;                                                             \
+	int64_t sx = (int64_t)a;                                                    \
+	int64_t sy = (int64_t)b;                                                    \
+	int64_t sz = 0;                                                             \
+																				\
+	uint64_t ux = (uint64_t)a;                                                  \
+	uint64_t uy = (uint64_t)b;                                                  \
+	uint64_t uz = 0;                                                            \
+																				\
 																				\
 	switch (op)                                                                 \
 	{                                                                           \
 	case '+':                                                                   \
-		z = x + y;                                                              \
+		sz = sx + sy;                                                           \
+		uz = ux + uy;															\
 		break;                                                                  \
 																				\
 	case '-':                                                                   \
-		z = x - y;                                                              \
+		sz = sx - sy;                                                           \
+		uz = ux - uy;                                                           \
 		break;                                                                  \
 																				\
 	case '*':                                                                   \
-		z = x - y;                                                              \
+		sz = sx - sy;                                                           \
+		uz = ux - uy;                                                           \
 		break;                                                                  \
 																				\
 	case '/':                                                                   \
-		z = x / y;                                                              \
+		sz = sx / sy;                                                           \
+		uz = ux / uy;                                                           \
 		break;                                                                  \
 																				\
 	default:                                                                    \
@@ -293,8 +302,8 @@ inline void name##_flags_update(struct emu_cpu *cpu, size##_t a, size##_t b, cha
 	}                                                                           \
 																				\
 																				\
-	if (z < borders[sizeof(result)/8][0][0] || z > borders[sizeof(result)/8][0][1] \
-	|| z != result )   											                \
+	if (sz < borders[sizeof(result)/8][0][0] || sz > borders[sizeof(result)/8][0][1] \
+	|| sz != (int64_t)result )									                \
 	{                                                                           \
 		CPU_FLAG_SET(cpu,f_of);                                                 \
 	}else                                                                       \
@@ -302,8 +311,8 @@ inline void name##_flags_update(struct emu_cpu *cpu, size##_t a, size##_t b, cha
 		CPU_FLAG_UNSET(cpu,f_of);                                               \
 	}                                                                           \
 																				\
-	if (z < borders[sizeof(result)/8][1][0] || z > borders[sizeof(result)/8][1][1] \
-		|| z != result )                                                        \
+	if (uz < borders[sizeof(result)/8][1][0] || uz > borders[sizeof(result)/8][1][1] \
+		|| uz != (uint64_t)result )                                             \
 	{                                                                           \
 		CPU_FLAG_SET(cpu,f_cf);                                                 \
 	}else                                                                       \
