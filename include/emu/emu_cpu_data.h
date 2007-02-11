@@ -1585,7 +1585,7 @@ c = operation_result;										\
 	uint64_t uy = (int64_t)operand_b;                                           \
 	uint64_t uz = 0;                                                            \
 																				\
-	sz = sx operand sy;															\
+	uz = ux operand uy;															\
 																				\
 	if (uz < max_inttype_borders[sizeof(operation_result)/8][0][0] || uz > max_inttype_borders[sizeof(operation_result)/8][0][1] \
 	|| uz != (int64_t)operation_result )									    \
@@ -1603,19 +1603,19 @@ c = operation_result;										\
 #define INSTR_CALC_AND_SET_FLAGS_GENERIC(inttype,cpu,a,b,c,operation,operation_id)	\
 INSTR_CALC_GENERIC(inttype,a,b,c,operation)									\
 																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_zf))		\
+if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_zf)) )		\
 	INSTR_SET_FLAG_ZF_GENERIC(cpu)											\
 																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_pf))		\
+if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_pf)) )		\
 	INSTR_SET_FLAG_PF_GENERIC(cpu)											\
 																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_sf))		\
+if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_sf)) )		\
 	INSTR_SET_FLAG_SF_GENERIC(cpu)											\
 																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_cf))		\
+if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_cf)) )		\
 	INSTR_SET_FLAG_CF_GENERIC(cpu,operation)								\
 																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_of))		\
+if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_of)) )		\
 	INSTR_SET_FLAG_OF_GENERIC(cpu,operation)								\
 
 
