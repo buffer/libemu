@@ -217,6 +217,10 @@ uint32_t emu_cpu_eflags_get(struct emu_cpu *c)
 	return c->eflags;
 }
 
+void emu_cpu_eflags_set(struct emu_cpu *c, uint32_t val)
+{
+	c->eflags = val;
+}
 
 void emu_cpu_eip_set(struct emu_cpu *c, uint32_t val)
 {

@@ -316,6 +316,9 @@ int test()
 		}
    	
 
+		/* set the flags */
+		emu_cpu_eflags_set(cpu,tests[i].in_state.eflags);
+
 
 		/* write the code to the offset */
 		int static_offset = 4711;
