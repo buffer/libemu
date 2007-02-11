@@ -1590,10 +1590,10 @@ c = operation_result;										\
 	if (uz < max_inttype_borders[sizeof(operation_result)/8][0][0] || uz > max_inttype_borders[sizeof(operation_result)/8][0][1] \
 	|| uz != (int64_t)operation_result )									    \
 	{                                                                           \
-		CPU_FLAG_SET(cpu,f_of);                                                 \
+		CPU_FLAG_SET(cpu,f_cf);                                                 \
 	}else                                                                       \
 	{                                                                           \
-		CPU_FLAG_UNSET(cpu,f_of);                                               \
+		CPU_FLAG_UNSET(cpu,f_cf);                                               \
 	}                                                                           \
 }																				\
 
