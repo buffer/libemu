@@ -1581,8 +1581,8 @@ c = operation_result;										\
 
 #define INSTR_SET_FLAG_CF_GENERIC(cpu,operand)									\
 {																				\
-	uint64_t ux = (int64_t)operand_a;                                           \
-	uint64_t uy = (int64_t)operand_b;                                           \
+	uint64_t ux = (uint64_t)operand_a;                                           \
+	uint64_t uy = (uint64_t)operand_b;                                           \
 	uint64_t uz = 0;                                                            \
 																				\
 	uz = ux operand uy;															\

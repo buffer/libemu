@@ -17,7 +17,13 @@ int32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
 	}
 	else
 	{
-		*c->reg8[i->modrm.rm] += *c->reg8[i->modrm.opc];
+/*		*c->reg8[i->modrm.rm] += *c->reg8[i->modrm.opc]; */
+		INSTR_CALC_AND_SET_FLAGS_GENERIC(uint8_t, 
+										 c, 
+										 *c->reg8[i->modrm.rm], 
+										 *c->reg8[i->modrm.opc], 
+										 *c->reg8[i->modrm.rm], +, 
+										 EMU_INSTR_ADD)
 	}
 	
 	return 0;
