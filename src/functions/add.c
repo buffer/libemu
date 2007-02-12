@@ -1,15 +1,6 @@
 /* @header@ */
 #include <stdint.h>
 
-#if !defined(INSTR_CALC)
-#define INSTR_CALC(inttype,a,b,c,operation)			\
-inttype operand_a = a;										\
-inttype operand_b = b;										\
-inttype operation_result = operand_a - operand_b;	\
-c = operation_result;
-#endif // INSTR_CALC
-
-
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_functions.h"
