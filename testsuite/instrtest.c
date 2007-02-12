@@ -115,6 +115,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0xffff3333,0xffff2222,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf), 
 	},
 	{
 		.instr = "add [ecx],ax",
@@ -124,6 +125,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x22224444},
 		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x22225555},
+		.out_state.eflags =  FLAG_SET(f_pf), 
 	},
 	{
 		.instr = "add eax,ecx",
@@ -133,6 +135,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0x22221111,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf), 
 	},
 	{
 		.instr = "add [ecx],eax",
@@ -142,6 +145,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x22224444},
 		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44445555},
+		.out_state.eflags =  FLAG_SET(f_pf), 
 	},
 	/* 02 */
 	{
@@ -152,6 +156,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0,0,0x100,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_cf) | FLAG_SET(f_pf) | FLAG_SET(f_zf) | FLAG_SET(f_of), 
 	},
 	{
 		.instr = "add al,[ecx]",
@@ -161,6 +166,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x30303030},
 		.out_state.reg  = {0x33,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x30303030},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	/* 03 */
 	{
@@ -171,6 +177,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x10101212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	{
 		.instr = "add ax,[ecx]",
@@ -180,6 +187,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x44443333},
 		.out_state.reg  = {0x11115555,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	{
 		.instr = "add ecx,edi",
@@ -198,6 +206,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x44443333},
 		.out_state.reg  = {0x55555555,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	{
 		.instr = "add ecx,[ebx+eax*4+0xdeadbeef]",
@@ -217,6 +226,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22222233,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	/* 05 */
 	{
@@ -227,6 +237,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	{
 		.instr = "add eax,0x11111111",
@@ -236,6 +247,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 };
 
@@ -332,6 +344,14 @@ int test()
 		}
 
 		emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
+		if (opts.verbose)
+		{
+			printf("memory at 0x%08x = 0x%08x (%i %i)\n",
+				   tests[i].in_state.mem_state[0], 
+				   tests[i].in_state.mem_state[1],
+				   (int)tests[i].in_state.mem_state[1],
+				   (uint32_t)tests[i].in_state.mem_state[1]);
+		}
 
 
 		/* set eip to the code */
@@ -387,11 +407,11 @@ int test()
 				if ( value == tests[i].out_state.mem_state[1] )
 				{
 					if (opts.verbose == 1)
-						printf("\t memory "SUCCESS"\n");
+						printf("\t memory "SUCCESS" 0x%08x = 0x%08x\n",tests[i].out_state.mem_state[0], tests[i].out_state.mem_state[1]);
 				}
 				else
 				{
-					printf("\t memory "FAILED" got %08x expected %08x\n",value, tests[i].out_state.mem_state[1]);
+					printf("\t memory "FAILED" at 0x%08x got 0x%08x expected 0x%08x\n",tests[i].out_state.mem_state[0],value, tests[i].out_state.mem_state[1]);
 					failed = 1;
 				}
 
