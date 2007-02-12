@@ -15,6 +15,7 @@ SUBDIRS = functions
 libemu_la_SOURCES = emu.c
 libemu_la_SOURCES += emu_log.c
 libemu_la_SOURCES += emu_memory.c
+libemu_la_SOURCES += emu_cpu_data.c
 libemu_la_SOURCES += emu_cpu.c
 libemu_la_SOURCES += functions/add.c
 libemu_la_SOURCES += functions/misc.c
