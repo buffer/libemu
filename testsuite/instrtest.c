@@ -16,6 +16,7 @@
 #include <emu/emu_memory.h>
 #include <emu/emu_cpu.h>
 #include <emu/emu_log.h>
+#include <emu/emu_cpu_data.h>
 
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
@@ -63,6 +64,7 @@ struct instr_test
 	}out_state;
 };
 
+#define FLAG_SET(fl) (1 << (fl))
 
 struct instr_test tests[] = 
 {
@@ -83,6 +85,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x01,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags = FLAG_SET(f_cf) | FLAG_SET(f_of) | FLAG_SET(f_pf) | FLAG_SET(f_zf),
 	},
 	{
 		.instr = "add ch,dl",
@@ -92,6 +95,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x3000,0x20,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	{
 		.instr = "add [ecx],al",
