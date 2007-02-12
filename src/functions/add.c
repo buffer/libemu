@@ -219,7 +219,7 @@ int32_t instr_add_05(struct emu_cpu *c, struct instruction *i)
 	else
 	{
 //		c->reg[eax] += i->imm;
-		INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+		INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 										 c, 
 										 c->reg[eax], 
 										 i->imm, 
