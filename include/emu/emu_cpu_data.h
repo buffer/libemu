@@ -326,7 +326,7 @@ c = operation_result;										\
 
 #define INSTR_SET_FLAG_SF_GENERIC(cpu)								\
 {																	\
-	if (operation_result & (1 << (sizeof(operation_result) - 1)))	\
+	if (operation_result & (1 << (sizeof(operation_result)*8 - 1)))	\
 		CPU_FLAG_SET(cpu,f_sf);										\
 	else															\
 		CPU_FLAG_UNSET(cpu,f_sf);									\
