@@ -270,3 +270,14 @@ int32_t instr_and_25(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
+
+int32_t instr_group_1_80_and(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
+	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
+							 cpu, 
+							 a, 
+							 b, 
+							 *result, 
+							 &)
+	return 0;
+}

@@ -268,7 +268,7 @@ int32_t instr_add_05(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_1_80_add8(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+int32_t instr_group_1_80_add(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
 {
 	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 							 cpu, 
