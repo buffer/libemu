@@ -26,6 +26,7 @@ libemu_la_SOURCES += functions/or.c
 libemu_la_SOURCES += functions/sbb.c
 libemu_la_SOURCES += functions/sub.c
 libemu_la_SOURCES += functions/xor.c
+libemu_la_SOURCES += functions/group_1.c
 
 
 libemu_la_LDFLAGS = -no-undefined -version-info @libemu_soname@ -export-symbols-regex "^emu_"
