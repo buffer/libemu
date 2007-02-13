@@ -197,6 +197,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x12121212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
 	},
 	{
 		.instr = "add eax,[ecx]",

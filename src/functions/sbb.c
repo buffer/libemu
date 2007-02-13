@@ -261,9 +261,9 @@ int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
-									 *c->reg16[i->modrm.opc], 
-									 *c->reg16[i->modrm.rm], 
-									 *c->reg16[i->modrm.opc], 
+									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
+									 c->reg[i->modrm.opc], 
 									 -)
 
 		}

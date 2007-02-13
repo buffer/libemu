@@ -208,7 +208,7 @@ int32_t instr_add_03(struct emu_cpu *c, struct instruction *i)
 			 * Add r/m32 to r32
 			 * ADD r32,r/m32   
 			 */
-			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 

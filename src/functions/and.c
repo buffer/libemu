@@ -209,7 +209,7 @@ int32_t instr_and_23(struct emu_cpu *c, struct instruction *i)
 			 * r32 AND r/m32
 			 * AND r32,r/m32   
 			 */
-			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 

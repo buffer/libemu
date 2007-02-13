@@ -203,7 +203,7 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 			 * Compare r/m32 with r32
 			 * CMP r32,r/m32 
 			 */
-			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
