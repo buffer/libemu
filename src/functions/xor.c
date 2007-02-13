@@ -22,13 +22,17 @@ INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											
 
 
+
 int32_t instr_xor_30(struct emu_cpu *c, struct instruction *i)
 {
+	/* 30 /r
+	 * r/m8 XOR r8
+	 * XOR r/m8,r8     
+	 */
 	if ( i->modrm.mod != 3 )
 	{
 		uint8_t dst;
 		MEM_BYTE_READ(c, i->modrm.ea, &dst);
-//		dst += *c->reg8[i->modrm.opc];
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 dst, 
@@ -38,7 +42,6 @@ int32_t instr_xor_30(struct emu_cpu *c, struct instruction *i)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
 	} else
 	{
-/*		*c->reg8[i->modrm.rm] += *c->reg8[i->modrm.opc]; */
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 *c->reg8[i->modrm.rm], 
@@ -56,9 +59,13 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
+			/* 31 /r
+			 * r/m16 XOR r16
+			 * XOR r/m16,r16   
+			 */
+
 			uint16_t dst;
 			MEM_WORD_READ(c, i->modrm.ea, &dst);
-//			dst += *c->reg16[i->modrm.opc];
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 dst, 
@@ -68,9 +75,13 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 		} else
 		{
+			/* 31 /r
+			 * r/m32 XOR r32
+			 * XOR r/m32,r32   
+			 */
+
 			uint32_t dst;
 			MEM_DWORD_READ(c, i->modrm.ea, &dst);
-//			dst += c->reg[i->modrm.opc];
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 dst, 
@@ -83,7 +94,11 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-//			*c->reg16[i->modrm.rm] += *c->reg16[i->modrm.opc];
+			/* 31 /r
+			 * r/m16 XOR r16
+			 * XOR r/m16,r16   
+			 */
+
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
@@ -92,7 +107,11 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 									 ^)
 		} else
 		{
-//			c->reg[i->modrm.rm] += c->reg[i->modrm.opc];
+			/* 31 /r
+			 * r/m32 XOR r32
+			 * XOR r/m32,r32   
+			 */
+
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 c->reg[i->modrm.rm], 
@@ -107,12 +126,16 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_xor_32(struct emu_cpu *c, struct instruction *i)
 {
+	/* 32 /r
+	 * r8 XOR r/m8
+	 * XOR r8,r/m8     
+	 */
+
 	if ( i->modrm.mod != 3 )
 	{
 		uint8_t op;
 		MEM_BYTE_READ(c, i->modrm.ea, &op);
 
-//		*c->reg8[i->modrm.opc] += op;
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 op, 
@@ -121,7 +144,6 @@ int32_t instr_xor_32(struct emu_cpu *c, struct instruction *i)
 								 ^)
 	} else
 	{
-//		*c->reg8[i->modrm.opc] += *c->reg8[i->modrm.rm];
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 *c->reg8[i->modrm.opc], 
@@ -139,10 +161,15 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
+			/* 33 /r
+			 * r8 XOR r/m8
+			 * XOR r16,r/m16   
+			 */
+
+
 			uint16_t op;
 			MEM_WORD_READ(c, i->modrm.ea, &op);
 
-//			*c->reg16[i->modrm.opc] += op;
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 op,
@@ -151,9 +178,13 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 									 ^)
 		} else
 		{
+			/* 33 /r
+			 * r8 XOR r/m8
+			 * XOR r32,r/m32   
+			 */
+
 			uint32_t op;
 			MEM_DWORD_READ(c, i->modrm.ea, &op);
-//			c->reg[i->modrm.opc] += op;
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 op,
@@ -165,7 +196,10 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-//			*c->reg16[i->modrm.opc] += *c->reg16[i->modrm.rm];
+			/* 33 /r
+			 * r8 XOR r/m8
+			 * XOR r16,r/m16   
+			 */
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
@@ -174,7 +208,16 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 									 ^)
 		} else
 		{
-			c->reg[i->modrm.opc] += c->reg[i->modrm.rm];
+			/* 33 /r
+			 * r8 XOR r/m8
+			 * XOR r32,r/m32   
+			 */
+			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+									 c, 
+									 c->reg[i->modrm.rm], 
+									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.opc], 
+									 ^)
 		}
 	}
 
@@ -183,30 +226,43 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_xor_34(struct emu_cpu *c, struct instruction *i)
 {
-//	*c->reg8[eax] += *i->imm8;
+	/* 34 ib
+	 * AL XOR imm8
+	 * XOR AL,imm8
+	 */
+
 	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 							 c, 
-							 *c->reg8[eax], 
+							 *c->reg8[al], 
 							 *i->imm8, 
-							 *c->reg8[eax], 
+							 *c->reg8[al], 
 							 ^)
 	return 0;
 }
 
 int32_t instr_xor_35(struct emu_cpu *c, struct instruction *i)
 {
+
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
-//		*c->reg16[eax] += *i->imm16;
+
+		/* 35 iw
+		 * AX XOR imm16
+		 * XOR AX,imm16
+		 */
+
 		INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 								 c, 
-								 *c->reg16[eax], 
+								 *c->reg16[ax], 
 								 *i->imm16, 
-								 *c->reg16[eax], 
+								 *c->reg16[ax], 
 								 ^)
 	} else
 	{
-//		c->reg[eax] += i->imm;
+		/* 35 id
+		 * EAX XOR imm32
+		 * XOR EAX,imm32
+		 */
 		INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 								 c, 
 								 c->reg[eax], 
@@ -217,3 +273,4 @@ int32_t instr_xor_35(struct emu_cpu *c, struct instruction *i)
 
 	return 0;
 }
+
