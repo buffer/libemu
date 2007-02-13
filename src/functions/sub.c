@@ -24,11 +24,17 @@ INSTR_SET_FLAG_OF(cpu,operation)
 
 int32_t instr_sub_28(struct emu_cpu *c, struct instruction *i)
 {
+	/*
+	 * 28 /r
+	 * Subtract r8 from r/m8
+	 * SUB r/m8,r8 
+	 */
+
 	if ( i->modrm.mod != 3 )
 	{
 		uint8_t dst;
 		MEM_BYTE_READ(c, i->modrm.ea, &dst);
-//		dst += *c->reg8[i->modrm.opc];
+
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 dst, 
@@ -38,7 +44,6 @@ int32_t instr_sub_28(struct emu_cpu *c, struct instruction *i)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
 	} else
 	{
-/*		*c->reg8[i->modrm.rm] += *c->reg8[i->modrm.opc]; */
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 *c->reg8[i->modrm.rm], 
@@ -51,14 +56,18 @@ int32_t instr_sub_28(struct emu_cpu *c, struct instruction *i)
 }
 
 int32_t instr_sub_29(struct emu_cpu *c, struct instruction *i)
-{
+{      
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
+			/* 29 /r
+			 * Subtract r16 from r/m16
+			 * SUB r/m16,r16 
+			 */
+
 			uint16_t dst;
 			MEM_WORD_READ(c, i->modrm.ea, &dst);
-//			dst += *c->reg16[i->modrm.opc];
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 dst, 
@@ -68,9 +77,13 @@ int32_t instr_sub_29(struct emu_cpu *c, struct instruction *i)
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 		} else
 		{
+			/* 29 /r
+			 * Subtract r32 from r/m32
+			 * SUB r/m32,r32 
+			 */
+
 			uint32_t dst;
 			MEM_DWORD_READ(c, i->modrm.ea, &dst);
-//			dst += c->reg[i->modrm.opc];
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 dst, 
@@ -83,7 +96,11 @@ int32_t instr_sub_29(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-//			*c->reg16[i->modrm.rm] += *c->reg16[i->modrm.opc];
+			/* 29 /r
+			 * Subtract r16 from r/m16
+			 * SUB r/m16,r16 
+			 */
+
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
@@ -92,7 +109,11 @@ int32_t instr_sub_29(struct emu_cpu *c, struct instruction *i)
 									 -)
 		} else
 		{
-//			c->reg[i->modrm.rm] += c->reg[i->modrm.opc];
+			/* 29 /r
+			 * Subtract r32 from r/m32
+			 * SUB r/m32,r32 
+			 */
+
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 c->reg[i->modrm.rm], 
@@ -107,12 +128,17 @@ int32_t instr_sub_29(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_sub_2a(struct emu_cpu *c, struct instruction *i)
 {
+	 /* 2A /r
+	  * Subtract r/m8 from r8
+	  * SUB r8,r/m8 
+	  */
+
 	if ( i->modrm.mod != 3 )
 	{
 		uint8_t op;
 		MEM_BYTE_READ(c, i->modrm.ea, &op);
 
-//		*c->reg8[i->modrm.opc] += op;
+
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 op, 
@@ -121,7 +147,6 @@ int32_t instr_sub_2a(struct emu_cpu *c, struct instruction *i)
 								 -)
 	} else
 	{
-//		*c->reg8[i->modrm.opc] += *c->reg8[i->modrm.rm];
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 *c->reg8[i->modrm.opc], 
@@ -139,10 +164,15 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
+			/*
+			* 2B /r
+			* Subtract r/m16 from r16
+			* SUB r16,r/m16
+			*/
+
 			uint16_t op;
 			MEM_WORD_READ(c, i->modrm.ea, &op);
 
-//			*c->reg16[i->modrm.opc] += op;
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 op,
@@ -151,9 +181,14 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 									 -)
 		} else
 		{
+			/*
+			 * 2B /r
+			 * Subtract r/m32 from r32
+			 * SUB r32,r/m32 
+			 */
+
 			uint32_t op;
 			MEM_DWORD_READ(c, i->modrm.ea, &op);
-//			c->reg[i->modrm.opc] += op;
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 op,
@@ -165,7 +200,13 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-//			*c->reg16[i->modrm.opc] += *c->reg16[i->modrm.rm];
+
+			/*
+			* 2B /r
+			* Subtract r/m16 from r16
+			* SUB r16,r/m16
+			*/
+
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
@@ -174,7 +215,18 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 									 -)
 		} else
 		{
-			c->reg[i->modrm.opc] += c->reg[i->modrm.rm];
+			/*
+			 * 2B /r
+			 * Subtract r/m32 from r32
+			 * SUB r32,r/m32 
+			 */
+
+			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+									 c, 
+									 c->reg[i->modrm.rm], 
+									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.opc], 
+									 -)
 		}
 	}
 
@@ -183,12 +235,16 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_sub_2c(struct emu_cpu *c, struct instruction *i)
 {
-//	*c->reg8[eax] += *i->imm8;
+	/* 2C ib
+	 * Subtract imm8 from AL
+     * SUB AL,imm8
+	 */
+
 	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 							 c, 
-							 *c->reg8[eax], 
+							 *c->reg8[al], 
 							 *i->imm8, 
-							 *c->reg8[eax], 
+							 *c->reg8[al], 
 							 -)
 	return 0;
 }
@@ -196,17 +252,25 @@ int32_t instr_sub_2c(struct emu_cpu *c, struct instruction *i)
 int32_t instr_sub_2d(struct emu_cpu *c, struct instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
-	{
-//		*c->reg16[eax] += *i->imm16;
+	{ 
+		/* 2D iw
+		 * Subtract imm16 from AX  
+		 * SUB AX,imm16
+		 */
+	  
 		INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 								 c, 
-								 *c->reg16[eax], 
+								 *c->reg16[ax], 
 								 *i->imm16, 
-								 *c->reg16[eax], 
+								 *c->reg16[ax], 
 								 -)
 	} else
 	{
-//		c->reg[eax] += i->imm;
+		/* 2D id
+		 * Subtract imm32 from EAX
+		 * SUB EAX,imm32
+		 */
+
 		INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 								 c, 
 								 c->reg[eax], 

@@ -64,27 +64,31 @@ INSTR_SET_FLAG_CF(cpu,operation)
 
 int32_t instr_sbb_18(struct emu_cpu *c, struct instruction *i)
 {
+
+	/* 18 /r
+	 * Subtract with borrow r8 from r/m8
+	 * SBB r/m8,r8 
+	 */
+
 	if ( i->modrm.mod != 3 )
 	{
 		uint8_t dst;
 		MEM_BYTE_READ(c, i->modrm.ea, &dst);
-//		dst += *c->reg8[i->modrm.opc];
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 dst, 
 								 *c->reg8[i->modrm.opc], 
 								 dst, 
-								 +)
+								 -)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
 	} else
 	{
-/*		*c->reg8[i->modrm.rm] += *c->reg8[i->modrm.opc]; */
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 *c->reg8[i->modrm.rm], 
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.rm], 
-								 +)
+								 -)
 	}
 
 	return 0;
@@ -92,53 +96,74 @@ int32_t instr_sbb_18(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_sbb_19(struct emu_cpu *c, struct instruction *i)
 {
+
+
+
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
+			/* 19 /r
+			 * Subtract with borrow r16 from r/m16
+			 * SBB r/m16,r16 
+			 */
+
 			uint16_t dst;
 			MEM_WORD_READ(c, i->modrm.ea, &dst);
-//			dst += *c->reg16[i->modrm.opc];
+
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 dst, 
 									 *c->reg16[i->modrm.opc], 
 									 dst, 
-									 +)
+									 -)
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 		} else
 		{
+			/* 19 /r
+			 * Subtract with borrow r32 from r/m32
+			 * SBB r/m32,r32 
+			 */
+
 			uint32_t dst;
 			MEM_DWORD_READ(c, i->modrm.ea, &dst);
-//			dst += c->reg[i->modrm.opc];
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 dst, 
 									 c->reg[i->modrm.opc], 
 									 dst, 
-									 +)
+									 -)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
 	} else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-//			*c->reg16[i->modrm.rm] += *c->reg16[i->modrm.opc];
+			/* 19 /r
+			 * Subtract with borrow r16 from r/m16
+			 * SBB r/m16,r16 
+			 */
+
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.rm], 
-									 +)
+									 -)
 		} else
 		{
-//			c->reg[i->modrm.rm] += c->reg[i->modrm.opc];
+			/* 19 /r
+			 * Subtract with borrow r32 from r/m32
+			 * SBB r/m32,r32 
+			 */
+
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.rm], 
-									 +)
+									 -)
 		}
 	}
 
@@ -147,27 +172,30 @@ int32_t instr_sbb_19(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_sbb_1a(struct emu_cpu *c, struct instruction *i)
 {
+	/* 1A /r
+	 * Subtract with borrow r/m8 from r8
+	 * SBB r8,r/m8 
+	 */
+
 	if ( i->modrm.mod != 3 )
 	{
 		uint8_t op;
 		MEM_BYTE_READ(c, i->modrm.ea, &op);
 
-//		*c->reg8[i->modrm.opc] += op;
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 op, 
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.opc], 
-								 +)
+								 -)
 	} else
 	{
-//		*c->reg8[i->modrm.opc] += *c->reg8[i->modrm.rm];
 		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 								 c, 
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.rm], 
 								 *c->reg8[i->modrm.opc], 
-								 +)
+								 -)
 	}
 
 	return 0;
@@ -175,46 +203,69 @@ int32_t instr_sbb_1a(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
 {
+	 
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
+			/* 1B /r
+			 * Subtract with borrow r/m16 from r16
+			 * SBB r16,r/m16 	
+			 */
+
 			uint16_t op;
 			MEM_WORD_READ(c, i->modrm.ea, &op);
 
-//			*c->reg16[i->modrm.opc] += op;
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 op,
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
-									 +)
+									 -)
 		} else
 		{
+			/* 1B /r
+			 * Subtract with borrow r/m32 from r32
+		 	 * SBB r32,r/m32
+			*/
 			uint32_t op;
 			MEM_DWORD_READ(c, i->modrm.ea, &op);
-//			c->reg[i->modrm.opc] += op;
 			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 									 c, 
 									 op,
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.opc], 
-									 +)
+									 -)
 		}
 	} else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-//			*c->reg16[i->modrm.opc] += *c->reg16[i->modrm.rm];
+			/* 1B /r
+			 * Subtract with borrow r/m16 from r16
+			 * SBB r16,r/m16 	
+			 */
+
 			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
-									 +)
+									 -)
 		} else
 		{
-			c->reg[i->modrm.opc] += c->reg[i->modrm.rm];
+			/* 1B /r
+			 * Subtract with borrow r/m32 from r32
+			 * SBB r32,r/m32
+			 */
+			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+									 c, 
+									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
+									 *c->reg16[i->modrm.opc], 
+									 -)
+
 		}
 	}
 
@@ -223,36 +274,50 @@ int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_sbb_1c(struct emu_cpu *c, struct instruction *i)
 {
-//	*c->reg8[eax] += *i->imm8;
+	/* 1C ib
+	 * Subtract with borrow imm8 from AL
+	 * SBB AL,imm8
+	 */
+
 	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 							 c, 
-							 *c->reg8[eax], 
+							 *c->reg8[al], 
 							 *i->imm8, 
-							 *c->reg8[eax], 
-							 +)
+							 *c->reg8[al], 
+							 -)
 	return 0;
 }
 
 int32_t instr_sbb_1d(struct emu_cpu *c, struct instruction *i)
 {
+		
+
+
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
-//		*c->reg16[eax] += *i->imm16;
+		/* 1D iw               
+		 * Subtract with borrow imm16 from AX
+		 * SBB AX,imm16
+		 */
 		INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 								 c, 
-								 *c->reg16[eax], 
+								 *c->reg16[ax], 
 								 *i->imm16, 
-								 *c->reg16[eax], 
-								 +)
+								 *c->reg16[ax], 
+								 -)
 	} else
 	{
-//		c->reg[eax] += i->imm;
+		/* 1D id
+		 * Subtract with borrow imm32 from EAX
+		 * SBB EAX,imm32
+		 */
+
 		INSTR_CALC_AND_SET_FLAGS(uint32_t, 
 								 c, 
 								 c->reg[eax], 
 								 i->imm, 
 								 c->reg[eax], 
-								 +)
+								 -)
 	}
 
 	return 0;
