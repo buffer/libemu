@@ -1,7 +1,12 @@
 /* @header@ */
 #include <stdint.h>
 
-// FIXME replace the INSTR_CALC macro and verify the flags
+#define INSTR_CALC(inttype,a,b,operation)			\
+inttype operand_a = a;										\
+inttype operand_b = b;										\
+inttype operation_result = operand_a operation operand_b;	
+
+
 
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
@@ -13,8 +18,8 @@
 #undef INSTR_CALC_AND_SET_FLAGS
 #endif // INSTR_CALC_AND_SET_FLAGS
 
-#define INSTR_CALC_AND_SET_FLAGS(inttype,cpu,a,b,c,operation)	\
-INSTR_CALC(inttype,a,b,c,operation)								\
+#define INSTR_CALC_AND_SET_FLAGS(inttype,cpu,a,b,operation)	\
+INSTR_CALC(inttype,a,b,operation)								\
 INSTR_SET_FLAG_ZF(cpu)											\
 INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											\
@@ -33,8 +38,7 @@ int32_t instr_cmp_38(struct emu_cpu *c, struct instruction *i)
 								 c, 
 								 dst, 
 								 *c->reg8[i->modrm.opc], 
-								 dst, 
-								 +)
+								 -)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
 	} else
 	{
@@ -43,8 +47,7 @@ int32_t instr_cmp_38(struct emu_cpu *c, struct instruction *i)
 								 c, 
 								 *c->reg8[i->modrm.rm], 
 								 *c->reg8[i->modrm.opc], 
-								 *c->reg8[i->modrm.rm], 
-								 +)
+								 -)
 	}
 
 	return 0;
@@ -63,8 +66,7 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 c, 
 									 dst, 
 									 *c->reg16[i->modrm.opc], 
-									 dst, 
-									 +)
+									 -)
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 		} else
 		{
@@ -75,8 +77,7 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 c, 
 									 dst, 
 									 c->reg[i->modrm.opc], 
-									 dst, 
-									 +)
+									 -)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
 	} else
@@ -88,8 +89,7 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 c, 
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
-									 *c->reg16[i->modrm.rm], 
-									 +)
+									 -)
 		} else
 		{
 //			c->reg[i->modrm.rm] += c->reg[i->modrm.opc];
@@ -97,8 +97,7 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 c, 
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
-									 c->reg[i->modrm.rm], 
-									 +)
+									 -)
 		}
 	}
 
@@ -117,8 +116,7 @@ int32_t instr_cmp_3a(struct emu_cpu *c, struct instruction *i)
 								 c, 
 								 op, 
 								 *c->reg8[i->modrm.opc], 
-								 *c->reg8[i->modrm.opc], 
-								 +)
+								 -)
 	} else
 	{
 //		*c->reg8[i->modrm.opc] += *c->reg8[i->modrm.rm];
@@ -126,8 +124,7 @@ int32_t instr_cmp_3a(struct emu_cpu *c, struct instruction *i)
 								 c, 
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.rm], 
-								 *c->reg8[i->modrm.opc], 
-								 +)
+								 -)
 	}
 
 	return 0;
@@ -147,8 +144,7 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 									 c, 
 									 op,
 									 *c->reg16[i->modrm.opc], 
-									 *c->reg16[i->modrm.opc], 
-									 +)
+									 -)
 		} else
 		{
 			uint32_t op;
@@ -158,8 +154,7 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 									 c, 
 									 op,
 									 c->reg[i->modrm.opc], 
-									 c->reg[i->modrm.opc], 
-									 +)
+									 -)
 		}
 	} else
 	{
@@ -170,8 +165,7 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 									 c, 
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
-									 *c->reg16[i->modrm.opc], 
-									 +)
+									 -)
 		} else
 		{
 			c->reg[i->modrm.opc] += c->reg[i->modrm.rm];
@@ -188,8 +182,7 @@ int32_t instr_cmp_3c(struct emu_cpu *c, struct instruction *i)
 							 c, 
 							 *c->reg8[eax], 
 							 *i->imm8, 
-							 *c->reg8[eax], 
-							 +)
+							 -)
 	return 0;
 }
 
@@ -202,8 +195,7 @@ int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i)
 								 c, 
 								 *c->reg16[eax], 
 								 *i->imm16, 
-								 *c->reg16[eax], 
-								 +)
+								 -)
 	} else
 	{
 //		c->reg[eax] += i->imm;
@@ -211,8 +203,7 @@ int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i)
 								 c, 
 								 c->reg[eax], 
 								 i->imm, 
-								 c->reg[eax], 
-								 +)
+								 -)
 	}
 
 	return 0;

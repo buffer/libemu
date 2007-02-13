@@ -1,8 +1,6 @@
 /* @header@ */
 #include <stdint.h>
 
-// FIXME replace the INSTR_CALC macro and verify the flags
-
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_functions.h"
@@ -15,11 +13,11 @@
 
 #define INSTR_CALC_AND_SET_FLAGS(inttype,cpu,a,b,c,operation)	\
 INSTR_CALC(inttype,a,b,c,operation)								\
+CPU_FLAG_UNSET(cpu,f_of);										\
+CPU_FLAG_UNSET(cpu,f_cf);										\
 INSTR_SET_FLAG_ZF(cpu)											\
 INSTR_SET_FLAG_PF(cpu)											\
-INSTR_SET_FLAG_SF(cpu)											\
-INSTR_SET_FLAG_CF(cpu,operation)								\
-INSTR_SET_FLAG_OF(cpu,operation)								
+INSTR_SET_FLAG_SF(cpu)											
 
 
 int32_t instr_or_08(struct emu_cpu *c, struct instruction *i)
@@ -34,7 +32,7 @@ int32_t instr_or_08(struct emu_cpu *c, struct instruction *i)
 								 dst, 
 								 *c->reg8[i->modrm.opc], 
 								 dst, 
-								 +)
+								 |)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
 	} else
 	{
@@ -44,7 +42,7 @@ int32_t instr_or_08(struct emu_cpu *c, struct instruction *i)
 								 *c->reg8[i->modrm.rm], 
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.rm], 
-								 +)
+								 |)
 	}
 
 	return 0;
@@ -64,7 +62,7 @@ int32_t instr_or_09(struct emu_cpu *c, struct instruction *i)
 									 dst, 
 									 *c->reg16[i->modrm.opc], 
 									 dst, 
-									 +)
+									 |)
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 		} else
 		{
@@ -76,7 +74,7 @@ int32_t instr_or_09(struct emu_cpu *c, struct instruction *i)
 									 dst, 
 									 c->reg[i->modrm.opc], 
 									 dst, 
-									 +)
+									 |)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
 	} else
@@ -89,7 +87,7 @@ int32_t instr_or_09(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.rm], 
-									 +)
+									 |)
 		} else
 		{
 //			c->reg[i->modrm.rm] += c->reg[i->modrm.opc];
@@ -98,7 +96,7 @@ int32_t instr_or_09(struct emu_cpu *c, struct instruction *i)
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.rm], 
-									 +)
+									 |)
 		}
 	}
 
@@ -118,7 +116,7 @@ int32_t instr_or_0a(struct emu_cpu *c, struct instruction *i)
 								 op, 
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.opc], 
-								 +)
+								 |)
 	} else
 	{
 //		*c->reg8[i->modrm.opc] += *c->reg8[i->modrm.rm];
@@ -127,7 +125,7 @@ int32_t instr_or_0a(struct emu_cpu *c, struct instruction *i)
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.rm], 
 								 *c->reg8[i->modrm.opc], 
-								 +)
+								 |)
 	}
 
 	return 0;
@@ -148,7 +146,7 @@ int32_t instr_or_0b(struct emu_cpu *c, struct instruction *i)
 									 op,
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
-									 +)
+									 |)
 		} else
 		{
 			uint32_t op;
@@ -159,7 +157,7 @@ int32_t instr_or_0b(struct emu_cpu *c, struct instruction *i)
 									 op,
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.opc], 
-									 +)
+									 |)
 		}
 	} else
 	{
@@ -171,7 +169,7 @@ int32_t instr_or_0b(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
-									 +)
+									 |)
 		} else
 		{
 			c->reg[i->modrm.opc] += c->reg[i->modrm.rm];
@@ -189,7 +187,7 @@ int32_t instr_or_0c(struct emu_cpu *c, struct instruction *i)
 							 *c->reg8[eax], 
 							 *i->imm8, 
 							 *c->reg8[eax], 
-							 +)
+							 |)
 	return 0;
 }
 
@@ -203,7 +201,7 @@ int32_t instr_or_0d(struct emu_cpu *c, struct instruction *i)
 								 *c->reg16[eax], 
 								 *i->imm16, 
 								 *c->reg16[eax], 
-								 +)
+								 |)
 	} else
 	{
 //		c->reg[eax] += i->imm;
@@ -212,7 +210,7 @@ int32_t instr_or_0d(struct emu_cpu *c, struct instruction *i)
 								 c->reg[eax], 
 								 i->imm, 
 								 c->reg[eax], 
-								 +)
+								 |)
 	}
 
 	return 0;

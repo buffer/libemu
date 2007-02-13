@@ -1,7 +1,47 @@
 /* @header@ */
 #include <stdint.h>
 
-// FIXME replace the INSTR_CALC macro and verify the flags
+#define INSTR_CALC(inttype,a,b,c,operation,cpu)			\
+inttype operand_a = a;								\
+inttype operand_b = b;								\
+inttype operation_result = operand_a operation operand_b operation (cpu->eflags & (1 << f_cf))?1:0;	\
+c = operation_result;
+
+#define INSTR_SET_FLAG_OF(cpu,operand)											\
+{																				\
+	int64_t sx = (int64_t)operand_a;                                            \
+	int64_t sy = (int64_t)operand_b;                                            \
+	int64_t sz = 0;                                                             \
+																				\
+	sz = sx operand sy operand (cpu->eflags & (1 << f_cf))?1:0;						\
+																				\
+	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
+	|| sz != (int64_t)operation_result )									    \
+	{                                                                           \
+		CPU_FLAG_SET(cpu,f_of);                                                 \
+	}else                                                                       \
+	{                                                                           \
+		CPU_FLAG_UNSET(cpu,f_of);                                               \
+	}                                                                           \
+}
+
+#define INSTR_SET_FLAG_CF(cpu,operand)											\
+{																				\
+	uint64_t ux = (uint64_t)operand_a;                                          \
+	uint64_t uy = (uint64_t)operand_b;                                          \
+	uint64_t uz = 0;                                                            \
+																				\
+	uz = ux operand uy operand (cpu->eflags & (1 << f_cf))?1:0;					\
+																				\
+	if (uz < max_inttype_borders[sizeof(operation_result)][1][0] || uz > max_inttype_borders[sizeof(operation_result)][1][1] \
+	|| uz != (uint64_t)operation_result )									    \
+	{                                                                           \
+		CPU_FLAG_SET(cpu,f_cf);                                                 \
+	}else                                                                       \
+	{                                                                           \
+		CPU_FLAG_UNSET(cpu,f_cf);                                               \
+	}                                                                           \
+}
 
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
@@ -14,12 +54,12 @@
 #endif // INSTR_CALC_AND_SET_FLAGS
 
 #define INSTR_CALC_AND_SET_FLAGS(inttype,cpu,a,b,c,operation)	\
-INSTR_CALC(inttype,a,b,c,operation)								\
+INSTR_CALC(inttype,a,b,c,operation,cpu)							\
 INSTR_SET_FLAG_ZF(cpu)											\
 INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											\
-INSTR_SET_FLAG_CF(cpu,operation)								\
-INSTR_SET_FLAG_OF(cpu,operation)								
+INSTR_SET_FLAG_OF(cpu,operation)								\
+INSTR_SET_FLAG_CF(cpu,operation)
 
 
 int32_t instr_sbb_18(struct emu_cpu *c, struct instruction *i)
