@@ -14,24 +14,25 @@ int32_t instr_group_1_80(struct emu_cpu *c, struct instruction *i)
 		MEM_BYTE_READ(c, i->modrm.ea, &dst);
 		
 		/* dst <-- dst <OPC> imm8 */
-		switch( i->modrm.opc )
+		switch ( i->modrm.opc )
 		{
-			case 0: /* add */
-				break;
-			case 1: /* or */
-				break;
-			case 2: /* adc */
-				break;
-			case 3: /* sbb */
-				break;
-			case 4: /* and */
-				break;
-			case 5: /* sub */
-				break;
-			case 6: /* xor */
-				break;
-			case 7: /* cmp */
-				break;
+		case 0:	/* add */
+			instr_group_1_80_add8(c,dst,i->imm8,&dst);
+			break;
+		case 1:	/* or */
+			break;
+		case 2:	/* adc */
+			break;
+		case 3:	/* sbb */
+			break;
+		case 4:	/* and */
+			break;
+		case 5:	/* sub */
+			break;
+		case 6:	/* xor */
+			break;
+		case 7:	/* cmp */
+			break;
 		}
 
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
@@ -39,24 +40,25 @@ int32_t instr_group_1_80(struct emu_cpu *c, struct instruction *i)
 	else
 	{
 		/* reg8[rm] <-- reg8[rm] <OPC> imm8 */
-		switch( i->modrm.opc )
+		switch ( i->modrm.opc )
 		{
-			case 0: /* add */
-				break;
-			case 1: /* or */
-				break;
-			case 2: /* adc */
-				break;
-			case 3: /* sbb */
-				break;
-			case 4: /* and */
-				break;
-			case 5: /* sub */
-				break;
-			case 6: /* xor */
-				break;
-			case 7: /* cmp */
-				break;
+		case 0:	/* add */
+			instr_group_1_80_add8(c,*c->reg8[i->modrm],i->imm8,*c->reg8[i->modrm]);
+			break;
+		case 1:	/* or */
+			break;
+		case 2:	/* adc */
+			break;
+		case 3:	/* sbb */
+			break;
+		case 4:	/* and */
+			break;
+		case 5:	/* sub */
+			break;
+		case 6:	/* xor */
+			break;
+		case 7:	/* cmp */
+			break;
 		}
 	}
 	
