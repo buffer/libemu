@@ -1,0 +1,67 @@
+/* @header@ */
+#include <stdint.h>
+
+#define INSTR_CALC(inttype, a)						\
+inttype operand_a = a;								\
+inttype operation_result = operand_a-1;				\
+a = operation_result;
+
+
+#define INSTR_SET_FLAG_OF(cpu)									\
+{																				\
+	int64_t sz = (int64_t)operand_a;                                            \
+																				\
+	sz--;																		\
+																				\
+	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
+	|| sz != (int64_t)operation_result )									    \
+	{                                                                           \
+		CPU_FLAG_SET(cpu, f_of);                                                \
+	}else                                                                       \
+	{                                                                           \
+		CPU_FLAG_UNSET(cpu, f_of);                                              \
+	}                                                                           \
+}
+
+
+#include "emu/emu_cpu.h"
+#include "emu/emu_cpu_data.h"
+#include "emu/emu_cpu_functions.h"
+#include "emu/emu_memory.h"
+
+
+
+#ifdef INSTR_CALC_AND_SET_FLAGS
+#undef INSTR_CALC_AND_SET_FLAGS
+#endif // INSTR_CALC_AND_SET_FLAGS
+
+#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a)	\
+INSTR_CALC(inttype, a)								\
+INSTR_SET_FLAG_ZF(cpu)											\
+INSTR_SET_FLAG_PF(cpu)											\
+INSTR_SET_FLAG_SF(cpu)											\
+INSTR_SET_FLAG_OF(cpu)								
+
+
+
+
+int32_t instr_dec_4x(struct emu_cpu *c, struct instruction *i)
+{
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* 48+rw
+		 * Decrement r16 by 1
+		 * DEC r16 
+		 */
+		INSTR_CALC_AND_SET_FLAGS(uint16_t, c, *c->reg16[i->opc & 7])
+	}else
+	{
+		/* 48+rw
+		 * Decrement r32 by 1
+		 * DEC r32 
+		 */
+		INSTR_CALC_AND_SET_FLAGS(uint32_t, c, c->reg[i->opc & 7])
+	}
+	return 0;
+}
+

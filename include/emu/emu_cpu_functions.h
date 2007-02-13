@@ -102,6 +102,7 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cmp_3c(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i);
 
+/* group 1*/
 int32_t instr_group_1_80_add(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
 int32_t instr_group_1_80_or (struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
 int32_t instr_group_1_80_adc(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
@@ -111,6 +112,10 @@ int32_t instr_group_1_80_sub(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
 int32_t instr_group_1_80_cmp(struct emu_cpu *cpu, uint8_t a, uint8_t b);
 
+/* inc */
+int32_t instr_inc_4x(struct emu_cpu *c, struct instruction *i);
 
+/* dec */
+int32_t instr_dec_4x(struct emu_cpu *c, struct instruction *i);
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/
