@@ -82,7 +82,7 @@ static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 	/*printf("page 0x%08x maps to 0x%08x\n", PAGE(addr), (uint32_t)em->page_map[PAGE(addr)]);*/
 	if ( em->page_map[PAGE(addr)] == NULL )
 	{
-		emu_errno_set(em->emu,errno);
+		emu_errno_set(em->emu, errno);
 		return -1;
 	} else
 		return 0;
@@ -99,7 +99,7 @@ int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
 {
 	if( m->page_map[PAGE(addr)] == NULL )
 	{
-		emu_errno_set(m->emu,EFAULT);
+		emu_errno_set(m->emu, EFAULT);
 		return -1;
 	}
 
@@ -112,12 +112,12 @@ int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
 
 int32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word)
 {
-	return emu_memory_read_block(m,addr,word,2);
+	return emu_memory_read_block(m, addr, word, 2);
 }
 
 int32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword)
 {
-	return emu_memory_read_block(m,addr,dword,4);
+	return emu_memory_read_block(m, addr, dword, 4);
 }
 
 int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
@@ -126,7 +126,7 @@ int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, s
 	for (i=0;i<len;i++)
 	{
 		int r;
-		if ((r=emu_memory_read_byte(m,addr+i, (uint8_t *)dest+i)) != 0)
+		if ((r=emu_memory_read_byte(m, addr+i, (uint8_t *)dest+i)) != 0)
 			return r;
 	}
 	return 0;
@@ -148,12 +148,12 @@ int32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte)
 
 int32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word)
 {
-	return emu_memory_write_block(m,addr,&word,2);
+	return emu_memory_write_block(m, addr, &word, 2);
 }
 
 int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword)
 {
-	return emu_memory_write_block(m,addr,&dword,4);
+	return emu_memory_write_block(m, addr, &dword, 4);
 }
 
 int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
@@ -163,7 +163,7 @@ int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, s
 	for (i=0;i<len;i++)
 	{
 		int r;
-		if ((r=emu_memory_write_byte(m,addr+i,*(((uint8_t *)src)+i))) != 0)
+		if ((r=emu_memory_write_byte(m, addr+i, *(((uint8_t *)src)+i))) != 0)
 			return r;
 	}
 

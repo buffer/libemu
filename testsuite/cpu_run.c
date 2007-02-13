@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 {
 
 	struct run_options opt;
-	memset(&opt,0,sizeof(struct run_options));
+	memset(&opt, 0, sizeof(struct run_options));
 
 	int c;
 	int i;
@@ -80,60 +80,60 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'A': // eax
-			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.regs[eax] = strtoul(optarg+2,NULL,16);
+			if ( strncmp(optarg,"0x", 2) == 0 )
+				opt.regs[eax] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[eax] = strtoul(optarg,NULL,10);
+				opt.regs[eax] = strtoul(optarg, NULL, 10);
 
 			break;
 
 		case 'B': // ebx
-			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.regs[ebx] = strtoul(optarg+2,NULL,16);
+			if ( strncmp(optarg,"0x", 2) == 0 )
+				opt.regs[ebx] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[ebx]	= strtoul(optarg,NULL,10);
+				opt.regs[ebx]	= strtoul(optarg, NULL, 10);
 			break;
 
 		case 'C': // ecx
-			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.regs[ecx] = strtoul(optarg+2,NULL,16);
+			if ( strncmp(optarg,"0x", 2) == 0 )
+				opt.regs[ecx] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[ecx]	= strtoul(optarg,NULL,10);
+				opt.regs[ecx]	= strtoul(optarg, NULL, 10);
 			break;
 
 		case 'D': // edx
-			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.regs[edx] = strtoul(optarg+2,NULL,16);
+			if ( strncmp(optarg,"0x", 2) == 0 )
+				opt.regs[edx] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[edx]	= strtoul(optarg,NULL,10);
+				opt.regs[edx]	= strtoul(optarg, NULL, 10);
 			break;
 
 		case 'I': // edi
-			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.regs[edi] = strtoul(optarg+2,NULL,16);
+			if ( strncmp(optarg,"0x", 2) == 0 )
+				opt.regs[edi] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[edi]	= strtoul(optarg,NULL,10);
+				opt.regs[edi]	= strtoul(optarg, NULL, 10);
 			break;
 
 		case 'P': // ebp
-			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.regs[ebp] = strtoul(optarg+2,NULL,16);
+			if ( strncmp(optarg,"0x", 2) == 0 )
+				opt.regs[ebp] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[ebp]	= strtoul(optarg,NULL,10);
+				opt.regs[ebp]	= strtoul(optarg, NULL, 10);
 			break;
 
 		case 'X': // esi
-			if ( strncmp(optarg,"0x",2) == 0 )
-				opt.regs[esi] = strtoul(optarg+2,NULL,16);
+			if ( strncmp(optarg,"0x", 2) == 0 )
+				opt.regs[esi] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[esi]	= strtoul(optarg,NULL,10);
+				opt.regs[esi]	= strtoul(optarg, NULL, 10);
 			break;
 
 		case 'Y': // esp
-			if (strncmp(optarg,"0x",2) == 0)
-				opt.regs[esp] = strtoul(optarg+2,NULL,16);
+			if (strncmp(optarg,"0x", 2) == 0)
+				opt.regs[esp] = strtoul(optarg+2, NULL, 16);
 			else
-				opt.regs[esp] = strtoul(optarg,NULL,10);
+				opt.regs[esp] = strtoul(optarg, NULL, 10);
 			break;
 
 		default:
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 */
 	for ( i=0;i<8;i++ )
 	{
-		printf("%s is %08x\n",regm[i],(unsigned int)opt.regs[i]);
+		printf("%s is %08x\n", regm[i],(unsigned int)opt.regs[i]);
 	}
 
 
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 		size = len;
 	}else
 	{
-		printf("reading from file %s\n",argv[optind]);
+		printf("reading from file %s\n", argv[optind]);
 		FILE *f;
 		if (( f = fopen(argv[optind],"r")) == NULL)
 			perror("could not open file");
@@ -225,8 +225,8 @@ int main(int argc, char *argv[])
 		while (feof(f) == 0)
 		{
 			unsigned buffer[BUFSIZ];
-			bytes_read = fread(buffer,1,1,f);
-//			printf("read %i bytes %s %i\n",bytes_read,strerror(errno),ferror(f));
+			bytes_read = fread(buffer, 1, 1, f);
+//			printf("read %i bytes %s %i\n", bytes_read, strerror(errno), ferror(f));
 			if ( (scode = (unsigned char *) realloc(scode, len+bytes_read)) == NULL )
 			{
 				fprintf(stderr, "Error while allocating memory: %s.\n", strerror(errno));
@@ -235,11 +235,11 @@ int main(int argc, char *argv[])
 			memcpy(scode+len, buffer, bytes_read);
 			len += bytes_read;
 		}
-		printf("read %i bytes\n",len);
+		printf("read %i bytes\n", len);
 		int i;
 		for (i=0;i<len;i++)
 		{
-			printf("%02x ",scode[i]);
+			printf("%02x ", scode[i]);
 		}
 		size = len;
 	}
@@ -248,10 +248,10 @@ int main(int argc, char *argv[])
 	struct emu *e = emu_new();
 	for ( i=0;i<8;i++ )
 	{
-		emu_cpu_reg32_set(emu_cpu_get(e),i ,opt.regs[i]);
+		emu_cpu_reg32_set(emu_cpu_get(e), i , opt.regs[i]);
 	}
 
-	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+	emu_log_level_set(emu_logging_get(e), EMU_LOG_DEBUG);
 
 
 	struct emu_memory *mem = emu_memory_get(e);

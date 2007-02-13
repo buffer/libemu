@@ -17,7 +17,7 @@ struct emu_logging
 struct emu_logging *emu_log_new()
 {
 	struct emu_logging *el = (struct emu_logging *)malloc(sizeof(struct emu_logging));
-	memset(el,0,sizeof(struct emu_logging));
+	memset(el, 0, sizeof(struct emu_logging));
 	
 	return el;
 }
@@ -53,10 +53,10 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...)
 	if ( el->emu_log_fn == NULL )
 	{
 		const char *lev[] = {"none","\033[32;1minfo\033[0m","\033[31;1mdebug\033[0m"};
-		fprintf(stderr,"[emu 0x%08x %s ] ",(unsigned int)e,lev[level]);
-		fprintf(stderr,"%s",message);
+		fprintf(stderr,"[emu 0x%08x %s ] ",(unsigned int)e, lev[level]);
+		fprintf(stderr,"%s", message);
 	} else
-		el->emu_log_fn(e,level,message);
+		el->emu_log_fn(e, level, message);
 
 	free(message);
 }

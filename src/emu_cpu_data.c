@@ -5,8 +5,8 @@
 int64_t max_inttype_borders[][2][2] =                                            
 {                                                                          
 	{                                                                      
-		{0,0},                                                             
-		{0,0},                                                             
+		{0, 0},                                                             
+		{0, 0},                                                             
 	},                                                                     
 	{                                                                      
 		{MIN_INT8, MAX_INT8},                                              
@@ -17,8 +17,8 @@ int64_t max_inttype_borders[][2][2] =
 		{MIN_UINT16, MAX_UINT16},                                          
 	},                                                                     
 	{                                                                      
-		{0,0},                                                             
-		{0,0},                                                             
+		{0, 0},                                                             
+		{0, 0},                                                             
 	},                                                                     
 	{                                                                      
 		{MIN_INT32, MAX_INT32},                                            

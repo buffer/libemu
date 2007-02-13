@@ -103,13 +103,13 @@ int32_t instr_cmp_3c(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i);
 
 int32_t instr_group_1_80_add(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
-int32_t instr_group_1_80_or (struct emu_cpu *cpu,uint8_t a,uint8_t b,uint8_t *result);
-int32_t instr_group_1_80_adc(struct emu_cpu *cpu,uint8_t a,uint8_t b,uint8_t *result);
-int32_t instr_group_1_80_sbb(struct emu_cpu *cpu,uint8_t a,uint8_t b,uint8_t *result);
-int32_t instr_group_1_80_and(struct emu_cpu *cpu,uint8_t a,uint8_t b,uint8_t *result);
-int32_t instr_group_1_80_sub(struct emu_cpu *cpu,uint8_t a,uint8_t b,uint8_t *result);
-int32_t instr_group_1_80_xor(struct emu_cpu *cpu,uint8_t a,uint8_t b,uint8_t *result);
-int32_t instr_group_1_80_cmp(struct emu_cpu *cpu,uint8_t a,uint8_t b);
+int32_t instr_group_1_80_or (struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
+int32_t instr_group_1_80_adc(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
+int32_t instr_group_1_80_sbb(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
+int32_t instr_group_1_80_and(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
+int32_t instr_group_1_80_sub(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
+int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
+int32_t instr_group_1_80_cmp(struct emu_cpu *cpu, uint8_t a, uint8_t b);
 
 
 

@@ -150,8 +150,8 @@ void emu_cpu_free(struct emu_cpu *c)
 void emu_cpu_debug_print(struct emu_cpu *c)
 {
 	logDebug(c->emu,"cpu state    eip=0x%08x\n", c->eip);
-	logDebug(c->emu,"eax=0x%08x  ecx=0x%08x  edx=0x%08x  ebx=0x%08x\n",c->reg[eax], c->reg[ecx], c->reg[edx], c->reg[ebx]);
-	logDebug(c->emu,"esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n",c->reg[esp], c->reg[ebp], c->reg[esi], c->reg[edi]);
+	logDebug(c->emu,"eax=0x%08x  ecx=0x%08x  edx=0x%08x  ebx=0x%08x\n", c->reg[eax], c->reg[ecx], c->reg[edx], c->reg[ebx]);
+	logDebug(c->emu,"esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n", c->reg[esp], c->reg[ebp], c->reg[esi], c->reg[edi]);
 
 	                      /* 0     1     2     3      4       5       6     7 */
 	const char *flags[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
@@ -161,17 +161,17 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 
 	char *fmsg;
 	fmsg = (char *)malloc(32*3+1);
-	memset(fmsg,0,32*3+1);
+	memset(fmsg, 0, 32*3+1);
 	int i;
 	for ( i=0;i<32;i++ )
 	{
-		if ( CPU_FLAG_ISSET(c,i) )
+		if ( CPU_FLAG_ISSET(c, i) )
 		{
-			strcat(fmsg,flags[i]);
+			strcat(fmsg, flags[i]);
 			strcat(fmsg," ");
 		}
 	}
-	logDebug(c->emu,"Flags: %s\n",fmsg);
+	logDebug(c->emu,"Flags: %s\n", fmsg);
 	free(fmsg);
 }
 
@@ -330,7 +330,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			if ( ii->function == 0 )
 			{
 				emu_strerror_set(c->emu,"opcode %02x not supported\n", i.opc);
-				emu_errno_set(c->emu,ENOTSUP);
+				emu_errno_set(c->emu, ENOTSUP);
 				return -1;
 			}
 			

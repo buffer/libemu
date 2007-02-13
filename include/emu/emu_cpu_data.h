@@ -130,7 +130,7 @@ extern int64_t max_inttype_borders[][2][2];
 
 
 #if !defined(INSTR_CALC)
-#define INSTR_CALC(inttype,a,b,c,operation)			\
+#define INSTR_CALC(inttype, a, b, c, operation)			\
 inttype operand_a = a;										\
 inttype operand_b = b;										\
 inttype operation_result = operand_a operation operand_b;	\
@@ -141,9 +141,9 @@ c = operation_result;
 #define INSTR_SET_FLAG_ZF(cpu)						\
 {															\
 	if (operation_result == 0)								\
-		CPU_FLAG_SET(cpu,f_zf);								\
+		CPU_FLAG_SET(cpu, f_zf);								\
 	else													\
-		CPU_FLAG_UNSET(cpu,f_zf);							\
+		CPU_FLAG_UNSET(cpu, f_zf);							\
 }
 #endif // INSTR_SET_FLAG_ZF
 
@@ -157,9 +157,9 @@ c = operation_result;
 			num_p_bits++;									\
 															\
 	if ((num_p_bits % 2) == 0)								\
-		CPU_FLAG_SET(cpu,f_pf);								\
+		CPU_FLAG_SET(cpu, f_pf);								\
 	else													\
-		CPU_FLAG_UNSET(cpu,f_pf);							\
+		CPU_FLAG_UNSET(cpu, f_pf);							\
 }
 #endif // INSTR_SET_FLAG_PF
 
@@ -167,14 +167,14 @@ c = operation_result;
 #define INSTR_SET_FLAG_SF(cpu)								\
 {																	\
 	if (operation_result & (1 << (sizeof(operation_result)*8 - 1)))	\
-		CPU_FLAG_SET(cpu,f_sf);										\
+		CPU_FLAG_SET(cpu, f_sf);										\
 	else															\
-		CPU_FLAG_UNSET(cpu,f_sf);									\
+		CPU_FLAG_UNSET(cpu, f_sf);									\
 }
 #endif // INSTR_SET_FLAG_SF
 
 #if !defined(INSTR_SET_FLAG_OF)
-#define INSTR_SET_FLAG_OF(cpu,operand)									\
+#define INSTR_SET_FLAG_OF(cpu, operand)									\
 {																				\
 	int64_t sx = (int64_t)operand_a;                                            \
 	int64_t sy = (int64_t)operand_b;                                            \
@@ -185,17 +185,17 @@ c = operation_result;
 	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
 	|| sz != (int64_t)operation_result )									    \
 	{                                                                           \
-		CPU_FLAG_SET(cpu,f_of);                                                 \
+		CPU_FLAG_SET(cpu, f_of);                                                 \
 	}else                                                                       \
 	{                                                                           \
-		CPU_FLAG_UNSET(cpu,f_of);                                               \
+		CPU_FLAG_UNSET(cpu, f_of);                                               \
 	}                                                                           \
 }
 #endif // INSTR_SET_FLAG_OF
 
 
 #if !defined(INSTR_SET_FLAG_CF)
-#define INSTR_SET_FLAG_CF(cpu,operand)									\
+#define INSTR_SET_FLAG_CF(cpu, operand)									\
 {																				\
 	uint64_t ux = (uint64_t)operand_a;                                           \
 	uint64_t uy = (uint64_t)operand_b;                                           \
@@ -206,10 +206,10 @@ c = operation_result;
 	if (uz < max_inttype_borders[sizeof(operation_result)][1][0] || uz > max_inttype_borders[sizeof(operation_result)][1][1] \
 	|| uz != (uint64_t)operation_result )									    \
 	{                                                                           \
-		CPU_FLAG_SET(cpu,f_cf);                                                 \
+		CPU_FLAG_SET(cpu, f_cf);                                                 \
 	}else                                                                       \
 	{                                                                           \
-		CPU_FLAG_UNSET(cpu,f_cf);                                               \
+		CPU_FLAG_UNSET(cpu, f_cf);                                               \
 	}                                                                           \
 }
 #endif // INSTR_SET_FLAG_CF
@@ -217,8 +217,8 @@ c = operation_result;
 
 
 /*
-#define INSTR_CALC_AND_SET_FLAGS(inttype,cpu,a,b,c,operation,operation_id)	\
-INSTR_CALC(inttype,a,b,c,operation)									\
+#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a, b, c, operation, operation_id)	\
+INSTR_CALC(inttype, a, b, c, operation)									\
 																			\
 if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_zf)) )		\
 	INSTR_SET_FLAG_ZF(cpu)											\
@@ -230,10 +230,10 @@ if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_sf)) )		\
 	INSTR_SET_FLAG_SF(cpu)											\
 																			\
 if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_cf)) )		\
-	INSTR_SET_FLAG_CF(cpu,operation)								\
+	INSTR_SET_FLAG_CF(cpu, operation)								\
 																			\
 if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_of)) )		\
-	INSTR_SET_FLAG_OF(cpu,operation)								\
+	INSTR_SET_FLAG_OF(cpu, operation)								\
 */
 
 

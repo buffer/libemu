@@ -24,18 +24,18 @@ struct emu
 struct emu *emu_new()
 {
 	struct emu *e = (struct emu *)malloc(sizeof(struct emu));
-	memset(e,0,sizeof(struct emu));
+	memset(e, 0, sizeof(struct emu));
 	e->log = emu_log_new();
 	e->memory = emu_memory_new(e);
 	e->cpu = emu_cpu_new(e);
-	logDebug(e,"%s %x\n",__PRETTY_FUNCTION__,(unsigned int)e);
+	logDebug(e,"%s %x\n", __PRETTY_FUNCTION__,(unsigned int)e);
 	return e;
 }
 
 
 void emu_free(struct emu *e)
 {
-	logDebug(e,"%s %x\n",__PRETTY_FUNCTION__,(unsigned int)e);
+	logDebug(e,"%s %x\n", __PRETTY_FUNCTION__,(unsigned int)e);
 	emu_cpu_free(e->cpu);
 	emu_memory_free(e->memory);
 	emu_log_free(e->log);

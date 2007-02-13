@@ -1,7 +1,7 @@
 /* @header@ */
 #include <stdint.h>
 
-#define INSTR_CALC(inttype,a,b,operation)			\
+#define INSTR_CALC(inttype, a, b, operation)			\
 inttype operand_a = a;										\
 inttype operand_b = b;										\
 inttype operation_result = operand_a operation operand_b;	
@@ -18,13 +18,13 @@ inttype operation_result = operand_a operation operand_b;
 #undef INSTR_CALC_AND_SET_FLAGS
 #endif // INSTR_CALC_AND_SET_FLAGS
 
-#define INSTR_CALC_AND_SET_FLAGS(inttype,cpu,a,b,operation)	\
-INSTR_CALC(inttype,a,b,operation)								\
+#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a, b, operation)	\
+INSTR_CALC(inttype, a, b, operation)								\
 INSTR_SET_FLAG_ZF(cpu)											\
 INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											\
-INSTR_SET_FLAG_CF(cpu,operation)								\
-INSTR_SET_FLAG_OF(cpu,operation)								
+INSTR_SET_FLAG_CF(cpu, operation)								\
+INSTR_SET_FLAG_OF(cpu, operation)								
 
 
 int32_t instr_cmp_38(struct emu_cpu *c, struct instruction *i)
@@ -218,7 +218,7 @@ int32_t instr_cmp_3c(struct emu_cpu *c, struct instruction *i)
 {
 	/* 3C ib 
 	 * Compare imm8 with AL
-	 * CMP AL, imm8 
+	 * CMP AL,imm8 
 	 */
 	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
 							 c, 
@@ -234,7 +234,7 @@ int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i)
 	{
 		/* 3D iw 
 		 * Compare imm16 with AX
-		 * CMP AX, imm16  
+		 * CMP AX,imm16  
 		 */
 		INSTR_CALC_AND_SET_FLAGS(uint16_t, 
 								 c, 
@@ -245,7 +245,7 @@ int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i)
 	{
 		/* 3D id 
 		 * Compare imm32 with EAX
-		 * CMP EAX, imm32 
+		 * CMP EAX,imm32 
 		 */
 
 		INSTR_CALC_AND_SET_FLAGS(uint32_t, 
