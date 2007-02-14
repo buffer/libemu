@@ -17,8 +17,13 @@ if (cpu->reg[esp] < 4)								\
 	"ran out of stack space writing a dword\n");	\
 	return -1;										\
 }													\
-emu_memory_write_dword(cpu->mem, cpu->reg[esp], arg);\
-cpu->reg[esp]-=4;											
+if (emu_memory_write_dword(cpu->mem, cpu->reg[esp], arg) == 0) \
+{													\
+	cpu->reg[esp]-=4;								\
+}else												\
+{													\
+	return -1;										\
+}													
 
 
 #define PUSH_WORD_TO_STACK(cpu, arg)				\
@@ -29,8 +34,13 @@ if (cpu->reg[esp] < 2)								\
 	"ran out of stack space writing a word\n");		\
 	return -1;										\
 }													\
-emu_memory_write_word(cpu->mem, cpu->reg[esp], arg);\
-cpu->reg[esp]-=2;											
+if (emu_memory_write_word(cpu->mem, cpu->reg[esp], arg) == 0) \
+{													\
+	cpu->reg[esp]-=2;								\
+}else												\
+{													\
+	return -1;										\
+}													
 
 
 #define PUSH_BYTE_TO_STACK(cpu, arg)				\
@@ -41,8 +51,13 @@ if (cpu->reg[esp] < 1)								\
 	"ran out of stack space writing a byte\n");		\
 	return -1;										\
 }													\
-emu_memory_write_byte(cpu->mem, cpu->reg[esp], arg);\
-cpu->reg[esp]-=1;											
+if (emu_memory_write_byte(cpu->mem, cpu->reg[esp], arg) == 0) \
+{													\
+	cpu->reg[esp]-=1;								\
+}else												\
+{													\
+	return -1;										\
+}													
 
 
 

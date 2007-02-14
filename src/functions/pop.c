@@ -7,13 +7,17 @@
 #include "emu/emu_memory.h"
 
 #define POP_DWORD_FROM_STACK(cpu, dst)\
-return emu_memory_read_dword(cpu->mem, cpu->reg[esp],dst); \
+cpu->reg[esp] += 4;											\
+return emu_memory_read_dword(cpu->mem, cpu->reg[esp],dst); 	\
 
 #define POP_WORD_FROM_STACK(cpu, dst)\
-return emu_memory_read_word(cpu->mem, cpu->reg[esp],dst); \
+cpu->reg[esp] += 2;											\
+return emu_memory_read_word(cpu->mem, cpu->reg[esp],dst); 	\
 
 #define POP_BYTE_FROM_STACK(cpu, dst)\
-return emu_memory_read_byte(cpu->mem, cpu->reg[esp],dst); \
+cpu->reg[esp] += 1;											\
+return emu_memory_read_byte(cpu->mem, cpu->reg[esp],dst); 	\
+
 
 int32_t instr_pop_07(struct emu_cpu *c, struct instruction *i)
 {
