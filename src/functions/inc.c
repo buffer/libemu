@@ -2,15 +2,15 @@
 #include <stdint.h>
 
 #define INSTR_CALC(inttype, a)						\
-inttype operand_a = a;								\
-inttype operation_result = operand_a+1;				\
+uint##inttype##_t operand_a = a;								\
+uint##inttype##_t operation_result = operand_a+1;				\
 a = operation_result;
 
 
 
-#define INSTR_SET_FLAG_OF(cpu)									\
+#define INSTR_SET_FLAG_OF(cpu, inttype)									\
 {																				\
-	int64_t sz = (int64_t)operand_a;                                            \
+	int64_t sz = (int##inttype##_t)operand_a;                                            \
 																				\
 	sz++;																	\
 																				\
@@ -38,10 +38,10 @@ a = operation_result;
 
 #define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a)	\
 INSTR_CALC(inttype, a)								\
-INSTR_SET_FLAG_ZF(cpu)											\
-INSTR_SET_FLAG_PF(cpu)											\
-INSTR_SET_FLAG_SF(cpu)											\
-INSTR_SET_FLAG_OF(cpu)								
+INSTR_SET_FLAG_ZF(cpu)								\
+INSTR_SET_FLAG_PF(cpu)								\
+INSTR_SET_FLAG_SF(cpu)								\
+INSTR_SET_FLAG_OF(cpu,inttype)								
 
 
 
@@ -54,14 +54,14 @@ int32_t instr_inc_4x(struct emu_cpu *c, struct instruction *i)
 		 * Increment word register by 1
 		 * INC r16 
 		 */
-		INSTR_CALC_AND_SET_FLAGS(uint16_t, c, *c->reg16[i->opc & 7])
+		INSTR_CALC_AND_SET_FLAGS(16, c, *c->reg16[i->opc & 7])
 	}else
 	{
 		/* 40+ rd 
 		 * Increment doubleword register by 1
 		 * INC r32 
 		 */
-		INSTR_CALC_AND_SET_FLAGS(uint32_t, c, c->reg[i->opc & 7])
+		INSTR_CALC_AND_SET_FLAGS(32, c, c->reg[i->opc & 7])
 	}
 	return 0;
 }

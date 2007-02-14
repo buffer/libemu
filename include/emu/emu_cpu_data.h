@@ -131,9 +131,9 @@ extern int64_t max_inttype_borders[][2][2];
 
 #if !defined(INSTR_CALC)
 #define INSTR_CALC(inttype, a, b, c, operation)			\
-inttype operand_a = a;										\
-inttype operand_b = b;										\
-inttype operation_result = operand_a operation operand_b;	\
+uint##inttype##_t operand_a = a;								\
+uint##inttype##_t operand_b = b;								\
+uint##inttype##_t operation_result = operand_a operation operand_b;	\
 c = operation_result;
 #endif // INSTR_CALC
 
@@ -174,10 +174,10 @@ c = operation_result;
 #endif // INSTR_SET_FLAG_SF
 
 #if !defined(INSTR_SET_FLAG_OF)
-#define INSTR_SET_FLAG_OF(cpu, operand)									\
+#define INSTR_SET_FLAG_OF(cpu, operand, inttype)								\
 {																				\
-	int64_t sx = (int64_t)operand_a;                                            \
-	int64_t sy = (int64_t)operand_b;                                            \
+	int64_t sx = (int##inttype##_t)operand_a;                                   \
+	int64_t sy = (int##inttype##_t)operand_b;                                   \
 	int64_t sz = 0;                                                             \
 																				\
 	sz = sx operand sy;															\

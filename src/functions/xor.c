@@ -33,7 +33,7 @@ int32_t instr_xor_30(struct emu_cpu *c, struct instruction *i)
 	{
 		uint8_t dst;
 		MEM_BYTE_READ(c, i->modrm.ea, &dst);
-		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
+		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
 								 dst, 
 								 *c->reg8[i->modrm.opc], 
@@ -42,7 +42,7 @@ int32_t instr_xor_30(struct emu_cpu *c, struct instruction *i)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
 	} else
 	{
-		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
+		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
 								 *c->reg8[i->modrm.rm], 
 								 *c->reg8[i->modrm.opc], 
@@ -66,7 +66,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 
 			uint16_t dst;
 			MEM_WORD_READ(c, i->modrm.ea, &dst);
-			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
 									 dst, 
 									 *c->reg16[i->modrm.opc], 
@@ -82,7 +82,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 
 			uint32_t dst;
 			MEM_DWORD_READ(c, i->modrm.ea, &dst);
-			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 dst, 
 									 c->reg[i->modrm.opc], 
@@ -99,7 +99,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 			 * XOR r/m16,r16   
 			 */
 
-			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
@@ -112,7 +112,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 			 * XOR r/m32,r32   
 			 */
 
-			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
@@ -136,7 +136,7 @@ int32_t instr_xor_32(struct emu_cpu *c, struct instruction *i)
 		uint8_t op;
 		MEM_BYTE_READ(c, i->modrm.ea, &op);
 
-		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
+		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
 								 op, 
 								 *c->reg8[i->modrm.opc], 
@@ -144,7 +144,7 @@ int32_t instr_xor_32(struct emu_cpu *c, struct instruction *i)
 								 ^)
 	} else
 	{
-		INSTR_CALC_AND_SET_FLAGS(uint8_t, 
+		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.rm], 
@@ -170,7 +170,7 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 			uint16_t op;
 			MEM_WORD_READ(c, i->modrm.ea, &op);
 
-			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
 									 op,
 									 *c->reg16[i->modrm.opc], 
@@ -185,7 +185,7 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 
 			uint32_t op;
 			MEM_DWORD_READ(c, i->modrm.ea, &op);
-			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 op,
 									 c->reg[i->modrm.opc], 
@@ -200,7 +200,7 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 			 * r8 XOR r/m8
 			 * XOR r16,r/m16   
 			 */
-			INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
@@ -212,7 +212,7 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 			 * r8 XOR r/m8
 			 * XOR r32,r/m32   
 			 */
-			INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
@@ -231,7 +231,7 @@ int32_t instr_xor_34(struct emu_cpu *c, struct instruction *i)
 	 * XOR AL,imm8
 	 */
 
-	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
+	INSTR_CALC_AND_SET_FLAGS(8, 
 							 c, 
 							 *c->reg8[al], 
 							 *i->imm8, 
@@ -251,7 +251,7 @@ int32_t instr_xor_35(struct emu_cpu *c, struct instruction *i)
 		 * XOR AX,imm16
 		 */
 
-		INSTR_CALC_AND_SET_FLAGS(uint16_t, 
+		INSTR_CALC_AND_SET_FLAGS(16, 
 								 c, 
 								 *c->reg16[ax], 
 								 *i->imm16, 
@@ -263,7 +263,7 @@ int32_t instr_xor_35(struct emu_cpu *c, struct instruction *i)
 		 * EAX XOR imm32
 		 * XOR EAX,imm32
 		 */
-		INSTR_CALC_AND_SET_FLAGS(uint32_t, 
+		INSTR_CALC_AND_SET_FLAGS(32, 
 								 c, 
 								 c->reg[eax], 
 								 i->imm, 
@@ -276,7 +276,7 @@ int32_t instr_xor_35(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
 {
-	INSTR_CALC_AND_SET_FLAGS(uint8_t, 
+	INSTR_CALC_AND_SET_FLAGS(8, 
 							 cpu, 
 							 a, 
 							 b, 
