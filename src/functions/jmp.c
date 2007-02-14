@@ -54,34 +54,3 @@ int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-
-int32_t instr_jmp_ff(struct emu_cpu *c, struct instruction *i)
-{
-
-	/* FF /4  
-	 * Jump near, absolute indirect, address given in r/m16                   
-	 * JMP r/m16    
-	 */
-
-
-	/* FF /4  
-	 * Jump near, absolute indirect, address given in r/m32                   
-	 * JMP r/m32    
-	 */
-
-
-	/* FF /5  
-	 * Jump far, absolute indirect, address given in m16:16                   
-	 * JMP m16:16   
-	 */
-
-
-	/* FF /5  
-	 * Jump far, absolute indirect, address given in m16:32                   
-	 * JMP m16:32   
-	 */
-
-
-	return 0;
-}
-

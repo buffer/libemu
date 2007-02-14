@@ -60,24 +60,6 @@ int32_t instr_pop_5x(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_8f(struct emu_cpu *c, struct instruction *i)
-{
-
-	/* 8F /0  
-	 * Pop top of stack into m16; increment stack pointer  
-	 * POP m16 
-	 */
-
-
-	/* 8F /0  
-	 * Pop top of stack into m32; increment stack pointer  
-	 * POP m32 
-	 */																   
-
-
-	return 0;
-}
-
 int32_t instr_pop_0fa1(struct emu_cpu *c, struct instruction *i)
 {
 

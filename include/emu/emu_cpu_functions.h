@@ -102,7 +102,7 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cmp_3c(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i);
 
-/* group 1*/
+/* group 1 */
 int32_t instr_group_1_80_add(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
 int32_t instr_group_1_80_or (struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
 int32_t instr_group_1_80_adc(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
@@ -111,6 +111,14 @@ int32_t instr_group_1_80_and(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 int32_t instr_group_1_80_sub(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
 int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result);
 int32_t instr_group_1_80_cmp(struct emu_cpu *cpu, uint8_t a, uint8_t b);
+
+/* group 5 */
+int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_group_5_ff_push(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_5_ff_call(struct emu_cpu *c, struct instruction *i);
+
+/* group 10 */
+int32_t instr_group_10_8f_pop(struct emu_cpu *c, struct instruction *i);
 
 /* inc */
 int32_t instr_inc_4x(struct emu_cpu *c, struct instruction *i);
@@ -157,7 +165,6 @@ int32_t instr_jcc_0f8f(struct emu_cpu *c, struct instruction *i);
 int32_t instr_jmp_e9(struct emu_cpu *c, struct instruction *i); 
 int32_t instr_jmp_ea(struct emu_cpu *c, struct instruction *i); 
 int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i); 
-int32_t instr_jmp_ff(struct emu_cpu *c, struct instruction *i); 
 
 /* mov */
 int32_t instr_mov_88(struct emu_cpu *c, struct instruction *i);
@@ -179,7 +186,6 @@ int32_t instr_pop_07(struct emu_cpu *c, struct instruction *i);
 int32_t instr_pop_17(struct emu_cpu *c, struct instruction *i);
 int32_t instr_pop_1f(struct emu_cpu *c, struct instruction *i);
 int32_t instr_pop_5x(struct emu_cpu *c, struct instruction *i);
-int32_t instr_pop_8f(struct emu_cpu *c, struct instruction *i);
 int32_t instr_pop_0fa1(struct emu_cpu *c, struct instruction *i);
 int32_t instr_pop_0fa9(struct emu_cpu *c, struct instruction *i);
 																 
@@ -191,14 +197,12 @@ int32_t instr_push_1e(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_5x(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_68(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_6a(struct emu_cpu *c, struct instruction *i);
-int32_t instr_push_ff(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_0fa0(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_0f08(struct emu_cpu *c, struct instruction *i);
 
 /* call */
 int32_t instr_call_9a(struct emu_cpu *c, struct instruction *i);
 int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i);
-int32_t instr_call_ff(struct emu_cpu *c, struct instruction *i);
 
 
 

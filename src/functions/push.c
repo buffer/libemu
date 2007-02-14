@@ -164,29 +164,6 @@ int32_t instr_push_6a(struct emu_cpu *c, struct instruction *i)
 
 
 
-
-int32_t instr_push_ff(struct emu_cpu *c, struct instruction *i)
-{
-	if ( i->prefixes & PREFIX_OPSIZE )
-	{
-
-		/* FF /6 
-		 * Push r/m16    
-		 * PUSH r/m16 
-		 */
-
-	} else
-	{
-
-
-		/* FF /6 
-		 * Push r/m32    
-		 * PUSH r/m32 
-		 */
-	}
-	return 0;
-}
-
 int32_t instr_push_0fa0(struct emu_cpu *c, struct instruction *i)
 {
 	/* 0F A0 

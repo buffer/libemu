@@ -46,30 +46,3 @@ int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_call_ff(struct emu_cpu *c, struct instruction *i)
-{
-
-	/* FF /2  
-	 * CALL r/m16    
-	 * Call near, absolute indirect, address given in r/m16   
-	 */
-
-	/* FF /2  
-	 * CALL r/m32    
-	 * Call near, absolute indirect, address given in r/m32   
-	 */
-
-	/* FF /3  
-	 * CALL m16:16   
-	 * Call far, absolute indirect, address given in m16:16  
-	 */
-
-	/* FF /3  
-	 * CALL m16:32   
-	 * Call far, absolute indirect, address given in m16:32  
-	 */
-
-
-	return 0;
-}
-
