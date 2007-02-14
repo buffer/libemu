@@ -6,17 +6,26 @@
 #include "emu/emu_cpu_functions.h"
 #include "emu/emu_memory.h"
 
-#define POP_DWORD_FROM_STACK(cpu, dst)\
-cpu->reg[esp] += 4;											\
-return emu_memory_read_dword(cpu->mem, cpu->reg[esp],dst); 	\
+#define POP_DWORD_FROM_STACK(cpu, dst) \
+int32_t ret = emu_memory_read_dword(cpu->mem, cpu->reg[esp], dst); \
+if( ret != 0 ) \
+	return ret; \
+else \
+	cpu->reg[esp] += 4;
 
-#define POP_WORD_FROM_STACK(cpu, dst)\
-cpu->reg[esp] += 2;											\
-return emu_memory_read_word(cpu->mem, cpu->reg[esp],dst); 	\
+#define POP_WORD_FROM_STACK(cpu, dst) \
+int32_t ret = emu_memory_read_word(cpu->mem, cpu->reg[esp], dst); \
+if( ret != 0 ) \
+	return ret; \
+else \
+	cpu->reg[esp] += 2;
 
-#define POP_BYTE_FROM_STACK(cpu, dst)\
-cpu->reg[esp] += 1;											\
-return emu_memory_read_byte(cpu->mem, cpu->reg[esp],dst); 	\
+#define POP_BYTE_FROM_STACK(cpu, dst) \
+int32_t ret = emu_memory_read_byte(cpu->mem, cpu->reg[esp], dst); \
+if( ret != 0 ) \
+	return ret; \
+else \
+	cpu->reg[esp] += 1;
 
 
 int32_t instr_pop_07(struct emu_cpu *c, struct instruction *i)
