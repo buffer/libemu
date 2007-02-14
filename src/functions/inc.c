@@ -57,7 +57,7 @@ int32_t instr_inc_4x(struct emu_cpu *c, struct instruction *i)
 		INSTR_CALC_AND_SET_FLAGS(uint16_t, c, *c->reg16[i->opc & 7])
 	}else
 	{
-		/* 40+ rw 
+		/* 40+ rd 
 		 * Increment doubleword register by 1
 		 * INC r32 
 		 */
