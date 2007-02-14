@@ -459,21 +459,21 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				{
 					uint32_t disp32;
 					ret = emu_memory_read_dword(c->mem, c->eip, &disp32);
-					i.disp = disp32;
+					i.disp = (int32_t)disp32;
 					c->eip += 4;
 				}
 				else if( i.operand_size == OPSIZE_16 )
 				{
 					uint16_t disp16;
 					ret = emu_memory_read_word(c->mem, c->eip, &disp16);
-					i.disp = disp16;
+					i.disp = (int16_t)disp16;
 					c->eip += 2;
 				}
 				else if( i.operand_size == OPSIZE_8 )
 				{
 					uint8_t disp8;
 					ret = emu_memory_read_byte(c->mem, c->eip++, &disp8);
-					i.disp = disp8;
+					i.disp = (int8_t)disp8;
 				}
 
 				if( ret != 0 )

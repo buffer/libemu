@@ -78,7 +78,8 @@ struct instruction
 	uint32_t imm;
 	uint16_t *imm16;
 	uint8_t *imm8;
-	uint32_t disp;
+
+	int32_t disp;
 };
 
 #define MODRM_MOD(x) (((x) >> 6) & 3)
