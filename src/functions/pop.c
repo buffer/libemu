@@ -78,7 +78,7 @@ int32_t instr_pop_8f(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_0f_a1(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_0fa1(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F A1  
@@ -90,7 +90,7 @@ int32_t instr_pop_0f_a1(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_0f_a9(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_0fa9(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F A9  

@@ -130,7 +130,7 @@ int32_t instr_push_ff(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_push_0f_a0(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_0fa0(struct emu_cpu *c, struct instruction *i)
 {
 	/* 0F A0 
 	 * Push FS       
@@ -142,7 +142,7 @@ int32_t instr_push_0f_a0(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_push_0f_08(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_0f08(struct emu_cpu *c, struct instruction *i)
 {
 	/* 0F A8 
 	 * Push GS       

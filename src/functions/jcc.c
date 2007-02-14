@@ -170,7 +170,7 @@ int32_t instr_jcc_e3(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_80(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f80(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 80 cw/cd  Jump near if overflow (OF=1)                           JO rel16/32     */
@@ -179,7 +179,7 @@ int32_t instr_jcc_0f_80(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_81(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f81(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 81 cw/cd  Jump near if not overflow (OF=0)                       JNO rel16/32    */
@@ -188,7 +188,7 @@ int32_t instr_jcc_0f_81(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_82(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f82(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 82 cw/cd  Jump near if below (CF=1)                              JB rel16/32     */
@@ -199,7 +199,7 @@ int32_t instr_jcc_0f_82(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_83(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f83(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 83 cw/cd  Jump near if above or equal (CF=0)                     JAE rel16/32    */
@@ -210,7 +210,7 @@ int32_t instr_jcc_0f_83(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_84(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f84(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 84 cw/cd  Jump near if equal (ZF=1)                              JE rel16/32     */
@@ -220,7 +220,7 @@ int32_t instr_jcc_0f_84(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_85(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f85(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 85 cw/cd  Jump near if not equal (ZF=0)                          JNE rel16/32    */
@@ -230,7 +230,7 @@ int32_t instr_jcc_0f_85(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_86(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f86(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 86 cw/cd  Jump near if below or equal (CF=1 or ZF=1)             JBE rel16/32    */
@@ -240,7 +240,7 @@ int32_t instr_jcc_0f_86(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_87(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f87(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 87 cw/cd  Jump near if above (CF=0 and ZF=0)                     JA rel16/32     */
@@ -250,7 +250,7 @@ int32_t instr_jcc_0f_87(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_88(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f88(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 88 cw/cd  Jump near if sign (SF=1)                               JS rel16/32     */
@@ -259,7 +259,7 @@ int32_t instr_jcc_0f_88(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_89(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f89(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 89 cw/cd  Jump near if not sign (SF=0)                           JNS rel16/32    */
@@ -268,7 +268,7 @@ int32_t instr_jcc_0f_89(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_8a(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f8a(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 8A cw/cd  Jump near if parity even (PF=1)                        JPE rel16/32    */
@@ -278,7 +278,7 @@ int32_t instr_jcc_0f_8a(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_8b(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f8b(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 8B cw/cd  Jump near if not parity (PF=0)                         JNP rel16/32    */
@@ -288,7 +288,7 @@ int32_t instr_jcc_0f_8b(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_8c(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f8c(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 8C cw/cd  Jump near if less (SF<>OF)                             JL rel16/32     */
@@ -298,7 +298,7 @@ int32_t instr_jcc_0f_8c(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_8d(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f8d(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 8D cw/cd  Jump near if greater or equal (SF=OF)                  JGE rel16/32    */
@@ -308,7 +308,7 @@ int32_t instr_jcc_0f_8d(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_8e(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f8e(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 8E cw/cd  Jump near if less or equal (ZF=1 or SF<>OF)            JLE rel16/32    */
@@ -318,7 +318,7 @@ int32_t instr_jcc_0f_8e(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jcc_0f_8f(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jcc_0f8f(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 0F 8F cw/cd  Jump near if greater (ZF=0 and SF=OF)                  JG rel16/32     */
