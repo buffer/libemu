@@ -175,8 +175,8 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 op,
 									 *c->reg16[i->modrm.opc], 
+									 op,
 									 *c->reg16[i->modrm.opc], 
 									 -)
 		} else
@@ -191,8 +191,8 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 			MEM_DWORD_READ(c, i->modrm.ea, &op);
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 op,
 									 c->reg[i->modrm.opc], 
+									 op,
 									 c->reg[i->modrm.opc], 
 									 -)
 		}
@@ -209,8 +209,8 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
 									 -)
 		} else
@@ -223,8 +223,8 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
 									 -)
 		}
