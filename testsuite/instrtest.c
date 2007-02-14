@@ -85,7 +85,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x01,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags = FLAG_SET(f_cf) | FLAG_SET(f_of) | FLAG_SET(f_pf) | FLAG_SET(f_zf),
+		.out_state.eflags = FLAG_SET(f_cf) | FLAG_SET(f_pf) | FLAG_SET(f_zf),
 	},
 	{
 		.instr = "add ch,dl",
@@ -156,7 +156,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0,0,0x100,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_cf) | FLAG_SET(f_pf) | FLAG_SET(f_zf) | FLAG_SET(f_of), 
+		.out_state.eflags =  FLAG_SET(f_cf) | FLAG_SET(f_pf) | FLAG_SET(f_zf), 
 	},
 	{
 		.instr = "add al,[ecx]",
@@ -435,6 +435,200 @@ struct instr_test tests[] =
 
 
 
+
+
+
+
+
+
+    /* 10 */
+	{
+		.instr = "adc ah,al",
+//		.code = "\x00\xc4",
+//		.codesize = 2,
+		.in_state.reg  = {0xff01,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0x101,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+		.out_state.eflags = FLAG_SET(f_cf) ,
+	},
+	{
+		.instr = "adc ch,dl",
+//		.code = "\x00\xd5",
+//		.codesize = 2,
+		.in_state.reg  = {0,0x1000,0x20,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0,0x3100,0x20,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+
+	},
+	{
+		.instr = "adc [ecx],al",
+//		.code = "\x00\x01",
+//		.codesize = 2,
+		.in_state.reg  = {0x10,0x40000,0,0,0,0,0,0},
+		.in_state.mem_state = {0x40000, 0x10101010},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0x10,0x40000,0,0,0,0,0,0},
+		.out_state.mem_state = {0x40000, 0x10101021},
+		.out_state.eflags = FLAG_SET(f_pf) ,
+	},
+	/* 11 */
+	{
+		.instr = "adc ax,cx",
+//		.code = "\x66\x01\xc8",
+//		.codesize = 3,
+		.in_state.reg  = {0xffff1111,0xffff2222,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0xffff3334,0xffff2222,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+//		.out_state.eflags =  FLAG_SET(f_pf), 
+	},
+	{
+		.instr = "adc [ecx],ax",
+//		.code = "\x66\x01\x01",
+//		.codesize = 3,
+		.in_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
+		.in_state.mem_state = {0x40000, 0x22224444},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
+		.out_state.mem_state = {0x40000, 0x22225556},
+		.out_state.eflags =  FLAG_SET(f_pf), 
+	},
+	{
+		.instr = "adc eax,ecx",
+//		.code = "\x01\xc8",
+//		.codesize = 2,
+		.in_state.reg  = {0x11112222,0x22221111,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0x33333334,0x22221111,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+//		.out_state.eflags =  FLAG_SET(f_pf), 
+	},
+	{
+		.instr = "adc [ecx],eax",
+//		.code = "\x01\x01",
+//		.codesize = 2,
+		.in_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
+		.in_state.mem_state = {0x40000, 0x22224444},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
+		.out_state.mem_state = {0x40000, 0x44445556},
+		.out_state.eflags =  FLAG_SET(f_pf), 
+	},
+	/* 12 */
+	{
+		.instr = "adc cl,bh",
+//		.code = "\x02\xcf",	/* adc cl,bh */
+//		.codesize = 2,
+		.in_state.reg  = {0,0xff,0,0x100,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0,0x1,0,0x100,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_cf), 
+	},
+	{
+		.instr = "adc al,[ecx]",
+//		.code = "\x02\x01",
+//		.codesize = 2,
+		.in_state.reg  = {0x3,0x40000,0,0,0,0,0,0},
+		.in_state.mem_state = {0x40000, 0x30303030},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0x34,0x40000,0,0,0,0,0,0},
+		.out_state.mem_state = {0x40000, 0x30303030},
+
+	},
+	/* 13 */
+	{
+		.instr = "adc cx,di",
+//		.code = "\x66\x03\xcf",	/* adc cx,di */
+//		.codesize = 3,
+		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202},
+		.in_state.mem_state = {0, 0},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0,0x10101213,0,0,0,0,0,0x02020202},
+		.out_state.mem_state = {0, 0},
+
+	},
+	{
+		.instr = "adc ax,[ecx]",
+//		.code = "\x66\x03\x01",
+//		.codesize = 3,
+		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0},
+		.in_state.mem_state = {0x40000, 0x44443333},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0x11115556,0x40000,0,0,0,0,0,0},
+		.out_state.mem_state = {0x40000, 0x44443333},
+		.out_state.eflags =  FLAG_SET(f_pf),
+	},
+	{
+		.instr = "adc ecx,edi",
+//		.code = "\x03\xcf",	/* adc ecx,edi */
+//		.codesize = 2,
+		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202},
+		.in_state.mem_state = {0, 0},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0,0x12121213,0,0,0,0,0,0x02020202},
+		.out_state.mem_state = {0, 0},
+//		.out_state.eflags =  FLAG_SET(f_pf),
+	},
+	{
+		.instr = "adc eax,[ecx]",
+//		.code = "\x03\x01",
+//		.codesize = 2,
+		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0},
+		.in_state.mem_state = {0x40000, 0x44443333},
+		.in_state.eflags = FLAG_SET(f_cf),
+		.out_state.reg  = {0x55555556,0x40000,0,0,0,0,0,0},
+		.out_state.mem_state = {0x40000, 0x44443333},
+		.out_state.eflags =  FLAG_SET(f_pf),
+	},
+	{
+		.instr = "adc ecx,[ebx+eax*4+0xdeadbeef]",
+//		.code = "\x03\x8c\x83\xef\xbe\xad\xde",
+//		.codesize = 7,
+		.in_state.reg  = {0x2,0x1,0,0x1,0,0,0,0},
+		.in_state.mem_state = {0xdeadbef8, 0x44443333},
+		.out_state.reg  = {0x2,0x44443334,0,0x1,0,0,0,0},
+		.out_state.mem_state = {0xdeadbef8, 0x44443333},
+	},
+	/* 14 */
+	{
+		.instr = "adc al,0x11",
+//		.code = "\x04\x11",
+//		.codesize = 2,
+		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x22222233,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
+	},
+	/* 15 */
+	{
+		.instr = "adc ax,0x1111",
+//		.code = "\x66\x05\x11\x11",
+//		.codesize = 4,
+		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
+	},
+	{
+		.instr = "adc eax,0x11111111",
+//		.code = "\x05\x11\x11\x11\x11",
+//		.codesize = 5,
+		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+		.out_state.eflags =  FLAG_SET(f_pf),
+	},
 
 };
 

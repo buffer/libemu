@@ -15,7 +15,7 @@ c = operation_result;
 	int64_t sz = 0;                                                             \
 																				\
 	sz = sx operand sy operand ((cpu->eflags & (1 << f_cf))?1:0);						\
-	printf("of: sx %lli + sy %lli + cf %i = sz %lli \n", sx, sy, (cpu->eflags & (1 << f_cf))?1:0, sz);\
+	/*printf("of: sx %lli + sy %lli + cf %i = sz %lli \n", sx, sy, (cpu->eflags & (1 << f_cf))?1:0, sz);*/\
 																			\
 	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
 	|| sz != (int64_t)operation_result )									    \
@@ -33,7 +33,7 @@ c = operation_result;
 	uint64_t uy = (uint64_t)operand_b;                                          \
 	uint64_t uz = 0;                                                            \
 	uz = ux operand uy operand ((cpu->eflags & (1 << f_cf))?1:0);					\
-	printf("cf: ux %lli + uy %lli + cf %i = uz %lli \n", ux, uy, (cpu->eflags & (1 << f_cf))?1:0, uz);\
+	/*printf("cf: ux %lli + uy %lli + cf %i = uz %lli \n", ux, uy, (cpu->eflags & (1 << f_cf))?1:0, uz);*/\
 																				\
 	if (uz < max_inttype_borders[sizeof(operation_result)][1][0] || uz > max_inttype_borders[sizeof(operation_result)][1][1] \
 	|| uz != (uint64_t)operation_result )									    \
