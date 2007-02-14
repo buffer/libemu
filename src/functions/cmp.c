@@ -42,7 +42,7 @@ int32_t instr_cmp_38(struct emu_cpu *c, struct instruction *i)
 								 dst, 
 								 *c->reg8[i->modrm.opc], 
 								 -)
-		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
+//		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
 	} else
 	{
 		INSTR_CALC_AND_SET_FLAGS(8, 
@@ -72,7 +72,7 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 dst, 
 									 *c->reg16[i->modrm.opc], 
 									 -)
-			MEM_WORD_WRITE(c, i->modrm.ea, dst);
+//			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 		} else
 		{
 
@@ -88,7 +88,7 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 dst, 
 									 c->reg[i->modrm.opc], 
 									 -)
-			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
+//			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
 	} else
 	{
@@ -136,8 +136,8 @@ int32_t instr_cmp_3a(struct emu_cpu *c, struct instruction *i)
 
 		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
+                                 *c->reg8[i->modrm.opc], 
 								 op, 
-								 *c->reg8[i->modrm.opc], 
 								 -)
 	} else
 	{
@@ -166,8 +166,8 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 			MEM_WORD_READ(c, i->modrm.ea, &op);
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 op,
 									 *c->reg16[i->modrm.opc], 
+									 op,
 									 -)
 		} else
 		{
@@ -179,9 +179,9 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 			MEM_DWORD_READ(c, i->modrm.ea, &op);
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 op,
 									 c->reg[i->modrm.opc], 
-									 -)
+									 op,
+                                     -)
 		}
 	} else
 	{
@@ -193,9 +193,9 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
-									 -)
+									 *c->reg16[i->modrm.rm], 
+                                     -)
 		} else
 		{
 			/* 3B /r
@@ -204,8 +204,8 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 -)
 		}
 	}
