@@ -20,17 +20,21 @@ libemu_la_SOURCES += emu_cpu.c
 libemu_la_SOURCES += functions/adc.c
 libemu_la_SOURCES += functions/add.c
 libemu_la_SOURCES += functions/and.c
+libemu_la_SOURCES += functions/call.c
 libemu_la_SOURCES += functions/cmp.c
 libemu_la_SOURCES += functions/dec.c
+libemu_la_SOURCES += functions/group_1.c
 libemu_la_SOURCES += functions/inc.c
 libemu_la_SOURCES += functions/jcc.c
 libemu_la_SOURCES += functions/jmp.c
 libemu_la_SOURCES += functions/misc.c
+libemu_la_SOURCES += functions/mov.c
 libemu_la_SOURCES += functions/or.c
+libemu_la_SOURCES += functions/pop.c
+libemu_la_SOURCES += functions/push.c
 libemu_la_SOURCES += functions/sbb.c
 libemu_la_SOURCES += functions/sub.c
 libemu_la_SOURCES += functions/xor.c
-libemu_la_SOURCES += functions/group_1.c
 
 
 libemu_la_LDFLAGS = -no-undefined -version-info @libemu_soname@ -export-symbols-regex "^emu_"
