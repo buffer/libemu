@@ -122,14 +122,24 @@ int32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dwo
 
 int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
 {
-	int i;
-	for (i=0;i<len;i++)
+	if( m->page_map[PAGE(addr)] == NULL )
 	{
-		int r;
-		if ((r=emu_memory_read_byte(m, addr+i, (uint8_t *)dest+i)) != 0)
-			return r;
+		emu_errno_set(m->emu, EFAULT);
+		return -1;
 	}
-	return 0;
+
+	if (OFFSET(addr) + len <= PAGE_SIZE)
+	{
+		void *address = translate_addr(m, addr);
+		memcpy(dest, address, len);
+		return 0;
+	}else
+	{
+		void *address = translate_addr(m, addr);
+		uint32_t cb = PAGE_SIZE - OFFSET(addr);
+		memcpy(dest, address, cb);
+		return emu_memory_read_block(m, addr + cb, dest + cb, len - cb);
+	}
 }
 
 
@@ -158,15 +168,22 @@ int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dwo
 
 int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
 {
-	int i;
-	
-	for (i=0;i<len;i++)
-	{
-		int r;
-		if ((r=emu_memory_write_byte(m, addr+i, *(((uint8_t *)src)+i))) != 0)
-			return r;
-	}
+	if( m->page_map[PAGE(addr)] == NULL )
+		if( page_alloc(m, addr) == -1 )
+			return -1;
 
+	if (OFFSET(addr) + len <= PAGE_SIZE)
+	{
+		void *address = translate_addr(m, addr);
+		memcpy(address, src, len);
+		return 0;
+	}else
+	{
+		void *address = translate_addr(m, addr);
+		uint32_t cb = PAGE_SIZE - OFFSET(addr);
+		memcpy(address, src, cb);
+		return emu_memory_write_block(m, addr + cb, src + cb, len - cb);
+	}
 
 	return 0;
 
