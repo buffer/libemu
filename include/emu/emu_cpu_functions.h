@@ -118,4 +118,46 @@ int32_t instr_inc_4x(struct emu_cpu *c, struct instruction *i);
 /* dec */
 int32_t instr_dec_4x(struct emu_cpu *c, struct instruction *i);
 
+/* jcc */
+int32_t instr_jcc_70(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_71(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_72(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_73(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_74(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_75(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_76(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_77(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_78(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_79(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_7a(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_7b(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_7c(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_7d(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_7e(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_7f(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_e3(struct emu_cpu *c, struct instruction *i);
+int32_t instr_jcc_0f_80(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_81(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_82(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_83(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_84(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_85(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_86(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_87(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_88(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_89(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_8a(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_8b(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_8c(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_8d(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_8e(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jcc_0f_8f(struct emu_cpu *c, struct instruction *i); 
+
+/* jump */
+int32_t instr_jmp_e9(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jmp_ea(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i); 
+int32_t instr_jmp_ff(struct emu_cpu *c, struct instruction *i); 
+
+
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/
