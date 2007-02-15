@@ -13,8 +13,8 @@
 #undef INSTR_CALC_AND_SET_FLAGS
 #endif // INSTR_CALC_AND_SET_FLAGS
 
-#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a, b, c, operation)	\
-INSTR_CALC(inttype, a, b, c, operation)								\
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b, c, operation)	\
+INSTR_CALC(bits, a, b, c, operation)								\
 CPU_FLAG_UNSET(cpu, f_of);										\
 CPU_FLAG_UNSET(cpu, f_cf);										\
 INSTR_SET_FLAG_ZF(cpu)											\

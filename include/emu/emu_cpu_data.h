@@ -129,12 +129,14 @@ struct instruction
 
 extern int64_t max_inttype_borders[][2][2];
 
+#define INT(bits) int##bits##_t
+#define UINT(bits) uint##bits##_t
 
 #if !defined(INSTR_CALC)
-#define INSTR_CALC(inttype, a, b, c, operation)			\
-uint##inttype##_t operand_a = a;								\
-uint##inttype##_t operand_b = b;								\
-uint##inttype##_t operation_result = operand_a operation operand_b;	\
+#define INSTR_CALC(bits, a, b, c, operation)			\
+UINT(bits) operand_a = a;								\
+UINT(bits) operand_b = b;								\
+UINT(bits) operation_result = operand_a operation operand_b;	\
 c = operation_result;
 #endif // INSTR_CALC
 
@@ -175,10 +177,10 @@ c = operation_result;
 #endif // INSTR_SET_FLAG_SF
 
 #if !defined(INSTR_SET_FLAG_OF)
-#define INSTR_SET_FLAG_OF(cpu, operand, inttype)								\
+#define INSTR_SET_FLAG_OF(cpu, operand, bits)								\
 {																				\
-	int64_t sx = (int##inttype##_t)operand_a;                                   \
-	int64_t sy = (int##inttype##_t)operand_b;                                   \
+	int64_t sx = (INT(bits))operand_a;                                   \
+	int64_t sy = (INT(bits))operand_b;                                   \
 	int64_t sz = 0;                                                             \
 																				\
 	sz = sx operand sy;															\
@@ -218,8 +220,8 @@ c = operation_result;
 
 
 /*
-#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a, b, c, operation, operation_id)	\
-INSTR_CALC(inttype, a, b, c, operation)									\
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b, c, operation, operation_id)	\
+INSTR_CALC(bits, a, b, c, operation)									\
 																			\
 if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_zf)) )		\
 	INSTR_SET_FLAG_ZF(cpu)											\

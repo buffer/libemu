@@ -1,16 +1,16 @@
 /* @header@ */
 #include <stdint.h>
 
-#define INSTR_CALC(inttype, a)						\
-uint##inttype##_t operand_a = a;								\
-uint##inttype##_t operation_result = operand_a+1;				\
+#define INSTR_CALC(bits, a)						\
+UINT(bits) operand_a = a;								\
+UINT(bits) operation_result = operand_a+1;				\
 a = operation_result;
 
 
 
-#define INSTR_SET_FLAG_OF(cpu, inttype)									\
+#define INSTR_SET_FLAG_OF(cpu, bits)									\
 {																				\
-	int64_t sz = (int##inttype##_t)operand_a;                                            \
+	int64_t sz = (INT(bits))operand_a;                                            \
 																				\
 	sz++;																	\
 																				\
@@ -36,12 +36,12 @@ a = operation_result;
 #undef INSTR_CALC_AND_SET_FLAGS
 #endif // INSTR_CALC_AND_SET_FLAGS
 
-#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a)	\
-INSTR_CALC(inttype, a)								\
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a)	\
+INSTR_CALC(bits, a)								\
 INSTR_SET_FLAG_ZF(cpu)								\
 INSTR_SET_FLAG_PF(cpu)								\
 INSTR_SET_FLAG_SF(cpu)								\
-INSTR_SET_FLAG_OF(cpu,inttype)								
+INSTR_SET_FLAG_OF(cpu,bits)								
 
 
 

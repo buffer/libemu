@@ -1,16 +1,16 @@
 /* @header@ */
 #include <stdint.h>
 
-#define INSTR_CALC(inttype, a, b, c, operation, cpu)			\
-uint##inttype##_t operand_a = a;								\
-uint##inttype##_t operand_b = b;								\
-uint##inttype##_t operation_result = operand_a operation operand_b operation ((cpu->eflags & (1 << f_cf))?1:0);	\
+#define INSTR_CALC(bits, a, b, c, operation, cpu)			\
+UINT(bits) operand_a = a;								\
+UINT(bits) operand_b = b;								\
+UINT(bits) operation_result = operand_a operation operand_b operation ((cpu->eflags & (1 << f_cf))?1:0);	\
 c = operation_result;
 
-#define INSTR_SET_FLAG_OF(cpu, operand,inttype)											\
+#define INSTR_SET_FLAG_OF(cpu, operand,bits)											\
 {																				\
-	int64_t sx = (int##inttype##_t)operand_a;                                            \
-	int64_t sy = (int##inttype##_t)operand_b;                                            \
+	int64_t sx = (INT(bits))operand_a;                                            \
+	int64_t sy = (INT(bits))operand_b;                                            \
 	int64_t sz = 0;                                                             \
 																				\
 	sz = sx operand sy operand ((cpu->eflags & (1 << f_cf))?1:0);						\
@@ -55,12 +55,12 @@ c = operation_result;
 #undef INSTR_CALC_AND_SET_FLAGS
 #endif // INSTR_CALC_AND_SET_FLAGS
 
-#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a, b, c, operation)	\
-INSTR_CALC(inttype, a, b, c, operation, cpu)							\
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b, c, operation)	\
+INSTR_CALC(bits, a, b, c, operation, cpu)							\
 INSTR_SET_FLAG_ZF(cpu)											\
 INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											\
-INSTR_SET_FLAG_OF(cpu, operation, inttype)								\
+INSTR_SET_FLAG_OF(cpu, operation, bits)								\
 INSTR_SET_FLAG_CF(cpu, operation)
 
 

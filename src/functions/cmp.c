@@ -1,10 +1,10 @@
 /* @header@ */
 #include <stdint.h>
 
-#define INSTR_CALC(inttype, a, b, operation)			\
-uint##inttype##_t operand_a = a;								\
-uint##inttype##_t operand_b = b;								\
-uint##inttype##_t operation_result = operand_a operation operand_b;	\
+#define INSTR_CALC(bits, a, b, operation)			\
+UINT(bits) operand_a = a;								\
+UINT(bits) operand_b = b;								\
+UINT(bits) operation_result = operand_a operation operand_b;	\
 
 
 #include "emu/emu_cpu.h"
@@ -17,13 +17,13 @@ uint##inttype##_t operation_result = operand_a operation operand_b;	\
 #undef INSTR_CALC_AND_SET_FLAGS
 #endif // INSTR_CALC_AND_SET_FLAGS
 
-#define INSTR_CALC_AND_SET_FLAGS(inttype, cpu, a, b, operation)	\
-INSTR_CALC(inttype, a, b, operation)								\
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b, operation)	\
+INSTR_CALC(bits, a, b, operation)								\
 INSTR_SET_FLAG_ZF(cpu)											\
 INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											\
 INSTR_SET_FLAG_CF(cpu, operation)								\
-INSTR_SET_FLAG_OF(cpu, operation, inttype)								
+INSTR_SET_FLAG_OF(cpu, operation, bits)								
 
 
 int32_t instr_cmp_38(struct emu_cpu *c, struct instruction *i)
