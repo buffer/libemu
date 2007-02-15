@@ -235,6 +235,19 @@ int32_t instr_jcc_e3(struct emu_cpu *c, struct instruction *i)
 
 	/* E3 cb       Jump short if CX register is 0                          JCXZ rel8       */
 	/* E3 cb       Jump short if ECX register is 0                         JECXZ rel8      */
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+		if (*c->reg16[cx] == 0)
+		{
+			c->reg[eip] += i->disp;		
+		}
+	}else
+	{
+		if (c->reg[ecx] == 0)
+		{
+			c->reg[eip] += i->disp;		
+		}
+	}
 
 	return 0;
 }
