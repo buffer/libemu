@@ -205,6 +205,10 @@ int32_t instr_push_0f08(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i);*/
 
 
+/* loop/loopcc*/
+/*int32_t instr_loopcc_e0(struct emu_cpu *c, struct instruction *i);
+int32_t instr_loopcc_e1(struct emu_cpu *c, struct instruction *i);
+int32_t instr_loop_e2(struct emu_cpu *c, struct instruction *i); */
 
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
