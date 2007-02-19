@@ -28,6 +28,14 @@ int32_t instr_lods_ac(struct emu_cpu *c, struct instruction *i)
 	} else
 	{
 		MEM_BYTE_READ(c, c->reg[esi], c->reg8[al]);
+
+		if ( CPU_FLAG_ISSET(c,f_df) )
+		{ /* decrement */
+			c->reg[esi] -= 1;
+		} else
+		{ /* increment */
+			c->reg[esi] += 1;
+		}
 	}
 
 
@@ -55,6 +63,13 @@ int32_t instr_lods_ad(struct emu_cpu *c, struct instruction *i)
 		} else
 		{
 			MEM_WORD_READ(c, c->reg[esi], c->reg16[ax]);
+			if (CPU_FLAG_ISSET(c,f_df))
+			{ /* decrement */
+				c->reg[esi] -= 2;
+			}else
+			{ /* increment */
+				c->reg[esi] += 2;
+			}
 		}
 
 	} else
@@ -73,11 +88,19 @@ int32_t instr_lods_ad(struct emu_cpu *c, struct instruction *i)
 		if ( i->prefixes & PREFIX_ADSIZE )
 		{
 //			MEM_DWORD_READ(c, c->reg16[si], &c->reg[eax]);
+
 		} else
 		{
 			MEM_DWORD_READ(c, c->reg[esi], &c->reg[eax]);
-		}
+			if (CPU_FLAG_ISSET(c,f_df))
+			{ /* decrement */
+				c->reg[esi] -= 4;
+			}else
+			{ /* increment */
+				c->reg[esi] += 4;
+			}
 
+		}
 	}
 
 	return 0;
