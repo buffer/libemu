@@ -36,6 +36,7 @@ libemu_la_SOURCES += functions/or.c
 libemu_la_SOURCES += functions/pop.c
 libemu_la_SOURCES += functions/push.c
 libemu_la_SOURCES += functions/sbb.c
+libemu_la_SOURCES += functions/stoscc.c
 libemu_la_SOURCES += functions/sub.c
 libemu_la_SOURCES += functions/xor.c
 

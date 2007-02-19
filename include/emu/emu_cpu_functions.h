@@ -211,6 +211,9 @@ int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_loopcc_e1(struct emu_cpu *c, struct instruction *i);
 int32_t instr_loop_e2(struct emu_cpu *c, struct instruction *i); */
 
+/* stos/stoscc*/
+/*int32_t instr_stos_aa(struct emu_cpu *c, struct instruction *i);
+int32_t instr_stos_ab(struct emu_cpu *c, struct instruction *i);*/
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  
