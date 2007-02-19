@@ -662,6 +662,11 @@ struct instr_test tests[] =
 		.codesize = 2,
 		.out_state.eip = (CODE_OFFSET + 2 + -1),
 	},
+	{
+		.code = "\xe9\x00\x00\x00\x01", /* jmp +0x01000000 */
+		.codesize = 5,
+		.out_state.eip = (CODE_OFFSET + 5 + 0x1000000),
+	},
 };
 
 int prepare()
