@@ -219,5 +219,10 @@ int32_t instr_ret_c3(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_stos_aa(struct emu_cpu *c, struct instruction *i);
 int32_t instr_stos_ab(struct emu_cpu *c, struct instruction *i);*/
 
+/* lods/lodscc*/
+/*int32_t instr_lods_ac(struct emu_cpu *c, struct instruction *i);
+int32_t instr_lods_ad(struct emu_cpu *c, struct instruction *i);*/
+
+
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  
