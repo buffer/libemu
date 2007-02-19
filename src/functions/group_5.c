@@ -1,6 +1,8 @@
 /* @header@ */
 #include <stdint.h>
+#include <errno.h>
 
+#include "emu/emu.h"
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_functions.h"
