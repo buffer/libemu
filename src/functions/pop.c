@@ -4,28 +4,8 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_functions.h"
+#include "emu/emu_cpu_stack.h"
 #include "emu/emu_memory.h"
-
-#define POP_DWORD_FROM_STACK(cpu, dst) \
-int32_t ret = emu_memory_read_dword(cpu->mem, cpu->reg[esp], dst); \
-if( ret != 0 ) \
-	return ret; \
-else \
-	cpu->reg[esp] += 4;
-
-#define POP_WORD_FROM_STACK(cpu, dst) \
-int32_t ret = emu_memory_read_word(cpu->mem, cpu->reg[esp], dst); \
-if( ret != 0 ) \
-	return ret; \
-else \
-	cpu->reg[esp] += 2;
-
-#define POP_BYTE_FROM_STACK(cpu, dst) \
-int32_t ret = emu_memory_read_byte(cpu->mem, cpu->reg[esp], dst); \
-if( ret != 0 ) \
-	return ret; \
-else \
-	cpu->reg[esp] += 1;
 
 
 int32_t instr_pop_07(struct emu_cpu *c, struct instruction *i)
@@ -72,14 +52,14 @@ int32_t instr_pop_5x(struct emu_cpu *c, struct instruction *i)
 		 * Pop top of stack into r16; increment stack pointer  
 		 * POP r16 
 		 */
-		POP_WORD_FROM_STACK(c, c->reg16[i->opc & 7 ]);
+		POP_WORD(c, c->reg16[i->opc & 7 ]);
 	}else
 	{
 		/* 58+ rd 
 		 * Pop top of stack into r32; increment stack pointer  
 		 * POP r32 
 		 */
-		POP_DWORD_FROM_STACK(c, &c->reg[i->opc & 7]);
+		POP_DWORD(c, &c->reg[i->opc & 7]);
 	}
 	return 0;
 }
@@ -105,6 +85,42 @@ int32_t instr_pop_0fa9(struct emu_cpu *c, struct instruction *i)
 	 */
 
 
+	return 0;
+}
+
+int32_t instr_popad_61(struct emu_cpu *c, struct instruction *i)
+{
+	uint32_t j;
+	
+	if( i->prefixes & PREFIX_OPSIZE )
+	{
+		for( j = 7; j < 8; j-- )
+		{
+			if( j != 4 )
+			{
+				POP_WORD(c, c->reg16[j])
+			}
+			else
+			{
+				c->reg[esp] += 2;
+			}
+		}
+	}
+	else
+	{
+		for( j = 7; j < 8; j-- )
+		{
+			if( j != 4 )
+			{
+				POP_DWORD(c, &c->reg[j]);
+			}
+			else
+			{
+				c->reg[esp] += 4;
+			}
+		}
+	}
+	
 	return 0;
 }
 

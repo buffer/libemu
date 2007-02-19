@@ -186,6 +186,7 @@ int32_t instr_mov_c7(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_pop_17(struct emu_cpu *c, struct instruction *i);
 int32_t instr_pop_1f(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_pop_5x(struct emu_cpu *c, struct instruction *i);
+int32_t instr_popad_61(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_pop_0fa1(struct emu_cpu *c, struct instruction *i);
 int32_t instr_pop_0fa9(struct emu_cpu *c, struct instruction *i);*/
 																 
@@ -195,6 +196,7 @@ int32_t instr_push_0e(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_16(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_1e(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_push_5x(struct emu_cpu *c, struct instruction *i);
+int32_t instr_pushad_60(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_68(struct emu_cpu *c, struct instruction *i);
 int32_t instr_push_6a(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_push_0fa0(struct emu_cpu *c, struct instruction *i);

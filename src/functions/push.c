@@ -6,44 +6,8 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_functions.h"
+#include "emu/emu_cpu_stack.h"
 #include "emu/emu_memory.h"
-
-
-#define PUSH_DWORD_TO_STACK(cpu, arg)				\
-if (cpu->reg[esp] < 4)								\
-{													\
-	emu_errno_set((cpu)->emu, ENOMEM);				\
-	emu_strerror_set((cpu)->emu,					\
-	"ran out of stack space writing a dword\n");	\
-	return -1;										\
-}													\
-cpu->reg[esp]-=4;								\
-return emu_memory_write_dword(cpu->mem, cpu->reg[esp], arg);
-
-
-#define PUSH_WORD_TO_STACK(cpu, arg)				\
-if (cpu->reg[esp] < 2)								\
-{													\
-	emu_errno_set((cpu)->emu, ENOMEM);				\
-	emu_strerror_set((cpu)->emu,					\
-	"ran out of stack space writing a word\n");		\
-	return -1;										\
-}													\
-cpu->reg[esp]-=2;								\
-return emu_memory_write_word(cpu->mem, cpu->reg[esp], arg);
-
-
-#define PUSH_BYTE_TO_STACK(cpu, arg)				\
-if (cpu->reg[esp] < 1)								\
-{													\
-	emu_errno_set((cpu)->emu, ENOMEM);				\
-	emu_strerror_set((cpu)->emu,					\
-	"ran out of stack space writing a byte\n");		\
-	return -1;										\
-}													\
-cpu->reg[esp]-=1;								\
-return emu_memory_write_byte(cpu->mem, cpu->reg[esp], arg);
-
 
 
 
@@ -108,14 +72,14 @@ int32_t instr_push_5x(struct emu_cpu *c, struct instruction *i)
 		 * Push r16      
 		 * PUSH r16   
 		 */
-		PUSH_WORD_TO_STACK(c, *c->reg16[i->opc & 7])
+		PUSH_WORD(c, *c->reg16[i->opc & 7])
 	}else
 	{
         /* 50+rd 
 		 * Push r32      
 		 * PUSH r32   
 		 */
-		PUSH_DWORD_TO_STACK(c, c->reg[i->opc & 7])
+		PUSH_DWORD(c, c->reg[i->opc & 7])
 	}
 		
 
@@ -135,14 +99,14 @@ int32_t instr_push_68(struct emu_cpu *c, struct instruction *i)
 		 * Push imm16    
 		 * PUSH imm16 
 		 */
-		PUSH_WORD_TO_STACK(c, *i->imm16)
+		PUSH_WORD(c, *i->imm16)
 	} else
 	{
 		/* 68    
 		 * Push imm32    
 		 * PUSH imm32 
 		 */
-		PUSH_DWORD_TO_STACK(c, i->imm)
+		PUSH_DWORD(c, i->imm)
 	}
 
 	return 0;
@@ -157,7 +121,7 @@ int32_t instr_push_6a(struct emu_cpu *c, struct instruction *i)
 	 * Push imm8     
 	 * PUSH imm8  
 	 */
-	PUSH_BYTE_TO_STACK(c, *i->imm8);
+	PUSH_BYTE(c, *i->imm8);
 
 	return 0;
 }
@@ -186,4 +150,45 @@ int32_t instr_push_0f08(struct emu_cpu *c, struct instruction *i)
 
 	return 0;
 }
+
+int32_t instr_pushad_60(struct emu_cpu *c, struct instruction *i)
+{
+	uint32_t j;
+	
+	if( i->prefixes & PREFIX_OPSIZE )
+	{
+		uint16_t temp = c->reg[sp];
+		
+		for( j = 0; j < 8; j++ )
+		{
+			if( j != 4 )
+			{
+				PUSH_WORD(c, c->reg[j]);
+			}
+			else
+			{
+				PUSH_WORD(c, temp);
+			}
+		}
+	}
+	else
+	{
+		uint32_t temp = c->reg[esp];
+		
+		for( j = 0; j < 8; j++ )
+		{
+			if( j != 4 )
+			{
+				PUSH_DWORD(c, c->reg[j]);
+			}
+			else
+			{
+				PUSH_DWORD(c, temp);
+			}
+		}
+	}
+	
+	return 0;
+}
+
 
