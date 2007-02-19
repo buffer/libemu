@@ -10,4 +10,4 @@ include_HEADERS += emu_memory.h
 noinst_HEADERS = emu_cpu_data.h
 noinst_HEADERS += emu_cpu_functions.h
 noinst_HEADERS += emu_cpu_itables.h
-
+noinst_HEADERS += emu_cpu_stack.h

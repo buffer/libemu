@@ -4,6 +4,7 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_functions.h"
+#include "emu/emu_cpu_stack.h"
 #include "emu/emu_memory.h"
 
 
@@ -21,7 +22,6 @@ int32_t instr_call_9a(struct emu_cpu *c, struct instruction *i)
 	 * CALL ptr16:32 
 	 * Call far, absolute, address given in operand
 	 */
-
 
 	return 0;
 }
@@ -41,6 +41,8 @@ int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i)
 	 * Call near, relative, displacement relative to next instruction
 	 */
 
+	PUSH_DWORD(c, c->eip);
+	c->eip += i->imm;
 
 	return 0;
 }
