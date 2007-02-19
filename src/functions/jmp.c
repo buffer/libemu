@@ -21,6 +21,8 @@ int32_t instr_jmp_e9(struct emu_cpu *c, struct instruction *i)
 	 * JMP rel32    
 	 */
 
+	c->eip += i->disp;
+
 	return 0;
 }
 
@@ -50,6 +52,7 @@ int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i)
 	 * JMP rel8     
 	 */
 
+	c->eip += i->disp;
 
 	return 0;
 }

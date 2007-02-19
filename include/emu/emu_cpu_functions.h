@@ -113,8 +113,8 @@ int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 int32_t instr_group_1_80_cmp(struct emu_cpu *cpu, uint8_t a, uint8_t b);
 
 /* group 5 */
-/*int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct instruction *i); 
-int32_t instr_group_5_ff_push(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct instruction *i); 
+/*int32_t instr_group_5_ff_push(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_5_ff_call(struct emu_cpu *c, struct instruction *i);*/
 
 /* group 10 */
@@ -162,9 +162,9 @@ int32_t instr_jcc_0f8e(struct emu_cpu *c, struct instruction *i);
 int32_t instr_jcc_0f8f(struct emu_cpu *c, struct instruction *i);
 
 /* jump */
-/*int32_t instr_jmp_e9(struct emu_cpu *c, struct instruction *i); 
-int32_t instr_jmp_ea(struct emu_cpu *c, struct instruction *i); 
-int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i);*/ 
+int32_t instr_jmp_e9(struct emu_cpu *c, struct instruction *i); 
+/*int32_t instr_jmp_ea(struct emu_cpu *c, struct instruction *i);*/ 
+int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i);
 
 /* mov */
 /*int32_t instr_mov_88(struct emu_cpu *c, struct instruction *i);

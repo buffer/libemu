@@ -18,6 +18,8 @@
 #include <emu/emu_log.h>
 #include <emu/emu_cpu_data.h>
 
+#define CODE_OFFSET 4711
+
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
 
@@ -61,10 +63,11 @@ struct instr_test
 		uint32_t reg[8];
 		uint32_t		mem_state[2];
 		uint32_t	eflags;
-	}out_state;
+		uint32_t eip;
+	} out_state;
 };
 
-#define FLAG_SET(fl) (1 << (fl))
+#define FLAG(fl) (1 << (fl))
 
 struct instr_test tests[] = 
 {
@@ -85,7 +88,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x01,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags = FLAG_SET(f_cf) | FLAG_SET(f_pf) | FLAG_SET(f_zf),
+		.out_state.eflags = FLAG(f_cf) | FLAG(f_pf) | FLAG(f_zf),
 	},
 	{
 		.instr = "add ch,dl",
@@ -95,7 +98,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x3000,0x20,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "add [ecx],al",
@@ -115,7 +118,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0xffff3333,0xffff2222,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	{
 		.instr = "add [ecx],ax",
@@ -125,7 +128,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x22224444},
 		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x22225555},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	{
 		.instr = "add eax,ecx",
@@ -135,7 +138,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0x22221111,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	{
 		.instr = "add [ecx],eax",
@@ -145,7 +148,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x22224444},
 		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44445555},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	/* 02 */
 	{
@@ -156,7 +159,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0,0,0x100,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_cf) | FLAG_SET(f_pf) | FLAG_SET(f_zf), 
+		.out_state.eflags =  FLAG(f_cf) | FLAG(f_pf) | FLAG(f_zf), 
 	},
 	{
 		.instr = "add al,[ecx]",
@@ -166,7 +169,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x30303030},
 		.out_state.reg  = {0x33,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x30303030},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	/* 03 */
 	{
@@ -177,7 +180,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x10101212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "add ax,[ecx]",
@@ -187,7 +190,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x44443333},
 		.out_state.reg  = {0x11115555,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "add ecx,edi",
@@ -197,7 +200,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x12121212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "add eax,[ecx]",
@@ -207,7 +210,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x44443333},
 		.out_state.reg  = {0x55555555,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "add ecx,[ebx+eax*4+0xdeadbeef]",
@@ -227,7 +230,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22222233,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	/* 05 */
 	{
@@ -238,7 +241,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "add eax,0x11111111",
@@ -248,7 +251,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 
 	
@@ -266,7 +269,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x0ff01,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags = FLAG_SET(f_sf) | FLAG_SET(f_pf),
+		.out_state.eflags = FLAG(f_sf) | FLAG(f_pf),
 	},
 	{
 		.instr = "or ch,dl",
@@ -276,7 +279,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x3000,0x20,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "or [ecx],al",
@@ -296,7 +299,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0xffff3333,0xffff2222,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	{
 		.instr = "or [ecx],ax",
@@ -306,7 +309,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x22224444},
 		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x22225555},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	{
 		.instr = "or eax,ecx",
@@ -316,7 +319,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0x22221111,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	{
 		.instr = "or [ecx],eax",
@@ -326,7 +329,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x22224444},
 		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x22225555},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	/* 0a */
 	{
@@ -337,7 +340,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0xff,0,0x100,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf) | FLAG_SET(f_sf), 
+		.out_state.eflags =  FLAG(f_pf) | FLAG(f_sf), 
 	},
 	{
 		.instr = "or al,[ecx]",
@@ -347,7 +350,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x30303030},
 		.out_state.reg  = {0x33,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x30303030},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	/* 0b */
 	{
@@ -358,7 +361,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x10101212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "or ax,[ecx]",
@@ -368,7 +371,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x44443333},
 		.out_state.reg  = {0x11113333,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "or ecx,edi",
@@ -378,7 +381,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0,0x12121212,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "or eax,[ecx]",
@@ -388,7 +391,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0x40000, 0x44443333},
 		.out_state.reg  = {0x55553333,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "or ecx,[ebx+eax*4+0xdeadbeef]",
@@ -398,7 +401,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0xdeadbef8, 0x44443333},
 		.out_state.reg  = {0x2,0x44443333,0,0x1,0,0,0,0},
 		.out_state.mem_state = {0xdeadbef8, 0x44443333},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	/* 0c */
 	{
@@ -409,7 +412,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22222233,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	/* 0d */
 	{
@@ -420,7 +423,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "or eax,0x11111111",
@@ -430,7 +433,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 
 
@@ -448,10 +451,10 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0xff01,0,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0x101,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags = FLAG_SET(f_cf) ,
+		.out_state.eflags = FLAG(f_cf) ,
 	},
 	{
 		.instr = "adc ch,dl",
@@ -459,7 +462,7 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0,0x1000,0x20,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0,0x3100,0x20,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
 
@@ -470,10 +473,10 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0x10,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x10101010},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0x10,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x10101021},
-		.out_state.eflags = FLAG_SET(f_pf) ,
+		.out_state.eflags = FLAG(f_pf) ,
 	},
 	/* 11 */
 	{
@@ -482,7 +485,7 @@ struct instr_test tests[] =
 //		.codesize = 3,
 		.in_state.reg  = {0xffff1111,0xffff2222,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0xffff3334,0xffff2222,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
 //		.out_state.eflags =  FLAG_SET(f_pf), 
@@ -493,10 +496,10 @@ struct instr_test tests[] =
 //		.codesize = 3,
 		.in_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x22224444},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0xffff1111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x22225556},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	{
 		.instr = "adc eax,ecx",
@@ -504,7 +507,7 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0x11112222,0x22221111,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0x33333334,0x22221111,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
 //		.out_state.eflags =  FLAG_SET(f_pf), 
@@ -515,10 +518,10 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x22224444},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0x22221111,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44445556},
-		.out_state.eflags =  FLAG_SET(f_pf), 
+		.out_state.eflags =  FLAG(f_pf), 
 	},
 	/* 12 */
 	{
@@ -527,10 +530,10 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0,0xff,0,0x100,0,0,0,0},
 		.in_state.mem_state = {0, 0},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0,0x1,0,0x100,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_cf), 
+		.out_state.eflags =  FLAG(f_cf), 
 	},
 	{
 		.instr = "adc al,[ecx]",
@@ -538,7 +541,7 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0x3,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x30303030},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0x34,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x30303030},
 
@@ -550,7 +553,7 @@ struct instr_test tests[] =
 //		.codesize = 3,
 		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202},
 		.in_state.mem_state = {0, 0},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0,0x10101213,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
 
@@ -561,10 +564,10 @@ struct instr_test tests[] =
 //		.codesize = 3,
 		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x44443333},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0x11115556,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "adc ecx,edi",
@@ -572,7 +575,7 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0,0x10101010,0,0,0,0,0,0x02020202},
 		.in_state.mem_state = {0, 0},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0,0x12121213,0,0,0,0,0,0x02020202},
 		.out_state.mem_state = {0, 0},
 //		.out_state.eflags =  FLAG_SET(f_pf),
@@ -583,10 +586,10 @@ struct instr_test tests[] =
 //		.codesize = 2,
 		.in_state.reg  = {0x11112222,0x40000,0,0,0,0,0,0},
 		.in_state.mem_state = {0x40000, 0x44443333},
-		.in_state.eflags = FLAG_SET(f_cf),
+		.in_state.eflags = FLAG(f_cf),
 		.out_state.reg  = {0x55555556,0x40000,0,0,0,0,0,0},
 		.out_state.mem_state = {0x40000, 0x44443333},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "adc ecx,[ebx+eax*4+0xdeadbeef]",
@@ -606,7 +609,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22222233,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	/* 15 */
 	{
@@ -617,7 +620,7 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 	{
 		.instr = "adc eax,0x11111111",
@@ -627,9 +630,38 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0, 0},
-		.out_state.eflags =  FLAG_SET(f_pf),
+		.out_state.eflags =  FLAG(f_pf),
 	},
 
+
+
+
+	{
+		.instr = "jmp ecx",
+		.in_state.reg  = {0,0xdeadbeef,0,0,0,0,0,0},
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0,0xdeadbeef,0,0,0,0,0,0},
+		.out_state.mem_state = {0, 0},
+		.out_state.eip = 0xdeadbeef,
+	},
+	{
+		.instr = "jmp [eax]",
+		.in_state.reg  = {0xdeadbabe,0,0,0,0,0,0,0},
+		.in_state.mem_state = {0xdeadbabe, 0xdeafcafe},
+		.out_state.reg  = {0xdeadbabe,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0xdeadbabe, 0xdeafcafe},
+		.out_state.eip = 0xdeafcafe,
+	},
+	{
+		.code = "\xeb\x10", /* jmp +16*/
+		.codesize = 2,
+		.out_state.eip = (CODE_OFFSET + 2 + 0x10),
+	},
+	{
+		.code = "\xeb\xff", /* jmp -1 */
+		.codesize = 2,
+		.out_state.eip = (CODE_OFFSET + 2 + -1),
+	},
 };
 
 int prepare()
@@ -718,7 +750,7 @@ int test()
 
 
 		/* write the code to the offset */
-		int static_offset = 4711;
+		int static_offset = CODE_OFFSET;
 		for( j = 0; j < tests[i].codesize; j++ )
 		{
 			emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
@@ -818,7 +850,14 @@ int test()
 			}
 
 			failed = 1;
-		}else
+		}
+		
+		if( tests[i].out_state.eip != 0 && tests[i].out_state.eip != emu_cpu_eip_get(cpu) )
+		{
+			printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n", "eip", emu_cpu_eip_get(cpu), tests[i].out_state.eip);
+			failed = 1;
+		}
+		else
 		{
 			if (opts.verbose == 1)
 				printf("\t flags "SUCCESS"\n");
