@@ -213,9 +213,9 @@ int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i);*/
 
 
 /* loop/loopcc*/
-/*int32_t instr_loopcc_e0(struct emu_cpu *c, struct instruction *i);
+int32_t instr_loopcc_e0(struct emu_cpu *c, struct instruction *i);
 int32_t instr_loopcc_e1(struct emu_cpu *c, struct instruction *i);
-int32_t instr_loop_e2(struct emu_cpu *c, struct instruction *i); */
+int32_t instr_loop_e2(struct emu_cpu *c, struct instruction *i); 
 
 /* ret */
 int32_t instr_ret_c2(struct emu_cpu *c, struct instruction *i);
