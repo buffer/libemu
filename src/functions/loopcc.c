@@ -20,14 +20,14 @@ int32_t instr_loopcc_e0(struct emu_cpu *c, struct instruction *i)
 		*c->reg16[cx] = *c->reg16[cx]-1;
 		if (*c->reg16[cx] != 0 && !CPU_FLAG_ISSET(c,f_zf))
 		{
-			c->eip += *i->imm8;
+			c->eip += i->disp;
 		}
 	}else
 	{
 		c->reg[ecx]--;
 		if (c->reg[ecx] != 0 && !CPU_FLAG_ISSET(c,f_zf))
 		{
-			c->eip += *i->imm8;
+			c->eip += i->disp;
 		}
 	}
 
@@ -49,14 +49,14 @@ int32_t instr_loopcc_e1(struct emu_cpu *c, struct instruction *i)
 		*c->reg16[cx] = *c->reg16[cx]-1;
 		if (*c->reg16[cx] != 0 && CPU_FLAG_ISSET(c,f_zf))
 		{
-			c->eip += *i->imm8;
+			c->eip += i->disp;
 		}
 	}else
 	{
 		c->reg[ecx]--;
 		if (c->reg[ecx] != 0 && CPU_FLAG_ISSET(c,f_zf))
 		{
-			c->eip += *i->imm8;
+			c->eip += i->disp;
 		}
 	}
 
@@ -76,14 +76,14 @@ int32_t instr_loop_e2(struct emu_cpu *c, struct instruction *i)
 		*c->reg16[cx] = *c->reg16[cx]-1;
 		if (*c->reg16[cx] != 0 )
 		{
-			c->eip += *i->imm8;
+			c->eip += i->disp;
 		}
 	}else
 	{
 		c->reg[ecx]--;
 		if (c->reg[ecx] != 0)
 		{
-			c->eip += *i->imm8;
+			c->eip += i->disp;
 		}
 	}
 
