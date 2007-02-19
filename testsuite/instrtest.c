@@ -667,6 +667,23 @@ struct instr_test tests[] =
 		.codesize = 5,
 		.out_state.eip = (CODE_OFFSET + 5 + 0x1000000),
 	},
+	
+	{
+		.instr = "mov al, 0xff",
+		.out_state.reg = {0xff,0,0,0,0,0,0,0},
+	},
+	{
+		.instr = "mov ah, 0xff",
+		.out_state.reg = {0xff00,0,0,0,0,0,0,0},
+	},
+	{
+		.instr = "mov ax, 0xffff",
+		.out_state.reg = {0xffff,0,0,0,0,0,0,0},
+	},
+	{
+		.instr = "mov eax, 0xffffffff",
+		.out_state.reg = {0xffffffff,0,0,0,0,0,0,0},
+	},
 };
 
 int prepare()

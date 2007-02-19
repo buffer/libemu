@@ -16,6 +16,14 @@ int32_t instr_mov_88(struct emu_cpu *c, struct instruction *i)
 	 * MOV r/m8,r8      
 	 */
 
+	if( i->modrm.mod != 3 )
+	{
+		MEM_BYTE_WRITE(c, i->modrm.ea, *c->reg8[i->modrm.opc]);
+	}
+	else
+	{
+		*c->reg8[i->modrm.rm] = *c->reg8[i->modrm.opc];
+	}
 
 	return 0;
 }
@@ -34,6 +42,28 @@ int32_t instr_mov_89(struct emu_cpu *c, struct instruction *i)
 	 * MOV r/m32,r32    
 	 */																		 
 
+	if( i->prefixes & PREFIX_OPSIZE )
+	{
+		if( i->modrm.mod != 3 )
+		{
+			MEM_WORD_WRITE(c, i->modrm.ea, *c->reg16[i->modrm.opc]);
+		}
+		else
+		{
+			*c->reg16[i->modrm.rm] = *c->reg16[i->modrm.opc];
+		}
+	}
+	else
+	{
+		if( i->modrm.mod != 3 )
+		{
+			MEM_DWORD_WRITE(c, i->modrm.ea, c->reg[i->modrm.opc]);
+		}
+		else
+		{
+			c->reg[i->modrm.rm] = c->reg[i->modrm.opc];
+		}
+	}
 
 	return 0;
 }
@@ -47,6 +77,14 @@ int32_t instr_mov_8a(struct emu_cpu *c, struct instruction *i)
 	 * MOV r8,r/m8      
 	 */																		 
 
+	if( i->modrm.mod != 3 )
+	{
+		MEM_BYTE_READ(c, i->modrm.ea, c->reg8[i->modrm.opc]);
+	}
+	else
+	{
+		*c->reg8[i->modrm.opc] = *c->reg8[i->modrm.rm];
+	}
 
 	return 0;
 }
@@ -65,6 +103,28 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct instruction *i)
 	 * MOV r32,r/m32    
 	 */																		 
 
+	if( i->prefixes & PREFIX_OPSIZE )
+	{
+		if( i->modrm.mod != 3 )
+		{
+			MEM_WORD_READ(c, i->modrm.ea, c->reg16[i->modrm.opc]);
+		}
+		else
+		{
+			*c->reg16[i->modrm.opc] = *c->reg16[i->modrm.rm];
+		}
+	}
+	else
+	{
+		if( i->modrm.mod != 3 )
+		{
+			MEM_DWORD_READ(c, i->modrm.ea, &c->reg[i->modrm.opc]);
+		}
+		else
+		{
+			c->reg[i->modrm.opc] = c->reg[i->modrm.rm];
+		}
+	}
 
 	return 0;
 }
@@ -156,10 +216,8 @@ int32_t instr_mov_a3(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_bx(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_bx_1(struct emu_cpu *c, struct instruction *i)
 {
-
-
 	/* B0+ rb 
 	 * Move imm8 to r8                                  
 	 * MOV r8,imm8      
@@ -175,6 +233,32 @@ int32_t instr_mov_bx(struct emu_cpu *c, struct instruction *i)
 	 * MOV r32,imm32    
 	 */																		 
 
+	*c->reg8[i->opc & 7] = *i->imm8;
+
+	return 0;
+}
+
+int32_t instr_mov_bx_2(struct emu_cpu *c, struct instruction *i)
+{
+	/* B0+ rb 
+	 * Move imm8 to r8                                  
+	 * MOV r8,imm8      
+	 */
+
+	/* B8+ rw 
+	 * Move imm16 to r16                                
+	 * MOV r16,imm16    
+	 */
+
+	/* B8+ rd 
+	 * Move imm32 to r32                                
+	 * MOV r32,imm32    
+	 */																		 
+
+	if( i->prefixes & PREFIX_OPSIZE )
+		*c->reg16[i->opc & 7] = *i->imm16;
+	else
+		c->reg[i->opc & 7] = i->imm;
 
 	return 0;
 }
@@ -186,16 +270,22 @@ int32_t instr_mov_c6(struct emu_cpu *c, struct instruction *i)
 	/* C6 /0  
 	 * Move imm8 to r/m8                                
 	 * MOV r/m8,imm8    
-	 */																		 
-
+	 */
+	
+	if( i->modrm.mod != 3 )
+	{
+		MEM_BYTE_WRITE(c, i->modrm.ea, *i->imm8);
+	}
+	else
+	{
+		*c->reg8[i->modrm.rm] = *i->imm8;
+	}																	 
 
 	return 0;
 }
 
 int32_t instr_mov_c7(struct emu_cpu *c, struct instruction *i)
 {
-
-
 	/* C7 /0  
 	 * Move imm16 to r/m16                              
 	 * MOV r/m16,imm16  
@@ -206,6 +296,28 @@ int32_t instr_mov_c7(struct emu_cpu *c, struct instruction *i)
 	 * MOV r/m32,imm32  
 	 */
 
+	if( i->prefixes & PREFIX_OPSIZE )
+	{
+		if( i->modrm.mod != 3 )
+		{
+			MEM_WORD_WRITE(c, i->modrm.ea, *i->imm16);
+		}
+		else
+		{
+			*c->reg16[i->modrm.rm] = *i->imm16;
+		}																	 
+	}
+	else
+	{
+		if( i->modrm.mod != 3 )
+		{
+			MEM_DWORD_WRITE(c, i->modrm.ea, i->imm);
+		}
+		else
+		{
+			c->reg[i->modrm.rm] = i->imm;
+		}																	 
+	}
 
 	return 0;
 }
