@@ -287,32 +287,69 @@ int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 
 int32_t instr_group_1_81_xor(struct emu_cpu *c, struct instruction *i)
 {
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* 81 /6 iw 
+		 * r/m16 XOR imm16
+		 * XOR r/m16,imm16
+		 */
+		INSTR_CALC_AND_SET_FLAGS(16, 
+								 c, 
+								 *i->imm16, 
+								 *c->reg16[i->modrm.opc], 
+								 *c->reg16[i->modrm.opc], 
+								 ^)
 
-	/* 81 /6 iw 
-	 * r/m16 XOR imm16
-	 * XOR r/m16,imm16
-	 */
+	} else
+	{
+		/* 81 /6 id 
+		 * r/m32 XOR imm32
+		 * XOR r/m32,imm32
+		 */
+		INSTR_CALC_AND_SET_FLAGS(32, 
+								 c, 
+								 i->imm, 
+								 c->reg[i->modrm.opc], 
+								 c->reg[i->modrm.opc], 
+								 ^)
 
-	/* 81 /6 id 
-	 * r/m32 XOR imm32
-	 * XOR r/m32,imm32
-	 */
-
+	}
 	return 0;
 }
 
 int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
 {
 
-	/* 83 /6 ib 
-	 * r/m16 XOR imm8 (sign-extended)
-	 * XOR r/m16,imm8  
-	 */
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* 83 /6 ib 
+		 * r/m16 XOR imm8 (sign-extended)
+		 * XOR r/m16,imm8  
+		 */
+		int16_t sexd = i->disp;
+		INSTR_CALC_AND_SET_FLAGS(16, 
+								 c, 
+								 sexd, 
+								 *c->reg16[i->modrm.opc], 
+								 *c->reg16[i->modrm.opc], 
+								 ^)
 
-	/* 83 /6 ib 
-	 * r/m32 XOR imm8 (sign-extended)
-	 * XOR r/m32,imm8  
-	 */
+	} else
+	{
 
+		/* 83 /6 ib 
+		 * r/m32 XOR imm8 (sign-extended)
+		 * XOR r/m32,imm8  
+		 */
+		int32_t sexd = i->disp;
+		INSTR_CALC_AND_SET_FLAGS(32, 
+								 c, 
+								 sexd, 
+								 c->reg[i->modrm.opc], 
+								 c->reg[i->modrm.opc], 
+								 ^)
+
+	}
 	return 0;
 }
+
