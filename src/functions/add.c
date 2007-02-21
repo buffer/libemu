@@ -280,3 +280,36 @@ int32_t instr_group_1_80_add(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 }
 
 
+
+
+
+int32_t instr_group_1_81_add(struct emu_cpu *c, struct instruction *i)
+{
+	/* 81 /0 iw 
+	 * Add imm16 to r/m16
+	 * ADD r/m16,imm16 
+	 */
+
+
+
+	/* 81 /0 id 
+	 * Add imm32 to r/m32
+	 * ADD r/m32,imm32 
+	 */
+}
+
+
+int32_t instr_group_1_83_add(struct emu_cpu *c, struct instruction *i)
+{
+	/* 83 /0 ib 
+	 * Add sign-extended imm8 to r/m16
+	 * ADD r/m16,imm8  
+	 */
+
+	/* 83 /0 ib 
+	 * Add sign-extended imm8 to r/m32
+	 * ADD r/m32,imm8  
+	 */
+
+}
+

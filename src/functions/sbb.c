@@ -338,4 +338,33 @@ int32_t instr_group_1_80_sbb(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 }
 
 
+int32_t instr_group_1_81_sbb(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
+	/* 81 /3 iw 
+	 * Subtract with borrow imm16 from r/m16
+	 * SBB r/m16,imm16 
+	 */
 
+
+	/* 81 /3 id 
+	 * Subtract with borrow imm32 from r/m32
+	 * SBB r/m32,imm32
+	 */
+
+	return 0;
+}
+
+int32_t instr_group_1_83_sbb(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
+	/* 83 /3 ib 
+	 * Subtract with borrow sign-extended imm8 from r/m16
+	 * SBB r/m16,imm8
+	 */
+
+	/* 83 /3 ib 
+	 * Subtract with borrow sign-extended imm8 from r/m32
+	 * SBB r/m32,imm8
+	 */
+
+	return 0;
+}

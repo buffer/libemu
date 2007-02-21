@@ -293,3 +293,32 @@ int32_t instr_group_1_80_sub(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 	return 0;
 }
 
+int32_t instr_group_1_81_sub(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
+	/* 81 /5 iw 
+	 * Subtract imm16 from r/m16
+	 * SUB r/m16,imm16 
+	 */
+
+	/* 81 /5 id 
+	 * Subtract imm32 from r/m32
+	 * SUB r/m32,imm32 
+	 */
+	return 0;
+}
+
+int32_t instr_group_1_83_sub(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
+
+	/* 83 /5 ib 
+	 * Subtract sign-extended imm8 from r/m16
+	 * SUB r/m16,imm8  
+	 */
+
+	/* 83 /5 ib 
+	 * Subtract sign-extended imm8 from r/m32
+	 * SUB r/m32,imm8
+	 */
+	return 0;
+}
+

@@ -269,3 +269,33 @@ int32_t instr_group_1_80_cmp(struct emu_cpu *cpu, uint8_t a, uint8_t b)
 	return 0;
 }
 
+int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct instruction *i)
+{
+	/* 81 /7 iw 
+	 * Compare imm16 with r/m16
+     * CMP r/m16, imm16 
+	 */
+
+
+	/* 81 /7 id 
+	 * Compare imm32 with r/m32
+	 * CMP r/m32,imm32  
+	 */
+	return 0;
+}
+
+
+int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i)
+{
+	/* 83 /7 ib 
+	 * Compare imm8 with r/m16
+	 * CMP r/m16,imm8   
+	 */
+
+
+	/* 83 /7 ib 
+	 * Compare imm8 with r/m32
+	 * CMP r/m32,imm8   
+	 */
+	return 0;
+}

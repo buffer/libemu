@@ -285,5 +285,34 @@ int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 	return 0;
 }
 
+int32_t instr_group_1_81_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
 
+	/* 81 /6 iw 
+	 * r/m16 XOR imm16
+	 * XOR r/m16,imm16
+	 */
 
+	/* 81 /6 id 
+	 * r/m32 XOR imm32
+	 * XOR r/m32,imm32
+	 */
+
+	return 0;
+}
+
+int32_t instr_group_1_83_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
+
+	/* 83 /6 ib 
+	 * r/m16 XOR imm8 (sign-extended)
+	 * XOR r/m16,imm8  
+	 */
+
+	/* 83 /6 ib 
+	 * r/m32 XOR imm8 (sign-extended)
+	 * XOR r/m32,imm8  
+	 */
+
+	return 0;
+}

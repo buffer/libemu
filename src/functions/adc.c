@@ -325,3 +325,35 @@ int32_t instr_group_1_80_adc(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 							 +)
 	return 0;
 }
+
+
+int32_t instr_group_1_81_adc(struct emu_cpu *c, struct instruction *i)
+{
+
+	/* 81 /2 iw 
+	 * Add with carry imm16 to r/m16
+	 * ADC r/m16,imm16 
+	 */
+
+
+	/* 81 /2 id 
+	 * Add with CF imm32 to r/m32
+	 * ADC r/m32,imm32 
+	 */
+	return 0;
+}
+
+int32_t instr_group_1_83_adc(struct emu_cpu *c, struct instruction *i)
+{
+
+	/* 83 /2 ib 
+	 * Add with CF sign-extended imm8 to r/m16
+	 * ADC r/m16,imm8  
+	 */
+
+	/* 83 /2 ib 
+	 * Add with CF sign-extended imm8 into r/m32
+	 * ADC r/m32,imm8  
+	 */
+	return 0;
+}

@@ -281,3 +281,31 @@ int32_t instr_group_1_80_and(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 							 &)
 	return 0;
 }
+
+int32_t instr_group_1_81_and(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+	/* 81 /4 iw 
+	 * r/m16 AND imm16
+	 * AND r/m16,imm16
+	 */
+
+
+	/* 81 /4 id 
+	 * r/m32 AND imm32
+	 * AND r/m32,imm32
+	 */
+	return 0;
+}
+
+int32_t instr_group_1_83_and(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+{
+	/* 83 /4 ib 
+	 * r/m16 AND imm8 (sign-extended)
+	 * AND r/m16,imm8  
+	 */
+
+	/* 83 /4 ib 
+	 * r/m32 AND imm8 (sign-extended)
+	 * AND r/m32,imm8  
+	 */
+	return 0;
+}
