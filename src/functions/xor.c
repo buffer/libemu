@@ -324,7 +324,7 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct instruction *i)
 									 dst, 
 									 ^)
 
-			MEM_WORD_WRITE(c, i->modrm.ea, dst);
+			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 
 		}
 	} else

@@ -287,31 +287,81 @@ int32_t instr_group_1_80_or(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *
 
 int32_t instr_group_1_81_or(struct emu_cpu *c, struct instruction *i)
 {
-	/* 81 /1 iw 
-	 * r/m16 OR imm16
-	 * OR r/m16,imm16  
-	 */
+	if ( i->modrm.mod != 3 )
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
 
-   /* 81 /1 id 
-	* r/m32 OR imm32
-	* OR r/m32,imm32
-	*/
+			/* 81 /1 iw 
+			 * r/m16 OR imm16
+			 * OR r/m16,imm16  
+			 */
+		} else
+		{
 
+			/* 81 /1 id 
+			 * r/m32 OR imm32
+			 * OR r/m32,imm32
+			 */
+		}
+	} else
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+
+			/* 81 /1 iw 
+			 * r/m16 OR imm16
+			 * OR r/m16,imm16  
+			 */
+		} else
+		{
+
+			/* 81 /1 id 
+			 * r/m32 OR imm32
+			 * OR r/m32,imm32
+			 */
+		}
+	}
 	return 0;
 }
 
 int32_t instr_group_1_83_or(struct emu_cpu *c, struct instruction *i)
 {
-   /* 83 /1 ib 
-	* r/m16 OR imm8 (sign-extended)
-	* OR r/m16,imm8
-	*/
+	if ( i->modrm.mod != 3 )
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
 
-   /* 83 /1 ib 
-	* r/m32 OR imm8 (sign-extended)
-	* OR r/m32,imm8
-	*/
+			/* 83 /1 ib 
+			* r/m16 OR imm8 (sign-extended)
+			* OR r/m16,imm8
+			*/
+		} else
+		{
 
+			/* 83 /1 ib 
+			 * r/m32 OR imm8 (sign-extended)
+			 * OR r/m32,imm8
+			 */
+		}
+	} else
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+
+			/* 83 /1 ib 
+			* r/m16 OR imm8 (sign-extended)
+			* OR r/m16,imm8
+			*/
+		} else
+		{
+
+			/* 83 /1 ib 
+			 * r/m32 OR imm8 (sign-extended)
+			 * OR r/m32,imm8
+			 */
+		}
+	}
 	return 0;
 }
 

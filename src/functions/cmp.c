@@ -271,31 +271,147 @@ int32_t instr_group_1_80_cmp(struct emu_cpu *cpu, uint8_t a, uint8_t b)
 
 int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct instruction *i)
 {
-	/* 81 /7 iw 
-	 * Compare imm16 with r/m16
-     * CMP r/m16, imm16 
-	 */
+	if ( i->modrm.mod != 3 )
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 81 /7 iw 
+			 * Compare imm16 with r/m16
+			 * CMP r/m16, imm16 
+			 */
+
+			uint16_t dst;
+			MEM_WORD_READ(c, i->modrm.ea, &dst);
 
 
-	/* 81 /7 id 
-	 * Compare imm32 with r/m32
-	 * CMP r/m32,imm32  
-	 */
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 dst, 
+									 *i->imm16, 
+									 -)
+
+			MEM_WORD_WRITE(c, i->modrm.ea, dst);
+
+		} else
+		{
+			/* 81 /7 id 
+			 * Compare imm32 with r/m32
+			 * CMP r/m32,imm32  
+			 */
+			uint32_t dst;
+			MEM_DWORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 dst, 
+									 i->imm, 
+									 -)
+
+			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
+
+		}
+	} else
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 81 /7 iw 
+			 * Compare imm16 with r/m16
+			 * CMP r/m16, imm16 
+			 */
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 *c->reg16[i->modrm.opc], 
+									 *i->imm16, 
+									 -)
+
+		} else
+		{
+			/* 81 /7 id 
+			 * Compare imm32 with r/m32
+			 * CMP r/m32,imm32  
+			 */
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 c->reg[i->modrm.opc], 
+									 i->imm, 
+									 -)
+
+		}
+
+	}
 	return 0;
 }
 
 
 int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i)
 {
-	/* 83 /7 ib 
-	 * Compare imm8 with r/m16
-	 * CMP r/m16,imm8   
-	 */
+	if ( i->modrm.mod != 3 )
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+
+			/* 83 /7 ib 
+			 * Compare imm8 with r/m16
+			 * CMP r/m16,imm8   
+			 */
+
+			 uint16_t dst;
+			 MEM_WORD_READ(c, i->modrm.ea, &dst);
+
+			 INSTR_CALC_AND_SET_FLAGS(16, 
+									  c, 
+									  dst,
+									  *i->imm8, 
+									  -)
+
+			 MEM_WORD_WRITE(c, i->modrm.ea, dst);
+
+		} else
+		{
 
 
-	/* 83 /7 ib 
-	 * Compare imm8 with r/m32
-	 * CMP r/m32,imm8   
-	 */
+			/* 83 /7 ib 
+			 * Compare imm8 with r/m32
+			 * CMP r/m32,imm8   
+			 */
+
+			uint32_t dst;
+			MEM_DWORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 dst,
+									 *i->imm8, 
+									 -)
+			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
+		}
+	} else
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 83 /7 ib 
+			 * Compare imm8 with r/m16
+			 * CMP r/m16,imm8   
+			 */
+			
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 *c->reg16[i->modrm.opc], 
+									 *i->imm8, 
+									 -)
+		} else
+		{
+			/* 83 /7 ib 
+			 * Compare imm8 with r/m32
+			 * CMP r/m32,imm8   
+			 */
+
+            INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 c->reg[i->modrm.opc], 
+									 *i->imm8, 
+									 -)
+		}
+	}
 	return 0;
 }
