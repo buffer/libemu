@@ -287,68 +287,155 @@ int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 
 int32_t instr_group_1_81_xor(struct emu_cpu *c, struct instruction *i)
 {
-	if ( i->prefixes & PREFIX_OPSIZE )
+	if ( i->modrm.mod != 3 )
 	{
-		/* 81 /6 iw 
-		 * r/m16 XOR imm16
-		 * XOR r/m16,imm16
-		 */
-		INSTR_CALC_AND_SET_FLAGS(16, 
-								 c, 
-								 *i->imm16, 
-								 *c->reg16[i->modrm.opc], 
-								 *c->reg16[i->modrm.opc], 
-								 ^)
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 81 /6 iw 
+			 * r/m16 XOR imm16
+			 * XOR r/m16,imm16
+			 */
+			uint16_t dst;
+			MEM_WORD_READ(c, i->modrm.ea, &dst);
 
+
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 dst, 
+									 *i->imm16, 
+									 dst, 
+									 ^)
+
+			MEM_WORD_WRITE(c, i->modrm.ea, dst);
+
+		} else
+		{
+			/* 81 /6 id 
+			 * r/m32 XOR imm32
+			 * XOR r/m32,imm32
+			 */
+			uint32_t dst;
+			MEM_DWORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 dst, 
+									 i->imm, 
+									 dst, 
+									 ^)
+
+			MEM_WORD_WRITE(c, i->modrm.ea, dst);
+
+		}
 	} else
 	{
-		/* 81 /6 id 
-		 * r/m32 XOR imm32
-		 * XOR r/m32,imm32
-		 */
-		INSTR_CALC_AND_SET_FLAGS(32, 
-								 c, 
-								 i->imm, 
-								 c->reg[i->modrm.opc], 
-								 c->reg[i->modrm.opc], 
-								 ^)
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 81 /6 iw 
+			 * r/m16 XOR imm16
+			 * XOR r/m16,imm16
+			 */
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 *c->reg16[i->modrm.opc], 
+									 *i->imm16, 
+									 *c->reg16[i->modrm.opc], 
+									 ^)
 
+		} else
+		{
+			/* 81 /6 id 
+			 * r/m32 XOR imm32
+			 * XOR r/m32,imm32
+			 */
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 c->reg[i->modrm.opc], 
+									 i->imm, 
+									 c->reg[i->modrm.opc], 
+									 ^)
+
+		}
 	}
 	return 0;
 }
 
 int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
 {
-
-	if ( i->prefixes & PREFIX_OPSIZE )
+	if ( i->modrm.mod != 3 )
 	{
-		/* 83 /6 ib 
-		 * r/m16 XOR imm8 (sign-extended)
-		 * XOR r/m16,imm8  
-		 */
-		int16_t sexd = i->disp;
-		INSTR_CALC_AND_SET_FLAGS(16, 
-								 c, 
-								 sexd, 
-								 *c->reg16[i->modrm.opc], 
-								 *c->reg16[i->modrm.opc], 
-								 ^)
 
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 83 /6 ib 
+			 * r/m16 XOR imm8 (sign-extended)
+			 * XOR r/m16,imm8  
+			 */
+			int16_t sexd = (int16_t)*i->imm16;
+
+			uint16_t dst;
+			MEM_WORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 dst,
+									 sexd, 
+									 dst, 
+									 ^)
+
+			MEM_WORD_WRITE(c, i->modrm.ea, dst);
+		} else
+		{
+
+			/* 83 /6 ib 
+			 * r/m32 XOR imm8 (sign-extended)
+			 * XOR r/m32,imm8  
+			 */
+			int32_t sexd = (int32_t)i->imm;
+
+			uint32_t dst;
+			MEM_DWORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 dst,
+									 sexd, 
+ 									 dst, 
+									 ^)
+			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
+		}
 	} else
 	{
 
-		/* 83 /6 ib 
-		 * r/m32 XOR imm8 (sign-extended)
-		 * XOR r/m32,imm8  
-		 */
-		int32_t sexd = i->disp;
-		INSTR_CALC_AND_SET_FLAGS(32, 
-								 c, 
-								 sexd, 
-								 c->reg[i->modrm.opc], 
-								 c->reg[i->modrm.opc], 
-								 ^)
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 83 /6 ib 
+			 * r/m16 XOR imm8 (sign-extended)
+			 * XOR r/m16,imm8  
+			 */
+			int16_t sexd = (int16_t)*i->imm16;
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 *c->reg16[i->modrm.opc], 
+									 sexd, 
+									 *c->reg16[i->modrm.opc], 
+									 ^)
 
+		} else
+		{
+
+			/* 83 /6 ib 
+			 * r/m32 XOR imm8 (sign-extended)
+			 * XOR r/m32,imm8  
+			 */
+			int32_t sexd = (int32_t)i->imm;
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 c->reg[i->modrm.opc], 
+									 sexd, 
+									 c->reg[i->modrm.opc], 
+									 ^)
+		}
 	}
 	return 0;
 }
