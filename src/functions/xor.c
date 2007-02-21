@@ -285,7 +285,7 @@ int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 	return 0;
 }
 
-int32_t instr_group_1_81_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+int32_t instr_group_1_81_xor(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 81 /6 iw 
@@ -301,7 +301,7 @@ int32_t instr_group_1_81_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 	return 0;
 }
 
-int32_t instr_group_1_83_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* 83 /6 ib 

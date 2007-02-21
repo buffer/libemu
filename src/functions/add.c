@@ -296,6 +296,8 @@ int32_t instr_group_1_81_add(struct emu_cpu *c, struct instruction *i)
 	 * Add imm32 to r/m32
 	 * ADD r/m32,imm32 
 	 */
+
+	return 0;
 }
 
 
@@ -310,6 +312,6 @@ int32_t instr_group_1_83_add(struct emu_cpu *c, struct instruction *i)
 	 * Add sign-extended imm8 to r/m32
 	 * ADD r/m32,imm8  
 	 */
-
+	return 0;
 }
 

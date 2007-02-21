@@ -285,7 +285,7 @@ int32_t instr_group_1_80_or(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *
 
 
 
-int32_t instr_group_1_81_or(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+int32_t instr_group_1_81_or(struct emu_cpu *c, struct instruction *i)
 {
 	/* 81 /1 iw 
 	 * r/m16 OR imm16
@@ -296,9 +296,11 @@ int32_t instr_group_1_81_or(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *
 	* r/m32 OR imm32
 	* OR r/m32,imm32
 	*/
+
+	return 0;
 }
 
-int32_t instr_group_1_83_or(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+int32_t instr_group_1_83_or(struct emu_cpu *c, struct instruction *i)
 {
    /* 83 /1 ib 
 	* r/m16 OR imm8 (sign-extended)
@@ -309,5 +311,7 @@ int32_t instr_group_1_83_or(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *
 	* r/m32 OR imm8 (sign-extended)
 	* OR r/m32,imm8
 	*/
+
+	return 0;
 }
 
