@@ -371,7 +371,7 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
 			 * r/m16 XOR imm8 (sign-extended)
 			 * XOR r/m16,imm8  
 			 */
-			int16_t sexd = (int16_t)*i->imm16;
+			int16_t sexd = (int16_t)*i->imm8;
 
 			uint16_t dst;
 			MEM_WORD_READ(c, i->modrm.ea, &dst);
@@ -391,7 +391,7 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
 			 * r/m32 XOR imm8 (sign-extended)
 			 * XOR r/m32,imm8  
 			 */
-			int32_t sexd = (int32_t)i->imm;
+			int32_t sexd = (int32_t)*i->imm8;
 
 			uint32_t dst;
 			MEM_DWORD_READ(c, i->modrm.ea, &dst);
@@ -413,7 +413,7 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
 			 * r/m16 XOR imm8 (sign-extended)
 			 * XOR r/m16,imm8  
 			 */
-			int16_t sexd = (int16_t)*i->imm16;
+			int16_t sexd = (int16_t)*i->imm8;
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
 									 *c->reg16[i->modrm.opc], 
@@ -428,7 +428,7 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
 			 * r/m32 XOR imm8 (sign-extended)
 			 * XOR r/m32,imm8  
 			 */
-			int32_t sexd = (int32_t)i->imm;
+			int32_t sexd = (int32_t)*i->imm8;
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 c->reg[i->modrm.opc], 

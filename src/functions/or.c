@@ -291,35 +291,35 @@ int32_t instr_group_1_81_or(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-
 			/* 81 /1 iw 
 			 * r/m16 OR imm16
 			 * OR r/m16,imm16  
 			 */
+
 		} else
 		{
-
 			/* 81 /1 id 
 			 * r/m32 OR imm32
 			 * OR r/m32,imm32
 			 */
+
 		}
 	} else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-
 			/* 81 /1 iw 
 			 * r/m16 OR imm16
 			 * OR r/m16,imm16  
 			 */
+
 		} else
 		{
-
 			/* 81 /1 id 
 			 * r/m32 OR imm32
 			 * OR r/m32,imm32
 			 */
+
 		}
 	}
 	return 0;
@@ -331,35 +331,35 @@ int32_t instr_group_1_83_or(struct emu_cpu *c, struct instruction *i)
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-
 			/* 83 /1 ib 
 			* r/m16 OR imm8 (sign-extended)
 			* OR r/m16,imm8
 			*/
+
 		} else
 		{
-
 			/* 83 /1 ib 
 			 * r/m32 OR imm8 (sign-extended)
 			 * OR r/m32,imm8
 			 */
+
 		}
 	} else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
-
 			/* 83 /1 ib 
 			* r/m16 OR imm8 (sign-extended)
 			* OR r/m16,imm8
 			*/
+
 		} else
 		{
-
 			/* 83 /1 ib 
 			 * r/m32 OR imm8 (sign-extended)
 			 * OR r/m32,imm8
 			 */
+
 		}
 	}
 	return 0;
