@@ -107,7 +107,7 @@ struct instruction_info ii_onebyte[0x100] = {
 	/* 34 */ {instr_xor_34, "xor", {0, 0, 0, II_IMM8, 0, 0, 0}},               
 	/* 35 */ {instr_xor_35, "xor", {0, 0, 0, II_IMM, 0, 0, 0}},                
 	/* 36 */ {prefix_fn, "SS:", {0, 0, 0, 0, 0, 0, 0}},
-	/* 37 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
+	/* 37 */ {instr_aaa_37, "aaa", {0, 0, 0, 0, 0, 0, 0}},
 	/* 38 */ {instr_cmp_38, "cmp", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},       
 	/* 39 */ {instr_cmp_39, "cmp", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},       
 	/* 3a */ {instr_cmp_3a, "cmp", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},       

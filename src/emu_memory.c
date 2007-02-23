@@ -100,6 +100,7 @@ int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
 	if( m->page_map[PAGE(addr)] == NULL )
 	{
 		emu_errno_set(m->emu, EFAULT);
+		emu_strerror_set(m->emu,"error accessing 0x%08x not mapped\n",addr);
 		return -1;
 	}
 
@@ -125,6 +126,7 @@ int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, s
 	if( m->page_map[PAGE(addr)] == NULL )
 	{
 		emu_errno_set(m->emu, EFAULT);
+		emu_strerror_set(m->emu,"error accessing 0x%08x not mapped\n",addr);
 		return -1;
 	}
 
