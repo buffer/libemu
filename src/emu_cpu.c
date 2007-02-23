@@ -482,11 +482,14 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			
 			/* TODO level type ... */
 
-			/* call the function */			
-			ii->function(c, &i);
+			/* call the function */
+			ret = ii->function(c, &i);
+
 			debug_instruction(&i);
 			emu_cpu_debug_print(c);
-			
+			if ( ret != 0 )
+				return ret;
+            			
 			break;
 		}
 		
