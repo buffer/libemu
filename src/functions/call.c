@@ -44,7 +44,7 @@ int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i)
 	 */
 
 	PUSH_DWORD(c, c->eip);
-	c->eip += i->imm;
+	c->eip += i->disp;
 
 	return 0;
 }
