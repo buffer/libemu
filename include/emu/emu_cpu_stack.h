@@ -10,8 +10,12 @@ if (cpu->reg[esp] < 4)								\
 	"ran out of stack space writing a dword\n");	\
 	return -1;										\
 }													\
-cpu->reg[esp]-=4;								\
-return emu_memory_write_dword(cpu->mem, cpu->reg[esp], arg);
+cpu->reg[esp]-=4;									\
+{																				\
+		int32_t memret = emu_memory_write_dword(cpu->mem, cpu->reg[esp], arg);	\
+		if (memret != 0)														\
+			return memret;														\
+}
 
 
 #define PUSH_WORD(cpu, arg)				\
@@ -22,8 +26,13 @@ if (cpu->reg[esp] < 2)								\
 	"ran out of stack space writing a word\n");		\
 	return -1;										\
 }													\
-cpu->reg[esp]-=2;								\
-return emu_memory_write_word(cpu->mem, cpu->reg[esp], arg);
+cpu->reg[esp]-=2;									\
+{																				\
+		int32_t memret = emu_memory_write_word(cpu->mem, cpu->reg[esp], arg);	\
+		if (memret != 0)														\
+			return memret;														\
+}
+
 
 
 #define PUSH_BYTE(cpu, arg)				\
@@ -34,8 +43,12 @@ if (cpu->reg[esp] < 1)								\
 	"ran out of stack space writing a byte\n");		\
 	return -1;										\
 }													\
-cpu->reg[esp]-=1;								\
-return emu_memory_write_byte(cpu->mem, cpu->reg[esp], arg);
+cpu->reg[esp]-=1;									\
+{																				\
+		int32_t memret = emu_memory_write_byte(cpu->mem, cpu->reg[esp], arg);	\
+		if (memret != 0)														\
+			return memret;														\
+}
 
 
 #define POP_DWORD(cpu, dst_p) \
