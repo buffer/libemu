@@ -807,7 +807,7 @@ int test()
 			printf("code '");
 			for ( j=0;j<tests[i].codesize;j++ )
 			{
-				printf("%02x ",tests[i].code[j]);
+				printf("%02x ",(uint8_t)tests[i].code[j]);
 			}
 			printf("' ");
 		}
@@ -831,7 +831,9 @@ int test()
 			emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
 		}
 
-		emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
+		if (tests[i].in_state.mem_state[0] != 0 && tests[i].in_state.mem_state[1] != 0)
+			emu_memory_write_dword(mem, tests[i].in_state.mem_state[0], tests[i].in_state.mem_state[1]);
+
 		if (opts.verbose)
 		{
 			printf("memory at 0x%08x = 0x%08x (%i %i)\n",
@@ -846,7 +848,7 @@ int test()
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
 		/* run the code */
-		if (opts.verbose == 1 && 0)
+		if (opts.verbose == 1 )
 		{
         	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -933,17 +935,17 @@ int test()
 			}
 
 			failed = 1;
+		}else
+		{
+			if (opts.verbose == 1)
+				printf("\t flags "SUCCESS"\n");
 		}
+
 		
 		if( tests[i].out_state.eip != 0 && tests[i].out_state.eip != emu_cpu_eip_get(cpu) )
 		{
 			printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n", "eip", emu_cpu_eip_get(cpu), tests[i].out_state.eip);
 			failed = 1;
-		}
-		else
-		{
-			if (opts.verbose == 1)
-				printf("\t flags "SUCCESS"\n");
 		}
 
 

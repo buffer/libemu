@@ -206,7 +206,7 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 			snprintf(sign,4,"%02x ",b[j+i*16]);
 			strcat(fmsg,sign);
 		}
-		logDebug(c->emu,"%08x  %s\n",c->reg[esp]+i*16,fmsg);
+		logDebug(c->emu,"0x%08x:  %s\n",c->reg[esp]+i*16,fmsg);
 	}
 
 	free(fmsg);
@@ -303,17 +303,18 @@ static void debug_instruction(struct instruction *i)
 #undef PREFIX_LOCK
 
 #include "libdasm.h"
-static void dasm_print_instruction(uint8_t *data, uint32_t size)
+static uint32_t dasm_print_instruction(uint8_t *data, uint32_t size)
 {
 	INSTRUCTION inst;
 	static char str[256];
 
 	// step 2: fetch instruction
-	get_instruction(&inst, data, MODE_32);
+	uint32_t instrsize = get_instruction(&inst, data, MODE_32);
 
 	// step 3: print it
 	get_instruction_string(&inst, FORMAT_INTEL, 0, str, sizeof(str));
 	printf("%s\n", str);
+	return instrsize;
 }
 
 int32_t emu_cpu_step(struct emu_cpu *c)
@@ -347,7 +348,10 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 
 	uint8_t dis[32];
 	emu_memory_read_block(c->mem,c->eip,dis,32);
-	dasm_print_instruction(dis,0);
+	uint32_t expected_instr_size = dasm_print_instruction(dis,0);
+
+	uint32_t eip_before = c->eip;
+	uint32_t eip_after = 0;
 
 	while( 1 )
 	{
@@ -538,6 +542,16 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			}
 			
 			/* TODO level type ... */
+
+			eip_after = c->eip;
+
+			if (eip_after - eip_before != expected_instr_size)
+			{
+				printf("broken instr size %i %i\n",
+					   eip_after - eip_before,
+					   expected_instr_size);
+				return -1;
+			}
 
 			/* call the function */
 			ret = ii->function(c, &i);
