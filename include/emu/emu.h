@@ -2,6 +2,7 @@
 #ifndef HAVE_EMU_H
 #define HAVE_EMU_H
 
+#include <stdio.h>
 
 struct emu;
 struct emu_logging;

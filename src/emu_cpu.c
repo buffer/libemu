@@ -173,6 +173,43 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	}
 	logDebug(c->emu,"Flags: %s\n", fmsg);
 	free(fmsg);
+
+
+	uint32_t stacksize = 4294967295U - c->reg[esp];
+//	printf("stacksize is %i\n",stacksize);
+	if (stacksize == 0)
+		return;
+
+
+	uint8_t *b = (uint8_t *)malloc(stacksize);
+	memset(b,0,stacksize);
+	logDebug(c->emu,"Stack (%i):\n",stacksize);
+
+	for ( i=0;i<stacksize;i++ )
+	{
+		if (emu_memory_read_byte(c->mem,c->reg[esp]+i,&b[stacksize-i-1]) != 0)
+			break;
+	}
+
+
+	int numlines = (stacksize / 16);
+//	printf("numlines  is %i\n",numlines);
+	fmsg = (char *)malloc(256);
+
+	for (i=0;i<=numlines;i++)
+	{
+    	memset(fmsg,0,256);
+		int j;
+		for ( j=0;j<16 && i*16+j < stacksize ;j++ )
+		{
+			char sign[5];
+			snprintf(sign,4,"%02x ",b[j+i*16]);
+			strcat(fmsg,sign);
+		}
+		logDebug(c->emu,"%08x  %s\n",c->reg[esp]+i*16,fmsg);
+	}
+
+	free(fmsg);
 }
 
 static void debug_instruction(struct instruction *i)
@@ -263,6 +300,22 @@ static void debug_instruction(struct instruction *i)
 	printf("\n");
 }
 
+#undef PREFIX_LOCK
+
+#include "libdasm.h"
+static void dasm_print_instruction(uint8_t *data, uint32_t size)
+{
+	INSTRUCTION inst;
+	static char str[256];
+
+	// step 2: fetch instruction
+	get_instruction(&inst, data, MODE_32);
+
+	// step 3: print it
+	get_instruction_string(&inst, FORMAT_INTEL, 0, str, sizeof(str));
+	printf("%s\n", str);
+}
+
 int32_t emu_cpu_step(struct emu_cpu *c)
 {
 	/* TODO make unstatic for threadsafety */
@@ -290,8 +343,12 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	}
 	
 	logDebug(c->emu,"decoding\n");
-				emu_cpu_debug_print(c);
-	
+	emu_cpu_debug_print(c);
+
+	uint8_t dis[32];
+	emu_memory_read_block(c->mem,c->eip,dis,32);
+	dasm_print_instruction(dis,0);
+
 	while( 1 )
 	{
 		

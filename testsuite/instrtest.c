@@ -128,7 +128,7 @@ struct instr_test tests[] =
                 "\x4f\x4f\x42\x4d\x5a",
 
 		.codesize = 709,
-		.in_state.reg  = {0,0,0,0,0x4711,0,0,0},
+		.in_state.reg  = {0,0,0,0,0xffffffff,0,0,0},
 		.in_state.mem_state = {0, 0},
 	},
 
@@ -846,7 +846,7 @@ int test()
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
 		/* run the code */
-		if (opts.verbose == 1)
+		if (opts.verbose == 1 && 0)
 		{
         	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -854,7 +854,14 @@ int test()
 		}
 		
 		int ret;
-		while ((ret = emu_cpu_run(emu_cpu_get(e))) == 0);
+		while ((ret = emu_cpu_run(emu_cpu_get(e))) == 0)
+			if (opts.verbose == 1)
+			{
+				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+				emu_cpu_debug_print(cpu);
+				emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+			}
+
 
 		if ( ret != 0 )
 		{
