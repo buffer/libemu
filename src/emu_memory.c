@@ -13,19 +13,15 @@
 #define PAGE(x) ((x) >> PAGE_BITS)
 #define OFFSET(x) (((1 << PAGE_BITS) - 1) & (x))
 
-/*struct page
-{
-	void *data;
-	uint32_t virtual_address;
-	struct page *next;
-};*/
-
 struct emu_memory
 {
 	struct emu *emu;
-/*	enum emu_allocation_mode alloc_mode;*/
-/*	struct page *pages;*/
 	void **page_map;
+	
+	uint32_t segment_offset;
+	enum emu_segment segment_current;
+	
+	uint32_t segment_table[6];
 };
 
 struct emu_memory *emu_memory_new(struct emu *e)
@@ -36,13 +32,11 @@ struct emu_memory *emu_memory_new(struct emu *e)
 /*	printf("memory page size is %d bytes\n", PAGE_SIZE);*/
 	
 	em->emu = e;
-/*	em->alloc_mode = m;
 	
-	if( m == alloc_mode_map )
-	{*/
-		em->page_map = malloc((1 << (32 - PAGE_BITS)) * sizeof(void *));
-		memset(em->page_map, 0, (1 << (32 - PAGE_BITS)) * sizeof(void *));
-/*	}*/
+	em->page_map = malloc((1 << (32 - PAGE_BITS)) * sizeof(void *));
+	memset(em->page_map, 0, (1 << (32 - PAGE_BITS)) * sizeof(void *));
+	
+	em->segment_table[s_fs] = 0x7ffde00;
 	
 	return em;
 }
@@ -59,21 +53,6 @@ void emu_memory_free(struct emu_memory *em)
 	free(em->page_map);
 	free(em);
 }
-
-/*static void *translate_addr_list(struct emu_memory *em, uint32_t addr)
-{
-	struct page *p = em->pages;
-	
-	while( p != NULL )
-	{
-		if( p->virtual_address == PAGE(addr) )
-			return p + OFFSET(addr);
-			
-		p = p->next;
-	}
-	
-	return NULL; 
-}*/
 
 static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 {
@@ -97,6 +76,8 @@ static inline void *translate_addr(struct emu_memory *em, uint32_t addr)
 
 int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
 {
+	addr += m->segment_offset;
+	
 	if( m->page_map[PAGE(addr)] == NULL )
 	{
 		emu_errno_set(m->emu, EFAULT);
@@ -123,6 +104,9 @@ int32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dwo
 
 int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
 {
+	uint32_t oaddr = addr; /* save original addr for recursive call */
+	addr += m->segment_offset;
+	
 	if( m->page_map[PAGE(addr)] == NULL )
 	{
 		emu_errno_set(m->emu, EFAULT);
@@ -135,18 +119,21 @@ int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, s
 		void *address = translate_addr(m, addr);
 		memcpy(dest, address, len);
 		return 0;
-	}else
+	}
+	else
 	{
 		void *address = translate_addr(m, addr);
 		uint32_t cb = PAGE_SIZE - OFFSET(addr);
 		memcpy(dest, address, cb);
-		return emu_memory_read_block(m, addr + cb, dest + cb, len - cb);
+		return emu_memory_read_block(m, oaddr + cb, dest + cb, len - cb);
 	}
 }
 
 
 int32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte)
 {
+	addr += m->segment_offset;
+
 	if( m->page_map[PAGE(addr)] == NULL )
 		if( page_alloc(m, addr) == -1 )
 			return -1;
@@ -170,6 +157,9 @@ int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dwo
 
 int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
 {
+	uint32_t oaddr = addr; /* save original addr for recursive call */
+	addr += m->segment_offset;
+
 	if( m->page_map[PAGE(addr)] == NULL )
 		if( page_alloc(m, addr) == -1 )
 			return -1;
@@ -179,15 +169,26 @@ int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, s
 		void *address = translate_addr(m, addr);
 		memcpy(address, src, len);
 		return 0;
-	}else
+	}
+	else
 	{
 		void *address = translate_addr(m, addr);
 		uint32_t cb = PAGE_SIZE - OFFSET(addr);
 		memcpy(address, src, cb);
-		return emu_memory_write_block(m, addr + cb, src + cb, len - cb);
+		return emu_memory_write_block(m, oaddr + cb, src + cb, len - cb);
 	}
 
 	return 0;
 
 }
 
+void emu_memory_segment_select(struct emu_memory *m, enum emu_segment s)
+{
+	m->segment_current = s;
+	m->segment_offset = m->segment_table[m->segment_current];
+}
+
+enum emu_segment emu_memory_segment_get(struct emu_memory *m)
+{
+	return m->segment_current;
+}

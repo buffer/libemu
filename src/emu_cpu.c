@@ -554,8 +554,18 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				return -1;
 			}
 
+			if( i.prefixes & PREFIX_FS_OVR )
+			{
+				emu_memory_segment_select(c->mem, s_fs);
+			}
+
 			/* call the function */
 			ret = ii->function(c, &i);
+			
+			if( i.prefixes & PREFIX_FS_OVR )
+			{
+				emu_memory_segment_select(c->mem, s_cs);
+			}
 
 			debug_instruction(&i);
 			emu_cpu_debug_print(c);
