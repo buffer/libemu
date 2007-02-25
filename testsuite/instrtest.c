@@ -18,7 +18,7 @@
 #include <emu/emu_log.h>
 #include <emu/emu_cpu_data.h>
 
-#define CODE_OFFSET 4711
+#define CODE_OFFSET 0x417001
 
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
@@ -128,7 +128,7 @@ struct instr_test tests[] =
                 "\x4f\x4f\x42\x4d\x5a",
 
 		.codesize = 709,
-		.in_state.reg  = {0,0,0,0,0xffffffff,0,0,0},
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
 

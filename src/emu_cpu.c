@@ -180,7 +180,7 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	if (stacksize == 0)
 		return;
 
-
+/*
 	uint8_t *b = (uint8_t *)malloc(stacksize);
 	memset(b,0,stacksize);
 	logDebug(c->emu,"Stack (%i):\n",stacksize);
@@ -210,6 +210,7 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	}
 
 	free(fmsg);
+*/
 }
 
 static void debug_instruction(struct instruction *i)
