@@ -13,9 +13,10 @@
 #endif // INSTR_CALC_AND_SET_FLAGS
 
 #define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b, c, operation)	\
-INSTR_CALC(bits, a, b, c, operation)							\
-INSTR_SET_FLAG_CF(cpu)											\
-INSTR_SET_FLAG_OF(cpu)											
+INSTR_CALC(bits, a, b, c, operation)							
+
+//INSTR_SET_FLAG_CF(cpu)											
+//INSTR_SET_FLAG_OF(cpu)											
 
 
 
@@ -47,26 +48,86 @@ int32_t instr_imul_69(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i)
 {
-	/* 6B /r ib 
-	 * word register <- r/m16 * sign-extended immediate byte          
-	 * IMUL r16,r/m16,imm8 
-	 */
+	if ( i->modrm.mod != 3 )
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 6B /r ib 
+			 * word register <- m16 * sign-extended immediate byte          
+			 * IMUL r16,m16,imm8 
+			 */
+			int16_t sexd = (int16_t)*i->imm8;
 
-	/* 6B /r ib 
-	 * doubleword register <- r/m32 * sign-extended immediate byte                                                                
-	 * IMUL r32,r/m32,imm8 
-	 */
+			uint16_t dst;
+			MEM_WORD_READ(c, i->modrm.ea, &dst);
 
-	/* 6B /r ib 
-	 * word register <- word register * sign-extended immediate byte                                                                
-	 * IMUL r16,imm8       
-	 */
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 dst,
+									 sexd, 
+									 *c->reg16[i->modrm.opc], 
+									 *)
 
-	/* 6B /r ib 
-	 * doubleword register <- doubleword register * sign-extended immediate byte                                             
-	 * IMUL r32,imm8       
-	 */
+		} else
+		{
+			/* 6B /r ib 
+			 * word register <- m16 * sign-extended immediate byte          
+			 * IMUL r16,m16,imm8 
+			 */
 
+			int32_t sexd = (int32_t)*i->imm8;
+
+			uint32_t dst;
+			MEM_DWORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 dst,
+									 sexd, 
+									 c->reg[i->modrm.opc],
+									 *)
+
+		}
+	} else
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* 6B /r ib 
+			 * word register <- r16 * sign-extended immediate byte          
+			 * IMUL r16,r16,imm8 
+			 *
+			 * word register <- word register * sign-extended immediate byte                                                                
+			 * IMUL r16,imm8       
+			 */
+			int16_t sexd = (int16_t)*i->imm8;
+
+			INSTR_CALC_AND_SET_FLAGS(16, 
+									 c, 
+									 *c->reg16[i->modrm.rm],
+									 sexd, 
+									 *c->reg16[i->modrm.opc], 
+									 *)
+
+		} else
+		{
+			/* 6B /r ib 
+			 * doubleword register <- r32 * sign-extended immediate byte                                                                
+			 * IMUL r32,r32,imm8 
+			 *
+			 * doubleword register <- doubleword register * sign-extended immediate byte                                             
+			 * IMUL r32,imm8       
+			 */
+			int32_t sexd = (int32_t)*i->imm8;
+
+			INSTR_CALC_AND_SET_FLAGS(32, 
+									 c, 
+									 c->reg[i->modrm.rm],
+									 sexd, 
+									 c->reg[i->modrm.opc],
+									 *)
+
+		}
+	}
 	return 0;
 }
 
