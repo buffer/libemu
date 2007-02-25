@@ -9,7 +9,7 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_memory.h"
 
-
+/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 621*/
 
 int32_t instr_push_06(struct emu_cpu *c, struct instruction *i)
 {
