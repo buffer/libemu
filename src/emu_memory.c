@@ -36,7 +36,7 @@ struct emu_memory *emu_memory_new(struct emu *e)
 	em->page_map = malloc((1 << (32 - PAGE_BITS)) * sizeof(void *));
 	memset(em->page_map, 0, (1 << (32 - PAGE_BITS)) * sizeof(void *));
 	
-	em->segment_table[s_fs] = 0x7ffde00;
+	em->segment_table[s_fs] = 0x7ffde000;
 	
 	return em;
 }
