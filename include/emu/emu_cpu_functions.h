@@ -248,5 +248,14 @@ int32_t instr_lods_ad(struct emu_cpu *c, struct instruction *i);
 /* aaa */
 int32_t instr_aaa_37(struct emu_cpu *c, struct instruction *i);
 
+
+/* imul */
+/*int32_t instr_imul_69(struct emu_cpu *c, struct instruction *i);
+int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i);
+int32_t instr_imul_0f_af(struct emu_cpu *c, struct instruction *i);
+int32_t instr_imul_group_3_f6(struct emu_cpu *c, struct instruction *i);
+int32_t instr_imul_group_3_f7(struct emu_cpu *c, struct instruction *i);*/
+
+
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  

@@ -27,6 +27,7 @@ libemu_la_SOURCES += functions/dec.c
 libemu_la_SOURCES += functions/group_1.c
 libemu_la_SOURCES += functions/group_5.c
 libemu_la_SOURCES += functions/group_10.c
+libemu_la_SOURCES += functions/imul.c
 libemu_la_SOURCES += functions/inc.c
 libemu_la_SOURCES += functions/jcc.c
 libemu_la_SOURCES += functions/jmp.c
