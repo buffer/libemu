@@ -2,15 +2,34 @@
 #include <stdint.h>
 #include <errno.h>
 
-#define INSTR_CALC(bits, a, b, cpu)						\
-UINT(bits) operand_a = (a);								\
-UINT(bits) operand_b = (b);								\
-{	/* FIXME */						     				\
-	(a) = operand_a *  operand_b;                       \
+#define INSTR_CALC(bits, a, b, cpu) \
+UINT(bits) operand_a = (a); \
+UINT(bits) operand_b = (b); \
+{ \
+	operand_b &= 0x1f; \
+	if( operand_b > 0 ) \
+	{ \
+		if( operand_a & (1 << (bits - operand_b)) ) \
+		{ \
+			CPU_FLAG_SET(cpu, f_cf); \
+		} \
+		operand_a <<= operand_b; \
+		if( operand_b == 1 ) \
+		{ \
+			if( (operand_a >> (bits - 1)) ^ (cpu->eflags >> f_cf) ) \
+			{ \
+				CPU_FLAG_SET(cpu, f_of); \
+			} \
+			else \
+			{ \
+				CPU_FLAG_UNSET(cpu, f_of); \
+			} \
+		} \
+		a = operand_a; \
+	} \
 }
 
-
-#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b)	\
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b) \
 INSTR_CALC(bits, a, b, cpu)
 
 #include "emu/emu.h"
