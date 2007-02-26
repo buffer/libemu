@@ -559,6 +559,13 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				emu_memory_segment_select(c->mem, s_fs);
 			}
 
+			if ( ii->function == 0 )
+			{
+				emu_strerror_set(c->emu,"opcode %02x not supported\n", i.opc);
+				emu_errno_set(c->emu, ENOTSUP);
+				return -1;
+			}
+
 			/* call the function */
 			ret = ii->function(c, &i);
 			
@@ -567,7 +574,8 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				emu_memory_segment_select(c->mem, s_cs);
 			}
 
-			debug_instruction(&i);
+			if (0)
+				debug_instruction(&i);
 			emu_cpu_debug_print(c);
 			if ( ret != 0 )
 				return ret;

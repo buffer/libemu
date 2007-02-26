@@ -98,9 +98,9 @@ int32_t instr_group_2_d3(struct emu_cpu *c, struct instruction *i)
 		/* 1 */ instr_group_2_d3_ror,
 		/* 2 */ instr_group_2_d3_rcl,
 		/* 3 */ instr_group_2_d3_rcr,
-		/* 4 */ instr_group_2_d3_sal,
+		/* 4 */ instr_group_2_d3_shl,
 		/* 5 */ instr_group_2_d3_shr,
-		/* 6 */ 0,
+		/* 6 */ instr_group_2_d3_shl, // sal is shl
 		/* 7 */ instr_group_2_d3_sar,
 	};
 

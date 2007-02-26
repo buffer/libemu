@@ -30,6 +30,7 @@ a = operation_result;
 #include "emu/emu_cpu_functions.h"
 #include "emu/emu_memory.h"
 
+/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 341*/
 
 
 #ifdef INSTR_CALC_AND_SET_FLAGS
@@ -67,4 +68,23 @@ int32_t instr_inc_4x(struct emu_cpu *c, struct instruction *i)
 }
 
 
-
+	  
+int32_t instr_group_5_ff_inc(struct emu_cpu *c, struct instruction *i)
+{
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* FF /0 
+		 * Increment r/m word by 1
+		 * INC r/m16 
+		 */	  
+		INSTR_CALC_AND_SET_FLAGS(16, c, *c->reg16[i->modrm.rm])
+	}else
+	{
+		/* FF /0 
+		 * Increment r/m doubleword by 1
+		 * INC r/m32 
+		 */
+		INSTR_CALC_AND_SET_FLAGS(32, c, c->reg[i->modrm.rm])
+	}	
+	return 0;
+}
