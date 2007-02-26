@@ -41,6 +41,7 @@ libemu_la_SOURCES += functions/pop.c
 libemu_la_SOURCES += functions/push.c
 libemu_la_SOURCES += functions/rcl.c
 libemu_la_SOURCES += functions/rcr.c
+libemu_la_SOURCES += functions/repcc.c
 libemu_la_SOURCES += functions/ret.c
 libemu_la_SOURCES += functions/rol.c
 libemu_la_SOURCES += functions/ror.c
