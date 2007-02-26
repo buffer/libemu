@@ -264,6 +264,7 @@ int32_t instr_imul_group_3_f7(struct emu_cpu *c, struct instruction *i);*/
 
 /* misc */
 int32_t instr_cld_fc(struct emu_cpu *c, struct instruction *i);
+/*int32_t instr_lea_8d(struct emu_cpu *c, struct instruction *i);*/
 
 /* group 2*/
 /*int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i); */
