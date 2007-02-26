@@ -404,9 +404,9 @@ int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
 									 *i->imm16, 
-									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
 									 -)
 
 		}
@@ -420,9 +420,9 @@ int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 i->imm, 
-									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 -)
 		}
 	}
@@ -441,7 +441,7 @@ int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
 			 * Subtract with borrow sign-extended imm8 from r/m16
 			 * SBB r/m16,imm8
 			 */
-			int16_t sexd = (int16_t)*i->imm8;
+			int16_t sexd = (int8_t)*i->imm8;
 
 			uint16_t dst;
 			MEM_WORD_READ(c, i->modrm.ea, &dst);
@@ -463,7 +463,7 @@ int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
 			 * Subtract with borrow sign-extended imm8 from r/m32
 			 * SBB r/m32,imm8
 			 */
-			int32_t sexd = (int32_t)*i->imm8;
+			int32_t sexd = (int8_t)*i->imm8;
 
 			uint32_t dst;
 			MEM_DWORD_READ(c, i->modrm.ea, &dst);
@@ -487,12 +487,12 @@ int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
 			 * Subtract with borrow sign-extended imm8 from r/m16
 			 * SBB r/m16,imm8
 			 */
-			int16_t sexd = (int16_t)*i->imm8;
+			int16_t sexd = (int8_t)*i->imm8;
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
 									 sexd, 
-									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
 									 -)
 
 		}
@@ -503,12 +503,12 @@ int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
 			 * Subtract with borrow sign-extended imm8 from r/m32
 			 * SBB r/m32,imm8
 			 */
-			int32_t sexd = (int32_t)*i->imm8;
+			int32_t sexd = (int8_t)*i->imm8;
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 sexd, 
-									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 -)
 		}
 	}

@@ -331,7 +331,7 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
 									 *i->imm16, 
 									 -)
 
@@ -344,7 +344,7 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 i->imm, 
 									 -)
 
@@ -410,7 +410,7 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i)
 			
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 *c->reg16[i->modrm.opc], 
+									 *c->reg16[i->modrm.rm], 
 									 *i->imm8, 
 									 -)
 		}
@@ -423,7 +423,7 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i)
 
             INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
-									 c->reg[i->modrm.opc], 
+									 c->reg[i->modrm.rm], 
 									 *i->imm8, 
 									 -)
 		}
