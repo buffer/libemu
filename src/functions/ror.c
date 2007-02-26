@@ -73,7 +73,7 @@ int32_t instr_group_2_c0_ror(struct emu_cpu *c, struct instruction *i)
 		 */
 		INSTR_CALC_AND_SET_FLAGS(8,
 								 c,
-								 *c->reg8[i->modrm.opc],
+								 *c->reg8[i->modrm.rm],
 								 *i->imm8);
 
 	}
@@ -124,7 +124,7 @@ int32_t instr_group_2_c1_ror(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(16,
 									 c,
-									 *c->reg16[i->modrm.opc],
+									 *c->reg16[i->modrm.rm],
 									 *i->imm8);
 
 		} else
@@ -135,7 +135,7 @@ int32_t instr_group_2_c1_ror(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(32,
 									 c,
-									 c->reg[i->modrm.opc],
+									 c->reg[i->modrm.rm],
 									 *i->imm8);
 
 		}
@@ -168,7 +168,7 @@ int32_t instr_group_2_d0_ror(struct emu_cpu *c, struct instruction *i)
 		 */
 		INSTR_CALC_AND_SET_FLAGS(8,
 								 c,
-								 *c->reg8[i->modrm.opc],
+								 *c->reg8[i->modrm.rm],
 								 1);
 
 	}
@@ -219,7 +219,7 @@ int32_t instr_group_2_d1_ror(struct emu_cpu *c, struct instruction *i)
 			 */                                                                     
 			INSTR_CALC_AND_SET_FLAGS(16,
 									 c,
-									 *c->reg16[i->modrm.opc],
+									 *c->reg16[i->modrm.rm],
 									 1);
 
 		} else
@@ -230,7 +230,7 @@ int32_t instr_group_2_d1_ror(struct emu_cpu *c, struct instruction *i)
 			 */                                                                    
 			INSTR_CALC_AND_SET_FLAGS(32,
 									 c,
-									 c->reg[i->modrm.opc],
+									 c->reg[i->modrm.rm],
 									 1);
 
 		}
@@ -263,7 +263,7 @@ int32_t instr_group_2_d2_ror(struct emu_cpu *c, struct instruction *i)
 		 */
 		INSTR_CALC_AND_SET_FLAGS(8,
 								 c,
-								 *c->reg8[i->modrm.opc],
+								 *c->reg8[i->modrm.rm],
 								 *c->reg8[cl]);
 	}
 	return 0;
@@ -313,7 +313,7 @@ int32_t instr_group_2_d3_ror(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(16,
 									 c,
-									 *c->reg16[i->modrm.opc],
+									 *c->reg16[i->modrm.rm],
 									 *c->reg8[cl]);
 		} else
 		{
@@ -323,7 +323,7 @@ int32_t instr_group_2_d3_ror(struct emu_cpu *c, struct instruction *i)
 			 */
 			INSTR_CALC_AND_SET_FLAGS(32,
 									 c,
-									 c->reg[i->modrm.opc],
+									 c->reg[i->modrm.rm],
 									 *c->reg8[cl]);
 		}
 	}
