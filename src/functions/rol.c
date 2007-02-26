@@ -41,7 +41,8 @@ int32_t instr_group_2_c0_rol(struct emu_cpu *c, struct instruction *i)
 								 *i->imm8);
 
 		MEM_BYTE_WRITE(c, i->modrm.ea, m8);     
-	} else
+	}
+	else
 	{
 		/* C0 /0 ib 
 		 * Rotate eight bits r/m8 left imm8 times
@@ -77,7 +78,8 @@ int32_t instr_group_2_c1_rol(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, m16);        
 
-		} else
+		}
+		else
 		{
 
 			/* C1 /0 ib 
@@ -92,7 +94,8 @@ int32_t instr_group_2_c1_rol(struct emu_cpu *c, struct instruction *i)
 									 *i->imm8);
 			MEM_DWORD_WRITE(c, i->modrm.ea, m32);       
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -105,7 +108,8 @@ int32_t instr_group_2_c1_rol(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm],
 									 *i->imm8);
 
-		} else
+		}
+		else
 		{
 
 			/* C1 /0 ib 
@@ -139,7 +143,8 @@ int32_t instr_group_2_d0_rol(struct emu_cpu *c, struct instruction *i)
 								 1);
 
 		MEM_BYTE_WRITE(c, i->modrm.ea, m8);     
-	} else
+	}
+	else
 	{
 		/* D0 /0	 
 		 * Rotate eight bits r/m8 left once                        
@@ -174,7 +179,8 @@ int32_t instr_group_2_d1_rol(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, m16);        
 
-		} else
+		}
+		else
 		{
 			/* D1 /0	 
 			 * Rotate 32 bits r/m32 left once         
@@ -188,7 +194,8 @@ int32_t instr_group_2_d1_rol(struct emu_cpu *c, struct instruction *i)
 									 1);
 			MEM_DWORD_WRITE(c, i->modrm.ea, m32);       
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -201,7 +208,8 @@ int32_t instr_group_2_d1_rol(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm],
 									 1);
 
-		} else
+		}
+		else
 		{
 			/* D1 /0	 
 			 * Rotate 32 bits r/m32 left once         
@@ -234,7 +242,8 @@ int32_t instr_group_2_d2_rol(struct emu_cpu *c, struct instruction *i)
 								 *c->reg8[cl]);
 
 		MEM_BYTE_WRITE(c, i->modrm.ea, m8);     
-	} else
+	}
+	else
 	{
 		/* D2 /0    
 		 * Rotate eight bits r/m8 left CL times                    
@@ -268,7 +277,8 @@ int32_t instr_group_2_d3_rol(struct emu_cpu *c, struct instruction *i)
 									 *c->reg8[cl]);
 
 			MEM_WORD_WRITE(c, i->modrm.ea, m16);        
-		} else
+		}
+		else
 		{
 			/* D3 /0    
 			 * Rotate 32 bits r/m32 left CL times     
@@ -283,7 +293,8 @@ int32_t instr_group_2_d3_rol(struct emu_cpu *c, struct instruction *i)
 
 			MEM_DWORD_WRITE(c, i->modrm.ea, m32);       
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -295,7 +306,8 @@ int32_t instr_group_2_d3_rol(struct emu_cpu *c, struct instruction *i)
 									 c,
 									 *c->reg16[i->modrm.rm],
 									 *c->reg8[cl]);
-		} else
+		}
+		else
 		{
 			/* D3 /0    
 			 * Rotate 32 bits r/m32 left CL times     

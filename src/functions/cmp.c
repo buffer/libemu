@@ -43,7 +43,8 @@ int32_t instr_cmp_38(struct emu_cpu *c, struct instruction *i)
 								 *c->reg8[i->modrm.opc], 
 								 -)
 //		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
-	} else
+	}
+	else
 	{
 		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
@@ -73,7 +74,8 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 -)
 //			MEM_WORD_WRITE(c, i->modrm.ea, dst);
-		} else
+		}
+		else
 		{
 
 			/* 39 /r
@@ -90,7 +92,8 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 -)
 //			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -103,7 +106,8 @@ int32_t instr_cmp_39(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
 									 -)
-		} else
+		}
+		else
 		{
 			/* 39 /r
 			 * Compare r32 with r/m32
@@ -139,7 +143,8 @@ int32_t instr_cmp_3a(struct emu_cpu *c, struct instruction *i)
                                  *c->reg8[i->modrm.opc], 
 								 op, 
 								 -)
-	} else
+	}
+	else
 	{
 		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
@@ -169,7 +174,8 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 op,
 									 -)
-		} else
+		}
+		else
 		{
 			/* 3B /r
 			 * Compare r/m32 with r32
@@ -183,7 +189,8 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 									 op,
                                      -)
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -196,7 +203,8 @@ int32_t instr_cmp_3b(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.rm], 
                                      -)
-		} else
+		}
+		else
 		{
 			/* 3B /r
 			 * Compare r/m32 with r32
@@ -240,7 +248,8 @@ int32_t instr_cmp_3d(struct emu_cpu *c, struct instruction *i)
 								 *c->reg16[ax], 
 								 *i->imm16, 
 								 -)
-	} else
+	}
+	else
 	{
 		/* 3D id 
 		 * Compare imm32 with EAX
@@ -292,7 +301,8 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 
-		} else
+		}
+		else
 		{
 			/* 81 /7 id 
 			 * Compare imm32 with r/m32
@@ -310,7 +320,8 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct instruction *i)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -324,7 +335,8 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct instruction *i)
 									 *i->imm16, 
 									 -)
 
-		} else
+		}
+		else
 		{
 			/* 81 /7 id 
 			 * Compare imm32 with r/m32
@@ -366,7 +378,8 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i)
 
 			 MEM_WORD_WRITE(c, i->modrm.ea, dst);
 
-		} else
+		}
+		else
 		{
 
 
@@ -385,7 +398,8 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i)
 									 -)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -399,7 +413,8 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *i->imm8, 
 									 -)
-		} else
+		}
+		else
 		{
 			/* 83 /7 ib 
 			 * Compare imm8 with r/m32

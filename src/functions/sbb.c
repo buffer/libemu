@@ -83,7 +83,8 @@ int32_t instr_sbb_18(struct emu_cpu *c, struct instruction *i)
 								 dst, 
 								 -)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
-	} else
+	}
+	else
 	{
 		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
@@ -121,7 +122,8 @@ int32_t instr_sbb_19(struct emu_cpu *c, struct instruction *i)
 									 dst, 
 									 -)
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
-		} else
+		}
+		else
 		{
 			/* 19 /r
 			 * Subtract with borrow r32 from r/m32
@@ -138,7 +140,8 @@ int32_t instr_sbb_19(struct emu_cpu *c, struct instruction *i)
 									 -)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -153,7 +156,8 @@ int32_t instr_sbb_19(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.rm], 
 									 -)
-		} else
+		}
+		else
 		{
 			/* 19 /r
 			 * Subtract with borrow r32 from r/m32
@@ -190,7 +194,8 @@ int32_t instr_sbb_1a(struct emu_cpu *c, struct instruction *i)
 								 op, 
 								 *c->reg8[i->modrm.opc], 
 								 -)
-	} else
+	}
+	else
 	{
 		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
@@ -225,7 +230,8 @@ int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
 									 op,
 									 *c->reg16[i->modrm.opc], 
 									 -)
-		} else
+		}
+		else
 		{
 			/* 1B /r
 			 * Subtract with borrow r/m32 from r32
@@ -240,7 +246,8 @@ int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
 									 c->reg[i->modrm.opc], 
 									 -)
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -255,7 +262,8 @@ int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 *c->reg16[i->modrm.opc], 
 									 -)
-		} else
+		}
+		else
 		{
 			/* 1B /r
 			 * Subtract with borrow r/m32 from r32
@@ -307,7 +315,8 @@ int32_t instr_sbb_1d(struct emu_cpu *c, struct instruction *i)
 								 *i->imm16, 
 								 *c->reg16[ax], 
 								 -)
-	} else
+	}
+	else
 	{
 		/* 1D id
 		 * Subtract with borrow imm32 from EAX
@@ -362,7 +371,8 @@ int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 
-		} else
+		}
+		else
 		{
 
 
@@ -383,7 +393,8 @@ int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct instruction *i)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -398,7 +409,8 @@ int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 -)
 
-		} else
+		}
+		else
 		{
 
 
@@ -443,7 +455,8 @@ int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 
-		} else
+		}
+		else
 		{
 
 			/* 83 /3 ib 
@@ -464,7 +477,8 @@ int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -481,7 +495,8 @@ int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 -)
 
-		} else
+		}
+		else
 		{
 
 			/* 83 /3 ib 

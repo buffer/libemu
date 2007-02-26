@@ -55,7 +55,8 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...)
 		const char *lev[] = {"none","\033[32;1minfo\033[0m","\033[31;1mdebug\033[0m"};
 		fprintf(stderr,"[emu 0x%08x %s ] ",(unsigned int)e, lev[level]);
 		fprintf(stderr,"%s", message);
-	} else
+	}
+	else
 		el->emu_log_fn(e, level, message);
 
 	free(message);

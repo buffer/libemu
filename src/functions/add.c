@@ -39,7 +39,8 @@ int32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
 								 dst, 
 								 +)
 		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
-	} else
+	}
+	else
 	{
 		INSTR_CALC_AND_SET_FLAGS(8, 
 								 c, 
@@ -73,7 +74,8 @@ int32_t instr_add_01(struct emu_cpu *c, struct instruction *i)
 									 dst, 
 									 +)
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
-		} else
+		}
+		else
 		{
 			/* 01 /r
 			 * Add r32 to r/m32
@@ -89,7 +91,8 @@ int32_t instr_add_01(struct emu_cpu *c, struct instruction *i)
 									 +)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -103,7 +106,8 @@ int32_t instr_add_01(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.rm], 
 									 +)
-		} else
+		}
+		else
 		{
 			/* 01 /r
 			 * Add r32 to r/m32
@@ -139,7 +143,8 @@ int32_t instr_add_02(struct emu_cpu *c, struct instruction *i)
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.opc], 
 								 +)
-	} else
+	}
+	else
 	{
 //		*c->reg8[i->modrm.opc] += *c->reg8[i->modrm.rm];
 		INSTR_CALC_AND_SET_FLAGS(8, 
@@ -173,7 +178,8 @@ int32_t instr_add_03(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
 									 +)
-		} else
+		}
+		else
 		{
 			/* 03 /r
 			 * Add r/m32 to r32
@@ -188,7 +194,8 @@ int32_t instr_add_03(struct emu_cpu *c, struct instruction *i)
 									 c->reg[i->modrm.opc], 
 									 +)
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -202,7 +209,8 @@ int32_t instr_add_03(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
 									 +)
-		} else
+		}
+		else
 		{
 			/* 03 /r
 			 * Add r/m32 to r32
@@ -250,7 +258,8 @@ int32_t instr_add_05(struct emu_cpu *c, struct instruction *i)
 								 *i->imm16, 
 								 *c->reg16[ax], 
 								 +)
-	} else
+	}
+	else
 	{
 		/* 05 id
 		 * ADD EAX,imm32
@@ -307,7 +316,8 @@ int32_t instr_group_1_81_add(struct emu_cpu *c, struct instruction *i)
 									 +)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
-		} else
+		}
+		else
 		{
 
 			/* 81 /0 id 
@@ -327,7 +337,8 @@ int32_t instr_group_1_81_add(struct emu_cpu *c, struct instruction *i)
 
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -343,7 +354,8 @@ int32_t instr_group_1_81_add(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 +)
 
-		} else
+		}
+		else
 		{
 
 			/* 81 /0 id 
@@ -389,7 +401,8 @@ int32_t instr_group_1_83_add(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 
-		} else
+		}
+		else
 		{
 
 
@@ -411,7 +424,8 @@ int32_t instr_group_1_83_add(struct emu_cpu *c, struct instruction *i)
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -428,7 +442,8 @@ int32_t instr_group_1_83_add(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 +)
 
-		} else
+		}
+		else
 		{
 
 

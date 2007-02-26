@@ -63,7 +63,8 @@ static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 	{
 		emu_errno_set(em->emu, errno);
 		return -1;
-	} else
+	}
+	else
 		return 0;
 }
 

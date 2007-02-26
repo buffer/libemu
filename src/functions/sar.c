@@ -39,7 +39,8 @@ int32_t instr_group_2_c0_sar(struct emu_cpu *c, struct instruction *i)
 								 *i->imm8);
 
 		MEM_BYTE_WRITE(c, i->modrm.ea, m8);     
-	} else
+	}
+	else
 	{
 		/* C0 /7 ib 
 		 * Signed divide* r/m8 by 2, imm8 times
@@ -74,7 +75,8 @@ int32_t instr_group_2_c1_sar(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, m16);        
 
-		} else
+		}
+		else
 		{
 			/* C1 /7 ib 
 			 * Signed divide* r/m32 by 2, imm8 times
@@ -88,7 +90,8 @@ int32_t instr_group_2_c1_sar(struct emu_cpu *c, struct instruction *i)
 									 *i->imm8);
 			MEM_DWORD_WRITE(c, i->modrm.ea, m32);       
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -101,7 +104,8 @@ int32_t instr_group_2_c1_sar(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm],
 									 *i->imm8);
 
-		} else
+		}
+		else
 		{
 			/* C1 /7 ib 
 			 * Signed divide* r/m32 by 2, imm8 times
@@ -134,7 +138,8 @@ int32_t instr_group_2_d0_sar(struct emu_cpu *c, struct instruction *i)
 								 1);
 
 		MEM_BYTE_WRITE(c, i->modrm.ea, m8);     
-	} else
+	}
+	else
 	{
 		/* D0 /7	
 		 * Signed divide* r/m8 by 2, once            
@@ -169,7 +174,8 @@ int32_t instr_group_2_d1_sar(struct emu_cpu *c, struct instruction *i)
 
 			MEM_WORD_WRITE(c, i->modrm.ea, m16);        
 
-		} else
+		}
+		else
 		{
 			/* D1 /7	
 			 * Signed divide* r/m32 by 2, once                 
@@ -183,7 +189,8 @@ int32_t instr_group_2_d1_sar(struct emu_cpu *c, struct instruction *i)
 									 1);
 			MEM_DWORD_WRITE(c, i->modrm.ea, m32);       
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -196,7 +203,8 @@ int32_t instr_group_2_d1_sar(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.rm],
 									 1);
 
-		} else
+		}
+		else
 		{
 			/* D1 /7	
 			 * Signed divide* r/m32 by 2, once                 
@@ -228,7 +236,8 @@ int32_t instr_group_2_d2_sar(struct emu_cpu *c, struct instruction *i)
 								 *c->reg8[cl]);
 
 		MEM_BYTE_WRITE(c, i->modrm.ea, m8);     
-	} else
+	}
+	else
 	{
 		/* D2 /7   
 		 * Signed divide* r/m8 by 2, CL times        
@@ -263,7 +272,8 @@ int32_t instr_group_2_d3_sar(struct emu_cpu *c, struct instruction *i)
 									 *c->reg8[cl]);
 
 			MEM_WORD_WRITE(c, i->modrm.ea, m16);        
-		} else
+		}
+		else
 		{
 			/* D3 /7   
 			 * Signed divide* r/m32 by 2, CL times             
@@ -278,7 +288,8 @@ int32_t instr_group_2_d3_sar(struct emu_cpu *c, struct instruction *i)
 
 			MEM_DWORD_WRITE(c, i->modrm.ea, m32);       
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -290,7 +301,8 @@ int32_t instr_group_2_d3_sar(struct emu_cpu *c, struct instruction *i)
 									 c,
 									 *c->reg16[i->modrm.rm],
 									 *c->reg8[cl]);
-		} else
+		}
+		else
 		{
 			/* D3 /7   
 			 * Signed divide* r/m32 by 2, CL times             

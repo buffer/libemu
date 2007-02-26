@@ -665,7 +665,8 @@ int get_operand_string(INSTRUCTION *inst, OPERAND *op,
 						"%s", reg_table[REG_GEN_DWORD][op->reg]);
 					break;
 			}
-		} else
+		}
+		else
 			snprintf(string + strlen(string), length - strlen(string),
 				"%s", reg_table[regtype][op->reg]);
 
@@ -763,7 +764,8 @@ int get_operand_string(INSTRUCTION *inst, OPERAND *op,
 						length - strlen(string),
 						"-0x%x", tmp + 1);
 				// Positive displacement
-				} else
+				}
+				else
 					snprintf(string + strlen(string),
 						length - strlen(string),
 						"+0x%x", op->displacement);
@@ -803,7 +805,8 @@ int get_operand_string(INSTRUCTION *inst, OPERAND *op,
 				break;
 		}
 
-	} else
+	}
+	else
 		return 0;
 
 	return 1;
@@ -927,7 +930,8 @@ int get_instruction(PINSTRUCTION inst, BYTE *addr, enum Mode mode) {
 					} else if (MASK_MODRM_RM(*(addr + index + 1)) == 1) {
 						ptr = &inst_mwait;
 						index++;
-					} else
+					}
+					else
 						return 0;
 
 				} else {
@@ -1154,7 +1158,8 @@ int get_operands_string(INSTRUCTION *inst, enum Format format, DWORD offset,
 			get_operand_string(inst, &inst->op3, format, offset,
 				string + strlen(string), length - strlen(string));
 		}
-	} else
+	}
+	else
 		return 0;
 
 	return 1;
@@ -1242,7 +1247,8 @@ int get_operand_immediate(POPERAND op, DWORD *imm) {
 	if (op->immbytes) {
 		*imm = op->immediate;
 		return 1;
-	} else
+	}
+	else
 		return 0;
 }
 
@@ -1250,7 +1256,8 @@ int get_operand_displacement(POPERAND op, DWORD *disp) {
 	if (op->dispbytes) {
 		*disp = op->displacement;
 		return 1;
-	} else
+	}
+	else
 		return 0;
 }
 

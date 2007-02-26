@@ -68,7 +68,8 @@ int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *)
 
-		} else
+		}
+		else
 		{
 			/* 6B /r ib 
 			 * word register <- m16 * sign-extended immediate byte          
@@ -88,7 +89,8 @@ int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i)
 									 *)
 
 		}
-	} else
+	}
+	else
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
 		{
@@ -108,7 +110,8 @@ int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *)
 
-		} else
+		}
+		else
 		{
 			/* 6B /r ib 
 			 * doubleword register <- r32 * sign-extended immediate byte                                                                

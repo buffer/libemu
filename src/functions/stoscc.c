@@ -25,7 +25,8 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct instruction *i)
 	if ( i->prefixes & PREFIX_ADSIZE )
 	{
 //		MEM_BYTE_WRITE(c,c->reg16[si],*c->reg8[al]);
-	} else
+	}
+	else
 	{
 		MEM_BYTE_WRITE(c,c->reg[esi],*c->reg8[al]);
 		if ( !CPU_FLAG_ISSET(c,f_df) )
@@ -56,19 +57,22 @@ int32_t instr_stos_ab(struct emu_cpu *c, struct instruction *i)
 		if ( i->prefixes & PREFIX_ADSIZE )
 		{
 //			MEM_WORD_WRITE(c,c->reg16[si],*c->reg16[ax]);
-		} else
+		}
+		else
 		{
 			MEM_WORD_WRITE(c,c->reg[esi],*c->reg16[ax]);
 
 			if ( !CPU_FLAG_ISSET(c,f_df) )
 			{ /* increment */
 				c->reg[esi] += 2;
-			} else
+			}
+			else
 			{ /* decrement */
 				c->reg[esi] -= 2;
 			}
 		}
-	} else
+	}
+	else
 	{
 		/* AB 
 		 * Store EAX at address ES:(E)DI
@@ -82,14 +86,16 @@ int32_t instr_stos_ab(struct emu_cpu *c, struct instruction *i)
 		if ( i->prefixes & PREFIX_ADSIZE )
 		{
 //			MEM_DWORD_WRITE(c,c->reg16[si],c->reg[eax]);
-		} else
+		}
+		else
 		{
 			MEM_DWORD_WRITE(c,c->reg[esi],c->reg[eax]);
 
 			if ( !CPU_FLAG_ISSET(c,f_df) )
 			{ /* increment */
 				c->reg[esi] += 4;
-			} else
+			}
+			else
 			{ /* decrement */
 				c->reg[esi] -= 4;
 			}

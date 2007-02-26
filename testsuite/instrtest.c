@@ -749,7 +749,8 @@ int prepare()
 			char *c = (char *)malloc(tests[i].codesize);
 			memcpy(c,tests[i].code,tests[i].codesize);
 			tests[i].code = c;
-		} else
+		}
+		else
 		{
 			const char *use = "USE32\n";
 			FILE *f=fopen("/tmp/foo.S","w+");
@@ -887,7 +888,8 @@ int test()
 			{
 				if (opts.verbose == 1)
 					printf("\t %s "SUCCESS"\n",regm[j]);
-			} else
+			}
+			else
 			{
 				printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
 				failed = 1;
@@ -913,7 +915,8 @@ int test()
 					failed = 1;
 				}
 
-			} else
+			}
+			else
 			{
 				printf("\tmemory "FAILED" emu says: '%s' when accessing %08x\n", strerror(emu_errno(e)),tests[i].out_state.mem_state[0]);
 				failed = 1;

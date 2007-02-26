@@ -100,7 +100,8 @@ int32_t instr_push_68(struct emu_cpu *c, struct instruction *i)
 		 * PUSH imm16 
 		 */
 		PUSH_WORD(c, *i->imm16)
-	} else
+	}
+	else
 	{
 		/* 68    
 		 * Push imm32    
