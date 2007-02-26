@@ -163,7 +163,7 @@ static int32_t instr_group_5_ff_push(struct emu_cpu *c, struct instruction *i)
 
 static int32_t (*group_5_fn[8])(struct emu_cpu *c, struct instruction *i) = {
 	/* 0 */ instr_group_5_ff_inc,
-	/* 1 */ instr_group_5_ff_dec,,
+	/* 1 */ instr_group_5_ff_dec,
 	/* 2 */ instr_group_5_ff_call,
 	/* 3 */ instr_group_5_ff_call,
 	/* 4 */ instr_group_5_ff_jmp,
