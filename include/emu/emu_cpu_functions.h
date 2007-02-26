@@ -133,6 +133,10 @@ int32_t instr_group_1_83_sub(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i);
 
+/* group 3 */
+/*int32_t instr_group_3_f6_test(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_3_f7_test(struct emu_cpu *c, struct instruction *i);*/
+
 
 /* group 5 */
 int32_t instr_group_5_ff(struct emu_cpu *c, struct instruction *i); 
@@ -328,7 +332,31 @@ int32_t instr_group_2_d3_shl(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d3_shr(struct emu_cpu *c, struct instruction *i);
 
 
+/* repcc */
+int32_t instr_repcc_f2a6(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f2a7(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f2ae(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f2af(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f36c(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f36d(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f36e(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f36f(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3a4(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3a5(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3aa(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3ab(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3ac(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3ad(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3a6(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3a7(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3ae(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3af(struct emu_cpu *c, struct instruction *i);
 
+/* test */
+/*int32_t instr_test_84(struct emu_cpu *c, struct instruction *i);
+int32_t instr_test_85(struct emu_cpu *c, struct instruction *i);
+int32_t instr_test_a8(struct emu_cpu *c, struct instruction *i);
+int32_t instr_test_a9(struct emu_cpu *c, struct instruction *i);*/
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  
