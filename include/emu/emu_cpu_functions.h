@@ -134,20 +134,20 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i);
 
 /* group 3 */
-/*int32_t instr_group_3_f6(struct emu_cpu *c, struct instruction *i);
+/*int32_t instr_group_3_f6(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_group_3_f6_test(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f6_test(struct emu_cpu *c, struct instruction *i);
-int32_t instr_group_3_f6_not(struct emu_cpu *c, struct instruction *i);*/
+/*int32_t instr_group_3_f6_not(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_group_3_f6_neg(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f6_imul(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f6_div(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f6_idiv(struct emu_cpu *c, struct instruction *i);  */
 
-/*int32_t instr_group_3_f7(struct emu_cpu *c, struct instruction *i);
+/*int32_t instr_group_3_f7(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_group_3_f7_test(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f7_test(struct emu_cpu *c, struct instruction *i);
-int32_t instr_group_3_f7_not(struct emu_cpu *c, struct instruction *i);*/
+/*int32_t instr_group_3_f7_not(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_group_3_f7_neg(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f7_imul(struct emu_cpu *c, struct instruction *i);
@@ -379,10 +379,10 @@ int32_t instr_repcc_f3ae(struct emu_cpu *c, struct instruction *i);
 int32_t instr_repcc_f3af(struct emu_cpu *c, struct instruction *i); */
 
 /* test */
-/*int32_t instr_test_84(struct emu_cpu *c, struct instruction *i);
+int32_t instr_test_84(struct emu_cpu *c, struct instruction *i);
 int32_t instr_test_85(struct emu_cpu *c, struct instruction *i);
 int32_t instr_test_a8(struct emu_cpu *c, struct instruction *i);
-int32_t instr_test_a9(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_test_a9(struct emu_cpu *c, struct instruction *i);
 
 /* scas */
 /*int32_t instr_scas_ae(struct emu_cpu *c, struct instruction *i);
