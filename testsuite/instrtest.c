@@ -79,7 +79,7 @@ struct instr_test tests[] =
         .out_state.reg  = {0,0,0,0,0,0,0,0 },
         .out_state.mem_state = {0, 0},
     },*/
-	{
+/*	{
 		.instr = "win32_bind -  EXITFUNC=seh LPORT=4444 Size=344 Encoder=Pex http://metasploit.com",
 		.code =  
 
@@ -164,13 +164,6 @@ struct instr_test tests[] =
 		.in_state.mem_state = {0, 0},
 	},
 
-	/*{
-		.instr = "",
-		.code =  
-		.codesize = 344,
-		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
-		.in_state.mem_state = {0, 0},
-	},*/
 	{
 		.instr = "win32_bind -  EXITFUNC=seh LPORT=4444 Size=344 Encoder=PexFnstenvSub http://metasploit.com",
 		.code =                  
@@ -229,7 +222,7 @@ struct instr_test tests[] =
 		.codesize = 344,
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
-	},
+	},*/
 	{
 		.instr = "win32_bind -  EXITFUNC=seh LPORT=4444 Size=349 Encoder=JmpCallAdditive http://metasploit.com",
 		.code =  
@@ -259,6 +252,13 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
+	/*{
+		.instr = "",
+		.code =  
+		.codesize = 344,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},*/
 
 
 	/* 00 */

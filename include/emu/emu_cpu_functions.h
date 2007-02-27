@@ -137,7 +137,7 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_group_3_f6(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_group_3_f6_test(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f6_test(struct emu_cpu *c, struct instruction *i);
-/*int32_t instr_group_3_f6_not(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_group_3_f6_not(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f6_neg(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f6_imul(struct emu_cpu *c, struct instruction *i);
@@ -147,7 +147,7 @@ int32_t instr_group_3_f6_idiv(struct emu_cpu *c, struct instruction *i);  */
 /*int32_t instr_group_3_f7(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_group_3_f7_test(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f7_test(struct emu_cpu *c, struct instruction *i);
-/*int32_t instr_group_3_f7_not(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_group_3_f7_not(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f7_neg(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f7_imul(struct emu_cpu *c, struct instruction *i);
