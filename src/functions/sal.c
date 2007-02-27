@@ -6,6 +6,7 @@
 UINT(bits) operation_result = (a); \
 uint8_t operand_b = (b); \
 { \
+	operand_b &= 0x1f; \
 	if( operand_b > 0 ) \
 	{ \
 		if( operation_result & (1 << (bits - operand_b)) ) \
