@@ -2,42 +2,35 @@
 #include <stdint.h>
 #include <errno.h>
 
-#define INSTR_CALC(bits, a, b, cpu)						\
-UINT(bits) operand_a = (a);								\
-UINT(bits) operand_b = (b);								\
-{																	\
-	UINT(bits) it;                                                   \
-	for (it=0;it<operand_b;it++)                                       \
-	{                                                               \
-		if (operand_a & 1)                                          \
-		{                                                           \
-           	CPU_FLAG_SET(cpu,f_cf);                                 \
-																	\
-			operand_a = operand_a >> 1;                             \
-			/*operand_a = operand_a | (1 << bits);*/                    \
-		}else                                                       \
-		{                                                           \
-			CPU_FLAG_UNSET(cpu,f_cf);                               \
-																	\
-			/*operand_a = operand_a >> 1; */                             \
-		}                                                           \
-	}                                                               \
-	if (operand_b == 1)                                             \
-	{                                                               \
-		if (														\
-				((INT(bits))operand_a > 0 && (INT(bits))(a) < 0) || \
-				((INT(bits))operand_a < 0 && (INT(bits))(a) > 0)	\
-			)       												\
-		{                                                           \
-			CPU_FLAG_SET(cpu,f_of);                                 \
-		}                                                           \
-	}                                                               \
-	(a) = operand_a;                                                  \
+#define INSTR_CALC(bits, a, b, cpu) \
+UINT(bits) operation_result = (a); \
+uint8_t operand_b = (b); \
+{ \
+	operand_b %= sizeof(operation_result) * 8; \
+	operation_result = operation_result >> operand_b | operation_result << (bits - operand_b); \
+	if( operation_result & (1 << (bits - 1)) ) \
+	{ \
+		CPU_FLAG_SET(cpu, f_cf); \
+	} \
+	if( operand_b == 1 ) \
+	{ \
+		if( (operation_result >> (bits - 1)) ^ ((operation_result >> (bits - 2)) & 1) ) \
+		{ \
+			CPU_FLAG_SET(cpu, f_of); \
+		} \
+		else \
+		{ \
+			CPU_FLAG_UNSET(cpu, f_of); \
+		} \
+	} \
+	a = operation_result; \
 }
 
-
 #define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b)	\
-INSTR_CALC(bits, a, b, cpu)
+INSTR_CALC(bits, a, b, cpu) \
+INSTR_SET_FLAG_ZF(cpu) \
+INSTR_SET_FLAG_PF(cpu) \
+INSTR_SET_FLAG_SF(cpu)
 
 #include "emu/emu.h"
 #include "emu/emu_cpu.h"
