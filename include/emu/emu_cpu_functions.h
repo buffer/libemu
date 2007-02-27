@@ -166,6 +166,9 @@ int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_5_ff(struct emu_cpu *c, struct instruction *i); 
 int32_t instr_group_5_ff_inc(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_5_ff_dec(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_5_ff_call(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_5_ff_push(struct emu_cpu *c, struct instruction *i);
 
 /* group 10 */
 /*int32_t instr_group_10_8f_pop(struct emu_cpu *c, struct instruction *i);*/

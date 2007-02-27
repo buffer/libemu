@@ -50,3 +50,76 @@ int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i)
 }
 
 
+int32_t instr_group_5_ff_call(struct emu_cpu *c, struct instruction *i)
+{
+	if( i->modrm.opc == 2 )
+	{
+		PUSH_DWORD(c, c->eip);
+		
+		if( i->modrm.mod != 3 )
+		{
+			if( i->prefixes & PREFIX_OPSIZE )
+			{
+				/* FF /2  
+				 * CALL r/m16    
+				 * Call near, absolute indirect, address given in r/m16   
+				 */
+
+				uint16_t disp;
+				MEM_WORD_READ(c, i->modrm.ea, &disp);
+				
+				c->eip = disp;
+			}
+			else
+			{
+				/* FF /2  
+				 * CALL r/m32    
+				 * Call near, absolute indirect, address given in r/m32   
+				 */
+
+				uint32_t disp;
+				MEM_DWORD_READ(c, i->modrm.ea, &disp);
+				
+				c->eip = disp;
+			}
+		}
+		else
+		{
+			if( i->prefixes & PREFIX_OPSIZE )
+			{
+				/* FF /2  
+				 * CALL r/m16    
+				 * Call near, absolute indirect, address given in r/m16   
+				 */
+
+				c->eip = *c->reg16[i->modrm.rm];
+			}
+			else
+			{
+				/* FF /2  
+				 * CALL r/m32    
+				 * Call near, absolute indirect, address given in r/m32   
+				 */
+
+				c->eip = c->reg[i->modrm.rm];
+			}
+		}
+	}
+	else
+	{
+		/* FF /3  
+		 * CALL m16:16   
+		 * Call far, absolute indirect, address given in m16:16  
+		 */
+
+		/* FF /3  
+		 * CALL m16:32   
+		 * Call far, absolute indirect, address given in m16:32  
+		 */
+
+		return -1;
+	}
+
+	return 0;
+}
+

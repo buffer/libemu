@@ -57,3 +57,78 @@ int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
+
+int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct instruction *i)
+{
+	if( i->modrm.opc == 4 )
+	{
+		if( i->modrm.mod != 3 )
+		{
+			if( i->prefixes & PREFIX_OPSIZE )
+			{
+				/* FF /4  
+				 * Jump near, absolute indirect, address given in r/m16                   
+				 * JMP r/m16    
+				 */
+
+				uint16_t disp;
+				MEM_WORD_READ(c, i->modrm.ea, &disp);
+				
+				c->eip = disp;
+			}
+			else
+			{
+				/* FF /4  
+				 * Jump near, absolute indirect, address given in r/m32                   
+				 * JMP r/m32    
+				 */
+
+				uint32_t disp;
+				MEM_DWORD_READ(c, i->modrm.ea, &disp);
+				
+				c->eip = disp;
+			}
+		}
+		else
+		{
+			if( i->prefixes & PREFIX_OPSIZE )
+			{
+				/* FF /4  
+				 * Jump near, absolute indirect, address given in r/m16                   
+				 * JMP r/m16    
+				 */
+
+				c->eip = *c->reg16[i->modrm.rm];
+			}
+			else
+			{
+				/* FF /4  
+				 * Jump near, absolute indirect, address given in r/m32                   
+				 * JMP r/m32    
+				 */
+
+				c->eip = c->reg[i->modrm.rm];
+			}
+		}
+	}
+	else /* /5 */
+	{
+		/* unneeded */
+		/* FF /5  
+		 * Jump far, absolute indirect, address given in m16:16                   
+		 * JMP m16:16   
+		 */
+
+
+		/* FF /5  
+		 * Jump far, absolute indirect, address given in m16:32                   
+		 * JMP m16:32   
+		 */
+
+
+		return -1;
+	}
+
+	return 0;
+}
+

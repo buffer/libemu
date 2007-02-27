@@ -192,4 +192,51 @@ int32_t instr_pushad_60(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
+int32_t instr_group_5_ff_push(struct emu_cpu *c, struct instruction *i)
+{
+	if ( i->modrm.mod != 3 )
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* FF /6 
+			 * Push r/m16    
+			 * PUSH r/m16 
+			 */
+			uint16_t m16;
+			MEM_WORD_READ(c,i->modrm.ea,&m16);
+			PUSH_WORD(c, m16);
+		}
+		else
+		{
+			/* FF /6 
+			 * Push r/m32    
+			 * PUSH r/m32 
+			 */
+			uint32_t m32;
+			MEM_DWORD_READ(c,i->modrm.ea,&m32);
+			PUSH_DWORD(c, m32);
+
+		}
+	}
+	else
+	{
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* FF /6 
+			 * Push r/m16    
+			 * PUSH r/m16 
+			 */
+			PUSH_WORD(c, *c->reg16[i->modrm.rm]);
+		}
+		else
+		{
+			/* FF /6 
+			 * Push r/m32    
+			 * PUSH r/m32 
+			 */
+			PUSH_DWORD(c, c->reg[i->modrm.rm]);
+		}
+	}
+	return 0;
+}
 
