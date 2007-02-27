@@ -2,16 +2,39 @@
 #include <stdint.h>
 #include <errno.h>
 
-#define INSTR_CALC(bits, a, b, cpu)						\
-UINT(bits) operand_a = (a);								\
-UINT(bits) operand_b = (b);								\
-{	/* FIXME */						     				\
-	(a) = operand_a *  operand_b;                       \
+#define INSTR_CALC(bits, a, b, cpu) \
+UINT(bits) operation_result = (a); \
+uint8_t operand_b = (b); \
+{ \
+	if( operand_b == 1 ) \
+	{ \
+		if( (operation_result >> (bits - 1)) ^ (cpu->eflags >> f_cf) ) \
+		{ \
+			CPU_FLAG_SET(cpu, f_of); \
+		} \
+		else \
+		{ \
+			CPU_FLAG_UNSET(cpu, f_of); \
+		} \
+	} \
+	operand_b = (operand_b & 0x1f) % (sizeof(operation_result) * 8 + 1); \
+	operation_result = operation_result >> operand_b | operation_result << (bits - operand_b + 1); \
+	if( CPU_FLAG_ISSET(cpu, f_cf) && operand_b > 0 ) \
+	{ \
+		operation_result |= 1 << (bits - operand_b); \
+	} \
+	if( (a) & (1 << (operand_b - 1)) && operand_b > 0 ) \
+	{ \
+		CPU_FLAG_SET(cpu, f_cf); \
+	} \
+	a = operation_result; \
 }
 
-
-#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b)	\
-INSTR_CALC(bits, a, b, cpu)
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b) \
+INSTR_CALC(bits, a, b, cpu) \
+INSTR_SET_FLAG_ZF(cpu) \
+INSTR_SET_FLAG_PF(cpu) \
+INSTR_SET_FLAG_SF(cpu)
 
 #include "emu/emu.h"
 #include "emu/emu_cpu.h"

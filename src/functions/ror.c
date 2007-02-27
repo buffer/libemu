@@ -26,7 +26,7 @@ uint8_t operand_b = (b); \
 	a = operation_result; \
 }
 
-#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b)	\
+#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b) \
 INSTR_CALC(bits, a, b, cpu) \
 INSTR_SET_FLAG_ZF(cpu) \
 INSTR_SET_FLAG_PF(cpu) \
