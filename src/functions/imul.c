@@ -153,7 +153,7 @@ int32_t instr_imul_0f_af(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_imul_group_3_f6(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f6_imul(struct emu_cpu *c, struct instruction *i)
 {
 
 	/* F6 /5    
@@ -163,7 +163,7 @@ int32_t instr_imul_group_3_f6(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_imul_group_3_f7(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f7_imul(struct emu_cpu *c, struct instruction *i)
 {
 	/* F7 /5    
 	 * DX:AX <- AX * r/m word                                         
