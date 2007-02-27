@@ -16,7 +16,7 @@ int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i)
 		/* 3 */ instr_group_2_c0_rcr,
 		/* 4 */ instr_group_2_c0_sal,
 		/* 5 */ instr_group_2_c0_shr,
-		/* 6 */ 0,
+		/* 6 */ instr_group_2_c0_sal, // sal is shl
 		/* 7 */ instr_group_2_c0_sar,
 	};
 
@@ -33,7 +33,7 @@ int32_t instr_group_2_c1(struct emu_cpu *c, struct instruction *i)
 		/* 3 */ instr_group_2_c1_rcr,
 		/* 4 */ instr_group_2_c1_sal,
 		/* 5 */ instr_group_2_c1_shr,
-		/* 6 */ 0,
+		/* 6 */ instr_group_2_c1_sal, // sal is shl,
 		/* 7 */ instr_group_2_c1_sar,
 	};
 
@@ -50,7 +50,7 @@ int32_t instr_group_2_d0(struct emu_cpu *c, struct instruction *i)
 		/* 3 */ instr_group_2_d0_rcr,
 		/* 4 */ instr_group_2_d0_sal,
 		/* 5 */ instr_group_2_d0_shr,
-		/* 6 */ 0,
+		/* 6 */ instr_group_2_d0_sal, // sal is shl
 		/* 7 */ instr_group_2_d0_sar,
 	};
 
@@ -66,7 +66,7 @@ int32_t instr_group_2_d1(struct emu_cpu *c, struct instruction *i)
 		/* 3 */ instr_group_2_d1_rcr,
 		/* 4 */ instr_group_2_d1_sal,
 		/* 5 */ instr_group_2_d1_shr,
-		/* 6 */ 0,
+		/* 6 */ instr_group_2_d1_sal, // sal is shl0,
 		/* 7 */ instr_group_2_d1_sar,
 	};
 
@@ -83,7 +83,7 @@ int32_t instr_group_2_d2(struct emu_cpu *c, struct instruction *i)
 		/* 3 */ instr_group_2_d2_rcr,
 		/* 4 */ instr_group_2_d2_sal,
 		/* 5 */ instr_group_2_d2_shr,
-		/* 6 */ 0,
+		/* 6 */ instr_group_2_d2_sal, // sal is shl,
 		/* 7 */ instr_group_2_d2_sar,
 	};
 
@@ -98,9 +98,9 @@ int32_t instr_group_2_d3(struct emu_cpu *c, struct instruction *i)
 		/* 1 */ instr_group_2_d3_ror,
 		/* 2 */ instr_group_2_d3_rcl,
 		/* 3 */ instr_group_2_d3_rcr,
-		/* 4 */ instr_group_2_d3_shl,
+		/* 4 */ instr_group_2_d3_sal, // sal is shl
 		/* 5 */ instr_group_2_d3_shr,
-		/* 6 */ instr_group_2_d3_shl, // sal is shl
+		/* 6 */ instr_group_2_d3_sal, // sal is shl
 		/* 7 */ instr_group_2_d3_sar,
 	};
 

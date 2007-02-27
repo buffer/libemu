@@ -57,7 +57,6 @@ libemu_la_SOURCES += functions/sal.c
 libemu_la_SOURCES += functions/sar.c
 libemu_la_SOURCES += functions/sbb.c
 libemu_la_SOURCES += functions/scas.c
-libemu_la_SOURCES += functions/shl.c
 libemu_la_SOURCES += functions/shr.c
 libemu_la_SOURCES += functions/stoscc.c
 libemu_la_SOURCES += functions/sub.c
