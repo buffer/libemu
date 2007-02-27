@@ -218,6 +218,7 @@ c = operation_result;
 #endif // INSTR_SET_FLAG_CF
 
 
+#include <string.h>
 #define WORD_UPPER_TO_BYTE(to,from) \
 memcpy(&(to),&(from)+1,1);
 
@@ -235,6 +236,14 @@ memcpy(&(to),&(from)+4,4);
 
 #define QWORD_LOWER_TO_DWORD(to,from) \
 memcpy(&(to),&(from),4);
+
+#define DWORD_FROM_WORDS(to, upper, lower) \
+memcpy(&to,&lower,2); \
+memcpy(&to+2,&lower,2); 
+
+#define QWORD_FROM_DWORDS(to, upper, lower) \
+memcpy(&to,&lower,4); \
+memcpy(&to+4,&lower,4); 
 
 
 #endif /*EMU_CPU_DATA_H_*/
