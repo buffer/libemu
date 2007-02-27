@@ -30,6 +30,8 @@ else \
 }
 
 
+
+
 int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct instruction *i)
 {
 	if ( i->modrm.mod != 3 )
@@ -46,6 +48,9 @@ int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct instruction *i)
 				   *c->reg8[al],
 				   m8)
 		*c->reg16[ax] = operation_result;
+		uint8_t high;
+		WORD_UPPER_TO_BYTE(high,operation_result);
+		INSTR_SET_FLAGS(c,high);
 
 	}
 	else
@@ -61,6 +66,10 @@ int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct instruction *i)
 				   *c->reg8[i->modrm.rm])
 
 		*c->reg16[ax] = operation_result;
+		uint8_t high;
+		WORD_UPPER_TO_BYTE(high,operation_result);
+		INSTR_SET_FLAGS(c,high);
+
 	}
 	return 0;
 }
@@ -82,8 +91,9 @@ int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct instruction *i)
 					   c,
 					   *c->reg16[al],
 					   m16)
-			memcpy(c->reg16[dx],&operation_result,16);
-			memcpy(c->reg16[ax],&operation_result+2,16);
+
+			DWORD_UPPER_TO_WORD(*c->reg16[dx],operation_result);
+			DWORD_LOWER_TO_WORD(*c->reg16[ax],operation_result);
 
 			INSTR_SET_FLAGS(c,*c->reg16[dx]);
 		}
@@ -101,8 +111,8 @@ int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct instruction *i)
 					   c->reg[eax],
 					   m32)
 
-			memcpy(&c->reg[edx],&operation_result,32);
-			memcpy(&c->reg[eax],&operation_result+4,32);
+			QWORD_UPPER_TO_DWORD(c->reg[edx],operation_result);
+			QWORD_LOWER_TO_DWORD(c->reg[eax],operation_result);
 
 			INSTR_SET_FLAGS(c,c->reg[edx]);
 		}
@@ -120,8 +130,8 @@ int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct instruction *i)
 					   c,
 					   *c->reg16[al],
 					   *c->reg16[i->modrm.rm])
-			memcpy(c->reg16[dx],&operation_result,16);
-			memcpy(c->reg16[ax],&operation_result+2,16);
+			DWORD_UPPER_TO_WORD(*c->reg16[dx],operation_result);
+			DWORD_LOWER_TO_WORD(*c->reg16[ax],operation_result);
 
 			INSTR_SET_FLAGS(c,*c->reg16[dx]);
 		}
@@ -136,8 +146,9 @@ int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct instruction *i)
 					   c,
 					   c->reg[eax],
 					   c->reg[i->modrm.rm])
-			memcpy(&c->reg[edx],&operation_result,32);
-			memcpy(&c->reg[eax],&operation_result+4,32);
+
+			QWORD_UPPER_TO_DWORD(c->reg[edx],operation_result);
+			QWORD_LOWER_TO_DWORD(c->reg[eax],operation_result);
 
 			INSTR_SET_FLAGS(c,c->reg[edx]);
 		}

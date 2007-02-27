@@ -218,26 +218,23 @@ c = operation_result;
 #endif // INSTR_SET_FLAG_CF
 
 
+#define WORD_UPPER_TO_BYTE(to,from) \
+memcpy(&(to),&(from)+1,1);
 
-/*
-#define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b, c, operation, operation_id)	\
-INSTR_CALC(bits, a, b, c, operation)									\
-																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_zf)) )		\
-	INSTR_SET_FLAG_ZF(cpu)											\
-																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_pf)) )		\
-	INSTR_SET_FLAG_PF(cpu)											\
-																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_sf)) )		\
-	INSTR_SET_FLAG_SF(cpu)											\
-																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_cf)) )		\
-	INSTR_SET_FLAG_CF(cpu, operation)								\
-																			\
-if (instruction_flag_sets[operation_id].modify_flags & (1 << (f_of)) )		\
-	INSTR_SET_FLAG_OF(cpu, operation)								\
-*/
+#define WORD_LOWER_TO_BYTE(to,from) \
+memcpy(&(to),&(from),1);
+
+#define DWORD_UPPER_TO_WORD(to,from) \
+memcpy(&(to),&(from)+2,2);
+
+#define DWORD_LOWER_TO_WORD(to,from) \
+memcpy(&(to),&(from),2);
+
+#define QWORD_UPPER_TO_DWORD(to,from) \
+memcpy(&(to),&(from)+4,4);
+
+#define QWORD_LOWER_TO_DWORD(to,from) \
+memcpy(&(to),&(from),4);
 
 
 #endif /*EMU_CPU_DATA_H_*/
