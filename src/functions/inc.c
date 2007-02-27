@@ -68,6 +68,15 @@ int32_t instr_inc_4x(struct emu_cpu *c, struct instruction *i)
 }
 
 
+int32_t instr_group_4_fe_inc(struct emu_cpu *c, struct instruction *i)
+{
+	/* FE /0
+	 * INC r/m8 
+	 * Increment r/m byte by 1
+	 */
+	return 0;
+}
+
 	  
 int32_t instr_group_5_ff_inc(struct emu_cpu *c, struct instruction *i)
 {

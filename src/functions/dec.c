@@ -69,10 +69,19 @@ int32_t instr_dec_4x(struct emu_cpu *c, struct instruction *i)
 
 
 
+int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct instruction *i)
+{
+	/* FE /1
+	 * Decrement r/m8 by 1
+	 * DEC r/m8 
+	 */
+	return 0;
+}
 
 
 int32_t instr_group_5_ff_dec(struct emu_cpu *c, struct instruction *i)
 {
+
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
 		/* FF /1 

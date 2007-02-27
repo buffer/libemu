@@ -29,6 +29,7 @@ libemu_la_SOURCES += functions/div.c
 libemu_la_SOURCES += functions/group_1.c
 libemu_la_SOURCES += functions/group_2.c
 libemu_la_SOURCES += functions/group_3.c
+libemu_la_SOURCES += functions/group_4.c
 libemu_la_SOURCES += functions/group_5.c
 libemu_la_SOURCES += functions/group_10.c
 libemu_la_SOURCES += functions/idiv.c
