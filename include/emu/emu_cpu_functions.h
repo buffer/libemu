@@ -334,7 +334,7 @@ int32_t instr_group_2_d3_shr(struct emu_cpu *c, struct instruction *i);
 
 
 /* repcc */
-int32_t instr_repcc_f2a6(struct emu_cpu *c, struct instruction *i);
+/*int32_t instr_repcc_f2a6(struct emu_cpu *c, struct instruction *i);
 int32_t instr_repcc_f2a7(struct emu_cpu *c, struct instruction *i);
 int32_t instr_repcc_f2ae(struct emu_cpu *c, struct instruction *i);
 int32_t instr_repcc_f2af(struct emu_cpu *c, struct instruction *i);
@@ -351,13 +351,22 @@ int32_t instr_repcc_f3ad(struct emu_cpu *c, struct instruction *i);
 int32_t instr_repcc_f3a6(struct emu_cpu *c, struct instruction *i);
 int32_t instr_repcc_f3a7(struct emu_cpu *c, struct instruction *i);
 int32_t instr_repcc_f3ae(struct emu_cpu *c, struct instruction *i);
-int32_t instr_repcc_f3af(struct emu_cpu *c, struct instruction *i);
+int32_t instr_repcc_f3af(struct emu_cpu *c, struct instruction *i); */
 
 /* test */
 /*int32_t instr_test_84(struct emu_cpu *c, struct instruction *i);
 int32_t instr_test_85(struct emu_cpu *c, struct instruction *i);
 int32_t instr_test_a8(struct emu_cpu *c, struct instruction *i);
 int32_t instr_test_a9(struct emu_cpu *c, struct instruction *i);*/
+
+/* scas */
+/*int32_t instr_scas_ae(struct emu_cpu *c, struct instruction *i);
+int32_t instr_scas_af(struct emu_cpu *c, struct instruction *i); */
+
+/* cmps */
+/*int32_t instr_cmps_a6(struct emu_cpu *c, struct instruction *i);
+int32_t instr_cmps_a7(struct emu_cpu *c, struct instruction *i); */
+
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  
