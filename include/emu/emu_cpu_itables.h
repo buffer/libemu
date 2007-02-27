@@ -306,7 +306,7 @@ struct instruction_info ii_onebyte[0x100] = {
 	/* fb */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* fc */ {instr_cld_fc, "cld", {0, 0, 0, 0, 0, 0, 0}},
 	/* fd */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* fe */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
+	/* fe */ {instr_group_4_fe, "", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 	/* ff */ {instr_group_5_ff, "", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 };
 

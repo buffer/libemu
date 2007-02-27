@@ -155,9 +155,9 @@ int32_t instr_group_3_f7_div(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_3_f7_idiv(struct emu_cpu *c, struct instruction *i);*/
 
 /* group 4 */
-/*int32_t instr_group_4_fe(struct emu_cpu *c, struct instruction *i);*/
-/*int32_t instr_group_4_fe_inc(struct emu_cpu *c, struct instruction *i);
-int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_group_4_fe(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_4_fe_inc(struct emu_cpu *c, struct instruction *i);
+int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct instruction *i);
 
 
 

@@ -75,27 +75,74 @@ int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct instruction *i)
 	 * Decrement r/m8 by 1
 	 * DEC r/m8 
 	 */
+	if ( i->modrm.mod != 3 )
+	{
+		uint8_t dst;
+		MEM_BYTE_READ(c, i->modrm.ea, &dst);
+
+		INSTR_CALC_AND_SET_FLAGS(8, c, dst)
+
+		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
+
+	}
+	else
+	{
+		INSTR_CALC_AND_SET_FLAGS(8, c, *c->reg8[i->modrm.rm])
+	}
 	return 0;
 }
 
 
 int32_t instr_group_5_ff_dec(struct emu_cpu *c, struct instruction *i)
 {
+	if ( i->modrm.mod != 3 )
+	{
 
-	if ( i->prefixes & PREFIX_OPSIZE )
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* FF /1 
+			 * Decrement r/m16 by 1
+			 * DEC r/m16 
+			 */   
+			uint16_t dst;
+			MEM_WORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(16, c, dst)
+
+			MEM_WORD_WRITE(c, i->modrm.ea, dst);
+		}
+		else
+		{
+			/* FF /1 
+			 * Decrement r/m32 by 1
+			 * DEC r/m32 
+			 */
+			uint32_t dst;
+			MEM_DWORD_READ(c, i->modrm.ea, &dst);
+
+			INSTR_CALC_AND_SET_FLAGS(32, c, dst)
+
+			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
+		}   
+	}
+	else
 	{
-		/* FF /1 
-		 * Decrement r/m16 by 1
-		 * DEC r/m16 
-		 */	  
-		INSTR_CALC_AND_SET_FLAGS(16, c, *c->reg16[i->modrm.rm])
-	}else
-	{
-		/* FF /1 
-		 * Decrement r/m32 by 1
-		 * DEC r/m32 
-		 */
-		INSTR_CALC_AND_SET_FLAGS(32, c, c->reg[i->modrm.rm])
-	}	
+		if ( i->prefixes & PREFIX_OPSIZE )
+		{
+			/* FF /1 
+			 * Decrement r/m16 by 1
+			 * DEC r/m16 
+			 */   
+			INSTR_CALC_AND_SET_FLAGS(16, c, *c->reg16[i->modrm.rm])
+		}
+		else
+		{
+			/* FF /1 
+			 * Decrement r/m32 by 1
+			 * DEC r/m32 
+			 */
+			INSTR_CALC_AND_SET_FLAGS(32, c, c->reg[i->modrm.rm])
+		}   
+	}
 	return 0;
 }
