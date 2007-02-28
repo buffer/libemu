@@ -288,8 +288,14 @@ int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_imul_0f_af(struct emu_cpu *c, struct instruction *i);*/
 
 /* misc */
-int32_t instr_cld_fc(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_lea_8d(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_cmc_f5(struct emu_cpu *c, struct instruction *i);
+int32_t instr_clc_f8(struct emu_cpu *c, struct instruction *i);
+int32_t instr_stc_f9(struct emu_cpu *c, struct instruction *i);
+int32_t instr_cld_fc(struct emu_cpu *c, struct instruction *i);
+int32_t instr_std_fd(struct emu_cpu *c, struct instruction *i);
+
+
 
 /* group 2*/
 /*int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i); */
