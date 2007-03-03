@@ -294,8 +294,8 @@ int32_t instr_clc_f8(struct emu_cpu *c, struct instruction *i);
 int32_t instr_stc_f9(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cld_fc(struct emu_cpu *c, struct instruction *i);
 int32_t instr_std_fd(struct emu_cpu *c, struct instruction *i);
-
-
+int32_t instr_cbw_98(struct emu_cpu *c, struct instruction *i);
+int32_t instr_cwd_99(struct emu_cpu *c, struct instruction *i);
 
 /* group 2*/
 /*int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i); */

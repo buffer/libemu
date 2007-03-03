@@ -63,6 +63,7 @@ int32_t instr_std_fd(struct emu_cpu *c, struct instruction *i)
 	 * STD 
 	 */
 	CPU_FLAG_SET(c,f_df);
+	return 0;
 }
 
 
@@ -91,3 +92,61 @@ int32_t instr_lea_8d(struct emu_cpu *c, struct instruction *i)
 	return 0;
 
 }
+
+
+int32_t instr_cbw_98(struct emu_cpu *c, struct instruction *i)
+{
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 104*/
+
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* 98 
+		 * AX <- sign-extend of AL
+		 * CBW  
+		 */
+		*c->reg16[ax] = (int8_t)*c->reg8[al];
+	}
+	else
+	{
+    	/* 98 
+		 * EAX <- sign-extend of AX
+		 * CWDE 
+		 */
+		c->reg[eax] = (int16_t)*c->reg16[ax];
+	}
+	return 0;
+}
+
+
+int32_t instr_cwd_99(struct emu_cpu *c, struct instruction *i)
+{
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 181*/
+
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+	   
+		/* 99 
+		 * DX:AX <- sign-extend of AX
+		 * CWD 
+		 */
+		uint32_t sexd; 
+		sexd = (int16_t)*c->reg16[ax];
+		DWORD_UPPER_TO_WORD(*c->reg16[dx],sexd);
+		DWORD_LOWER_TO_WORD(*c->reg16[ax],sexd);
+		
+	}
+	else
+	{
+		/* 99 
+		 * EDX:EAX <- sign-extend of EAX
+		 * CDQ 
+		 */
+		uint64_t sexd; 
+		sexd = (int32_t)c->reg[eax];
+		QWORD_UPPER_TO_DWORD(c->reg[edx],sexd);
+		QWORD_LOWER_TO_DWORD(c->reg[eax],sexd);
+
+	}
+	return 0;
+}
+
