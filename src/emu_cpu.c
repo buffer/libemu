@@ -349,6 +349,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 
 	uint8_t dis[32];
 	emu_memory_read_block(c->mem,c->eip,dis,32);
+	printf("%08x ",c->eip);
 	uint32_t expected_instr_size = dasm_print_instruction(dis,0);
 
 	uint32_t eip_before = c->eip;
