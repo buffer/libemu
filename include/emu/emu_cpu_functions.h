@@ -298,7 +298,7 @@ int32_t instr_cbw_98(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cwd_99(struct emu_cpu *c, struct instruction *i);
 
 /* group 2*/
-/*int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i); */
+int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c0_ror(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c0_rol(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c0_rcr(struct emu_cpu *c, struct instruction *i);
@@ -308,7 +308,7 @@ int32_t instr_group_2_c0_sar(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c0_shr(struct emu_cpu *c, struct instruction *i);
 
 
-/* int32_t instr_group_2_c1(struct emu_cpu *c, struct instruction *i); */
+int32_t instr_group_2_c1(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c1_ror(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c1_rol(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c1_rcr(struct emu_cpu *c, struct instruction *i);
@@ -318,7 +318,7 @@ int32_t instr_group_2_c1_sar(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_c1_shr(struct emu_cpu *c, struct instruction *i);
 
 
-/* int32_t instr_group_2_d0(struct emu_cpu *c, struct instruction *i); */
+int32_t instr_group_2_d0(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d0_ror(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d0_rol(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d0_rcr(struct emu_cpu *c, struct instruction *i);
@@ -328,7 +328,7 @@ int32_t instr_group_2_d0_sar(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d0_shr(struct emu_cpu *c, struct instruction *i);
 
 
-/* int32_t instr_group_2_d1(struct emu_cpu *c, struct instruction *i); */
+int32_t instr_group_2_d1(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d1_ror(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d1_rol(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d1_rcr(struct emu_cpu *c, struct instruction *i);
@@ -338,7 +338,7 @@ int32_t instr_group_2_d1_sar(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d1_shr(struct emu_cpu *c, struct instruction *i);
 
 
-/* int32_t instr_group_2_d2(struct emu_cpu *c, struct instruction *i); */
+int32_t instr_group_2_d2(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d2_ror(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d2_rol(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d2_rcr(struct emu_cpu *c, struct instruction *i);
@@ -348,7 +348,7 @@ int32_t instr_group_2_d2_sar(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d2_shr(struct emu_cpu *c, struct instruction *i);
 
 
-/*int32_t instr_group_2_d3(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_group_2_d3(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d3_ror(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d3_rol(struct emu_cpu *c, struct instruction *i);
 int32_t instr_group_2_d3_rcr(struct emu_cpu *c, struct instruction *i);
