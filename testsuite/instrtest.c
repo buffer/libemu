@@ -30,6 +30,7 @@ static struct run_time_options
 {
 	int verbose;
 	int nasm_force;
+	int steps;
 } opts;
 
 static const char *regm[] = {
@@ -108,7 +109,7 @@ struct instr_test tests[] =
 		.codesize = 344,
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
-	},*/ 
+	}, 
 	{
 		.instr = "win32_bind -  EXITFUNC=seh LPORT=4444 Size=709 Encoder=PexAlphaNum http://metasploit.com",
 		.code =  
@@ -252,6 +253,7 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
+	*/
 	/*{
 		.instr = "",
 		.code =  
@@ -3054,18 +3056,21 @@ int test()
 		}
 		
 		int ret; //= emu_cpu_run(emu_cpu_get(e));
-		while ((ret = emu_cpu_run(emu_cpu_get(e))) == 0)
+
+		for (j=0;j<opts.steps;j++)
+		{
+			ret = emu_cpu_run(emu_cpu_get(e));
 			if (opts.verbose == 1)
 			{
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 				emu_cpu_debug_print(cpu);
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 			}
-
-
-		if ( ret != 0 )
-		{
-			printf("cpu error %s\n", emu_strerror(e));
+			if ( ret != 0 )
+			{
+				printf("cpu error %s\n", emu_strerror(e));
+				break;
+			}
 		}
    
 
@@ -3176,6 +3181,8 @@ int main(int argc, char *argv[])
 {
 	memset(&opts,0,sizeof(struct run_time_options));
 
+	opts.steps = 1;
+
 	while ( 1 )
 	{	
 		int c;
@@ -3183,6 +3190,7 @@ int main(int argc, char *argv[])
 		static struct option long_options[] = {
 			{"verbose"			, 0, 0, 'v'},
 			{"nasm-force"		, 0, 0, 'n'},
+			{"steps"			, 1, 0, 's'},
 			{0, 0, 0, 0}
 		};
 
@@ -3198,6 +3206,10 @@ int main(int argc, char *argv[])
 
 		case 'n':
 			opts.nasm_force = 1;
+			break;
+
+		case 's':
+			opts.steps = atoi(optarg);
 			break;
 
 
