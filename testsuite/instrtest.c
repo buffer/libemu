@@ -31,6 +31,7 @@ static struct run_time_options
 	int verbose;
 	int nasm_force;
 	int steps;
+	int testnumber;
 } opts;
 
 static const char *regm[] = {
@@ -867,6 +868,13 @@ struct instr_test tests[] =
 	{
 		.instr = "mov eax, 0xffffffff",
 		.out_state.reg = {0xffffffff,0,0,0,0,0,0,0},
+	},
+	{
+		.instr = "mov eax, [esp+0x24]",
+		.in_state.mem_state = {0xffffff24, 0xfefefefe},
+		.in_state.reg = {0,0,0,0,0xffffff00,0,0,0},
+		.out_state.mem_state = {0xffffff24, 0xfefefefe},
+		.out_state.reg = {0xfefefefe,0,0,0,0xffffff00,0,0,0},
 	},
 };
 
@@ -2975,7 +2983,7 @@ const char mem_00250000[] =
 "\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE"
 "\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE\xEE\xFE";
 
-int test()
+int test(int n)
 {
 	int i=0;
 	struct emu *e = emu_new();
@@ -2984,10 +2992,13 @@ int test()
 
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
 	{
+		if( n != -1 && i != n )
+			continue;
+			
 		int failed = 0;
 
 
-		printf("testing '%s' \t",tests[i].instr);
+		printf("testing (#%d) '%s' \t", i, tests[i].instr);
 		int j=0;
 
 		if ( opts.verbose == 1 )
@@ -3182,6 +3193,7 @@ int main(int argc, char *argv[])
 	memset(&opts,0,sizeof(struct run_time_options));
 
 	opts.steps = 1;
+	opts.testnumber = -1;
 
 	while ( 1 )
 	{	
@@ -3191,6 +3203,7 @@ int main(int argc, char *argv[])
 			{"verbose"			, 0, 0, 'v'},
 			{"nasm-force"		, 0, 0, 'n'},
 			{"steps"			, 1, 0, 's'},
+			{"testnumber"		, 1, 0, 't'},
 			{0, 0, 0, 0}
 		};
 
@@ -3212,6 +3225,10 @@ int main(int argc, char *argv[])
 			opts.steps = atoi(optarg);
 			break;
 
+		case 't':
+			opts.testnumber = atoi(optarg);
+			break;
+
 
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
@@ -3224,7 +3241,7 @@ int main(int argc, char *argv[])
 	if ( prepare() != 0)
 		return -1;
 
-	if ( test() != 0 )
+	if ( test(opts.testnumber) != 0 )
 		return -1;
 
 	cleanup();

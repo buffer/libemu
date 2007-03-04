@@ -88,7 +88,7 @@ struct instruction
     
 #define SIB_SCALE(x) (((x) >> 6) & 3)
 #define SIB_INDEX(x) (((x) >> 3) & 7)
-#define SIB_BASE(x) ((x) & 3)
+#define SIB_BASE(x) ((x) & 7)
 
 #define PREFIX_ADSIZE (1 << 0)
 #define PREFIX_OPSIZE (1 << 1)
