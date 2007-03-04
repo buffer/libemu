@@ -220,19 +220,19 @@ c = operation_result;
 
 #include <string.h>
 #define WORD_UPPER_TO_BYTE(to,from) \
-memcpy(&(to),&(from)+1,1);
+memcpy(&(to),((uint8_t *)&(from))+1,1);
 
 #define WORD_LOWER_TO_BYTE(to,from) \
 memcpy(&(to),&(from),1);
 
 #define DWORD_UPPER_TO_WORD(to,from) \
-memcpy(&(to),&(from)+2,2);
+memcpy(&(to),((uint8_t *)&(from))+2,2);
 
 #define DWORD_LOWER_TO_WORD(to,from) \
 memcpy(&(to),&(from),2);
 
 #define QWORD_UPPER_TO_DWORD(to,from) \
-memcpy(&(to),&(from)+4,4);
+memcpy(&(to),((uint8_t *)&(from))+4,4);
 
 #define QWORD_LOWER_TO_DWORD(to,from) \
 memcpy(&(to),&(from),4);
