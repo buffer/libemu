@@ -4,10 +4,11 @@
 #include <errno.h>
 
 #include "emu/emu.h"
-#include "emu/emu.h"
+#include "emu/emu_cpu.h"
 #include "emu/emu_memory.h"
 #include "emu/enviroment/win32/emu_env_w32.h"
 #include "emu/enviroment/win32/emu_env_w32_dll.h"
+#include "emu/enviroment/win32/emu_env_w32_dll_export.h"
 
 
 
@@ -24,14 +25,17 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 
 //  0041709D   64:8B43 30       MOV EAX,DWORD PTR FS:[EBX+30]
 //	7FFDF030  00 40 FD 7F                                      .@ý
+//  7FFDE030  00 F0 FD 7F                                      .ðý
+
+
     emu_memory_segment_select(mem,s_fs);
-	emu_memory_write_dword(mem,0x30,0x7ffd4000);
+	emu_memory_write_dword(mem,0x30,0x7ffdf000);
 	emu_memory_segment_select(mem,oldseg);
 
 
 //  004170A1   8B40 0C          MOV EAX,DWORD PTR DS:[EAX+C]
-//  7FFD400C  A0 1E 25 00                                       %.
-	emu_memory_write_dword(mem,0x7ffd400c,0x00251ea0);
+//  7FFDF00C  A0 1E 25 00                                       %.
+	emu_memory_write_dword(mem,0x7ffdf00c,0x00251ea0);
 
 
 //  004170A4   8B70 1C          MOV ESI,DWORD PTR DS:[EAX+1C]
@@ -44,9 +48,10 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 	emu_memory_write_dword(mem,0x00251f58,0x00252020);
 
 
-//	004170A8   8B40 08          MOV EAX,DWORD PTR DS:[EAX+8]
-//  00252028  00 00 80 7C                                      ..€|
+//	004170A8   8B40 08          MOV EAX,DWORD PTR DS:[EAX+8]             ; kernel32.7C800000
+//  00252028  00 00 80 7C     
 	emu_memory_write_dword(mem,0x00252028,0x7C800000);
+
 
 	// map kernel32.dll to emu's memory at 0x7c800000
 	if (emu_env_w32_load_dll(env,"kernel32.dll") == -1 )
@@ -91,9 +96,13 @@ uint32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 	}
 
 	size = ftell(f);
+	fseek(f,0,SEEK_SET);
 
 	char *image = (char *)malloc(size);
-	fread(image,1,size,f);
+	if (fread(image,size,1,f) != size)
+	{
+		printf("bad fread\n");
+	}
 	fclose(f);
 
 	struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
@@ -108,7 +117,10 @@ uint32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 	// if we find the end of the exports table
 	// we don't have to map the damn whole dll
 
+	// for now, static hack it for kernel32.dll LoadLibraryA
 
+	struct emu_env_w32_dll_export *exp = emu_env_w32_dll_export_add(dll,"LoadLibraryA",0x000076D0);
+	exp->fnhook = emu_env_w32_hook_LoadLibrayA;
 
 	
 
@@ -144,16 +156,53 @@ uint32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 
 	if (base_addr != 0)
 	{
-		printf("wrote %s (%i bytes) to 0x%08x\n",dllname,size,base_addr);
-		emu_memory_write_block(emu_memory_get(env->emu),base_addr,image,size);
+        if ( emu_memory_write_block(emu_memory_get(env->emu),base_addr,image,size) != 0)
+			return -1;
+		else
+            printf("wrote %s (%i bytes) to 0x%08x\n",dllname,size,base_addr);	
+		
 	}else
 	{
 		printf("no base addr for dll, won't work yet\n");
 	}
+
+	dll->baseaddr = base_addr;
+	dll->imagesize = size;
+
+	// add the loaded dll
+	int numdlls=0;
+	if (env->loaded_dlls != NULL)
+	{
+    	while (env->loaded_dlls[numdlls] != NULL)
+			numdlls++;
+	}
+
+	env->loaded_dlls = realloc(env->loaded_dlls, sizeof(struct emu_env_w32_dll *) * (numdlls+1));
+	env->loaded_dlls[numdlls] = dll;
 
 
 	return 0;
 }
 
 
+void emu_env_w32_eip_check(struct emu_env_w32 *env)
+{
+	uint32_t eip = emu_cpu_eip_get(emu_cpu_get(env->emu));
 
+	int numdlls=0;
+	while (env->loaded_dlls[numdlls] != NULL)
+	{
+		printf("0x%08x %s 0x%08x - 0x%08x \n",
+			   eip,
+			   env->loaded_dlls[numdlls]->dllname,
+			   env->loaded_dlls[numdlls]->baseaddr,
+			   env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize);
+
+		if (eip > env->loaded_dlls[numdlls]->baseaddr && 
+			eip < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize)
+		{
+			printf("eip is within %s\n",env->loaded_dlls[numdlls]->dllname);
+		}
+		numdlls++;
+	}
+}

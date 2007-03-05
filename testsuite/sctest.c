@@ -301,12 +301,28 @@ int test(int n)
 	struct emu_memory *mem = emu_memory_get(e);
 	struct emu_env_w32 *env = emu_env_w32_new(e);
 
+
 	if (env == 0)
 	{
 		printf("%s \n", emu_strerror(e));
 		printf("%s \n", strerror(emu_errno(e)));
 		return -1;
 	}
+
+/*	uint32_t x;
+	for (x=0x7c800000;x<0x7c902400;x++)
+	{
+		uint8_t b;
+		emu_memory_read_byte(mem,x,&b);
+		printf("%02x ",b);
+		if (x % 16 == 0)
+		{
+			printf("\n");
+		}
+	}
+	return 0;
+*/
+
 
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
 	{
@@ -354,7 +370,10 @@ int test(int n)
 
 		for (j=0;j<opts.steps;j++)
 		{
+			emu_env_w32_eip_check(env);
 			ret = emu_cpu_run(emu_cpu_get(e));
+			
+
 			if (opts.verbose == 1)
 			{
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
