@@ -5,8 +5,11 @@
 struct emu_env_w32_dll
 {
 	char 		*dllname;
+
+	char 		*image;
+	uint32_t	imagesize;
+
 	uint32_t	baseaddr;
-	uint32_t 	imagesize;
 
 	struct emu_env_w32_dll_hook *exports;
 };
