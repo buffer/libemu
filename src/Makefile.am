@@ -64,5 +64,6 @@ libemu_la_SOURCES += functions/test.c
 libemu_la_SOURCES += functions/xor.c
 
 libemu_la_SOURCES += libdasm.c
+libemu_la_SOURCES += enviroment/win32/emu_env_w32.c
 
 libemu_la_LDFLAGS = -no-undefined -version-info @libemu_soname@ -export-symbols-regex "^emu_"
