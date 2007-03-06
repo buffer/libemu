@@ -61,6 +61,7 @@ libemu_la_SOURCES += functions/shr.c
 libemu_la_SOURCES += functions/stoscc.c
 libemu_la_SOURCES += functions/sub.c
 libemu_la_SOURCES += functions/test.c
+libemu_la_SOURCES += functions/xchg.c
 libemu_la_SOURCES += functions/xor.c
 
 libemu_la_SOURCES += libdasm.c

@@ -392,6 +392,11 @@ int32_t instr_scas_af(struct emu_cpu *c, struct instruction *i); */
 /*int32_t instr_cmps_a6(struct emu_cpu *c, struct instruction *i);
 int32_t instr_cmps_a7(struct emu_cpu *c, struct instruction *i); */
 
+/* xchg */
+int32_t instr_xchg_86(struct emu_cpu *c, struct instruction *i);
+int32_t instr_xchg_87(struct emu_cpu *c, struct instruction *i);
+int32_t instr_xchg_9x(struct emu_cpu *c, struct instruction *i);
+
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  
