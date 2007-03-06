@@ -965,7 +965,7 @@ struct emu_env_w32_dll_export ws2_32_exports[] =
 	{"accept", 0x00011028, emu_env_w32_hook_accept},
 	{"bind", 0x00003E00, emu_env_w32_hook_bind},
 	{"closesocket", 0x00009639, emu_env_w32_hook_closesocket},
-	{"connect", 0x0000406A, NULL},
+	{"connect", 0x0000406A, emu_env_w32_hook_connect},
 	{"getpeername", 0x00010B50, NULL},
 	{"getsockname", 0x0000951E, NULL},
 	{"getsockopt", 0x000046C9, NULL},

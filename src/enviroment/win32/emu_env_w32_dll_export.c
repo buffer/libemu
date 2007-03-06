@@ -273,6 +273,41 @@ int closesocket(
 
 
 
+int32_t	emu_env_w32_hook_connect(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+/*
+int connect(
+  SOCKET s,
+  const struct sockaddr* name,
+  int namelen
+)
+*/
+	uint32_t s;
+	POP_DWORD(c, &s);
+
+	uint32_t name;
+	POP_DWORD(c, &name);
+
+	uint32_t namelen;
+	POP_DWORD(c, &namelen);
+
+
+	emu_cpu_reg32_set(c, eax, 0);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+
 int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
