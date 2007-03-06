@@ -903,7 +903,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"WaitNamedPipeA", 0x0005FC39, NULL},
 	{"WaitNamedPipeW", 0x0002C664, NULL},
 	{"WideCharToMultiByte", 0x0000A0D4, NULL},
-	{"WinExec", 0x0006136D, NULL},
+	{"WinExec", 0x0006136D, emu_env_w32_hook_WinExec},
 	{"WriteConsoleA", 0x0001CF25, NULL},
 	{"WriteConsoleInputA", 0x000723C5, NULL},
 	{"WriteConsoleInputVDMA", 0x00071EA4, NULL},

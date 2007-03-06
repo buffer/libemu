@@ -369,4 +369,55 @@ int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
-	
+
+
+int32_t	emu_env_w32_hook_WinExec(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+UINT WINAPI WinExec(
+  LPCSTR lpCmdLine,
+  UINT uCmdShow
+);
+*/
+
+	uint32_t cmdline_ptr;
+	POP_DWORD(c, &cmdline_ptr);
+
+	uint32_t show;
+	POP_DWORD(c, &show);
+
+
+	uint8_t b=0;
+	uint32_t strsize =0;
+
+	printf("esp is 0x%08x\n", cmdline_ptr);
+
+	while (emu_memory_read_byte(emu_memory_get(env->emu), cmdline_ptr + strsize, &b) == 0 && b != 0)
+	{
+//		printf(" 0x%08x = %02x\n",cmdline_ptr + strsize,b);
+		strsize++;
+	}
+
+	char *cmdline = (char *)malloc(strsize+1);
+	memset(cmdline, 0, strsize+1);
+	emu_memory_read_block(emu_memory_get(env->emu), cmdline_ptr,cmdline, strsize);
+
+	printf("WinExec %s\n", cmdline);
+	free(cmdline);
+
+
+	emu_cpu_reg32_set(c, eax, 32);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
