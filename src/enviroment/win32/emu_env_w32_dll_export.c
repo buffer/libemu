@@ -22,5 +22,8 @@ int32_t	emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+	exit(0);
 	return 0;
 }
+
+
