@@ -106,7 +106,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"CreateNamedPipeW", 0x0002F0D4, NULL},
 	{"CreateNlsSecurityDescriptor", 0x0002AC6C, NULL},
 	{"CreatePipe", 0x0001E0C7, NULL},
-	{"CreateProcessA", 0x00002367, NULL},
+	{"CreateProcessA", 0x00002367, emu_env_w32_hook_CreateProcessA},
 	{"CreateProcessInternalA", 0x0001DDD6, NULL},
 	{"CreateProcessInternalW", 0x00019513, NULL},
 	{"CreateProcessInternalWSecure", 0x0007F1FC, NULL},
@@ -962,9 +962,9 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 
 struct emu_env_w32_dll_export ws2_32_exports[] = 
 {
-	{"accept", 0x00011028, NULL},
-	{"bind", 0x00003E00, NULL},
-	{"closesocket", 0x00009639, NULL},
+	{"accept", 0x00011028, emu_env_w32_hook_accept},
+	{"bind", 0x00003E00, emu_env_w32_hook_bind},
+	{"closesocket", 0x00009639, emu_env_w32_hook_closesocket},
 	{"connect", 0x0000406A, NULL},
 	{"getpeername", 0x00010B50, NULL},
 	{"getsockname", 0x0000951E, NULL},
@@ -974,7 +974,7 @@ struct emu_env_w32_dll_export ws2_32_exports[] =
 	{"ioctlsocket", 0x00004519, NULL},
 	{"inet_addr", 0x00002BF4, NULL},
 	{"inet_ntoa", 0x00003F41, NULL},
-	{"listen", 0x000088D3, NULL},
+	{"listen", 0x000088D3, emu_env_w32_hook_listen},
 	{"ntohl", 0x00002BC0, NULL},
 	{"ntohs", 0x00002B66, NULL},
 	{"recv", 0x0000615A, NULL},

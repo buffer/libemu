@@ -141,7 +141,7 @@ int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_
 	uint32_t flags;
 	POP_DWORD(c, &flags);
 
-	int s = socket(af, type, protocol);
+	int s = 67;//socket(af, type, protocol);
 	printf("socket %i \n", s);
 	emu_cpu_reg32_set(c, eax, s);
 
@@ -150,3 +150,188 @@ int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_
 }
 
 
+int32_t	emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+
+/*int bind(
+  SOCKET s,
+  const struct sockaddr* name,
+  int namelen
+); */
+
+	uint32_t s;
+	POP_DWORD(c, &s);
+
+	uint32_t name;
+	POP_DWORD(c, &name);
+	
+	uint32_t namelen;
+	POP_DWORD(c, &namelen);
+
+	emu_cpu_reg32_set(c, eax, 0);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	emu_env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*int listen(
+  SOCKET s,
+  int backlog
+);
+*/
+
+	uint32_t s;
+	POP_DWORD(c, &s);
+
+	uint32_t backlog;
+	POP_DWORD(c, &backlog);
+	
+	emu_cpu_reg32_set(c, eax, 0);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	emu_env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*SOCKET accept(
+  SOCKET s,
+  struct sockaddr* addr,
+  int* addrlen
+);*/
+
+	uint32_t s;
+	POP_DWORD(c, &s);
+
+	uint32_t addr;
+	POP_DWORD(c, &addr);
+
+	uint32_t addrlen;
+	POP_DWORD(c, &addrlen);
+
+	int a = 89;
+	printf("accept %i \n", a);	
+	emu_cpu_reg32_set(c, eax, a);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	emu_env_w32_hook_closesocket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+/*
+int closesocket(
+  SOCKET s
+);
+*/
+	uint32_t s;
+	POP_DWORD(c, &s);
+
+
+	emu_cpu_reg32_set(c, eax, 0);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+
+int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s %s:%i\n",__FUNCTION__,__FILE__,__LINE__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*BOOL CreateProcess( 
+  LPCWSTR pszImageName, 
+  LPCWSTR pszCmdLine, 
+  LPSECURITY_ATTRIBUTES psaProcess, 
+  LPSECURITY_ATTRIBUTES psaThread, 
+  BOOL fInheritHandles, 
+  DWORD fdwCreate, 
+  LPVOID pvEnvironment, 
+  LPWSTR pszCurDir, 
+  LPSTARTUPINFOW psiStartInfo, 
+  LPPROCESS_INFORMATION pProcInfo
+);*/
+
+	uint32_t imagename;
+	POP_DWORD(c, &imagename);
+
+	uint32_t cmdline;
+	POP_DWORD(c, &cmdline);
+
+	uint32_t process;
+	POP_DWORD(c, &process);
+
+	uint32_t thread;
+	POP_DWORD(c, &thread);
+
+	uint32_t inherithandles;
+	POP_DWORD(c, &inherithandles);
+
+	uint32_t create;
+	POP_DWORD(c, &create);
+
+	uint32_t enviroment;
+	POP_DWORD(c, &enviroment);
+
+	uint32_t cwd;
+	POP_DWORD(c, &cwd);
+
+	uint32_t startinfo;
+	POP_DWORD(c, &startinfo);
+
+	uint32_t procinfo;
+	POP_DWORD(c, &procinfo);
+
+
+	printf("CreateProcessA \n");	
+	emu_cpu_reg32_set(c, eax, 0);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+	
