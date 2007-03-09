@@ -394,6 +394,12 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			{
 				emu_strerror_set(c->emu,"opcode %02x not supported\n", i.opc);
 				emu_errno_set(c->emu, ENOTSUP);
+				int y=0;
+				for (y=0;y<expected_instr_size;y++)
+				{
+					printf("%02x ", dis[y]);
+				}
+				printf("\n");
 				return -1;
 			}
 			
