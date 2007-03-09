@@ -70,8 +70,6 @@ int32_t instr_mov_89(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_mov_8a(struct emu_cpu *c, struct instruction *i)
 {
-
-
 	/* 8A /r  
 	 * Move r/m8 to r8                                  
 	 * MOV r8,r/m8      
@@ -171,18 +169,23 @@ int32_t instr_mov_a0(struct emu_cpu *c, struct instruction *i)
 int32_t instr_mov_a1(struct emu_cpu *c, struct instruction *i)
 {
 
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* A1     
+		 * Move word at (seg:offset) to AX                  
+		 * MOV AX,moffs16*  
+		 */                                                                      
 
-	/* A1     
-	 * Move word at (seg:offset) to AX                  
-	 * MOV AX,moffs16*  
-	 */																		 
-
-	/* A1     
-	 * Move doubleword at (seg:offset) to EAX           
-	 * MOV EAX,moffs32* 
-	 */
-
-
+		MEM_WORD_READ(c, i->disp, c->reg16[ax]);
+	}
+	else
+	{
+		/* A1     
+		 * Move doubleword at (seg:offset) to EAX           
+		 * MOV EAX,moffs32* 
+		 */
+		MEM_DWORD_READ(c, i->disp, &c->reg[eax]);
+	}
 	return 0;
 }
 
@@ -222,17 +225,6 @@ int32_t instr_mov_bx_1(struct emu_cpu *c, struct instruction *i)
 	 * Move imm8 to r8                                  
 	 * MOV r8,imm8      
 	 */
-
-	/* B8+ rw 
-	 * Move imm16 to r16                                
-	 * MOV r16,imm16    
-	 */
-
-	/* B8+ rd 
-	 * Move imm32 to r32                                
-	 * MOV r32,imm32    
-	 */																		 
-
 	*c->reg8[i->opc & 7] = *i->imm8;
 
 	return 0;
@@ -240,25 +232,26 @@ int32_t instr_mov_bx_1(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_mov_bx_2(struct emu_cpu *c, struct instruction *i)
 {
-	/* B0+ rb 
-	 * Move imm8 to r8                                  
-	 * MOV r8,imm8      
-	 */
 
-	/* B8+ rw 
-	 * Move imm16 to r16                                
-	 * MOV r16,imm16    
-	 */
-
-	/* B8+ rd 
-	 * Move imm32 to r32                                
-	 * MOV r32,imm32    
-	 */																		 
 
 	if( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* B8+ rw 
+		 * Move imm16 to r16                                
+		 * MOV r16,imm16    
+		 */
+
 		*c->reg16[i->opc & 7] = *i->imm16;
+	}
 	else
-		c->reg[i->opc & 7] = i->imm;
+	{
+		/* B8+ rd 
+		 * Move imm32 to r32                                
+		 * MOV r32,imm32    
+		 */							
+
+    	c->reg[i->opc & 7] = i->imm;
+	}
 
 	return 0;
 }
