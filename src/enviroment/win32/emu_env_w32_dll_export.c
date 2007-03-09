@@ -59,7 +59,7 @@ int32_t	emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32
 	printf("dll name is '%s'\n",dllname);
 
 
-	if (strcmp(dllname, "ws2_32") == 0)
+	if (strncmp(dllname, "ws2_32",6) == 0 )
 	{
 		emu_cpu_reg32_set(c, eax, 0x71A10000);
 		emu_cpu_reg32_set(c, ecx, 0x7C801BF6);
@@ -399,7 +399,7 @@ UINT WINAPI WinExec(
 	uint8_t b=0;
 	uint32_t strsize =0;
 
-	printf("esp is 0x%08x\n", cmdline_ptr);
+	printf("eip_save is 0x%08x\n", eip_save);
 
 	while (emu_memory_read_byte(emu_memory_get(env->emu), cmdline_ptr + strsize, &b) == 0 && b != 0)
 	{
