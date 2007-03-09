@@ -225,11 +225,11 @@ int32_t instr_mov_89(struct emu_cpu *c, struct instruction *i);
 int32_t instr_mov_8a(struct emu_cpu *c, struct instruction *i);
 int32_t instr_mov_8b(struct emu_cpu *c, struct instruction *i);
 /*int32_t instr_mov_8c(struct emu_cpu *c, struct instruction *i);
-int32_t instr_mov_8e(struct emu_cpu *c, struct instruction *i);
-int32_t instr_mov_a0(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_mov_8e(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_mov_a0(struct emu_cpu *c, struct instruction *i);
 int32_t instr_mov_a1(struct emu_cpu *c, struct instruction *i);
-/*int32_t instr_mov_a2(struct emu_cpu *c, struct instruction *i);
-int32_t instr_mov_a3(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_mov_a2(struct emu_cpu *c, struct instruction *i);
+int32_t instr_mov_a3(struct emu_cpu *c, struct instruction *i);
 int32_t instr_mov_bx_1(struct emu_cpu *c, struct instruction *i);
 int32_t instr_mov_bx_2(struct emu_cpu *c, struct instruction *i);
 int32_t instr_mov_c6(struct emu_cpu *c, struct instruction *i);

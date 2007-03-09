@@ -89,20 +89,13 @@ int32_t instr_mov_8a(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_mov_8b(struct emu_cpu *c, struct instruction *i)
 {
-
-
-	/* 8B /r  
-	 * Move r/m16 to r16                                
-	 * MOV r16,r/m16    
-	 */																		 
-
-	/* 8B /r  
-	 * Move r/m32 to r32                                
-	 * MOV r32,r/m32    
-	 */																		 
-
 	if( i->prefixes & PREFIX_OPSIZE )
 	{
+		/* 8B /r  
+		 * Move r/m16 to r16                                
+		 * MOV r16,r/m16    
+		 */																		 
+
 		if( i->modrm.mod != 3 )
 		{
 			MEM_WORD_READ(c, i->modrm.ea, c->reg16[i->modrm.opc]);
@@ -114,6 +107,11 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct instruction *i)
 	}
 	else
 	{
+		/* 8B /r  
+		 * Move r/m32 to r32                                
+		 * MOV r32,r/m32    
+		 */																		 
+
 		if( i->modrm.mod != 3 )
 		{
 			MEM_DWORD_READ(c, i->modrm.ea, &c->reg[i->modrm.opc]);
@@ -129,39 +127,29 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_mov_8c(struct emu_cpu *c, struct instruction *i)
 {
-
-
 	/* 8C /r  
 	 * Move segment register to r/m16                   
 	 * MOV r/m16,Sreg** 
 	 */																		 
-
-
 	return 0;
 }
 
 int32_t instr_mov_8e(struct emu_cpu *c, struct instruction *i)
 {
-
-
 	/* 8E /r  
 	 * Move r/m16 to segment register                   
 	 * MOV Sreg,r/m16** 
 	 */																		 
-
-
 	return 0;
 }
 
 int32_t instr_mov_a0(struct emu_cpu *c, struct instruction *i)
 {
-
-																		 
 	/* A0     
 	 * Move byte at (seg:offset) to AL                  
 	 * MOV AL,moffs8*   
 	 */																		 
-
+	MEM_BYTE_READ(c, i->disp, c->reg8[al]);
 
 	return 0;
 }
@@ -191,13 +179,11 @@ int32_t instr_mov_a1(struct emu_cpu *c, struct instruction *i)
 
 int32_t instr_mov_a2(struct emu_cpu *c, struct instruction *i)
 {
-
-
 	/* A2     
 	 * Move AL to (seg:offset)                          
 	 * MOV moffs8*,AL   
 	 */																		 
-
+	MEM_BYTE_WRITE(c, i->imm, *c->reg8[al]);
 
 	return 0;
 }
@@ -205,16 +191,23 @@ int32_t instr_mov_a2(struct emu_cpu *c, struct instruction *i)
 int32_t instr_mov_a3(struct emu_cpu *c, struct instruction *i)
 {
 
+	if ( i->prefixes & PREFIX_OPSIZE )
+	{
 
-	/* A3     
-	 * Move AX to (seg:offset)                          
-	 * MOV moffs16*,AX  
-	 */
-	/* A3     
-	 * Move EAX to (seg:offset)                         
-	 * MOV moffs32*,EAX 
-	 */																		 
-
+		/* A3     
+		 * Move AX to (seg:offset)                          
+		 * MOV moffs16*,AX  
+		 */
+		MEM_WORD_WRITE(c, i->imm, *c->reg16[ax]);
+	}
+	else
+	{
+		/* A3     
+		 * Move EAX to (seg:offset)                         
+		 * MOV moffs32*,EAX 
+		 */                                         
+		MEM_DWORD_WRITE(c, i->imm, c->reg[eax]);
+	}
 
 	return 0;
 }
