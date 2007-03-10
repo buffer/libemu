@@ -193,7 +193,7 @@ struct instruction_info ii_onebyte[0x100] = {
 	/* 8a */ {instr_mov_8a, "mov", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 	/* 8b */ {instr_mov_8b, "mov", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 	/* 8c */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
-	/* 8d */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
+	/* 8d */ {instr_lea_8d, "lea", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 	/* 8e */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 8f */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 90 */ {instr_xchg_9x, "xchg", {0, 0, 0, 0, 0, 0, 0}},

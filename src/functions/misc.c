@@ -81,6 +81,7 @@ int32_t instr_lea_8d(struct emu_cpu *c, struct instruction *i)
 		 * Store effective address for m in register r16
 		 * LEA r16,m 
 		 */
+
 	}
 	else
 	{
@@ -88,6 +89,7 @@ int32_t instr_lea_8d(struct emu_cpu *c, struct instruction *i)
 		 * Store effective address for m in register r32
 		 * LEA r32,m 
 		 */
+		c->reg[i->modrm.opc] = i->modrm.ea;
 	}
 	return 0;
 
