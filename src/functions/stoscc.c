@@ -28,13 +28,13 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct instruction *i)
 	}
 	else
 	{
-		MEM_BYTE_WRITE(c,c->reg[esi],*c->reg8[al]);
+		MEM_BYTE_WRITE(c,c->reg[edi],*c->reg8[al]);
 		if ( !CPU_FLAG_ISSET(c,f_df) )
 		{ /* increment */
-			c->reg[esi] += 1;
+			c->reg[edi] += 1;
 		}else
 		{ /* decrement */
-			c->reg[esi] -= 1;
+			c->reg[edi] -= 1;
 		}
 
 	}
@@ -60,15 +60,15 @@ int32_t instr_stos_ab(struct emu_cpu *c, struct instruction *i)
 		}
 		else
 		{
-			MEM_WORD_WRITE(c,c->reg[esi],*c->reg16[ax]);
+			MEM_WORD_WRITE(c,c->reg[edi],*c->reg16[ax]);
 
 			if ( !CPU_FLAG_ISSET(c,f_df) )
 			{ /* increment */
-				c->reg[esi] += 2;
+				c->reg[edi] += 2;
 			}
 			else
 			{ /* decrement */
-				c->reg[esi] -= 2;
+				c->reg[edi] -= 2;
 			}
 		}
 	}
@@ -89,15 +89,15 @@ int32_t instr_stos_ab(struct emu_cpu *c, struct instruction *i)
 		}
 		else
 		{
-			MEM_DWORD_WRITE(c,c->reg[esi],c->reg[eax]);
+			MEM_DWORD_WRITE(c,c->reg[edi],c->reg[eax]);
 
 			if ( !CPU_FLAG_ISSET(c,f_df) )
 			{ /* increment */
-				c->reg[esi] += 4;
+				c->reg[edi] += 4;
 			}
 			else
 			{ /* decrement */
-				c->reg[esi] -= 4;
+				c->reg[edi] -= 4;
 			}
 
 		}
