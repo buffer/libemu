@@ -399,7 +399,7 @@ struct instr_test tests[] =
 		"\x00\x00\x00\x00\x00\x88\x2a\x0c\x00\x02\x00\x00\x00\x01\x00\x00"	 // 0x02d0  ......*.  ........"
 		"\x00\x28\x8c\x0c\x00\x01\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00"	 // 0x02e0  .(......  ........"
 		"\x00",
-		.codesize = 700,
+		.codesize = 593,
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
