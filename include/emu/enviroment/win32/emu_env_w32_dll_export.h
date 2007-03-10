@@ -29,7 +29,8 @@ int32_t	emu_env_w32_hook_closesocket(struct emu_env_w32 *env, struct emu_env_w32
 int32_t	emu_env_w32_hook_connect(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 int32_t	emu_env_w32_hook_WinExec(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-
+int32_t	emu_env_w32_hook_WaitForSingleObject(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t	emu_env_w32_hook_ExitProcess(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 
 extern struct emu_env_w32_dll_export kernel32_exports[];
 extern struct emu_env_w32_dll_export ws2_32_exports[];
