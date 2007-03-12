@@ -122,7 +122,7 @@ int32_t instr_push_6a(struct emu_cpu *c, struct instruction *i)
 	 * Push imm8     
 	 * PUSH imm8  
 	 */
-	PUSH_BYTE(c, *i->imm8);
+	PUSH_DWORD(c, *i->imm8);
 
 	return 0;
 }
