@@ -35,18 +35,6 @@ int32_t instr_movsx_0fbe(struct emu_cpu *c, struct instruction *i)
 			uint8_t m8;
 			MEM_BYTE_READ(c, i->modrm.ea, &m8);
 			c->reg[i->modrm.opc] = (int8_t)m8;
-			static char dbg[256];
-			if ( isprint(m8) )
-			{
-				dbg[strlen(dbg)] = m8;
-				
-			}else
-			{
-				printf("word is %s\n", dbg);
-				memset(dbg, 0, 256);
-			}
-
-
 		}
 	}
 	else
@@ -63,7 +51,7 @@ int32_t instr_movsx_0fbe(struct emu_cpu *c, struct instruction *i)
 		{
 			/* 0F BE /r 
 			 * Move byte to doubleword, sign-extension
-			 * MOVSX r32,r/m8  
+			 * MOVSX r32,r8  
 			 */       
 			c->reg[i->modrm.rm] = (int8_t)*c->reg8[i->modrm.opc];
 		}
