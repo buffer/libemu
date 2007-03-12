@@ -41,6 +41,7 @@ libemu_la_SOURCES += functions/lodscc.c
 libemu_la_SOURCES += functions/loopcc.c
 libemu_la_SOURCES += functions/misc.c
 libemu_la_SOURCES += functions/mov.c
+libemu_la_SOURCES += functions/movsx.c
 libemu_la_SOURCES += functions/mul.c
 libemu_la_SOURCES += functions/neg.c
 libemu_la_SOURCES += functions/not.c
