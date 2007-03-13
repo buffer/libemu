@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+// for the socket hooks
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_cpu.h"
@@ -177,6 +183,15 @@ int32_t	emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_ex
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
 
+
+
+	struct sockaddr sa;
+	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
+	printf("host %s port %i\n", 
+		   inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr),
+		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
+
+
 	emu_cpu_reg32_set(c, eax, 0);
 
 	emu_cpu_eip_set(c, eip_save);
@@ -299,6 +314,11 @@ int connect(
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
 
+	struct sockaddr sa;
+	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
+	printf("host %s port %i\n", 
+		   inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr),
+		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
 
 	emu_cpu_reg32_set(c, eax, 0);
 
