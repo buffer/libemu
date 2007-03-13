@@ -45,7 +45,7 @@ int32_t instr_movsx_0fbe(struct emu_cpu *c, struct instruction *i)
 			 * Move byte to word with sign-extension
 			 * MOVSX r16,r8  
 			 */       
-			*c->reg16[i->modrm.rm] = (int8_t)*c->reg8[i->modrm.opc];
+			*c->reg16[i->modrm.opc] = (int8_t)*c->reg8[i->modrm.rm];
 		}
 		else
 		{
@@ -53,7 +53,7 @@ int32_t instr_movsx_0fbe(struct emu_cpu *c, struct instruction *i)
 			 * Move byte to doubleword, sign-extension
 			 * MOVSX r32,r8  
 			 */       
-			c->reg[i->modrm.rm] = (int8_t)*c->reg8[i->modrm.opc];
+			c->reg[i->modrm.opc] = (int8_t)*c->reg8[i->modrm.rm];
 		}
 	}
 	return 0;
@@ -78,7 +78,7 @@ int32_t instr_movsx_0fbf(struct emu_cpu *c, struct instruction *i)
 		 * Move word to doubleword, sign-extension
 		 * MOVSX r32,r16 
 		 */
-		c->reg[i->modrm.rm] = (int16_t)*c->reg16[i->modrm.opc];
+		c->reg[i->modrm.opc] = (int16_t)*c->reg16[i->modrm.rm];
 	}
 	return 0;
 }
