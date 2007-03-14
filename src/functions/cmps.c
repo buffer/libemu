@@ -43,7 +43,7 @@ INSTR_SET_FLAG_OF(cpu, -,bits)
 
 
 
-int32_t instr_cmps_a6(struct emu_cpu *c, struct instruction *i)
+int32_t instr_cmps_a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_ADSIZE )
 	{
@@ -86,7 +86,7 @@ int32_t instr_cmps_a6(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_cmps_a7(struct emu_cpu *c, struct instruction *i)
+int32_t instr_cmps_a7(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_ADSIZE )
 	{

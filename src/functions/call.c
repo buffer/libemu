@@ -10,7 +10,7 @@
 #include "emu/emu_memory.h"
 
 
-int32_t instr_call_9a(struct emu_cpu *c, struct instruction *i)
+int32_t instr_call_9a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 9A cd  
@@ -29,7 +29,7 @@ int32_t instr_call_9a(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i)
+int32_t instr_call_e8(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* E8 cd  
@@ -50,7 +50,7 @@ int32_t instr_call_e8(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_5_ff_call(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_5_ff_call(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if( i->modrm.opc == 2 )
 	{

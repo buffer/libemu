@@ -9,7 +9,7 @@
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 571*/
 
-int32_t instr_pop_07(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_07(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 07     
 	 * Pop top of stack into ES; increment stack pointer   
@@ -20,7 +20,7 @@ int32_t instr_pop_07(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_17(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_17(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 17     
@@ -32,7 +32,7 @@ int32_t instr_pop_17(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_1f(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_1f(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 1F     
@@ -44,7 +44,7 @@ int32_t instr_pop_1f(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_5x(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_5x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if (i->prefixes & PREFIX_OPSIZE)
@@ -65,7 +65,7 @@ int32_t instr_pop_5x(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_0fa1(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_0fa1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 0F A1  
@@ -77,7 +77,7 @@ int32_t instr_pop_0fa1(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pop_0fa9(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pop_0fa9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 0F A9  
@@ -89,7 +89,7 @@ int32_t instr_pop_0fa9(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_popad_61(struct emu_cpu *c, struct instruction *i)
+int32_t instr_popad_61(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	uint32_t j;
 	

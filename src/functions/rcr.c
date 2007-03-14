@@ -46,7 +46,7 @@ INSTR_SET_FLAG_SF(cpu)
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 631*/
 
 
-int32_t instr_group_2_c0_rcr(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_c0_rcr(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -80,7 +80,7 @@ int32_t instr_group_2_c0_rcr(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_c1_rcr(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_c1_rcr(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -146,7 +146,7 @@ int32_t instr_group_2_c1_rcr(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_d0_rcr(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d0_rcr(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -179,7 +179,7 @@ int32_t instr_group_2_d0_rcr(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_d1_rcr(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d1_rcr(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -245,7 +245,7 @@ int32_t instr_group_2_d1_rcr(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_d2_rcr(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d2_rcr(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -278,7 +278,7 @@ int32_t instr_group_2_d2_rcr(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_2_d3_rcr(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d3_rcr(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

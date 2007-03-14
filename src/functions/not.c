@@ -19,7 +19,7 @@ a = operation_result;
 #define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a)	\
 INSTR_CALC(bits, a, cpu)
 
-int32_t instr_group_3_f6_not(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f6_not(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if (i->modrm.mod != 3)
 	{
@@ -47,7 +47,7 @@ int32_t instr_group_3_f6_not(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_3_f7_not(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f7_not(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

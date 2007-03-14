@@ -32,7 +32,7 @@ else \
 
 
 
-int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -74,7 +74,7 @@ int32_t instr_group_3_f6_mul(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f7_mul(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

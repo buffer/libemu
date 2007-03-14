@@ -22,7 +22,7 @@ INSTR_SET_FLAG_OF(cpu, operation,bits)
 
 
 
-int32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_00(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 00 /r
 	 * Add r8 to r/m8
@@ -53,7 +53,7 @@ int32_t instr_add_00(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_add_01(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_01(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -125,7 +125,7 @@ int32_t instr_add_01(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_add_02(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_02(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 02 /r
 	 * Add r/m8 to r8
@@ -158,7 +158,7 @@ int32_t instr_add_02(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_add_03(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_03(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->modrm.mod != 3 )
@@ -228,7 +228,7 @@ int32_t instr_add_03(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_add_04(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_04(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 04 ib                    
 	 * Add imm8 to AL
@@ -243,7 +243,7 @@ int32_t instr_add_04(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_add_05(struct emu_cpu *c, struct instruction *i)
+int32_t instr_add_05(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->prefixes & PREFIX_OPSIZE )
@@ -293,7 +293,7 @@ int32_t instr_group_1_80_add(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 
 
 
-int32_t instr_group_1_81_add(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_81_add(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -376,7 +376,7 @@ int32_t instr_group_1_81_add(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_1_83_add(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_83_add(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

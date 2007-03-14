@@ -28,7 +28,7 @@ else \
 
 
 
-int32_t instr_imul_69(struct emu_cpu *c, struct instruction *i)
+int32_t instr_imul_69(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -140,7 +140,7 @@ int32_t instr_imul_69(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i)
+int32_t instr_imul_6b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -243,7 +243,7 @@ int32_t instr_imul_6b(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_imul_0f_af(struct emu_cpu *c, struct instruction *i)
+int32_t instr_imul_0f_af(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -334,7 +334,7 @@ int32_t instr_imul_0f_af(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_group_3_f6_imul(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f6_imul(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -375,7 +375,7 @@ int32_t instr_group_3_f6_imul(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_3_f7_imul(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f7_imul(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

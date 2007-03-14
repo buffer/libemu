@@ -4,7 +4,7 @@
 
 // for i in $(seq 0 255); do printf "\t/* %02x */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},\n" $i; done >> emu_cpu_itables.h */
 
-struct instruction;
+struct emu_cpu_instruction;
 struct emu_cpu;
 
 #include "emu/emu_cpu_functions.h"
@@ -35,7 +35,7 @@ struct emu_cpu;
 
 struct instruction_info
 {
-	int32_t (*function)(struct emu_cpu *, struct instruction *);
+	int32_t (*function)(struct emu_cpu *, struct emu_cpu_instruction *);
 	const char *name;
     
 	struct

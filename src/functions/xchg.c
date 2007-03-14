@@ -11,7 +11,7 @@
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 754*/
 
-int32_t instr_xchg_86(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xchg_86(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -42,7 +42,7 @@ int32_t instr_xchg_86(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_xchg_87(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xchg_87(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -108,7 +108,7 @@ int32_t instr_xchg_87(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_xchg_9x(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xchg_9x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{

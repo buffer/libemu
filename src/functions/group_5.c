@@ -12,9 +12,9 @@
 
 
 
-int32_t instr_group_5_ff(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_5_ff(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_5_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_5_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_5_ff_inc,
 		/* 1 */ instr_group_5_ff_dec,
 		/* 2 */ instr_group_5_ff_call,

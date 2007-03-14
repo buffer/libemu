@@ -8,7 +8,7 @@
 #include "emu/emu_cpu_functions.h"
 #include "emu/emu_memory.h"
 
-int32_t instr_aaa_37(struct emu_cpu *c, struct instruction *i)
+int32_t instr_aaa_37(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 37 
 	 * ASCII adjust AL after add

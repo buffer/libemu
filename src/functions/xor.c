@@ -23,7 +23,7 @@ INSTR_SET_FLAG_SF(cpu)
 
 
 
-int32_t instr_xor_30(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xor_30(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 30 /r
 	 * r/m8 XOR r8
@@ -54,7 +54,7 @@ int32_t instr_xor_30(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -128,7 +128,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_xor_32(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 32 /r
 	 * r8 XOR r/m8
@@ -160,7 +160,7 @@ int32_t instr_xor_32(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -232,7 +232,7 @@ int32_t instr_xor_33(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_xor_34(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xor_34(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 34 ib
 	 * AL XOR imm8
@@ -248,7 +248,7 @@ int32_t instr_xor_34(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_xor_35(struct emu_cpu *c, struct instruction *i)
+int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->prefixes & PREFIX_OPSIZE )
@@ -294,7 +294,7 @@ int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 	return 0;
 }
 
-int32_t instr_group_1_81_xor(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -372,7 +372,7 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_1_83_xor(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

@@ -33,7 +33,7 @@
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 332*/
 
-int32_t instr_group_3_f6_idiv(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f6_idiv(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -70,7 +70,7 @@ int32_t instr_group_3_f6_idiv(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_3_f7_idiv(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f7_idiv(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

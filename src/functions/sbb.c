@@ -64,7 +64,7 @@ INSTR_SET_FLAG_OF(cpu, operation, bits)								\
 INSTR_SET_FLAG_CF(cpu, operation)
 
 
-int32_t instr_sbb_18(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sbb_18(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 18 /r
@@ -97,7 +97,7 @@ int32_t instr_sbb_18(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sbb_19(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sbb_19(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -176,7 +176,7 @@ int32_t instr_sbb_19(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sbb_1a(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sbb_1a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 1A /r
 	 * Subtract with borrow r/m8 from r8
@@ -208,7 +208,7 @@ int32_t instr_sbb_1a(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sbb_1b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	 
 
@@ -282,7 +282,7 @@ int32_t instr_sbb_1b(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sbb_1c(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sbb_1c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 1C ib
 	 * Subtract with borrow imm8 from AL
@@ -298,7 +298,7 @@ int32_t instr_sbb_1c(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sbb_1d(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sbb_1d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 		
 
@@ -347,7 +347,7 @@ int32_t instr_group_1_80_sbb(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 }
 
 
-int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -430,7 +430,7 @@ int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

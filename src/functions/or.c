@@ -20,7 +20,7 @@ INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											
 
 
-int32_t instr_or_08(struct emu_cpu *c, struct instruction *i)
+int32_t instr_or_08(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 08 /r
 	 * r/m8 OR r8
@@ -52,7 +52,7 @@ int32_t instr_or_08(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_or_09(struct emu_cpu *c, struct instruction *i)
+int32_t instr_or_09(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->modrm.mod != 3 )
@@ -124,7 +124,7 @@ int32_t instr_or_09(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_or_0a(struct emu_cpu *c, struct instruction *i)
+int32_t instr_or_0a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 0A /r
 	 * r8 OR r/m8
@@ -156,7 +156,7 @@ int32_t instr_or_0a(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_or_0b(struct emu_cpu *c, struct instruction *i)
+int32_t instr_or_0b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -229,7 +229,7 @@ int32_t instr_or_0b(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_or_0c(struct emu_cpu *c, struct instruction *i)
+int32_t instr_or_0c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 0C ib
 	 * AL OR imm8
@@ -245,7 +245,7 @@ int32_t instr_or_0c(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_or_0d(struct emu_cpu *c, struct instruction *i)
+int32_t instr_or_0d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -294,7 +294,7 @@ int32_t instr_group_1_80_or(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *
 
 
 
-int32_t instr_group_1_81_or(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_81_or(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -372,7 +372,7 @@ int32_t instr_group_1_81_or(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_1_83_or(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_83_or(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

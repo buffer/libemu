@@ -57,7 +57,7 @@ INSTR_SET_FLAG_PF(cpu)
 
 
 
-int32_t instr_group_3_f6_neg(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f6_neg(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -85,7 +85,7 @@ int32_t instr_group_3_f6_neg(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_3_f7_neg(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f7_neg(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

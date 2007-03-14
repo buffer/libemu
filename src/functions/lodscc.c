@@ -8,7 +8,7 @@
 #include "emu/emu_memory.h"
 
 
-int32_t instr_lods_ac(struct emu_cpu *c, struct instruction *i)
+int32_t instr_lods_ac(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -44,7 +44,7 @@ int32_t instr_lods_ac(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_lods_ad(struct emu_cpu *c, struct instruction *i)
+int32_t instr_lods_ad(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->prefixes & PREFIX_OPSIZE )

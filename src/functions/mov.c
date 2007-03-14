@@ -8,7 +8,7 @@
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 442*/
 
-int32_t instr_mov_88(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_88(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 88 /r  
@@ -28,7 +28,7 @@ int32_t instr_mov_88(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_89(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_89(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 																		 
@@ -68,7 +68,7 @@ int32_t instr_mov_89(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_8a(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_8a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 8A /r  
 	 * Move r/m8 to r8                                  
@@ -87,7 +87,7 @@ int32_t instr_mov_8a(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_8b(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_8b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -125,7 +125,7 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_8c(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_8c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 8C /r  
 	 * Move segment register to r/m16                   
@@ -134,7 +134,7 @@ int32_t instr_mov_8c(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_8e(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_8e(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 8E /r  
 	 * Move r/m16 to segment register                   
@@ -143,7 +143,7 @@ int32_t instr_mov_8e(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_a0(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_a0(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* A0     
 	 * Move byte at (seg:offset) to AL                  
@@ -154,7 +154,7 @@ int32_t instr_mov_a0(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_a1(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_a1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->prefixes & PREFIX_OPSIZE )
@@ -177,7 +177,7 @@ int32_t instr_mov_a1(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_a2(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_a2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* A2     
 	 * Move AL to (seg:offset)                          
@@ -188,7 +188,7 @@ int32_t instr_mov_a2(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_a3(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_a3(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->prefixes & PREFIX_OPSIZE )
@@ -212,7 +212,7 @@ int32_t instr_mov_a3(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_bx_1(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_bx_1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* B0+ rb 
 	 * Move imm8 to r8                                  
@@ -223,7 +223,7 @@ int32_t instr_mov_bx_1(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_bx_2(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_bx_2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -249,7 +249,7 @@ int32_t instr_mov_bx_2(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_c6(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_c6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -270,7 +270,7 @@ int32_t instr_mov_c6(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_mov_c7(struct emu_cpu *c, struct instruction *i)
+int32_t instr_mov_c7(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* C7 /0  
 	 * Move imm16 to r/m16                              

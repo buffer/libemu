@@ -7,7 +7,7 @@
 #include "emu/emu_memory.h"
 
 
-int32_t instr_loopcc_e0(struct emu_cpu *c, struct instruction *i)
+int32_t instr_loopcc_e0(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {				   
 
 	/* E0 cb  
@@ -35,7 +35,7 @@ int32_t instr_loopcc_e0(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_loopcc_e1(struct emu_cpu *c, struct instruction *i)
+int32_t instr_loopcc_e1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {				   
 
 
@@ -64,7 +64,7 @@ int32_t instr_loopcc_e1(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_loop_e2(struct emu_cpu *c, struct instruction *i)
+int32_t instr_loop_e2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {				   
 	/* E2 cb  
 	 * Decrement count; jump short if count != 0

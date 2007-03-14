@@ -7,9 +7,9 @@
 #include "emu/emu_memory.h"
 
 
-int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_c0(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_2_c0_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_2_c0_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_2_c0_rol,
 		/* 1 */ instr_group_2_c0_ror,
 		/* 2 */ instr_group_2_c0_rcl,
@@ -24,9 +24,9 @@ int32_t instr_group_2_c0(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_2_c1(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_c1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_2_c1_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_2_c1_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_2_c1_rol,
 		/* 1 */ instr_group_2_c1_ror,
 		/* 2 */ instr_group_2_c1_rcl,
@@ -41,9 +41,9 @@ int32_t instr_group_2_c1(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_2_d0(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d0(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_2_d0_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_2_d0_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_2_d0_rol,
 		/* 1 */ instr_group_2_d0_ror,
 		/* 2 */ instr_group_2_d0_rcl,
@@ -57,9 +57,9 @@ int32_t instr_group_2_d0(struct emu_cpu *c, struct instruction *i)
 	return group_2_d0_fn[i->modrm.opc](c, i);
 }
 
-int32_t instr_group_2_d1(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_2_d1_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_2_d1_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_2_d1_rol,
 		/* 1 */ instr_group_2_d1_ror,
 		/* 2 */ instr_group_2_d1_rcl,
@@ -74,9 +74,9 @@ int32_t instr_group_2_d1(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_2_d2(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_2_d2_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_2_d2_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_2_d2_rol,
 		/* 1 */ instr_group_2_d2_ror,
 		/* 2 */ instr_group_2_d2_rcl,
@@ -91,9 +91,9 @@ int32_t instr_group_2_d2(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_2_d3(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d3(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_2_d3_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_2_d3_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_2_d3_rol,
 		/* 1 */ instr_group_2_d3_ror,
 		/* 2 */ instr_group_2_d3_rcl,

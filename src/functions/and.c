@@ -19,7 +19,7 @@ INSTR_SET_FLAG_ZF(cpu)											\
 INSTR_SET_FLAG_PF(cpu)											\
 INSTR_SET_FLAG_SF(cpu)											
 
-int32_t instr_and_20(struct emu_cpu *c, struct instruction *i)
+int32_t instr_and_20(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 20 /r
 	 * r/m8 AND r8
@@ -51,7 +51,7 @@ int32_t instr_and_20(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_and_21(struct emu_cpu *c, struct instruction *i)
+int32_t instr_and_21(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->modrm.mod != 3 )
@@ -123,7 +123,7 @@ int32_t instr_and_21(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_and_22(struct emu_cpu *c, struct instruction *i)
+int32_t instr_and_22(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 22 /r
 	 * r8 AND r/m8
@@ -155,7 +155,7 @@ int32_t instr_and_22(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_and_23(struct emu_cpu *c, struct instruction *i)
+int32_t instr_and_23(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -229,7 +229,7 @@ int32_t instr_and_23(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_and_24(struct emu_cpu *c, struct instruction *i)
+int32_t instr_and_24(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 24 ib
 	 * AL AND imm8
@@ -245,7 +245,7 @@ int32_t instr_and_24(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_and_25(struct emu_cpu *c, struct instruction *i)
+int32_t instr_and_25(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -291,7 +291,7 @@ int32_t instr_group_1_80_and(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 	return 0;
 }
 
-int32_t instr_group_1_81_and(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_81_and(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -371,7 +371,7 @@ int32_t instr_group_1_81_and(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_1_83_and(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_83_and(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

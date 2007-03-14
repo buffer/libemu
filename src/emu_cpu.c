@@ -213,7 +213,7 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 */
 }
 
-static void debug_instruction(struct instruction *i)
+static void debug_instruction(struct emu_cpu_instruction *i)
 {
 	struct instruction_info *ii;
 	
@@ -324,7 +324,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	static uint8_t byte;
 	static uint8_t *opcode;
 	static uint32_t ret;
-	static struct instruction i;
+	static struct emu_cpu_instruction i;
 	static struct instruction_info *ii;
 	
 	i.prefixes = 0;

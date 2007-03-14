@@ -35,7 +35,7 @@ else \
 }
 
 
-int32_t instr_scas_ae(struct emu_cpu *c, struct instruction *i)
+int32_t instr_scas_ae(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_ADSIZE )
 	{
@@ -74,7 +74,7 @@ int32_t instr_scas_ae(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_scas_af(struct emu_cpu *c, struct instruction *i)
+int32_t instr_scas_af(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_ADSIZE )
 	{

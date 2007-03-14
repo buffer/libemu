@@ -6,13 +6,13 @@
 #include "emu/emu_cpu_functions.h"
 #include "emu/emu_memory.h"
 
-int32_t prefix_fn(struct emu_cpu *c, struct instruction *i)
+int32_t prefix_fn(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* dummy */
 	return 0;
 }
 
-int32_t instr_cmc_f5(struct emu_cpu *c, struct instruction *i)
+int32_t instr_cmc_f5(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* F5 
 	 * Complement CF flag
@@ -24,7 +24,7 @@ int32_t instr_cmc_f5(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_clc_f8(struct emu_cpu *c, struct instruction *i)
+int32_t instr_clc_f8(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* F8 
 	 * Clear CF flag
@@ -36,7 +36,7 @@ int32_t instr_clc_f8(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_stc_f9(struct emu_cpu *c, struct instruction *i)
+int32_t instr_stc_f9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* F9 
 	 * Set CF flag
@@ -48,14 +48,14 @@ int32_t instr_stc_f9(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_cld_fc(struct emu_cpu *c, struct instruction *i)
+int32_t instr_cld_fc(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 107*/
 	CPU_FLAG_UNSET(c,f_df);
 	return 0;
 }
 
-int32_t instr_std_fd(struct emu_cpu *c, struct instruction *i)
+int32_t instr_std_fd(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 703*/
 	/* FD 
@@ -71,7 +71,7 @@ int32_t instr_std_fd(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_lea_8d(struct emu_cpu *c, struct instruction *i)
+int32_t instr_lea_8d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 393*/
 
@@ -96,7 +96,7 @@ int32_t instr_lea_8d(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_cbw_98(struct emu_cpu *c, struct instruction *i)
+int32_t instr_cbw_98(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 104*/
 
@@ -120,7 +120,7 @@ int32_t instr_cbw_98(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_cwd_99(struct emu_cpu *c, struct instruction *i)
+int32_t instr_cwd_99(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 181*/
 

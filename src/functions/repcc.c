@@ -11,7 +11,7 @@
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 645*/
 
-int32_t instr_repcc_f2a6(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f2a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* F2 A6 
 	 * Find matching bytes in ES:[(E)DI] and DS:[(E)SI]
@@ -20,7 +20,7 @@ int32_t instr_repcc_f2a6(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f2a7(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f2a7(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F2 A7 
@@ -35,7 +35,7 @@ int32_t instr_repcc_f2a7(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f2ae(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f2ae(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F2 AE 
@@ -45,7 +45,7 @@ int32_t instr_repcc_f2ae(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f2af(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f2af(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F2 AF 
@@ -60,7 +60,7 @@ int32_t instr_repcc_f2af(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f36c(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f36c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 6C 
@@ -70,7 +70,7 @@ int32_t instr_repcc_f36c(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f36d(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f36d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 6D 
@@ -85,7 +85,7 @@ int32_t instr_repcc_f36d(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f36e(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f36e(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 6E 
@@ -95,7 +95,7 @@ int32_t instr_repcc_f36e(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f36f(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f36f(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 6F 
@@ -110,7 +110,7 @@ int32_t instr_repcc_f36f(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3a4(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3a4(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 A4 
@@ -120,7 +120,7 @@ int32_t instr_repcc_f3a4(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3a5(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3a5(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 A5 
@@ -135,7 +135,7 @@ int32_t instr_repcc_f3a5(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3aa(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3aa(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 AA 
@@ -145,7 +145,7 @@ int32_t instr_repcc_f3aa(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3ab(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3ab(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 AB 
@@ -160,7 +160,7 @@ int32_t instr_repcc_f3ab(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3ac(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3ac(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 AC 
@@ -170,7 +170,7 @@ int32_t instr_repcc_f3ac(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3ad(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3ad(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 AD 
@@ -185,7 +185,7 @@ int32_t instr_repcc_f3ad(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3a6(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -196,7 +196,7 @@ int32_t instr_repcc_f3a6(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3a7(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3a7(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 A7 
@@ -211,7 +211,7 @@ int32_t instr_repcc_f3a7(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3ae(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3ae(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 AE 
@@ -221,7 +221,7 @@ int32_t instr_repcc_f3ae(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_repcc_f3af(struct emu_cpu *c, struct instruction *i)
+int32_t instr_repcc_f3af(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* F3 AF 

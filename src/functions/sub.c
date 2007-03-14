@@ -22,7 +22,7 @@ INSTR_SET_FLAG_CF(cpu, operation)								\
 INSTR_SET_FLAG_OF(cpu, operation, bits)								
 
 
-int32_t instr_sub_28(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sub_28(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/*
 	 * 28 /r
@@ -56,7 +56,7 @@ int32_t instr_sub_28(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sub_29(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sub_29(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {      
 	if ( i->modrm.mod != 3 )
 	{
@@ -130,7 +130,7 @@ int32_t instr_sub_29(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sub_2a(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sub_2a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	 /* 2A /r
 	  * Subtract r/m8 from r8
@@ -163,7 +163,7 @@ int32_t instr_sub_2a(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sub_2b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -241,7 +241,7 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sub_2c(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sub_2c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 2C ib
 	 * Subtract imm8 from AL
@@ -257,7 +257,7 @@ int32_t instr_sub_2c(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_sub_2d(struct emu_cpu *c, struct instruction *i)
+int32_t instr_sub_2d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{ 
@@ -302,7 +302,7 @@ int32_t instr_group_1_80_sub(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 	return 0;
 }
 
-int32_t instr_group_1_81_sub(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_81_sub(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -380,7 +380,7 @@ int32_t instr_group_1_81_sub(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_1_83_sub(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_83_sub(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->modrm.mod != 3 )

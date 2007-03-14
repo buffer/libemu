@@ -11,7 +11,7 @@
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 621*/
 
-int32_t instr_push_06(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_06(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 06    
 	 * Push ES		
@@ -22,7 +22,7 @@ int32_t instr_push_06(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_push_0e(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_0e(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 0E    
 	 * Push CS       
@@ -36,7 +36,7 @@ int32_t instr_push_0e(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_push_16(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_16(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 16    
 	 * Push SS       
@@ -50,7 +50,7 @@ int32_t instr_push_16(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_push_1e(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_1e(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 1E    
 	 * Push DS       
@@ -64,7 +64,7 @@ int32_t instr_push_1e(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_push_5x(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_5x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -90,7 +90,7 @@ int32_t instr_push_5x(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_push_68(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_68(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -116,7 +116,7 @@ int32_t instr_push_68(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_push_6a(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_6a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 6A    
 	 * Push imm8     
@@ -129,7 +129,7 @@ int32_t instr_push_6a(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_push_0fa0(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_0fa0(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 0F A0 
 	 * Push FS       
@@ -141,7 +141,7 @@ int32_t instr_push_0fa0(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_push_0f08(struct emu_cpu *c, struct instruction *i)
+int32_t instr_push_0f08(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 0F A8 
 	 * Push GS       
@@ -152,7 +152,7 @@ int32_t instr_push_0f08(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_pushad_60(struct emu_cpu *c, struct instruction *i)
+int32_t instr_pushad_60(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	uint32_t j;
 	
@@ -192,7 +192,7 @@ int32_t instr_pushad_60(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_5_ff_push(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_5_ff_push(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

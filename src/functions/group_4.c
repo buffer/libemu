@@ -7,9 +7,9 @@
 #include "emu/emu_memory.h"
 
 
-int32_t instr_group_4_fe(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_4_fe(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	static int32_t (*group_4_fe_fn[8])(struct emu_cpu *c, struct instruction *i) = {
+	static int32_t (*group_4_fe_fn[8])(struct emu_cpu *c, struct emu_cpu_instruction *i) = {
 		/* 0 */ instr_group_4_fe_inc,
 		/* 1 */ instr_group_4_fe_dec,
 		/* 2 */ 0,

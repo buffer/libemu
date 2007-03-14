@@ -43,7 +43,7 @@ INSTR_SET_FLAG_SF(cpu)
 
          
 
-int32_t instr_group_2_c0_rol(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_c0_rol(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -77,7 +77,7 @@ int32_t instr_group_2_c0_rol(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_c1_rol(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_c1_rol(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -146,7 +146,7 @@ int32_t instr_group_2_c1_rol(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_d0_rol(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d0_rol(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -179,7 +179,7 @@ int32_t instr_group_2_d0_rol(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_d1_rol(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d1_rol(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -245,7 +245,7 @@ int32_t instr_group_2_d1_rol(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_2_d2_rol(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d2_rol(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -278,7 +278,7 @@ int32_t instr_group_2_d2_rol(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_2_d3_rol(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_2_d3_rol(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

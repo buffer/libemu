@@ -7,7 +7,7 @@
 #include "emu/emu_memory.h"
 
 
-int32_t instr_jmp_e9(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jmp_e9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* E9 cw  
@@ -27,7 +27,7 @@ int32_t instr_jmp_e9(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_jmp_ea(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jmp_ea(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* EA cd  
@@ -45,7 +45,7 @@ int32_t instr_jmp_ea(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i)
+int32_t instr_jmp_eb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* EB cb  
 	 * Jump short, relative, displacement relative to next instruction        
@@ -58,7 +58,7 @@ int32_t instr_jmp_eb(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if( i->modrm.opc == 4 )
 	{

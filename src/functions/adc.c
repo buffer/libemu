@@ -68,7 +68,7 @@ INSTR_SET_FLAG_CF(cpu, operation)
 
 
 
-int32_t instr_adc_10(struct emu_cpu *c, struct instruction *i)
+int32_t instr_adc_10(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 10 /r
 	 * Add with carry byte register to r/m8
@@ -99,7 +99,7 @@ int32_t instr_adc_10(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_adc_11(struct emu_cpu *c, struct instruction *i)
+int32_t instr_adc_11(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -171,7 +171,7 @@ int32_t instr_adc_11(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_adc_12(struct emu_cpu *c, struct instruction *i)
+int32_t instr_adc_12(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 12 /r
 	 * Add with carry r/m8 to byte register
@@ -203,7 +203,7 @@ int32_t instr_adc_12(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_adc_13(struct emu_cpu *c, struct instruction *i)
+int32_t instr_adc_13(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
@@ -275,7 +275,7 @@ int32_t instr_adc_13(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_adc_14(struct emu_cpu *c, struct instruction *i)
+int32_t instr_adc_14(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* 14 ib 
 	 * Add with carry imm8 to AL
@@ -290,7 +290,7 @@ int32_t instr_adc_14(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_adc_15(struct emu_cpu *c, struct instruction *i)
+int32_t instr_adc_15(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	if ( i->prefixes & PREFIX_OPSIZE )
@@ -337,7 +337,7 @@ int32_t instr_group_1_80_adc(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t 
 
 
 
-int32_t instr_group_1_81_adc(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_81_adc(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -421,7 +421,7 @@ int32_t instr_group_1_81_adc(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_1_83_adc(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_1_83_adc(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

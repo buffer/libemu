@@ -25,7 +25,7 @@ struct emu_cpu
 	uint8_t *reg8[8];
 };
 
-struct instruction
+struct emu_cpu_instruction
 {
 	uint8_t opc;
 	uint8_t opc_2nd;

@@ -9,7 +9,7 @@
 
 
 
-int32_t instr_stos_aa(struct emu_cpu *c, struct instruction *i)
+int32_t instr_stos_aa(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* AA
@@ -41,7 +41,7 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_stos_ab(struct emu_cpu *c, struct instruction *i)
+int32_t instr_stos_ab(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{

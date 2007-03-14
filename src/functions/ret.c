@@ -7,7 +7,7 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_memory.h"
 
-int32_t instr_ret_c2(struct emu_cpu *c, struct instruction *i)
+int32_t instr_ret_c2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 { 
 	/* C2 
 	 * Near return to calling procedure and pop imm16 bytes from stack
@@ -20,7 +20,7 @@ int32_t instr_ret_c2(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_ret_c3(struct emu_cpu *c, struct instruction *i)
+int32_t instr_ret_c3(struct emu_cpu *c, struct emu_cpu_instruction *i)
 { 
 	/* C3
 	 * Near return to calling procedure
@@ -31,7 +31,7 @@ int32_t instr_ret_c3(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_ret_ca(struct emu_cpu *c, struct instruction *i)
+int32_t instr_ret_ca(struct emu_cpu *c, struct emu_cpu_instruction *i)
 { 	
 	/* CA iw 
 	 * Far return to calling procedure and pop imm16 bytes from stack
@@ -40,7 +40,7 @@ int32_t instr_ret_ca(struct emu_cpu *c, struct instruction *i)
 	return -1;
 }
 
-int32_t instr_ret_cb(struct emu_cpu *c, struct instruction *i)
+int32_t instr_ret_cb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 { 
 	/* CB
 	 * Far return to calling procedure

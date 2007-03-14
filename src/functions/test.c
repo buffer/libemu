@@ -27,7 +27,7 @@ CPU_FLAG_UNSET(cpu,f_of);
 
 
 
-int32_t instr_test_84(struct emu_cpu *c, struct instruction *i)
+int32_t instr_test_84(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3)
 	{
@@ -55,7 +55,7 @@ int32_t instr_test_84(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_test_85(struct emu_cpu *c, struct instruction *i)
+int32_t instr_test_85(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3)
 	{
@@ -121,7 +121,7 @@ int32_t instr_test_85(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_test_a8(struct emu_cpu *c, struct instruction *i)
+int32_t instr_test_a8(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* A8 ib    
 	 * AND imm8 with AL; set SF, ZF, PF according to result      
@@ -135,7 +135,7 @@ int32_t instr_test_a8(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_test_a9(struct emu_cpu *c, struct instruction *i)
+int32_t instr_test_a9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -164,7 +164,7 @@ int32_t instr_test_a9(struct emu_cpu *c, struct instruction *i)
 	return 0;
 }
 
-int32_t instr_group_3_f6_test(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f6_test(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{
@@ -196,7 +196,7 @@ int32_t instr_group_3_f6_test(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_3_f7_test(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_3_f7_test(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

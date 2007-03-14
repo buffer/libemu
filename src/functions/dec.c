@@ -47,7 +47,7 @@ INSTR_SET_FLAG_OF(cpu,bits)
 
 
 
-int32_t instr_dec_4x(struct emu_cpu *c, struct instruction *i)
+int32_t instr_dec_4x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -69,7 +69,7 @@ int32_t instr_dec_4x(struct emu_cpu *c, struct instruction *i)
 
 
 
-int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* FE /1
 	 * Decrement r/m8 by 1
@@ -93,7 +93,7 @@ int32_t instr_group_4_fe_dec(struct emu_cpu *c, struct instruction *i)
 }
 
 
-int32_t instr_group_5_ff_dec(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_5_ff_dec(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	if ( i->modrm.mod != 3 )
 	{

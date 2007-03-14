@@ -6,7 +6,7 @@
 #include "emu/emu_cpu_functions.h"
 #include "emu/emu_memory.h"
 
-int32_t instr_group_10_8f_pop(struct emu_cpu *c, struct instruction *i)
+int32_t instr_group_10_8f_pop(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 	/* 8F /0  
