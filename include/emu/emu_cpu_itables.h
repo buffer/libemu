@@ -33,7 +33,7 @@ struct emu_cpu;
 
 #define II_TYPE 1 -- impementation pending*/
 
-struct instruction_info
+struct emu_cpu_instruction_info
 {
 	int32_t (*function)(struct emu_cpu *, struct emu_cpu_instruction *);
 	const char *name;
@@ -51,7 +51,7 @@ struct instruction_info
 };
 
 
-struct instruction_info ii_onebyte[0x100] = {
+struct emu_cpu_instruction_info ii_onebyte[0x100] = {
 	/* 00 */ {instr_add_00, "add", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 	/* 01 */ {instr_add_01, "add", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 	/* 02 */ {instr_add_02, "add", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
@@ -310,7 +310,7 @@ struct instruction_info ii_onebyte[0x100] = {
 	/* ff */ {instr_group_5_ff, "", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0}},
 };
 
-struct instruction_info ii_twobyte[0x100] = {
+struct emu_cpu_instruction_info ii_twobyte[0x100] = {
 	/* 00 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 01 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
 	/* 02 */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},
