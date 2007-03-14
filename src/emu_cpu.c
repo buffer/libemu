@@ -40,7 +40,7 @@ static void init_prefix_map()
 
 struct emu_cpu *emu_cpu_new(struct emu *e)
 {
-	struct emu_cpu *c = malloc(sizeof(struct emu_cpu));
+	struct emu_cpu *c = (struct emu_cpu *)malloc(sizeof(struct emu_cpu));
 	memset((void *)c, 0, sizeof(struct emu_cpu));
 	
 	c->emu = e;
@@ -65,6 +65,10 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 				c->reg8[i] = (uint8_t *)&c->reg[i & 3] + 1;
 			}
 		}
+
+		c->cpu_instr.imm16 = (uint16_t *)((void *)&c->cpu_instr.imm);
+		c->cpu_instr.imm8 = (uint8_t *)&c->cpu_instr.imm;
+
 	}
 	else
 	{
@@ -83,9 +87,12 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 				c->reg8[i] = (uint8_t *)&c->reg[i & 3] + 2;
 			}
 		}
+
+		c->cpu_instr.imm16 = (uint16_t *)((void *)&c->cpu_instr.imm + 1);
+		c->cpu_instr.imm8 = (uint8_t *)&c->cpu_instr.imm + 3;
+
 	}
-	
-	
+
 	init_prefix_map();
 	
 	return c;
@@ -316,6 +323,7 @@ static uint32_t dasm_print_instruction(uint8_t *data, uint32_t size)
 	get_instruction_string(&inst, FORMAT_INTEL, 0, str, sizeof(str));
 	printf("%s\n", str);
 	return instrsize;
+	return 0;
 }
 
 int32_t emu_cpu_step(struct emu_cpu *c)
@@ -324,25 +332,9 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	static uint8_t byte;
 	static uint8_t *opcode;
 	static uint32_t ret;
-	static struct emu_cpu_instruction i;
-	static struct emu_cpu_instruction_info *ii;
 	
-	i.prefixes = 0;
+	c->cpu_instr.prefixes = 0;
 	
-	/* TODO move to somewhere else */
-	ret = 1;
-	if( *((uint8_t *)&ret) == 1 )
-	{
-		/* le */
-		i.imm16 = (uint16_t *)((void *)&i.imm);
-		i.imm8 = (uint8_t *)&i.imm;
-	}
-	else
-	{
-		/* be */
-		i.imm16 = (uint16_t *)((void *)&i.imm + 1);
-		i.imm8 = (uint8_t *)&i.imm + 3;
-	}
 	
 	logDebug(c->emu,"decoding\n");
 	emu_cpu_debug_print(c);
@@ -363,36 +355,36 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 		if( ret != 0 )
 			return ret;
 		
-		ii = &ii_onebyte[byte];
+		c->cpu_instr_info = &ii_onebyte[byte];
 
-		if( ii->function == prefix_fn )
+		if( c->cpu_instr_info->function == prefix_fn )
 		{
-			i.prefixes |= prefix_map[byte];
+			c->cpu_instr.prefixes |= prefix_map[byte];
 			continue;
 		}
 		else
 		{
-			i.opc = byte;
+			c->cpu_instr.opc = byte;
 			
-			if( i.opc == 0x0f )
+			if( c->cpu_instr.opc == 0x0f )
 			{
 				ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
 		
 				if( ret != 0 )
 					return ret;
 					
-				i.opc_2nd = byte;
-				opcode = &i.opc_2nd;
-				ii = &ii_twobyte[byte];
+				c->cpu_instr.opc_2nd = byte;
+				opcode = &c->cpu_instr.opc_2nd;
+				c->cpu_instr_info = &ii_twobyte[byte];
 			}
 			else
 			{
-				opcode = &i.opc;
+				opcode = &c->cpu_instr.opc;
 			}
 			
-			if ( ii->function == 0 )
+			if ( c->cpu_instr_info->function == 0 )
 			{
-				emu_strerror_set(c->emu,"opcode %02x not supported\n", i.opc);
+				emu_strerror_set(c->emu,"opcode %02x not supported\n", c->cpu_instr.opc);
 				emu_errno_set(c->emu, ENOTSUP);
 				int y=0;
 				for (y=0;y<expected_instr_size;y++)
@@ -403,117 +395,117 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				return -1;
 			}
 			
-			i.w_bit = *opcode & 1;
-			i.s_bit = (*opcode >> 1) & 1;
+			c->cpu_instr.w_bit = *opcode & 1;
+			c->cpu_instr.s_bit = (*opcode >> 1) & 1;
 
 			/* mod r/m byte?  sib/disp */
-			if( ii->format.modrm_byte != 0 )
+			if( c->cpu_instr_info->format.modrm_byte != 0 )
 			{
 				ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
 		
 				if( ret != 0 )
 					return ret;
 					
-				i.modrm.mod = MODRM_MOD(byte);
-				i.modrm.opc = MODRM_REGOPC(byte);
-				i.modrm.rm = MODRM_RM(byte);
+				c->cpu_instr.modrm.mod = MODRM_MOD(byte);
+				c->cpu_instr.modrm.opc = MODRM_REGOPC(byte);
+				c->cpu_instr.modrm.rm = MODRM_RM(byte);
 				
-				if( ii->format.modrm_byte == II_MOD_REG_RM || ii->format.modrm_byte == II_MOD_YYY_RM ||
-					ii->format.modrm_byte == II_XX_REG1_REG2) /* cases with possible sib/disp*/
+				if( c->cpu_instr_info->format.modrm_byte == II_MOD_REG_RM || c->cpu_instr_info->format.modrm_byte == II_MOD_YYY_RM ||
+					c->cpu_instr_info->format.modrm_byte == II_XX_REG1_REG2) /* cases with possible sib/disp*/
 				{
-					if( i.modrm.mod != 3 )
+					if( c->cpu_instr.modrm.mod != 3 )
 					{
-						if( i.modrm.rm != 4 && !(i.modrm.mod == 0 && i.modrm.rm == 5) )
-							i.modrm.ea = c->reg[i.modrm.rm];
+						if( c->cpu_instr.modrm.rm != 4 && !(c->cpu_instr.modrm.mod == 0 && c->cpu_instr.modrm.rm == 5) )
+							c->cpu_instr.modrm.ea = c->reg[c->cpu_instr.modrm.rm];
 						else
-							i.modrm.ea = 0;
+							c->cpu_instr.modrm.ea = 0;
 						
-						if( i.modrm.rm == 4 ) /* sib byte present */
+						if( c->cpu_instr.modrm.rm == 4 ) /* sib byte present */
 						{
 							ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
 		
 							if( ret != 0 )
 								return ret;
 								
-							i.modrm.sib.base = SIB_BASE(byte);
-							i.modrm.sib.scale = SIB_SCALE(byte);
-							i.modrm.sib.index = SIB_INDEX(byte);
+							c->cpu_instr.modrm.sib.base = SIB_BASE(byte);
+							c->cpu_instr.modrm.sib.scale = SIB_SCALE(byte);
+							c->cpu_instr.modrm.sib.index = SIB_INDEX(byte);
 							
-							if( i.modrm.sib.base != 5 )
+							if( c->cpu_instr.modrm.sib.base != 5 )
 							{
-								i.modrm.ea += c->reg[i.modrm.sib.base];
+								c->cpu_instr.modrm.ea += c->reg[c->cpu_instr.modrm.sib.base];
 							}
-							else if( i.modrm.mod != 0 )
+							else if( c->cpu_instr.modrm.mod != 0 )
 							{
-								i.modrm.ea += c->reg[ebp];
+								c->cpu_instr.modrm.ea += c->reg[ebp];
 							}
 
-							if( i.modrm.sib.index != 4 )
+							if( c->cpu_instr.modrm.sib.index != 4 )
 							{
-								i.modrm.ea += c->reg[i.modrm.sib.index] * scalem[i.modrm.sib.scale];
+								c->cpu_instr.modrm.ea += c->reg[c->cpu_instr.modrm.sib.index] * scalem[c->cpu_instr.modrm.sib.scale];
 							}
 						}
 						
-						if( i.modrm.mod == 1 ) /* disp8 */
+						if( c->cpu_instr.modrm.mod == 1 ) /* disp8 */
 						{
-							ret = emu_memory_read_byte(c->mem, c->eip++, &i.modrm.disp.s8);
+							ret = emu_memory_read_byte(c->mem, c->eip++, &c->cpu_instr.modrm.disp.s8);
 		
 							if( ret != 0 )
 								return ret;
 							
-							i.modrm.ea += i.modrm.disp.s8;
+							c->cpu_instr.modrm.ea += c->cpu_instr.modrm.disp.s8;
 						}
-						else if( i.modrm.mod == 2 || (i.modrm.mod == 0 && i.modrm.rm == 5) ) /* disp32 */
+						else if( c->cpu_instr.modrm.mod == 2 || (c->cpu_instr.modrm.mod == 0 && c->cpu_instr.modrm.rm == 5) ) /* disp32 */
 						{
-							ret = emu_memory_read_dword(c->mem, c->eip, &i.modrm.disp.s32);
+							ret = emu_memory_read_dword(c->mem, c->eip, &c->cpu_instr.modrm.disp.s32);
 							c->eip += 4;
 		
 							if( ret != 0 )
 								return ret;
 
-							i.modrm.ea += i.modrm.disp.s32;
+							c->cpu_instr.modrm.ea += c->cpu_instr.modrm.disp.s32;
 						}
 					}
 				}
 			}
 			
 			/* */
-			i.operand_size = 0;
+			c->cpu_instr.operand_size = 0;
 			
-			if( ii->format.imm_data == II_IMM8 || ii->format.disp_data == II_DISP8 )
-				i.operand_size = OPSIZE_8;
-			else if( ii->format.imm_data == II_IMM16 || ii->format.disp_data == II_DISP16 )
-				i.operand_size = OPSIZE_16;
-			else if( ii->format.imm_data == II_IMM32 || ii->format.disp_data == II_DISP32 )
-				i.operand_size = OPSIZE_32;
-			else if( ii->format.imm_data == II_IMM || ii->format.disp_data == II_DISPF )
+			if( c->cpu_instr_info->format.imm_data == II_IMM8 || c->cpu_instr_info->format.disp_data == II_DISP8 )
+				c->cpu_instr.operand_size = OPSIZE_8;
+			else if( c->cpu_instr_info->format.imm_data == II_IMM16 || c->cpu_instr_info->format.disp_data == II_DISP16 )
+				c->cpu_instr.operand_size = OPSIZE_16;
+			else if( c->cpu_instr_info->format.imm_data == II_IMM32 || c->cpu_instr_info->format.disp_data == II_DISP32 )
+				c->cpu_instr.operand_size = OPSIZE_32;
+			else if( c->cpu_instr_info->format.imm_data == II_IMM || c->cpu_instr_info->format.disp_data == II_DISPF )
 			{
-				if( ii->format.w_bit == 1 && i.w_bit == 0 )
-					i.operand_size = OPSIZE_8;
+				if( c->cpu_instr_info->format.w_bit == 1 && c->cpu_instr.w_bit == 0 )
+					c->cpu_instr.operand_size = OPSIZE_8;
 				else
 				{
-					if( i.prefixes & PREFIX_OPSIZE )
-						i.operand_size = OPSIZE_16;
+					if( c->cpu_instr.prefixes & PREFIX_OPSIZE )
+						c->cpu_instr.operand_size = OPSIZE_16;
 					else
-						i.operand_size = OPSIZE_32;
+						c->cpu_instr.operand_size = OPSIZE_32;
 				}
 			}
 			
 			/* imm */
-			if( ii->format.imm_data != 0 )
+			if( c->cpu_instr_info->format.imm_data != 0 )
 			{
-				if( i.operand_size == OPSIZE_32 )
+				if( c->cpu_instr.operand_size == OPSIZE_32 )
 				{
-					ret = emu_memory_read_dword(c->mem, c->eip, &i.imm);
+					ret = emu_memory_read_dword(c->mem, c->eip, &c->cpu_instr.imm);
 					c->eip += 4;
 				}
-				else if( i.operand_size == OPSIZE_8 )
+				else if( c->cpu_instr.operand_size == OPSIZE_8 )
 				{
-					ret = emu_memory_read_byte(c->mem, c->eip++, i.imm8);
+					ret = emu_memory_read_byte(c->mem, c->eip++, c->cpu_instr.imm8);
 				}
-				else if( i.operand_size == OPSIZE_16 )
+				else if( c->cpu_instr.operand_size == OPSIZE_16 )
 				{
-					ret = emu_memory_read_word(c->mem, c->eip, i.imm16);
+					ret = emu_memory_read_word(c->mem, c->eip, c->cpu_instr.imm16);
 					c->eip += 2;
 				}
 
@@ -522,27 +514,27 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			}
 			
 			/* disp */
-			if( ii->format.disp_data != 0 )
+			if( c->cpu_instr_info->format.disp_data != 0 )
 			{
-				if( i.operand_size == OPSIZE_32 )
+				if( c->cpu_instr.operand_size == OPSIZE_32 )
 				{
 					uint32_t disp32;
 					ret = emu_memory_read_dword(c->mem, c->eip, &disp32);
-					i.disp = (int32_t)disp32;
+					c->cpu_instr.disp = (int32_t)disp32;
 					c->eip += 4;
 				}
-				else if( i.operand_size == OPSIZE_16 )
+				else if( c->cpu_instr.operand_size == OPSIZE_16 )
 				{
 					uint16_t disp16;
 					ret = emu_memory_read_word(c->mem, c->eip, &disp16);
-					i.disp = (int16_t)disp16;
+					c->cpu_instr.disp = (int16_t)disp16;
 					c->eip += 2;
 				}
-				else if( i.operand_size == OPSIZE_8 )
+				else if( c->cpu_instr.operand_size == OPSIZE_8 )
 				{
 					uint8_t disp8;
 					ret = emu_memory_read_byte(c->mem, c->eip++, &disp8);
-					i.disp = (int8_t)disp8;
+					c->cpu_instr.disp = (int8_t)disp8;
 				}
 
 				if( ret != 0 )
@@ -561,21 +553,21 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				return -1;
 			}
 
-			if( i.prefixes & PREFIX_FS_OVR )
+			if( c->cpu_instr.prefixes & PREFIX_FS_OVR )
 			{
 				emu_memory_segment_select(c->mem, s_fs);
 			}
 
 			/* call the function */
-			ret = ii->function(c, &i);
+			ret = c->cpu_instr_info->function(c, &c->cpu_instr);
 			
-			if( i.prefixes & PREFIX_FS_OVR )
+			if( c->cpu_instr.prefixes & PREFIX_FS_OVR )
 			{
 				emu_memory_segment_select(c->mem, s_cs);
 			}
 
 			if (0)
-				debug_instruction(&i);
+				debug_instruction(&c->cpu_instr);
 			emu_cpu_debug_print(c);
 			if ( ret != 0 )
 				return ret;

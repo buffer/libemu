@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "emu/emu_cpu_instruction.h"
+
 enum emu_cpu_flag {
 	f_cf = 0, f_pf = 2, f_af = 4, f_zf = 6, f_sf = 7, f_tf = 8, f_if = 9,
 	f_df = 10, f_of = 11
@@ -23,64 +25,11 @@ struct emu_cpu
 	uint32_t reg[8];
 	uint16_t *reg16[8];
 	uint8_t *reg8[8];
+
+	struct emu_cpu_instruction 			cpu_instr;
+	struct emu_cpu_instruction_info 	*cpu_instr_info;
 };
 
-struct emu_cpu_instruction
-{
-	uint8_t opc;
-	uint8_t opc_2nd;
-	uint8_t prefixes;
-	uint8_t s_bit : 1;
-	uint8_t w_bit : 1;
-	uint8_t operand_size : 2;
-
-	struct /* mod r/m data */
-	{
-		union
-		{
-			uint8_t mod : 2;
-			uint8_t x : 2;
-		};
-
-		union
-		{
-			uint8_t reg1 : 3;
-			uint8_t opc : 3;
-			uint8_t sreg3 : 3;
-			uint8_t y : 3;
-		};
-
-		union
-		{
-			uint8_t reg : 3;
-			uint8_t reg2 : 3;
-			uint8_t rm : 3;
-			uint8_t z : 3;
-		};
-
-		struct
-		{
-			uint8_t scale : 2;
-			uint8_t index : 3;
-			uint8_t base : 3;
-		} sib;
-
-		union
-		{
-			uint8_t s8;
-			uint16_t s16;
-			uint32_t s32;
-		} disp;
-		
-		uint32_t ea;
-	} modrm;
-
-	uint32_t imm;
-	uint16_t *imm16;
-	uint8_t *imm8;
-
-	int32_t disp;
-};
 
 #define MODRM_MOD(x) (((x) >> 6) & 3)
 #define MODRM_REGOPC(x) (((x) >> 3) & 7)

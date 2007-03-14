@@ -4,10 +4,9 @@
 
 // for i in $(seq 0 255); do printf "\t/* %02x */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},\n" $i; done >> emu_cpu_itables.h */
 
-struct emu_cpu_instruction;
-struct emu_cpu;
 
 #include "emu/emu_cpu_functions.h"
+#include "emu/emu_cpu_instruction.h"
 
 #define II_SBIT 1
 #define II_WBIT 1
@@ -33,22 +32,6 @@ struct emu_cpu;
 
 #define II_TYPE 1 -- impementation pending*/
 
-struct emu_cpu_instruction_info
-{
-	int32_t (*function)(struct emu_cpu *, struct emu_cpu_instruction *);
-	const char *name;
-    
-	struct
-	{
-		uint8_t s_bit : 1;
-		uint8_t w_bit : 1;
-		uint8_t modrm_byte : 4;
-		uint8_t imm_data : 3;
-		uint8_t disp_data : 3;
-		uint8_t level : 2;
-		uint8_t type : 2;
-	} format;
-};
 
 
 struct emu_cpu_instruction_info ii_onebyte[0x100] = {
