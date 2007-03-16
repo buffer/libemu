@@ -56,6 +56,7 @@ void emu_cpu_eflags_set(struct emu_cpu *c, uint32_t val);
 void emu_cpu_eip_set(struct emu_cpu *c, uint32_t eip);
 uint32_t emu_cpu_eip_get(struct emu_cpu *c);
 
+int32_t emu_cpu_parse(struct emu_cpu *c);
 int32_t emu_cpu_step(struct emu_cpu *c);
 int32_t emu_cpu_run(struct emu_cpu *c);
 

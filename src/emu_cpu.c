@@ -326,7 +326,7 @@ static uint32_t dasm_print_instruction(uint8_t *data, uint32_t size)
 	return 0;
 }
 
-int32_t emu_cpu_step(struct emu_cpu *c)
+int32_t emu_cpu_parse(struct emu_cpu *c)
 {
 	/* TODO make unstatic for threadsafety */
 	static uint8_t byte;
@@ -553,25 +553,6 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				return -1;
 			}
 
-			if( c->cpu_instr.prefixes & PREFIX_FS_OVR )
-			{
-				emu_memory_segment_select(c->mem, s_fs);
-			}
-
-			/* call the function */
-			ret = c->cpu_instr_info->function(c, &c->cpu_instr);
-			
-			if( c->cpu_instr.prefixes & PREFIX_FS_OVR )
-			{
-				emu_memory_segment_select(c->mem, s_cs);
-			}
-
-			if (0)
-				debug_instruction(&c->cpu_instr);
-			emu_cpu_debug_print(c);
-			if ( ret != 0 )
-				return ret;
-            			
 			break;
 		}
 		
@@ -579,6 +560,28 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 	}
 	
 	return 0;
+}
+
+int32_t emu_cpu_step(struct emu_cpu *c)
+{
+	if( c->cpu_instr.prefixes & PREFIX_FS_OVR )
+	{
+		emu_memory_segment_select(c->mem, s_fs);
+	}
+
+	/* call the function */
+	int32_t ret = c->cpu_instr_info->function(c, &c->cpu_instr);
+
+	if( c->cpu_instr.prefixes & PREFIX_FS_OVR )
+	{
+		emu_memory_segment_select(c->mem, s_cs);
+	}
+
+	if (0)
+		debug_instruction(&c->cpu_instr);
+	emu_cpu_debug_print(c);
+
+	return ret;
 }
 
 int32_t emu_cpu_run(struct emu_cpu *c)

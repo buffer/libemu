@@ -10,7 +10,6 @@
 #include <emu/emu_cpu.h>
 #include <emu/emu_fpu.h>
 
-
 struct emu
 {
 	struct emu_logging *log;
@@ -63,6 +62,11 @@ inline struct emu_cpu *emu_cpu_get(struct emu *e)
 	return e->cpu;
 }
 
+inline struct emu_fpu *emu_fpu_get(struct emu *e)
+{
+	return e->fpu;
+}
+
 
 
 void emu_errno_set(struct emu *e, int err)
@@ -94,3 +98,53 @@ const char *emu_strerror(struct emu *e)
 	return e->errorstr;
 }
 
+
+
+
+int32_t emu_parse(struct emu *e)
+{
+	struct emu_memory *m = e->memory;
+	struct emu_cpu *c = e->cpu;
+	struct emu_fpu *f = e->fpu;
+
+	uint8_t instrbyte;
+	int32_t ret =0;
+
+	if( (ret = emu_memory_read_byte(m, emu_cpu_eip_get(c), &instrbyte)) != 0)
+		return ret;
+
+
+
+	if (instrbyte >= 0xd8 && instrbyte <= 0xdf)
+	{ // fpu instr
+		if ((ret = emu_fpu_parse(f)) != 0 )
+        	return ret;
+		else
+			return 1; // fpu instruction parsed
+	}
+
+
+	if ( (ret = emu_cpu_parse(c)) != 0 )
+		return ret;
+	else
+        return 0; // cpu instruction parsed
+}
+
+int32_t emu_run(struct emu *e)
+{
+	int32_t ret = emu_parse(e);
+	if (ret == 0)
+	{
+		return emu_cpu_step(emu_cpu_get(e));
+	}
+	else
+	if ( ret == 1 )
+	{
+		return emu_fpu_step(emu_fpu_get(e));
+	}
+	else
+	{
+		printf("cpu error %s\n", emu_strerror(e));
+		return -1;
+	}
+}

@@ -10,3 +10,5 @@ struct emu_fpu_instruction_info ii_onebyte[0x100] =
 {
 
 };
+
+#endif
