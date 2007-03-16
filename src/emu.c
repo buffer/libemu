@@ -8,6 +8,7 @@
 #include <emu/emu_log.h>
 #include <emu/emu_memory.h>
 #include <emu/emu_cpu.h>
+#include <emu/emu_fpu.h>
 
 
 struct emu
@@ -15,6 +16,7 @@ struct emu
 	struct emu_logging *log;
 	struct emu_memory *memory; 
 	struct emu_cpu *cpu;
+	struct emu_fpu *fpu;
 
 	int 	errno;
 	char 	*errorstr;
@@ -28,6 +30,7 @@ struct emu *emu_new()
 	e->log = emu_log_new();
 	e->memory = emu_memory_new(e);
 	e->cpu = emu_cpu_new(e);
+	e->fpu = emu_fpu_new(e);
 	logDebug(e,"%s %x\n", __PRETTY_FUNCTION__,(unsigned int)e);
 	return e;
 }
