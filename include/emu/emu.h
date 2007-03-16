@@ -3,6 +3,7 @@
 #define HAVE_EMU_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 struct emu;
 struct emu_logging;
@@ -25,5 +26,5 @@ const char *emu_strerror(struct emu *e);
 
 
 int32_t emu_parse(struct emu *e);
-int32_t emu_run(struct emu *e);
+int32_t emu_step(struct emu *e);
 #endif // HAVE_EMU_H

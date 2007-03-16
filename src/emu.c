@@ -130,7 +130,7 @@ int32_t emu_parse(struct emu *e)
         return 0; // cpu instruction parsed
 }
 
-int32_t emu_run(struct emu *e)
+int32_t emu_step(struct emu *e)
 {
 	int32_t ret = emu_parse(e);
 	if (ret == 0)
