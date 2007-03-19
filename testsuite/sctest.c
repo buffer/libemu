@@ -653,6 +653,16 @@ int test(int n)
 	return 0;
 }
 
+void dump(int n)
+{
+	if (n > sizeof(tests)/sizeof(struct instr_test) || n < 0)
+		return;
+
+	int i;
+	for (i=0; i<tests[n].codesize;i++)
+		printf("%c", tests[n].code[i]);
+}
+
 void cleanup()
 {
 	int i;
@@ -687,10 +697,11 @@ int main(int argc, char *argv[])
 			{"steps"			, 1, 0, 's'},
 			{"testnumber"		, 1, 0, 't'},
 			{"listtests"		, 0, 0, 'l'},
+			{"dump"				, 1, 0, 'd'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vns:t:l", long_options, &option_index);
+		c = getopt_long (argc, argv, "vns:t:ld:", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -716,7 +727,11 @@ int main(int argc, char *argv[])
 			list_tests();
 			return 0;
 			break;
-			 
+
+		case 'd':
+			dump(atoi(optarg));
+			return 0;
+			break;
 
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
