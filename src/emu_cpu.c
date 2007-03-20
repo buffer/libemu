@@ -311,19 +311,24 @@ static void debug_instruction(struct emu_cpu_instruction *i)
 #undef PREFIX_LOCK
 
 #include "libdasm.h"
-static uint32_t dasm_print_instruction(uint8_t *data, uint32_t size)
+static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t size)
 {
 	INSTRUCTION inst;
 	static char str[256];
 
 	// step 2: fetch instruction
 	uint32_t instrsize = get_instruction(&inst, data, MODE_32);
-
 	// step 3: print it
 	get_instruction_string(&inst, FORMAT_INTEL, 0, str, sizeof(str));
-	printf("%s\n", str);
+
+	printf("%08x ", eip);
+	int i;
+	for (i=0; i<instrsize; i++)
+	{
+		printf("%02x", data[i]);
+	}
+	printf(" %s\n", str);
 	return instrsize;
-	return 0;
 }
 
 int32_t emu_cpu_parse(struct emu_cpu *c)
@@ -341,8 +346,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 	uint8_t dis[32];
 	emu_memory_read_block(c->mem,c->eip,dis,32);
-	printf("%08x ",c->eip);
-	uint32_t expected_instr_size = dasm_print_instruction(dis,0);
+    uint32_t expected_instr_size = dasm_print_instruction(c->eip,dis,0);
 
 	uint32_t eip_before = c->eip;
 	uint32_t eip_after = 0;
@@ -453,7 +457,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 							if( ret != 0 )
 								return ret;
 							
-							c->cpu_instr.modrm.ea += c->cpu_instr.modrm.disp.s8;
+							c->cpu_instr.modrm.ea += (int8_t)c->cpu_instr.modrm.disp.s8;
 						}
 						else if( c->cpu_instr.modrm.mod == 2 || (c->cpu_instr.modrm.mod == 0 && c->cpu_instr.modrm.rm == 5) ) /* disp32 */
 						{
