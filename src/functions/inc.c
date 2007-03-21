@@ -15,7 +15,7 @@ a = operation_result;
 	sz++;																	\
 																				\
 	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
-	|| sz != (int64_t)operation_result )									    \
+	|| sz != (INT(bits))operation_result )									    \
 	{                                                                           \
 		CPU_FLAG_SET(cpu, f_of);                                                \
 	}else                                                                       \

@@ -17,7 +17,7 @@ c = operation_result;
 	/* printf("of: sx %lli + sy %lli + cf %i = sz %lli \n", sx, sy, (cpu->eflags & (1 << f_cf))?1:0, sz); */ \
 																			\
 	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
-	|| sz != (int64_t)operation_result )									    \
+	|| sz != (INT(bits))operation_result )									    \
 	{                                                                           \
 		CPU_FLAG_SET(cpu, f_of);                                                 \
 	}else                                                                       \
