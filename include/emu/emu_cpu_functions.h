@@ -171,7 +171,8 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_5_ff_push(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* group 10 */
-/*int32_t instr_group_10_8f_pop(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_group_10_8f(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_group_10_8f_pop(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* inc */
 int32_t instr_inc_4x(struct emu_cpu *c, struct emu_cpu_instruction *i);
