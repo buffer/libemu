@@ -793,4 +793,95 @@ BOOL DeleteFile(
 	return 0;
 }
 
+int32_t	emu_env_w32_hook__lcreat(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+LONG _lcreat(
+  LPCSTR lpszFileName,
+  int fnAttribute
+);
+*/
+	uint32_t filename;
+	POP_DWORD(c, &filename);
+
+	uint32_t attr;
+	POP_DWORD(c, &attr);
+
+	emu_cpu_reg32_set(c, eax, 4711); // filehandle
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+int32_t	emu_env_w32_hook__hwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	return 0;
+}
+
+
+int32_t	emu_env_w32_hook__lwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+LONG _lwrite(
+  HFile hFile,
+  LPCSTR lpBuffer,
+  UINT cbWrite
+);
+*/
+	uint32_t file;
+	POP_DWORD(c, &file);
+
+	uint32_t buffer;
+	POP_DWORD(c, &buffer);
+
+	uint32_t size;
+	POP_DWORD(c, &size);
+
+	emu_cpu_reg32_set(c, eax, size);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	emu_env_w32_hook__lclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+FIXME
+*/
+	uint32_t file;
+	POP_DWORD(c, &file);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
 
