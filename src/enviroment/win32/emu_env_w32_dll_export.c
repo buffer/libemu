@@ -825,9 +825,7 @@ LONG _lcreat(
 
 int32_t	emu_env_w32_hook__hwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-	return 0;
+	return emu_env_w32_hook__lwrite(env, ex);
 }
 
 

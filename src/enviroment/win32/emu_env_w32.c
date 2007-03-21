@@ -165,6 +165,7 @@ void emu_env_w32_eip_check(struct emu_env_w32 *env)
 					if (dll->exports[numexports].fnhook != NULL)
 					{
 						dll->exports[numexports].fnhook(env, &dll->exports[numexports]);
+						break;
 					}else
 					{ 
 						printf("unhooked call to %s\n", dll->exports[numexports].fnname);
