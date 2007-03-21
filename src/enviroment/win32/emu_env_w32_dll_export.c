@@ -156,6 +156,42 @@ int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_
 }
 
 
+int32_t	emu_env_w32_hook_socket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+/*
+SOCKET WSAAPI socket(
+  int af,
+  int type,
+  int protocol
+);
+*/
+
+	uint32_t af;
+	POP_DWORD(c, &af);
+
+	uint32_t type;
+	POP_DWORD(c, &type);
+
+	uint32_t protocol;
+	POP_DWORD(c, &protocol);
+
+	int s = socket(af, type, protocol);
+	printf("socket %i \n", s);
+	emu_cpu_reg32_set(c, eax, s);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
 int32_t	emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
@@ -191,8 +227,8 @@ int32_t	emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_ex
 		   inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr),
 		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
 
-
-	emu_cpu_reg32_set(c, eax, 0);
+	int retval = bind(s, &sa, sizeof(struct sockaddr));
+	emu_cpu_reg32_set(c, eax, retval);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -220,8 +256,9 @@ int32_t	emu_env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_
 
 	uint32_t backlog;
 	POP_DWORD(c, &backlog);
-	
-	emu_cpu_reg32_set(c, eax, 0);
+
+	int retval = listen(s, backlog);
+	emu_cpu_reg32_set(c, eax, retval);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -253,7 +290,9 @@ int32_t	emu_env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_
 	uint32_t addrlen;
 	POP_DWORD(c, &addrlen);
 
-	int a = 89;
+	struct sockaddr sa;
+	socklen_t sasize = sizeof(struct sockaddr);
+	int a = accept(s, &sa, &sasize);
 	printf("accept %i \n", a);	
 	emu_cpu_reg32_set(c, eax, a);
 
@@ -278,7 +317,6 @@ int closesocket(
 */
 	uint32_t s;
 	POP_DWORD(c, &s);
-
 
 	emu_cpu_reg32_set(c, eax, 0);
 
@@ -322,6 +360,92 @@ int connect(
 
 	emu_cpu_reg32_set(c, eax, 0);
 
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+int32_t	emu_env_w32_hook_recv(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+/*
+int recv(
+  SOCKET s,
+  char* buf,
+  int len,
+  int flags
+);
+*/
+	uint32_t s;
+	POP_DWORD(c, &s);
+
+	uint32_t buf;
+	POP_DWORD(c, &buf);
+
+	uint32_t len;
+	POP_DWORD(c, &len);
+
+	uint32_t flags;
+	POP_DWORD(c, &flags);
+
+	char *buffer = (char *)malloc(len);
+	len = recv(s, buffer, len, flags); 
+	emu_memory_write_block(emu_memory_get(env->emu), buf, buffer, len);
+	free(buffer);
+
+	emu_cpu_reg32_set(c, eax, len);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+int32_t	emu_env_w32_hook_send(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+/*
+int send(
+  SOCKET s,
+  const char* buf,
+  int len,
+  int flags
+);
+*/
+	uint32_t s;
+	POP_DWORD(c, &s);
+
+	uint32_t buf;
+	POP_DWORD(c, &buf);
+
+	uint32_t len;
+	POP_DWORD(c, &len);
+
+	uint32_t flags;
+	POP_DWORD(c, &flags);
+
+	char *buffer = (char *)malloc(len);
+	printf("send(%i, 0x%08x, %i,  %i)\n", s, buf, len, flags);
+	emu_memory_read_block(emu_memory_get(env->emu), buf, buffer, len);
+	int retval = send(s, buffer, len, flags);
+	printf("send %i (of %i) bytes\n", retval,  len);
+	emu_cpu_reg32_set(c, eax, retval);
+	free(buffer);
+
+	printf("eip_save is %08x\n",  eip_save);
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
@@ -498,4 +622,175 @@ VOID WINAPI ExitProcess(
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
+
+int32_t	emu_env_w32_hook_ExitThread(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+VOID ExitThread(
+  DWORD dwExitCode
+);
+*/
+
+	uint32_t exitcode;
+	POP_DWORD(c, &exitcode);
+
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+int32_t	emu_env_w32_hook_CreateFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+HANDLE CreateFile(
+  LPCTSTR lpFileName,
+  DWORD dwDesiredAccess,
+  DWORD dwShareMode,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  DWORD dwCreationDisposition,
+  DWORD dwFlagsAndAttributes,
+  HANDLE hTemplateFile
+);
+*/
+
+	uint32_t filename;
+	POP_DWORD(c, &filename);
+
+	uint32_t desiredaccess;
+	POP_DWORD(c, &desiredaccess);
+
+	uint32_t sharemode;
+	POP_DWORD(c, &sharemode);
+
+	uint32_t securityattr;
+	POP_DWORD(c, &securityattr);
+
+	uint32_t createdisp;
+	POP_DWORD(c, &createdisp);
+
+	uint32_t flagsandattr;
+	POP_DWORD(c, &flagsandattr);
+
+	uint32_t templatefile;
+	POP_DWORD(c, &templatefile);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+int32_t	emu_env_w32_hook_CloseHandle(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+BOOL CloseHandle(
+  HANDLE hObject
+);
+);
+*/
+
+	uint32_t object;
+	POP_DWORD(c, &object);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	emu_env_w32_hook_WriteFile(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+BOOL WriteFile(
+  HANDLE hFile,
+  LPCVOID lpBuffer,
+  DWORD nNumberOfBytesToWrite,
+  LPDWORD lpNumberOfBytesWritten,
+  LPOVERLAPPED lpOverlapped
+);
+*/
+	uint32_t file;
+	POP_DWORD(c, &file);
+
+	uint32_t buffer;
+	POP_DWORD(c,  &buffer);
+
+	uint32_t bytestowrite;
+	POP_DWORD(c,  &bytestowrite);
+
+	uint32_t byteswritten;
+	POP_DWORD(c,  &byteswritten);
+
+	uint32_t overlapped;
+	POP_DWORD(c,  &overlapped);
+
+	emu_memory_write_dword(emu_memory_get(env->emu), byteswritten, bytestowrite);
+
+	emu_cpu_reg32_set(c, eax, 32);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+
+
+int32_t	emu_env_w32_hook_DeleteFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+BOOL DeleteFile(
+  LPCTSTR lpFileName
+);
+
+*/
+	uint32_t filename;
+	POP_DWORD(c, &filename);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
 

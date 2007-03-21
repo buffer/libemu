@@ -121,8 +121,9 @@ uint32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 			numdlls++;
 	}
 
-	env->loaded_dlls = realloc(env->loaded_dlls, sizeof(struct emu_env_w32_dll *) * (numdlls+1));
+	env->loaded_dlls = realloc(env->loaded_dlls, sizeof(struct emu_env_w32_dll *) * (numdlls+2));
 	env->loaded_dlls[numdlls] = dll;
+	env->loaded_dlls[numdlls+1] = NULL;
 
 
 
@@ -147,7 +148,7 @@ void emu_env_w32_eip_check(struct emu_env_w32 *env)
 		if (eip > env->loaded_dlls[numdlls]->baseaddr && 
 			eip < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize)
 		{
-			printf("eip is within %s\n",env->loaded_dlls[numdlls]->dllname);
+			printf("eip %08x is within %s\n",eip, env->loaded_dlls[numdlls]->dllname);
 			struct emu_env_w32_dll *dll = env->loaded_dlls[numdlls];
 			int numexports = 0;
 			while (dll->exports[numexports].fnname != NULL)
@@ -172,7 +173,7 @@ void emu_env_w32_eip_check(struct emu_env_w32 *env)
 				}
 				numexports++;
 			}
-
+			break;
 		}
 		numdlls++;
 	}
