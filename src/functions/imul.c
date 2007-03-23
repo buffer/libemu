@@ -9,7 +9,7 @@ INT(outbits) operation_result = operand_a * operand_b; \
 
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
-#include "emu/emu_cpu_functions.h"
+
 #include "emu/emu_memory.h"
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 335*/

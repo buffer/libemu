@@ -31,4 +31,36 @@ int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, s
 void emu_memory_segment_select(struct emu_memory *m, enum emu_segment s);
 enum emu_segment emu_memory_segment_get(struct emu_memory *m);
 
+
+#define MEM_BYTE_READ(cpu_p, addr, data_p) \
+ { int32_t ret = emu_memory_read_byte((cpu_p)->mem, addr, data_p); \
+ if( ret != 0 ) \
+  return ret; }
+
+#define MEM_BYTE_WRITE(cpu_p, addr, data) \
+ { int32_t ret = emu_memory_write_byte((cpu_p)->mem, addr, data); \
+ if( ret != 0 ) \
+  return ret; }
+
+#define MEM_WORD_READ(cpu_p, addr, data_p) \
+ { int32_t ret = emu_memory_read_word((cpu_p)->mem, addr, data_p); \
+ if( ret != 0 ) \
+  return ret; }
+
+#define MEM_WORD_WRITE(cpu_p, addr, data) \
+ { int32_t ret = emu_memory_write_word((cpu_p)->mem, addr, data); \
+ if( ret != 0 ) \
+  return ret; }
+
+#define MEM_DWORD_READ(cpu_p, addr, data_p) \
+ { int32_t ret = emu_memory_read_dword((cpu_p)->mem, addr, data_p); \
+ if( ret != 0 ) \
+  return ret; }
+
+#define MEM_DWORD_WRITE(cpu_p, addr, data) \
+ { int32_t ret = emu_memory_write_dword((cpu_p)->mem, addr, data); \
+ if( ret != 0 ) \
+  return ret; }
+
+
 #endif // HAVE_EMU_MEMORY_H
