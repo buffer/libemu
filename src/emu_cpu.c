@@ -327,6 +327,10 @@ static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t siz
 	{
 		printf("%02x", data[i]);
 	}
+	for (;i<15;i++)
+	{
+		printf("  ");
+	}
 	printf(" %s\n", str);
 	return instrsize;
 }
