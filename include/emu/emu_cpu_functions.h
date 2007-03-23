@@ -386,8 +386,8 @@ int32_t instr_test_a8(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_test_a9(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* scas */
-/*int32_t instr_scas_ae(struct emu_cpu *c, struct instruction *i);
-int32_t instr_scas_af(struct emu_cpu *c, struct instruction *i); */
+int32_t instr_scas_ae(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_scas_af(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* cmps */
 /*int32_t instr_cmps_a6(struct emu_cpu *c, struct instruction *i);
