@@ -636,23 +636,29 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 				{
 					if( (c->instr.fpu.fpu_data[1] & 0x38) == 0x30 )
 					{
-						/* TODO fnstenv */
-						printf("fpu instr fnstenv\n");
+						/* fnstenv volume 1, page 230 */
+						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x00, 0);
+						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x04, 0);
+						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x08, 0);
+						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x0c, c->last_fpu_instr);
+						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x10, 0);
+						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x14, 0);
+						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x18, 0);
 					}
 					else if( c->instr.fpu.fpu_data[1] == 0xee )
 					{
-						/* TODO fldz */
-						printf("fpu instr fldz\n");
+						/* fldz */
 					}
 				}
 				else if( c->instr.fpu.fpu_data[0] == 0xdd )
 				{
 					if( (c->instr.fpu.fpu_data[1] & 0xf8) == 0xc0 )
 					{
-						/* TODO ffree */
-						printf("fpu instr ffree\n");
+						/* ffree */
 					}
 				}
+
+				c->last_fpu_instr = eip_before;
 			}
 			
 			logDebug(c->emu,"\n");
@@ -687,7 +693,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 		emu_memory_segment_select(c->mem, s_cs);
 	}
 
-	if (0)
+	if (1)
 		debug_instruction(&c->instr.cpu);
 	emu_cpu_debug_print(c);
 

@@ -13,6 +13,8 @@ struct emu_fpu_instruction
 	
 	uint8_t fpu_data[2]; /* TODO: split into correct fields */
 	uint32_t ea;
+	
+	uint32_t last_instr;
 };
 
 #endif

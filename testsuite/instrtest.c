@@ -703,6 +703,14 @@ struct instr_test tests[] =
 		.out_state.mem_state = {0xffffff24, 0xfefefefe},
 		.out_state.reg = {0xfefefefe,0,0,0,0xffffff00,0,0,0},
 	},
+	{
+		.instr = "xor dword [eax+0x1000], 0x11111111",
+		.in_state.mem_state = {0x2000, 0x22222222},
+		.in_state.reg = {0x1000,0,0,0,0,0,0,0},
+		.out_state.mem_state = {0x2000, 0x33333333},
+		.out_state.reg = {0x1000,0,0,0,0,0,0,0},
+		.out_state.eflags =  FLAG(f_pf),
+	},
 };
 
 int prepare()
@@ -834,6 +842,7 @@ int test(int n)
 
 		for (j=0;j<opts.steps;j++)
 		{
+			ret = emu_cpu_parse(emu_cpu_get(e));
 			ret = emu_cpu_step(emu_cpu_get(e));
 			if (opts.verbose == 1)
 			{
