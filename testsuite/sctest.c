@@ -777,6 +777,10 @@ int test(int n)
 			emu_env_w32_eip_check(env);
 			ret = emu_cpu_parse(emu_cpu_get(e));
 
+			if (ret != -1)
+			{
+				ret = emu_cpu_step(emu_cpu_get(e));
+			}
 
 			if ( ret == -1 )
 			{
@@ -784,7 +788,7 @@ int test(int n)
 				break;
 			}
 
-			
+
 
 			if (opts.verbose == 1)
 			{
