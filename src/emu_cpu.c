@@ -568,8 +568,6 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 				 * into all fields. instead it determines the length of
 				 * the instruction and ignores pretty much everything else
 				 * except for a few explicitly implemented instructions. */
-				printf("parsing fpu instr\n");
-				
 				c->instr.is_fpu = 1;
 				c->instr.fpu.prefixes = c->instr.prefixes;
 
@@ -578,51 +576,82 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 				ret = emu_memory_read_byte(c->mem, c->eip++, &c->instr.fpu.fpu_data[1]);
 				if( ret != 0 )
 					return ret;
-					
-				int sib = 0;
-				int disp = 0;
-				
-				printf("fpu instr %02x%02x, mod %d, rm %d\n", c->instr.fpu.fpu_data[0], c->instr.fpu.fpu_data[1], FPU_MOD(c->instr.fpu.fpu_data),
-					FPU_RM(c->instr.fpu.fpu_data));
 				
 				if( FPU_MOD(c->instr.fpu.fpu_data) != 3 ) /* intel pdf page 36 */
 				{
-					if( FPU_MOD(c->instr.fpu.fpu_data) == 1 )
+					/* trivial case, one register is ea */
+		   			if( FPU_RM(c->instr.fpu.fpu_data) != 4 && !(FPU_MOD(c->instr.fpu.fpu_data) == 0 && FPU_RM(c->instr.fpu.fpu_data) == 5) )
+						c->instr.fpu.ea = c->reg[FPU_RM(c->instr.fpu.fpu_data)];
+					else
+						c->instr.fpu.ea = 0;
+					
+					/* sib byte */
+					if( FPU_RM(c->instr.fpu.fpu_data) == 4 )
 					{
-						disp = 1;
-					}
-					else if( FPU_MOD(c->instr.fpu.fpu_data) == 2 )
-					{
-						disp = 4;
-					}
-					else /* mod == 0 */
-					{
-						if( FPU_RM(c->instr.fpu.fpu_data) == 5 )
+						ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
+			
+						if( ret != 0 )
+							return ret;
+						
+						if( SIB_BASE(byte) != 5 )
 						{
-							disp = 4;
+							c->instr.fpu.ea += c->reg[SIB_BASE(byte)];
+						}
+						else if( FPU_MOD(c->instr.fpu.fpu_data) != 0 )
+						{
+							c->instr.fpu.ea += c->reg[ebp];
+						}
+
+						if( SIB_INDEX(byte) != 4 )
+						{
+							c->instr.fpu.ea += c->reg[SIB_INDEX(byte)] * scalem[SIB_SCALE(byte)];
 						}
 					}
 					
-					if( FPU_RM(c->instr.fpu.fpu_data) == 4 )
+					/* modrm */
+					if( FPU_MOD(c->instr.fpu.fpu_data) == 1 )
 					{
-						sib = 1;
+						ret = emu_memory_read_byte(c->mem, c->eip++, &byte);
+
+						if( ret != 0 )
+							return ret;
+						
+						c->instr.fpu.ea += (int8_t)byte;
+					}
+					else if( FPU_MOD(c->instr.fpu.fpu_data) == 2 || (FPU_MOD(c->instr.fpu.fpu_data) == 0 && FPU_RM(c->instr.fpu.fpu_data) == 5) ) 
+					{
+						uint32_t dword;
+						ret = emu_memory_read_dword(c->mem, c->eip, &dword);
+						c->eip += 4;
+
+						if( ret != 0 )
+							return ret;
+
+						c->instr.fpu.ea += dword;
 					}
 				}
 				
-				printf("sib %d, disp %d\n", sib, disp);
-				
-				if( sib != 0 )
+				/* for now we only support three critical instructions. */
+				if( c->instr.fpu.fpu_data[0] == 0xd9 )
 				{
-					c->eip++;
+					if( (c->instr.fpu.fpu_data[1] & 0x38) == 0x30 )
+					{
+						/* TODO fnstenv */
+						printf("fpu instr fnstenv\n");
+					}
+					else if( c->instr.fpu.fpu_data[1] == 0xee )
+					{
+						/* TODO fldz */
+						printf("fpu instr fldz\n");
+					}
 				}
-				
-				if( disp == 1 )
+				else if( c->instr.fpu.fpu_data[0] == 0xdd )
 				{
-					c->eip++;
-				}
-				else if( disp == 4 )
-				{
-					c->eip += 4;
+					if( (c->instr.fpu.fpu_data[1] & 0xf8) == 0xc0 )
+					{
+						/* TODO ffree */
+						printf("fpu instr ffree\n");
+					}
 				}
 			}
 			
