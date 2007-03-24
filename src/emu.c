@@ -8,14 +8,12 @@
 #include <emu/emu_log.h>
 #include <emu/emu_memory.h>
 #include <emu/emu_cpu.h>
-#include <emu/emu_fpu.h>
 
 struct emu
 {
 	struct emu_logging *log;
 	struct emu_memory *memory; 
 	struct emu_cpu *cpu;
-	struct emu_fpu *fpu;
 
 	int 	errno;
 	char 	*errorstr;
@@ -29,7 +27,6 @@ struct emu *emu_new()
 	e->log = emu_log_new();
 	e->memory = emu_memory_new(e);
 	e->cpu = emu_cpu_new(e);
-	e->fpu = emu_fpu_new(e->cpu);
 	logDebug(e,"%s %x\n", __PRETTY_FUNCTION__,(unsigned int)e);
 	return e;
 }
@@ -60,11 +57,6 @@ inline struct emu_logging *emu_logging_get(struct emu *e)
 inline struct emu_cpu *emu_cpu_get(struct emu *e)
 {
 	return e->cpu;
-}
-
-inline struct emu_fpu *emu_fpu_get(struct emu *e)
-{
-	return e->fpu;
 }
 
 
@@ -101,8 +93,9 @@ const char *emu_strerror(struct emu *e)
 
 
 
-int32_t emu_parse(struct emu *e)
+/*int32_t emu_parse(struct emu *e)
 {
+	return emu_cpu_parse(e);
 	struct emu_memory *m = e->memory;
 	struct emu_cpu *c = e->cpu;
 	struct emu_fpu *f = e->fpu;
@@ -128,10 +121,11 @@ int32_t emu_parse(struct emu *e)
 		return ret;
 	else
         return 0; // cpu instruction parsed
-}
+}*/
 
-int32_t emu_step(struct emu *e)
+/*int32_t emu_step(struct emu *e)
 {
+	return emu_cpu_step(emu_cpu_get(e));
 	int32_t ret = emu_parse(e);
 	if (ret == 0)
 	{
@@ -147,4 +141,4 @@ int32_t emu_step(struct emu *e)
 		printf("cpu error %s\n", emu_strerror(e));
 		return -1;
 	}
-}
+}*/

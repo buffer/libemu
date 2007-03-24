@@ -21,10 +21,9 @@ struct emu_cpu_instruction_info
 		uint8_t disp_data : 3;
 		uint8_t level : 2;
 		uint8_t type : 2;
+		uint8_t fpu_info : 1;
 	} format;
 };
-
-
 
 struct emu_cpu_instruction
 {
@@ -82,6 +81,7 @@ struct emu_cpu_instruction
 
 	int32_t disp;
 };
+
 
 
 

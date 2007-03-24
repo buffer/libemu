@@ -25,6 +25,6 @@ void emu_strerror_set(struct emu *e, const char *format, ...);
 const char *emu_strerror(struct emu *e);
 
 
-int32_t emu_parse(struct emu *e);
-int32_t emu_step(struct emu *e);
+/*int32_t emu_parse(struct emu *e);
+int32_t emu_step(struct emu *e);*/
 #endif // HAVE_EMU_H

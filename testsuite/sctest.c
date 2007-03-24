@@ -15,7 +15,6 @@
 #include <emu/emu.h>
 #include <emu/emu_memory.h>
 #include <emu/emu_cpu.h>
-#include <emu/emu_fpu.h>
 #include <emu/emu_log.h>
 #include <emu/emu_cpu_data.h>
 #include <emu/enviroment/win32/emu_env_w32.h>
@@ -776,17 +775,7 @@ int test(int n)
 		for (j=0;j<opts.steps;j++)
 		{
 			emu_env_w32_eip_check(env);
-			ret = emu_parse(e);
-
-			if (ret == 0)
-			{
-				ret = emu_cpu_step(emu_cpu_get(e));
-			}
-			else
-			if ( ret == 1 )
-			{
-				ret = emu_fpu_step(emu_fpu_get(e));
-			}
+			ret = emu_cpu_parse(emu_cpu_get(e));
 
 
 			if ( ret == -1 )

@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "emu/emu_cpu_instruction.h"
+#include "emu/emu_instruction.h"
 
 enum emu_cpu_flag {
 	f_cf = 0, f_pf = 2, f_af = 4, f_zf = 6, f_sf = 7, f_tf = 8, f_if = 9,
@@ -26,7 +27,7 @@ struct emu_cpu
 	uint16_t *reg16[8];
 	uint8_t *reg8[8];
 
-	struct emu_cpu_instruction 			cpu_instr;
+	struct emu_instruction 			instr;
 	struct emu_cpu_instruction_info 	*cpu_instr_info;
 };
 

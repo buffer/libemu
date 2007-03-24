@@ -834,7 +834,7 @@ int test(int n)
 
 		for (j=0;j<opts.steps;j++)
 		{
-			ret = emu_step(e);
+			ret = emu_cpu_step(emu_cpu_get(e));
 			if (opts.verbose == 1)
 			{
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
