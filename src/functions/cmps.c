@@ -3,9 +3,10 @@
 #include <errno.h>
 
 #define INSTR_CALC(bits, a, b) \
-UINT(bits) operation_result = (a) - (b); \
 UINT(bits) operand_a = a; \
-UINT(bits) operand_b = b;
+UINT(bits) operand_b = b; \
+UINT(bits) operation_result = operand_a - operand_b; 
+//printf(" a %02x b %02x c %02x \n",operand_a, operand_b, operation_result);
 
 
 #include "emu/emu.h"
@@ -17,6 +18,7 @@ UINT(bits) operand_b = b;
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 127*/
 
+#include <stdio.h>
 
 #define INSTR_CALC_AND_SET_FLAGS(bits, cpu, a, b) \
 INSTR_CALC(bits, a, b) \
@@ -25,6 +27,7 @@ INSTR_SET_FLAG_PF(cpu) \
 INSTR_SET_FLAG_SF(cpu) \
 INSTR_SET_FLAG_CF(cpu, -) \
 INSTR_SET_FLAG_OF(cpu, -,bits) 
+
 
 
 #define INSTR_CALC_EDI_ESI(cpu,bits) \
@@ -63,24 +66,50 @@ int32_t instr_cmps_a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * CMPS m8, m8   
 		 */
 
-		enum emu_segment oldseg = emu_memory_segment_get(c->mem);
+		uint32_t nonrepcc = 1;
+		uint32_t *iterations;
 
-		emu_memory_segment_select(c->mem,s_ds);
-		uint8_t m8a;
-		MEM_BYTE_READ(c, c->reg[esi], &m8a);
+		if (i->prefixes & PREFIX_F3)
+		{
+			/* F3 A6 
+			 * Find nonmatching bytes in ES:[EDI] and DS:[ESI]
+			 * REPE CMPS m8,m8    
+			 */
+			iterations = &c->reg[ecx];
+		}
+		else
+		{
+			iterations = &nonrepcc;
+		}
 
-		emu_memory_segment_select(c->mem,s_es);
-		uint8_t m8b;
-		MEM_BYTE_READ(c, c->reg[edi], &m8b);
 
-		emu_memory_segment_select(c->mem,oldseg);
+		while ( *iterations > 0 )
+		{
+			(*iterations)--;
+			enum emu_segment oldseg = emu_memory_segment_get(c->mem);
 
-		INSTR_CALC_AND_SET_FLAGS(8,
-								 c,
-								 m8a,
-								 m8b)
+			emu_memory_segment_select(c->mem,s_ds);
 
-		INSTR_CALC_EDI_ESI(c, 8)
+			uint8_t m8a;
+			MEM_BYTE_READ(c, c->reg[esi], &m8a);
+
+			emu_memory_segment_select(c->mem,s_es);
+			uint8_t m8b;
+			MEM_BYTE_READ(c, c->reg[edi], &m8b);
+
+			emu_memory_segment_select(c->mem,oldseg);
+
+			INSTR_CALC_AND_SET_FLAGS(8,
+									 c,
+									 m8a,
+									 m8b)
+
+			INSTR_CALC_EDI_ESI(c, 8)
+
+			if ((i->prefixes & PREFIX_F3) && (CPU_FLAG_ISSET(c, f_zf) == 0) )
+				break;
+
+		}
 	}
 	return 0;
 }
