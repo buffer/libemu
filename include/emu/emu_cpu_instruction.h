@@ -30,7 +30,7 @@ struct emu_cpu_instruction
 {
 	uint8_t opc;
 	uint8_t opc_2nd;
-	uint8_t prefixes;
+	uint16_t prefixes;
 	uint8_t s_bit : 1;
 	uint8_t w_bit : 1;
 	uint8_t operand_size : 2;
