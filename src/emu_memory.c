@@ -6,6 +6,7 @@
 #include <emu/emu.h>
 #include <emu/emu_log.h>
 #include <emu/emu_memory.h>
+#include "emu/emu_string.h"
 
 #define PAGE_BITS 12 /* 2^12 = 4096 */
 #define PAGE_SIZE (1 << 12)
@@ -128,6 +129,30 @@ int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, s
 		memcpy(dest, address, cb);
 		return emu_memory_read_block(m, oaddr + cb, dest + cb, len - cb);
 	}
+}
+
+int32_t emu_memory_read_string(struct emu_memory *m, uint32_t addr, struct emu_string *s, uint32_t maxsize)
+{
+    uint32_t i=0;
+    while (1)
+    {
+        if (i > maxsize - 1)
+            return -1;
+
+        if (m->page_map[PAGE(addr+i)] == NULL)
+            return -1;
+
+        if (*(uint8_t *)translate_addr(m, addr+i) == 0x00)
+            break;
+
+        i++;
+    }
+
+    s->data = malloc(i+1);
+    memset(s->data, 0, i+1);
+    s->size = i;
+
+    return emu_memory_read_block(m, addr, s->data, i);
 }
 
 

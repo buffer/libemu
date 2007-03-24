@@ -106,6 +106,7 @@ int32_t instr_cmps_a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 			INSTR_CALC_EDI_ESI(c, 8)
 
+			/* REPE */
 			if ((i->prefixes & PREFIX_F3) && (CPU_FLAG_ISSET(c, f_zf) == 0) )
 				break;
 

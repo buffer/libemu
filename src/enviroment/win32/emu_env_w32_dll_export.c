@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 
 #include "emu/emu.h"
@@ -16,6 +18,7 @@
 #include "emu/enviroment/win32/emu_env_w32.h"
 #include "emu/enviroment/win32/emu_env_w32_dll_export.h"
 #include "emu/enviroment/win32/emu_env_w32_dll.h"
+#include "emu/emu_string.h"
 
 struct emu_env_w32_dll_export *emu_env_w32_dll_export_new()
 {
@@ -56,23 +59,12 @@ FARPROC WINAPI GetProcAddress(
     uint32_t p_procname;
     POP_DWORD(c, &p_procname);
 
-    uint8_t b=0;
-    uint32_t strsize =0;
+    struct emu_string *procname = emu_string_new();
+    struct emu_memory *mem = emu_memory_get(env->emu);
+    emu_memory_read_string(mem, p_procname, procname, 256);
 
-    emu_cpu_reg32_set(c, eax, 0x4712);
 
-
-    while (emu_memory_read_byte(emu_memory_get(env->emu), p_procname + strsize, &b) == 0 && b != 0)
-    {
-//		printf(" 0x%08x = %02x\n",p_procname + strsize,b);
-        strsize++;
-    }
-
-    char *procname = (char *)malloc(strsize+1);
-    memset(procname, 0, strsize+1);
-    emu_memory_read_block(emu_memory_get(env->emu), p_procname, procname, strsize);
-
-    printf("procname name is '%s'\n", procname);
+    printf("procname name is '%s'\n", emu_string_char(procname));
 
     int i;
     for (i=0; env->loaded_dlls[i] != NULL; i++)
@@ -84,9 +76,9 @@ FARPROC WINAPI GetProcAddress(
             int j;
             for (j=0; env->loaded_dlls[i]->exports[j].fnname != NULL; j++)
             {
-                if (strcmp(env->loaded_dlls[i]->exports[j].fnname, procname) == 0)
+                if (strcmp(env->loaded_dlls[i]->exports[j].fnname, emu_string_char(procname)) == 0)
                 {
-                    printf("found %s at addr %08x\n",procname, env->loaded_dlls[i]->baseaddr + env->loaded_dlls[i]->exports[j].realaddr );
+                    printf("found %s at addr %08x\n",emu_string_char(procname), env->loaded_dlls[i]->baseaddr + env->loaded_dlls[i]->exports[j].realaddr );
                     emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr + env->loaded_dlls[i]->exports[j].realaddr);
                     break;
                 }
@@ -95,7 +87,7 @@ FARPROC WINAPI GetProcAddress(
         }
     }
 
-    free(procname);
+    emu_string_free(procname);
 
 
     emu_cpu_eip_set(c, eip_save);
@@ -120,24 +112,11 @@ int32_t	emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32
 	
 	POP_DWORD(c, &dllname_ptr);
 
-	uint8_t b=0;
-	uint32_t strsize =0;
+    struct emu_string *dllstr = emu_string_new();
+    struct emu_memory *mem = emu_memory_get(env->emu);
+    emu_memory_read_string(mem, dllname_ptr, dllstr, 256);
 
-	printf("esp is 0x%08x\n", dllname_ptr);
-
-	while (emu_memory_read_byte(emu_memory_get(env->emu), dllname_ptr + strsize, &b) == 0 && b != 0)
-	{
-//		printf(" 0x%08x = %02x\n",dllname_ptr + strsize,b);
-		strsize++;
-	}
-
-	char *dllname = (char *)malloc(strsize+1);
-	memset(dllname, 0, strsize+1);
-	emu_memory_read_block(emu_memory_get(env->emu), dllname_ptr,dllname, strsize);
-
-	printf("dll name is '%s'\n",dllname);
-
-/* 	emu_env_w32_load_dll(env, dllname); */
+	char *dllname = emu_string_char(dllstr);
 
 	int i;
 	int found_dll = 0;
@@ -164,7 +143,7 @@ int32_t	emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32
         }
 	}
 
-	free(dllname);
+	emu_string_free(dllstr);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -192,8 +171,6 @@ int32_t	emu_env_w32_hook_WSAStartup(struct emu_env_w32 *env, struct emu_env_w32_
 }
 
 
-#include <sys/types.h>
-#include <sys/socket.h>
 
 int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
@@ -627,24 +604,10 @@ UINT WINAPI WinExec(
 	POP_DWORD(c, &show);
 
 
-	uint8_t b=0;
-	uint32_t strsize =0;
-
-	printf("eip_save is 0x%08x\n", eip_save);
-
-	while (emu_memory_read_byte(emu_memory_get(env->emu), cmdline_ptr + strsize, &b) == 0 && b != 0)
-	{
-//		printf(" 0x%08x = %02x\n",cmdline_ptr + strsize,b);
-		strsize++;
-	}
-
-	char *cmdline = (char *)malloc(strsize+1);
-	memset(cmdline, 0, strsize+1);
-	emu_memory_read_block(emu_memory_get(env->emu), cmdline_ptr,cmdline, strsize);
-
-	printf("WinExec %s\n", cmdline);
-	free(cmdline);
-
+    struct emu_string *cmdstr = emu_string_new();
+    emu_memory_read_string(emu_memory_get(env->emu), cmdline_ptr, cmdstr, 256);
+	printf("WinExec %s\n", emu_string_char(cmdstr));
+	emu_string_free(cmdstr);
 
 	emu_cpu_reg32_set(c, eax, 32);
 
