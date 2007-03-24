@@ -415,7 +415,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"GetPrivateProfileStringW", 0x0000F95D, NULL},
 	{"GetPrivateProfileStructA", 0x0005BB2B, NULL},
 	{"GetPrivateProfileStructW", 0x0005BC95, NULL},
-	{"GetProcAddress", 0x0000ADA0, NULL},
+	{"GetProcAddress", 0x0000ADA0, emu_env_w32_hook_GetProcAddress},
 	{"GetProcessAffinityMask", 0x00021765, NULL},
 	{"GetProcessHandleCount", 0x00061186, NULL},
 	{"GetProcessHeap", 0x0000ABC1, NULL},

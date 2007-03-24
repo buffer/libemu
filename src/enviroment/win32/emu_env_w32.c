@@ -75,8 +75,15 @@ void emu_env_w32_free(struct emu_env_w32 *env)
 }
 
 
-uint32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
+int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 {
+    if (strncmp(dllname, "kernel32",strlen("kernel32")) != 0 &&
+        (strncmp(dllname, "ws2_32",strlen("ws2_32")) != 0) )
+    {
+        printf("unknown dll %s\n", dllname);
+        return -1;
+    }
+
 	printf("loading dll %s\n",dllname);
 
 	struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
@@ -85,7 +92,7 @@ uint32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 
 	dll->dllname = strdup(dllname);
 
-	if (strcmp(dllname, "kernel32.dll") == 0)
+	if (strncmp(dllname, "kernel32",strlen("kernel32")) == 0)
 	{
 		dll->baseaddr = 0x7C800000;
 		dll->imagesize = 0x00106000;
@@ -99,7 +106,7 @@ uint32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 		dll->exports = kernel32_exports;
 	}
 	else
-	if (strcmp(dllname, "ws2_32.dll") == 0)
+	if (strncmp(dllname, "ws2_32",strlen("ws2_32")) == 0)
 	{
 		dll->baseaddr = 0x71A10000;
 		dll->imagesize = 0x00017000;

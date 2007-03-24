@@ -15,7 +15,7 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/enviroment/win32/emu_env_w32.h"
 #include "emu/enviroment/win32/emu_env_w32_dll_export.h"
-
+#include "emu/enviroment/win32/emu_env_w32_dll.h"
 
 struct emu_env_w32_dll_export *emu_env_w32_dll_export_new()
 {
@@ -27,6 +27,79 @@ struct emu_env_w32_dll_export *emu_env_w32_dll_export_new()
 void emu_env_w32_dll_export_free(struct emu_env_w32_dll_export *exp)
 {
 	free(exp);
+}
+
+
+int32_t emu_env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+    printf("Hook me Captain Cook!\n");
+    printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+    struct emu_cpu *c = emu_cpu_get(env->emu);
+
+    uint32_t eip_save;
+    POP_DWORD(c, &eip_save);
+
+/* 
+FARPROC WINAPI GetProcAddress(
+  HMODULE hModule,
+  LPCSTR lpProcName
+);
+*/
+
+
+    uint32_t module;// = emu_cpu_reg32_get(c, esp);
+    POP_DWORD(c, &module);
+
+    printf("module ptr is %08x\n", module);
+
+    uint32_t p_procname;
+    POP_DWORD(c, &p_procname);
+
+    uint8_t b=0;
+    uint32_t strsize =0;
+
+    emu_cpu_reg32_set(c, eax, 0x4712);
+
+
+    while (emu_memory_read_byte(emu_memory_get(env->emu), p_procname + strsize, &b) == 0 && b != 0)
+    {
+//		printf(" 0x%08x = %02x\n",p_procname + strsize,b);
+        strsize++;
+    }
+
+    char *procname = (char *)malloc(strsize+1);
+    memset(procname, 0, strsize+1);
+    emu_memory_read_block(emu_memory_get(env->emu), p_procname, procname, strsize);
+
+    printf("procname name is '%s'\n", procname);
+
+    int i;
+    for (i=0; env->loaded_dlls[i] != NULL; i++)
+    {
+//		printf(" %s \n", env->loaded_dlls[i]->dllname);
+        if ( env->loaded_dlls[i]->baseaddr == module )
+        {
+            printf("dll is %s %08x %08x \n", env->loaded_dlls[i]->dllname, module, env->loaded_dlls[i]->baseaddr);
+            int j;
+            for (j=0; env->loaded_dlls[i]->exports[j].fnname != NULL; j++)
+            {
+                if (strcmp(env->loaded_dlls[i]->exports[j].fnname, procname) == 0)
+                {
+                    printf("found %s at addr %08x\n",procname, env->loaded_dlls[i]->baseaddr + env->loaded_dlls[i]->exports[j].realaddr );
+                    emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr + env->loaded_dlls[i]->exports[j].realaddr);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    free(procname);
+
+
+    emu_cpu_eip_set(c, eip_save);
+    return 0;
 }
 
 
@@ -54,7 +127,7 @@ int32_t	emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32
 
 	while (emu_memory_read_byte(emu_memory_get(env->emu), dllname_ptr + strsize, &b) == 0 && b != 0)
 	{
-		printf(" 0x%08x = %02x\n",dllname_ptr + strsize,b);
+//		printf(" 0x%08x = %02x\n",dllname_ptr + strsize,b);
 		strsize++;
 	}
 
@@ -64,17 +137,31 @@ int32_t	emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32
 
 	printf("dll name is '%s'\n",dllname);
 
+/* 	emu_env_w32_load_dll(env, dllname); */
 
-	if (strncmp(dllname, "ws2_32",6) == 0 )
+	int i;
+	int found_dll = 0;
+	for (i=0; env->loaded_dlls[i] != NULL; i++)
 	{
-		emu_cpu_reg32_set(c, eax, 0x71A10000);
-		emu_cpu_reg32_set(c, ecx, 0x7C801BF6);
-		emu_cpu_reg32_set(c, edx, 0x00150608);
-
-		emu_env_w32_load_dll(env, "ws2_32.dll");
-	}else
+		if (strncasecmp(env->loaded_dlls[i]->dllname, dllname, strlen(env->loaded_dlls[i]->dllname)) == 0)
+		{
+			printf("found dll %s, baseaddr is %08x \n",env->loaded_dlls[i]->dllname,env->loaded_dlls[i]->baseaddr);
+			emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr);
+			found_dll = 1;
+		}
+	}
+	
+	if (found_dll == 0)
 	{
-		printf("unknown dll %s \n", dllname);
+        if (emu_env_w32_load_dll(env, dllname) == 0)
+        {
+            emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr);        
+        }
+        else
+        {
+            printf("error could not find %s\n", dllname);
+            emu_cpu_reg32_set(c, eax, 0x4711);
+        }
 	}
 
 	free(dllname);
