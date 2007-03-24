@@ -48,6 +48,8 @@ struct emu_cpu
 #define PREFIX_FS_OVR (1 << 6)
 #define PREFIX_GS_OVR (1 << 7)
 #define PREFIX_SS_OVR (1 << 8)
+#define PREFIX_F2 (1 << 9)
+#define PREFIX_F3 (1 << 10)
 
 #define OPSIZE_8 1
 #define OPSIZE_16 2

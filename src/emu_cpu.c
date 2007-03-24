@@ -36,6 +36,8 @@ static void init_prefix_map()
 	prefix_map[0x66] = PREFIX_OPSIZE;
 	prefix_map[0x67] = PREFIX_ADSIZE;
 	prefix_map[0xf0] = PREFIX_LOCK;
+	prefix_map[0xf2] = PREFIX_F2;
+	prefix_map[0xf3] = PREFIX_F3;
 }
 
 struct emu_cpu *emu_cpu_new(struct emu *e)

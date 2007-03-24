@@ -29,7 +29,7 @@ struct emu *emu_new()
 	e->log = emu_log_new();
 	e->memory = emu_memory_new(e);
 	e->cpu = emu_cpu_new(e);
-	e->fpu = emu_fpu_new(e);
+	e->fpu = emu_fpu_new(e->cpu);
 	logDebug(e,"%s %x\n", __PRETTY_FUNCTION__,(unsigned int)e);
 	return e;
 }

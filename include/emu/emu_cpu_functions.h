@@ -373,6 +373,8 @@ int32_t instr_xchg_9x(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_movsx_0fbe(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_movsx_0fbf(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
+/* fpu esc */
+int32_t instr_esc_fpu_dx(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  
