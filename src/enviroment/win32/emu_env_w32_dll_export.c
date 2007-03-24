@@ -211,7 +211,7 @@ int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_
 	uint32_t flags;
 	POP_DWORD(c, &flags);
 
-	int s = 67;//socket(af, type, protocol);
+	int s = socket(af, type, protocol);
 	printf("socket %i \n", s);
 	emu_cpu_reg32_set(c, eax, s);
 
