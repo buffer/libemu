@@ -139,7 +139,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 }
 
 
-void emu_env_w32_eip_check(struct emu_env_w32 *env)
+int32_t emu_env_w32_eip_check(struct emu_env_w32 *env)
 {
 	uint32_t eip = emu_cpu_eip_get(emu_cpu_get(env->emu));
 
@@ -172,11 +172,11 @@ void emu_env_w32_eip_check(struct emu_env_w32 *env)
 					if (dll->exports[numexports].fnhook != NULL)
 					{
 						dll->exports[numexports].fnhook(env, &dll->exports[numexports]);
-						break;
+						return 1;
 					}else
 					{ 
 						printf("unhooked call to %s\n", dll->exports[numexports].fnname);
-
+						return -1;
 					}
 				}
 				numexports++;
@@ -185,6 +185,8 @@ void emu_env_w32_eip_check(struct emu_env_w32 *env)
 		}
 		numdlls++;
 	}
+
+	return 0;
 }
 
 

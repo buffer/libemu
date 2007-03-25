@@ -1,3 +1,4 @@
+
 /* @header@ */
 #include <stdlib.h>
 #include <string.h>
@@ -163,6 +164,10 @@ int32_t	emu_env_w32_hook_WSAStartup(struct emu_env_w32 *env, struct emu_env_w32_
 	uint32_t wsaversion;
 	POP_DWORD(c, &wsaversion);
 	printf("WSAStartup version %x\n", wsaversion);
+
+	uint32_t wsawix;
+	POP_DWORD(c, &wsawix);
+
 
 	emu_cpu_reg32_set(c, eax, 0x0);
 
