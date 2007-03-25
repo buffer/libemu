@@ -184,42 +184,20 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	free(fmsg);
 
 
-	uint32_t stacksize = 4294967295U - c->reg[esp];
-//	printf("stacksize is %i\n",stacksize);
-	if (stacksize == 0)
-		return;
-
-/*
-	uint8_t *b = (uint8_t *)malloc(stacksize);
-	memset(b,0,stacksize);
-	logDebug(c->emu,"Stack (%i):\n",stacksize);
-
-	for ( i=0;i<stacksize;i++ )
+	for (i=0; i<8; i++)
 	{
-		if (emu_memory_read_byte(c->mem,c->reg[esp]+i,&b[stacksize-i-1]) != 0)
-			break;
+		printf("%08x ",c->reg[esp] + i * 4);
 	}
+	printf("\n");
 
-
-	int numlines = (stacksize / 16);
-//	printf("numlines  is %i\n",numlines);
-	fmsg = (char *)malloc(256);
-
-	for (i=0;i<=numlines;i++)
+	for (i=0; i<8; i++)
 	{
-    	memset(fmsg,0,256);
-		int j;
-		for ( j=0;j<16 && i*16+j < stacksize ;j++ )
-		{
-			char sign[5];
-			snprintf(sign,4,"%02x ",b[j+i*16]);
-			strcat(fmsg,sign);
-		}
-		logDebug(c->emu,"0x%08x:  %s\n",c->reg[esp]+i*16,fmsg);
+		uint32_t d;
+		emu_memory_read_dword(c->mem, c->reg[esp] + i * 4,  &d);
+		printf("%08x ",d);
 	}
-
-	free(fmsg);
-*/
+	printf("\n");
+	
 }
 
 static void debug_instruction(struct emu_cpu_instruction *i)
