@@ -28,13 +28,36 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	}
 	else
 	{
-		MEM_BYTE_WRITE(c,c->reg[edi],*c->reg8[al]);
-		if ( !CPU_FLAG_ISSET(c,f_df) )
-		{ /* increment */
-			c->reg[edi] += 1;
-		}else
-		{ /* decrement */
-			c->reg[edi] -= 1;
+		uint32_t nonrepcc = 1;
+		uint32_t *iterations;
+
+		if (i->prefixes & PREFIX_F3)
+		{
+			/* F3 AA 
+			 * Fill ECX bytes at ES:[EDI] with AL
+			 * REP STOS m8        
+			 */
+
+			iterations = &c->reg[ecx];
+		}
+		else
+		{
+			iterations = &nonrepcc;
+		}
+
+
+		while ( *iterations > 0 )
+		{
+			(*iterations)--;
+			MEM_BYTE_WRITE(c,c->reg[edi],*c->reg8[al]);
+			if ( !CPU_FLAG_ISSET(c,f_df) )
+			{ /* increment */
+				c->reg[edi] += 1;
+			}else
+			{ /* decrement */
+				c->reg[edi] -= 1;
+			}
+
 		}
 
 	}
