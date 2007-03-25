@@ -19,7 +19,7 @@
 #include "emu/emu_cpu_data.h"
 #include "emu/environment/win32/emu_env_w32.h"
 
-#define CODE_OFFSET 0x417001
+#define CODE_OFFSET 0x402001
 
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
@@ -107,7 +107,7 @@ struct instr_test tests[] =
 		"\xff\xd6\x6a\xff\xff\x37\xff\xd0\x8b\x57\xfc\x83\xc4\x64\xff\xd6"
 		"\x52\xff\xd0\x68\xf0\x8a\x04\x5f\x53\xff\xd6\xff\xd0",
 		.codesize = 317,
-		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.reg  = {0,0x71ab675b,0x71ac4070,0,0x22ccb0,0x22cd98,0x611001a0,0x401380}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
 	{
@@ -774,8 +774,22 @@ int test(int n)
 
 		for (j=0;j<opts.steps;j++)
 		{
-			emu_env_w32_eip_check(env);
-			ret = emu_cpu_parse(emu_cpu_get(e));
+
+			if (opts.verbose == 1)
+			{
+				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+				emu_cpu_debug_print(cpu);
+				emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+			}
+
+
+			ret = emu_env_w32_eip_check(env);
+			if (ret == 1)
+				continue;
+			else if (ret == 0)
+				ret = emu_cpu_parse(emu_cpu_get(e));
+
+
 
 			if (ret != -1)
 			{
@@ -790,12 +804,7 @@ int test(int n)
 
 
 
-			if (opts.verbose == 1)
-			{
-				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
-				emu_cpu_debug_print(cpu);
-				emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
-			}
+			printf("\n");
 		}
 
 		printf("stepcount %i\n",j);
