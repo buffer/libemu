@@ -161,12 +161,19 @@ int32_t	emu_env_w32_hook_WSAStartup(struct emu_env_w32 *env, struct emu_env_w32_
 
 	POP_DWORD(c, &eip_save);
 
-	uint32_t wsaversion;
-	POP_DWORD(c, &wsaversion);
-	printf("WSAStartup version %x\n", wsaversion);
+/*
+int WSAStartup(
+  WORD wVersionRequested,
+  LPWSADATA lpWSAData
+);
+*/
 
-	uint32_t wsawix;
-	POP_DWORD(c, &wsawix);
+	uint32_t wsaversionreq;
+	POP_DWORD(c, &wsaversionreq);
+	printf("WSAStartup version %x\n", wsaversionreq);
+
+	uint32_t wsadata;
+	POP_DWORD(c, &wsadata);
 
 
 	emu_cpu_reg32_set(c, eax, 0x0);
