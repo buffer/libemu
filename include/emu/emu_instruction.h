@@ -2,8 +2,8 @@
 #ifndef EMU_INSTRUCTiON_H
 #define EMU_INSTRUCTION_H
 
-#include "emu/emu_cpu_instruction.h"
-#include "emu/emu_fpu_instruction.h"
+#include <emu/emu_cpu_instruction.h>
+#include <emu/emu_fpu_instruction.h>
 
 struct emu_instruction
 {

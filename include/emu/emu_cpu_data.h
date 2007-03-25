@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#include "emu/emu_cpu_instruction.h"
-#include "emu/emu_instruction.h"
+#include <emu/emu_cpu_instruction.h>
+#include <emu/emu_instruction.h>
 
 enum emu_cpu_flag {
 	f_cf = 0, f_pf = 2, f_af = 4, f_zf = 6, f_sf = 7, f_tf = 8, f_if = 9,

@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <emu/emu.h>
-#include <emu/emu_log.h>
+#include "emu/emu.h"
+#include "emu/emu_log.h"
 
 struct emu_logging
 {

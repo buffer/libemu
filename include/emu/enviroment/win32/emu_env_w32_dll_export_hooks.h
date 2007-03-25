@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "emu/emu.h"
-#include "emu/enviroment/win32/emu_env_w32_dll_export.h"
+#include <emu/emu.h>
+#include <emu/enviroment/win32/emu_env_w32_dll_export.h>
 
 
 struct emu_env_w32_dll_export kernel32_exports[] = 

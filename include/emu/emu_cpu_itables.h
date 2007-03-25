@@ -5,8 +5,8 @@
 // for i in $(seq 0 255); do printf "\t/* %02x */ {0, 0, {0, 0, 0, 0, 0, 0, 0}},\n" $i; done >> emu_cpu_itables.h */
 
 
-#include "emu/emu_cpu_functions.h"
-#include "emu/emu_cpu_instruction.h"
+#include <emu/emu_cpu_functions.h>
+#include <emu/emu_cpu_instruction.h>
 
 #define II_SBIT 1
 #define II_WBIT 1

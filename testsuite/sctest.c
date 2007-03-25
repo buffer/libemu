@@ -12,12 +12,12 @@
 #include <getopt.h>
 
 
-#include <emu/emu.h>
-#include <emu/emu_memory.h>
-#include <emu/emu_cpu.h>
-#include <emu/emu_log.h>
-#include <emu/emu_cpu_data.h>
-#include <emu/enviroment/win32/emu_env_w32.h>
+#include "emu/emu.h"
+#include "emu/emu_memory.h"
+#include "emu/emu_cpu.h"
+#include "emu/emu_log.h"
+#include "emu/emu_cpu_data.h"
+#include "emu/enviroment/win32/emu_env_w32.h"
 
 #define CODE_OFFSET 0x417001
 

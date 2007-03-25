@@ -6,11 +6,11 @@
 #include <errno.h>
 #include <stdint.h>
 
-#include <emu/emu_cpu.h>
-#include <emu/emu_cpu_data.h>
-#include <emu/emu_memory.h>
-#include <emu/emu.h>
-#include <emu/emu_log.h>
+#include "emu/emu_cpu.h"
+#include "emu/emu_cpu_data.h"
+#include "emu/emu_memory.h"
+#include "emu/emu.h"
+#include "emu/emu_log.h"
 
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
@@ -23,7 +23,7 @@ static uint8_t scalem[] = {
 
 static uint16_t prefix_map[0x100];
 
-#include <emu/emu_cpu_itables.h>
+#include "emu/emu_cpu_itables.h"
 
 static void init_prefix_map()
 {
