@@ -122,7 +122,14 @@ int32_t instr_push_6a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push imm8     
 	 * PUSH imm8  
 	 */
-	PUSH_DWORD(c, *i->imm8);
+	if (i->prefixes & PREFIX_OPSIZE)
+	{
+		PUSH_WORD(c, *i->imm8);
+	}
+	else
+	{
+		PUSH_DWORD(c, *i->imm8);
+	}
 
 	return 0;
 }
