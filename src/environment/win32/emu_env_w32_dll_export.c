@@ -15,9 +15,9 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_stack.h"
-#include "emu/enviroment/win32/emu_env_w32.h"
-#include "emu/enviroment/win32/emu_env_w32_dll_export.h"
-#include "emu/enviroment/win32/emu_env_w32_dll.h"
+#include "emu/environment/win32/emu_env_w32.h"
+#include "emu/environment/win32/emu_env_w32_dll_export.h"
+#include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/emu_string.h"
 
 struct emu_env_w32_dll_export *emu_env_w32_dll_export_new()
@@ -558,8 +558,8 @@ int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_
 	uint32_t create;
 	POP_DWORD(c, &create);
 
-	uint32_t enviroment;
-	POP_DWORD(c, &enviroment);
+	uint32_t environment;
+	POP_DWORD(c, &environment);
 
 	uint32_t cwd;
 	POP_DWORD(c, &cwd);

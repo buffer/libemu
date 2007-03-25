@@ -6,10 +6,10 @@
 #include "emu/emu.h"
 #include "emu/emu_cpu.h"
 #include "emu/emu_memory.h"
-#include "emu/enviroment/win32/emu_env_w32.h"
-#include "emu/enviroment/win32/emu_env_w32_dll.h"
-#include "emu/enviroment/win32/emu_env_w32_dll_export.h"
-#include "emu/enviroment/win32/emu_env_w32_dll_export_hooks.h"
+#include "emu/environment/win32/emu_env_w32.h"
+#include "emu/environment/win32/emu_env_w32_dll.h"
+#include "emu/environment/win32/emu_env_w32_dll_export.h"
+#include "emu/environment/win32/emu_env_w32_dll_export_hooks.h"
 
 extern const char kernel32_dll_7c800000[];
 extern const char kernel32_dll_7c801000[];
