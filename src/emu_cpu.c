@@ -183,6 +183,10 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	logDebug(c->emu,"Flags: %s\n", fmsg);
 	free(fmsg);
 
+	return;
+
+
+
 
 	for (i=0; i<8; i++)
 	{

@@ -18,6 +18,8 @@
 #include "emu/emu_log.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/environment/win32/emu_env_w32.h"
+#include "emu/emu_getpc.h"
+
 
 #define CODE_OFFSET 0x402001
 
@@ -33,6 +35,7 @@ static struct run_time_options
 	int nasm_force;
 	uint32_t steps;
 	int testnumber;
+	int getpc;
 } opts;
 
 static const char *regm[] = {
@@ -730,11 +733,10 @@ int test(int n)
 
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
 	{
-		if( n != -1 && i != n )
+		if ( n != -1 && i != n )
 			continue;
-			
-		int failed = 0;
 
+		int failed = 0;
 
 		printf("testing (#%d) '%s' \t", i, tests[i].instr);
 		int j=0;
@@ -744,7 +746,7 @@ int test(int n)
 		{
 			emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
 		}
-   	
+
 
 		/* set the flags */
 		emu_cpu_eflags_set(cpu,tests[i].in_state.eflags);
@@ -752,7 +754,7 @@ int test(int n)
 
 		/* write the code to the offset */
 		int static_offset = CODE_OFFSET;
-		for( j = 0; j < tests[i].codesize; j++ )
+		for ( j = 0; j < tests[i].codesize; j++ )
 		{
 			emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
 		}
@@ -765,11 +767,11 @@ int test(int n)
 		/* run the code */
 		if (opts.verbose == 1 )
 		{
-        	emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 		}
-		
+
 		int ret; //= emu_cpu_run(emu_cpu_get(e));
 
 		for (j=0;j<opts.steps;j++)
@@ -816,7 +818,7 @@ int test(int n)
 			emu_cpu_debug_print(cpu);
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 		}
-        	
+
 
 		/* check the registers for the exptected values */
 
@@ -866,7 +868,7 @@ int test(int n)
 		if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
 		{
 			printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
-			for(j=0;j<32;j++)
+			for (j=0;j<32;j++)
 			{
 				uint32_t f = emu_cpu_eflags_get(cpu);
 				if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)))
@@ -876,14 +878,15 @@ int test(int n)
 			}
 
 			failed = 1;
-		}else
+		}
+		else
 		{
 			if (opts.verbose == 1)
 				printf("\t flags "SUCCESS"\n");
 		}
 
-		
-		if( tests[i].out_state.eip != 0 && tests[i].out_state.eip != emu_cpu_eip_get(cpu) )
+
+		if ( tests[i].out_state.eip != 0 && tests[i].out_state.eip != emu_cpu_eip_get(cpu) )
 		{
 			printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n", "eip", emu_cpu_eip_get(cpu), tests[i].out_state.eip);
 			failed = 1;
@@ -894,11 +897,231 @@ int test(int n)
 		if (failed == 0)
 		{
 			printf(SUCCESS"\n");
-		}else
+		}
+		else
 		{
 			return -1;
 		}
-		
+
+	}
+	emu_free(e);
+	return 0;
+}
+
+int getpctest(int n)
+{
+	int i=0;
+	struct emu *e = emu_new();
+	struct emu_cpu *cpu = emu_cpu_get(e);
+	struct emu_memory *mem = emu_memory_get(e);
+	struct emu_env_w32 *env = emu_env_w32_new(e);
+
+
+	if (env == 0)
+	{
+		printf("%s \n", emu_strerror(e));
+		printf("%s \n", strerror(emu_errno(e)));
+		return -1;
+	}
+
+/*	uint32_t x;
+	for (x=0x7c800000;x<0x7c902400;x++)
+	{
+		uint8_t b;
+		emu_memory_read_byte(mem,x,&b);
+		printf("%02x ",b);
+		if (x % 16 == 0)
+		{
+			printf("\n");
+		}
+	}
+	return 0;
+*/
+
+
+	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
+	{
+		if ( n != -1 && i != n )
+			continue;
+
+		uint32_t offset;
+		for (offset=0; offset<tests[i].codesize;offset++)
+		{
+
+			if ( emu_getpc_check(e, (uint8_t *)tests[i].code, tests[i].codesize, offset) == 1)
+			{
+				int failed = 0;
+
+
+				printf("testing (#%d) '%s' \t", i, tests[i].instr);
+				int j=0;
+
+				/* set the registers to the initial values */
+				for ( j=0;j<8;j++ )
+				{
+					emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
+				}
+
+
+				/* set the flags */
+				emu_cpu_eflags_set(cpu,tests[i].in_state.eflags);
+
+
+				/* write the code to the offset */
+				int static_offset = CODE_OFFSET;
+				for ( j = 0; j < tests[i].codesize; j++ )
+				{
+					emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
+				}
+
+
+
+				/* set eip to the code */
+				emu_cpu_eip_set(emu_cpu_get(e), static_offset);
+
+				/* run the code */
+				if (opts.verbose == 1 )
+				{
+					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+					emu_cpu_debug_print(cpu);
+					emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+				}
+
+				int ret; //= emu_cpu_run(emu_cpu_get(e));
+
+				for (j=0;j<opts.steps;j++)
+				{
+
+					if (opts.verbose == 1)
+					{
+						emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+						emu_cpu_debug_print(cpu);
+						emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+					}
+
+
+					ret = emu_env_w32_eip_check(env);
+					if (ret == 1)
+						continue;
+					else if (ret == 0)
+						ret = emu_cpu_parse(emu_cpu_get(e));
+
+
+
+					if (ret != -1)
+					{
+						ret = emu_cpu_step(emu_cpu_get(e));
+					}
+
+					if ( ret == -1 )
+					{
+						printf("cpu error %s\n", emu_strerror(e));
+						break;
+					}
+
+
+
+					printf("\n");
+				}
+
+				printf("stepcount %i\n",j);
+
+
+				if (opts.verbose == 1)
+				{
+					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+					emu_cpu_debug_print(cpu);
+					emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+				}
+
+
+				/* check the registers for the exptected values */
+
+				for ( j=0;j<8;j++ )
+				{
+					if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
+					{
+						if (opts.verbose == 1)
+							printf("\t %s "SUCCESS"\n",regm[j]);
+					}
+					else
+					{
+						printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
+						failed = 1;
+					}
+				}
+
+
+				/* check the memory for expected values */
+				uint32_t value;
+
+				if ( tests[i].out_state.mem_state[0] != 0 ||  tests[i].out_state.mem_state[1] != 0)
+				{
+					if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
+					{
+						if ( value == tests[i].out_state.mem_state[1] )
+						{
+							if (opts.verbose == 1)
+								printf("\t memory "SUCCESS" 0x%08x = 0x%08x\n",tests[i].out_state.mem_state[0], tests[i].out_state.mem_state[1]);
+						}
+						else
+						{
+							printf("\t memory "FAILED" at 0x%08x got 0x%08x expected 0x%08x\n",tests[i].out_state.mem_state[0],value, tests[i].out_state.mem_state[1]);
+							failed = 1;
+						}
+
+					}
+					else
+					{
+						printf("\tmemory "FAILED" emu says: '%s' when accessing %08x\n", strerror(emu_errno(e)),tests[i].out_state.mem_state[0]);
+						failed = 1;
+					}
+
+				}
+
+				/* check the cpu flags for expected values */
+				if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
+				{
+					printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
+					for (j=0;j<32;j++)
+					{
+						uint32_t f = emu_cpu_eflags_get(cpu);
+						if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)))
+							printf("\t flag %s (bit %i) failed, expected %i is %i\n",flags[j], j, 
+								   (tests[i].out_state.eflags & (1 << j)),
+								   (f & (1 <<j)));
+					}
+
+					failed = 1;
+				}
+				else
+				{
+					if (opts.verbose == 1)
+						printf("\t flags "SUCCESS"\n");
+				}
+
+
+				if ( tests[i].out_state.eip != 0 && tests[i].out_state.eip != emu_cpu_eip_get(cpu) )
+				{
+					printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n", "eip", emu_cpu_eip_get(cpu), tests[i].out_state.eip);
+					failed = 1;
+				}
+
+
+				/* bail out on *any* error */
+				if (failed == 0)
+				{
+					printf(SUCCESS"\n");
+				}
+				else
+				{
+					return -1;
+				}
+
+
+			}
+		}
+
 	}
 	emu_free(e);
 	return 0;
@@ -916,6 +1139,8 @@ void dump(int n)
 
 void cleanup()
 {
+	return;
+
 	int i;
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
     	if (tests[i].code != NULL)
@@ -949,10 +1174,11 @@ int main(int argc, char *argv[])
 			{"testnumber"		, 1, 0, 't'},
 			{"listtests"		, 0, 0, 'l'},
 			{"dump"				, 1, 0, 'd'},
+			{"getpc"			, 0, 0, 'g'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vns:t:ld:", long_options, &option_index);
+		c = getopt_long (argc, argv, "vns:t:ld:g", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -984,6 +1210,10 @@ int main(int argc, char *argv[])
 			return 0;
 			break;
 
+		case 'g':
+			opts.getpc = 1;
+			break;
+
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
 			break;
@@ -991,7 +1221,10 @@ int main(int argc, char *argv[])
 	}
 
 
-
+	if (opts.getpc == 1)
+	{
+		getpctest(opts.testnumber);
+	}else
 	if ( test(opts.testnumber) != 0 )
 		return -1;
 

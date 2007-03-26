@@ -18,6 +18,7 @@ libemu_la_SOURCES += emu_memory.c
 libemu_la_SOURCES += emu_cpu_data.c
 libemu_la_SOURCES += emu_cpu.c
 libemu_la_SOURCES += emu_string.c
+libemu_la_SOURCES += emu_getpc.c
 libemu_la_SOURCES += functions/aaa.c
 libemu_la_SOURCES += functions/adc.c
 libemu_la_SOURCES += functions/add.c
