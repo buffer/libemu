@@ -46,8 +46,21 @@ void *emu_vertex_data_get(struct emu_vertex *ev)
 
 struct emu_edge *emu_vertex_edge_add(struct emu_vertex *ev, struct emu_vertex *to)
 {
-	struct emu_edge *ee = emu_edge_new();
+
+	struct emu_edge *ee;
+	for (ee = emu_edges_first(ev->edges); !emu_edges_istail(ee); ee = emu_edges_next(ee))
+	{
+		if (ee->destination == to)
+		{
+			ee->count++;
+			return ee;
+		}
+	}
+
+	ee = emu_edge_new();
 	ee->destination = to;
+	ee->count++;
+
 	emu_edges_insert_last(ev->edges, ee);
 	return ee;
 }

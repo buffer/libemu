@@ -13,6 +13,7 @@ struct emu_edge
 {
 	struct emu_vertex *destination;
 	emu_edge_link link;
+	uint32_t count;
 };
 
 header_list_functions(emu_edges,emu_edge_root, emu_edge, link);

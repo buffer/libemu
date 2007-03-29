@@ -95,6 +95,7 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 
 	}
 
+	c->instr_string = (char *)malloc(32);
 	init_prefix_map();
 	
 	return c;
@@ -153,6 +154,7 @@ uint32_t emu_cpu_eip_get(struct emu_cpu *c)
 
 void emu_cpu_free(struct emu_cpu *c)
 {
+	free(c->instr_string);
 	free(c);
 }
 
@@ -295,10 +297,9 @@ static void debug_instruction(struct emu_cpu_instruction *i)
 #undef PREFIX_LOCK
 
 #include "libdasm.h"
-static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t size)
+static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t size, char *str)
 {
 	INSTRUCTION inst;
-	static char str[256];
 
 	// step 2: fetch instruction-
 	uint32_t instrsize = get_instruction(&inst, data, MODE_32);
@@ -308,7 +309,7 @@ static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t siz
 		return 0;
 	}
 	// step 3: print it
-	get_instruction_string(&inst, FORMAT_INTEL, 0, str, sizeof(str));
+	get_instruction_string(&inst, FORMAT_INTEL, 0, str, 32);
 
 	printf("%08x ", eip);
 	int i;
@@ -321,6 +322,7 @@ static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t siz
 		printf("  ");
 	}
 	printf(" %s\n", str);
+
 	return instrsize;
 }
 
@@ -339,7 +341,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 	uint8_t dis[32];
 	emu_memory_read_block(c->mem,c->eip,dis,32);
-    uint32_t expected_instr_size = dasm_print_instruction(c->eip,dis,0);
+    uint32_t expected_instr_size = dasm_print_instruction(c->eip,dis,0,c->instr_string);
 
 	uint32_t eip_before = c->eip;
 	uint32_t eip_after = 0;
@@ -675,7 +677,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 		emu_memory_segment_select(c->mem, s_cs);
 	}
 
-	if (1)
+	if (0)
 		debug_instruction(&c->instr.cpu);
 	emu_cpu_debug_print(c);
 
