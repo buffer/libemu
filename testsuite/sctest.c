@@ -826,17 +826,20 @@ int test(int n)
 
 		struct emu_vertex *last_vertex = NULL;
 		struct emu_graph *graph = NULL;
+		struct emu_hashtable *eh = NULL;
+		struct emu_hashtable_item *ehi = NULL;
 
 		if ( opts.graphfile != NULL )
 		{
 			graph = emu_graph_new();
+			eh = emu_hashtable_new(2047, hash, cmp);
 		}
 
 
 		int ret; //= emu_cpu_run(emu_cpu_get(e));
 
-		struct emu_hashtable *eh = emu_hashtable_new(2047, hash, cmp);
-		struct emu_hashtable_item *ehi;
+		 
+		
 
 		for ( j=0;j<opts.steps;j++ )
 		{
@@ -891,12 +894,12 @@ int test(int n)
 				eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 				if ( ret != -1 )
 				{
-					ehi = emu_hashtable_search(eh, (void *)eipsave);
-					if (ehi != NULL)
-						ev = (struct emu_vertex *)ehi->value;
 
 					if ( opts.graphfile != NULL )
 					{
+						ehi = emu_hashtable_search(eh, (void *)eipsave);
+						if (ehi != NULL)
+							ev = (struct emu_vertex *)ehi->value;
 
 						if ( ev == NULL )
 						{
@@ -997,10 +1000,12 @@ int test(int n)
 			}
 		}
 */
-
-		graph->vertex_destructor = instr_vertex_destructor;
-		emu_graph_free(graph);
-		emu_hashtable_free(eh);
+		if (opts.graphfile != NULL)
+		{
+        		graph->vertex_destructor = instr_vertex_destructor;
+				emu_graph_free(graph);
+				emu_hashtable_free(eh);
+		}
 
 
 
@@ -1078,7 +1083,7 @@ int test(int n)
 
 
 		/* bail out on *any* error */
-		if (0 && failed == 0 )
+/*		if (0 && failed == 0 )
 		{
 			printf(SUCCESS"\n");
 		}
@@ -1086,7 +1091,7 @@ int test(int n)
 		{
 			return -1;
 		}
-
+*/
 	}
 	emu_free(e);
 	return 0;
