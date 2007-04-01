@@ -1,3 +1,7 @@
+/* @header@ */
+
+
+
 #include "emu/emu_graph.h"
 
 
@@ -60,7 +64,7 @@ struct emu_edge *emu_vertex_edge_add(struct emu_vertex *ev, struct emu_vertex *t
 	ee = emu_edge_new();
 	ee->destination = to;
 	ee->count++;
-
+	to->backlinks++;
 	emu_edges_insert_last(ev->edges, ee);
 	return ee;
 }
@@ -76,7 +80,15 @@ struct emu_graph *emu_graph_new()
 
 void emu_graph_free(struct emu_graph *eg)
 {
-	// FIXME
+	struct emu_vertex *ev;
+	for ( ev = emu_vertexes_first(eg->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+	{
+		if (eg->vertex_destructor != NULL)
+        	eg->vertex_destructor(ev->data);
+		emu_edges_destroy(ev->edges);
+	}
+	emu_vertexes_destroy(eg->vertexes);
+	free(eg);
 }
 
 void emu_graph_vertex_add(struct emu_graph *eg, struct emu_vertex *ev)

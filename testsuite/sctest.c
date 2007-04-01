@@ -21,7 +21,8 @@
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/emu_getpc.h"
 #include "emu/emu_graph.h"
-
+#include "emu/emu_string.h"
+#include "emu/emu_hashtable.h"
 
 #define CODE_OFFSET 0x402001
 
@@ -705,7 +706,7 @@ struct instr_test tests[] =
 struct instr_vertex
 {
 	uint32_t    eip;
-	char        *instr_string;
+	struct emu_string  *instr_string;
 };
 
 struct instr_vertex *instr_vertex_new(uint32_t theeip, const char *instr_string)
@@ -713,9 +714,42 @@ struct instr_vertex *instr_vertex_new(uint32_t theeip, const char *instr_string)
 	struct instr_vertex *iv = (struct instr_vertex *)malloc(sizeof(struct instr_vertex));
 	memset(iv, 0, sizeof(struct instr_vertex));
 	iv->eip = theeip;
-	iv->instr_string = strdup(instr_string);
+	iv->instr_string = emu_string_new();
+	emu_string_append_char(iv->instr_string, instr_string);
+	emu_string_append_char(iv->instr_string, "\\n");
 	return iv;
 }
+
+void instr_vertex_free(struct instr_vertex *iv)
+{
+	emu_string_free(iv->instr_string);
+	free(iv);
+}
+
+
+
+
+
+void instr_vertex_destructor(void *data)
+{
+	instr_vertex_free((struct instr_vertex *)data);
+}
+
+bool cmp(void *a, void *b)
+{
+	if ((uint32_t)a == (uint32_t)b)
+		return true;
+
+	return false;
+}
+
+uint32_t hash(void *key)
+{
+	uint32_t ukey = (uint32_t)key;
+	ukey++;
+	return ukey;
+}
+
 
 int test(int n)
 {
@@ -790,19 +824,19 @@ int test(int n)
 		}
 
 
-		struct emu_vertex **vertexes = NULL;
 		struct emu_vertex *last_vertex = NULL;
 		struct emu_graph *graph = NULL;
 
 		if ( opts.graphfile != NULL )
 		{
 			graph = emu_graph_new();
-			vertexes = (struct emu_vertex **)malloc(sizeof(struct emu_vertex *) * tests[i].codesize * 2);
-			memset(vertexes, 0, sizeof(struct emu_vertex *) * tests[i].codesize * 2);
 		}
 
 
 		int ret; //= emu_cpu_run(emu_cpu_get(e));
+
+		struct emu_hashtable *eh = emu_hashtable_new(2047, hash, cmp);
+		struct emu_hashtable_item *ehi;
 
 		for ( j=0;j<opts.steps;j++ )
 		{
@@ -829,15 +863,23 @@ int test(int n)
 			{
 				if ( opts.graphfile != NULL )
 				{
-					// FIXME duplicate dll calls get new nodes BUG
-					ev = emu_vertex_new();
-					iv = instr_vertex_new(eipsave,dllhook->fnname);
-					emu_vertex_data_set(ev, iv);
-					emu_graph_vertex_add(graph, ev);
+					ehi = emu_hashtable_search(eh, (void *)eipsave);
+					if (ehi != NULL)
+						ev = (struct emu_vertex *)ehi->value;
 
+					if (ev == NULL)
+					{
+						ev = emu_vertex_new();
+						iv = instr_vertex_new(eipsave,dllhook->fnname);
+						emu_vertex_data_set(ev, iv);
+						emu_graph_vertex_add(graph, ev);
+
+						emu_hashtable_insert(eh, (void *)eipsave, ev);
+					}
+						
 					if ( last_vertex != NULL )
                     	emu_vertex_edge_add(last_vertex, ev);
-                    
+
 					last_vertex = ev;
 				}
 			}
@@ -846,20 +888,24 @@ int test(int n)
 
 				ret = emu_cpu_parse(emu_cpu_get(e));
 
+				eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 				if ( ret != -1 )
 				{
+					ehi = emu_hashtable_search(eh, (void *)eipsave);
+					if (ehi != NULL)
+						ev = (struct emu_vertex *)ehi->value;
 
 					if ( opts.graphfile != NULL )
 					{
-						struct emu_vertex *ev;
-						if ( ( ev = vertexes[emu_cpu_eip_get(emu_cpu_get(e)) - static_offset]) == NULL )
+
+						if ( ev == NULL )
 						{
 							ev = emu_vertex_new();
-							vertexes[emu_cpu_eip_get(emu_cpu_get(e)) - static_offset] = ev;
-							iv = instr_vertex_new(emu_cpu_eip_get(emu_cpu_get(e)),emu_cpu_get(e)->instr_string);
+                            iv = instr_vertex_new(emu_cpu_eip_get(emu_cpu_get(e)),emu_cpu_get(e)->instr_string);
 							emu_vertex_data_set(ev, iv);
 							emu_graph_vertex_add(graph, ev);
 
+							emu_hashtable_insert(eh, (void *)eipsave, ev);
 						}
 
 						if ( last_vertex != NULL )
@@ -892,9 +938,13 @@ int test(int n)
 
 		if ( opts.graphfile != NULL )
 		{
-			FILE *f = fopen(opts.graphfile,"w+");
 
 			struct emu_vertex *ev;
+
+
+			FILE *f = fopen(opts.graphfile,"w+");
+
+
 
 			fprintf(f, "digraph G {\n");
 
@@ -902,9 +952,9 @@ int test(int n)
 			{
 				struct instr_vertex *iv = emu_vertex_data_get(ev);
 				if ( iv->eip > static_offset + tests[i].codesize )
-					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"0x%08x %s\"]\n",iv->eip, iv->eip, iv->instr_string);
+					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"0x%08x %s\"]\n",iv->eip, iv->eip, emu_string_char(iv->instr_string));
 				else
-					fprintf(f, "\t %i [label = \"0x%08x %s\"]\n",iv->eip, iv->eip, iv->instr_string);
+					fprintf(f, "\t %i [label = \"0x%08x %s\"]\n",iv->eip, iv->eip, emu_string_char(iv->instr_string));
 			}
 			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 			{
@@ -937,6 +987,21 @@ int test(int n)
 			emu_cpu_debug_print(cpu);
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 		}
+
+/*
+		for (j=0;j<eh->size;j++)
+		{
+			if (eh->buckets[j] != NULL)
+			{
+				printf("bucket %i %i\n", j, emu_hashtable_bucket_items_length(eh->buckets[j]->items));
+			}
+		}
+*/
+
+		graph->vertex_destructor = instr_vertex_destructor;
+		emu_graph_free(graph);
+		emu_hashtable_free(eh);
+
 
 
 		/* check the registers for the exptected values */
@@ -1013,7 +1078,7 @@ int test(int n)
 
 
 		/* bail out on *any* error */
-		if ( failed == 0 )
+		if (0 && failed == 0 )
 		{
 			printf(SUCCESS"\n");
 		}

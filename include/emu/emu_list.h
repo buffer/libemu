@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 /* credit http://dotat.at/prog/lists/list.h
  * $Copyright: (C) 2001, 2002 Tony Finch <dot@dotat.at> $

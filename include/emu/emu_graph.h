@@ -34,6 +34,8 @@ struct emu_vertex
 
 	emu_vertex_link link;
 	enum emu_vertex_color color;
+
+	uint32_t backlinks;
 };
 
 
@@ -43,9 +45,11 @@ void emu_vertex_data_set(struct emu_vertex *ev, void *data);
 void *emu_vertex_data_get(struct emu_vertex *ev);
 struct emu_edge *emu_vertex_edge_add(struct emu_vertex *ev, struct emu_vertex *to);
 
+typedef void (*emu_graph_destructor)(void *data);
 struct emu_graph
 {
 	emu_vertex_root 	*vertexes;
+	emu_graph_destructor	vertex_destructor;
 };
 
 struct emu_graph *emu_graph_new();
