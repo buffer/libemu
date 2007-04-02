@@ -16,10 +16,9 @@ struct emu_env_w32_dll *emu_env_w32_dll_new()
 
 void emu_env_w32_dll_free(struct emu_env_w32_dll *dll)
 {
-	dll->exports_by_fnptr->value_destructor = free;
-
 	emu_hashtable_free(dll->exports_by_fnptr);
 	emu_hashtable_free(dll->exports_by_fnname);
+	free(dll->exports);
 	free(dll->dllname);
 	free(dll);
 }
@@ -78,15 +77,17 @@ void emu_env_w32_dll_exports_copy(struct emu_env_w32_dll *to,struct emu_env_w32_
 	uint32_t i;
 	for (i=0;from[i].fnname != 0; i++);
 
-	size = i+1;
+	size = i;
+
+	to->exports = (struct emu_env_w32_dll_export *)malloc(sizeof(struct emu_env_w32_dll_export) * size);
+	memcpy(to->exports, from, sizeof(struct emu_env_w32_dll_export) * size);
 
 	to->exports_by_fnptr = emu_hashtable_new(size, dll_export_fnptr_hash, dll_export_fnptr_cmp);
 	to->exports_by_fnname = emu_hashtable_new(size, dll_export_fnname_hash, dll_export_fnname_cmp);
 
 	for (i=0;from[i].fnname != 0; i++)
 	{
-		struct emu_env_w32_dll_export *ex = emu_env_w32_dll_export_new();
-		emu_env_w32_dll_export_copy(ex, &from[i]);
+		struct emu_env_w32_dll_export *ex = &to->exports[i];
 		emu_hashtable_insert(to->exports_by_fnptr, (void *)from[i].virtualaddr, ex);
 		emu_hashtable_insert(to->exports_by_fnname, (void *)from[i].fnname, ex);
 	}

@@ -12,6 +12,7 @@ struct emu_env_w32_dll
 
 	uint32_t	baseaddr;
 
+	struct emu_env_w32_dll_export *exports;
 	struct emu_hashtable *exports_by_fnptr;
 	struct emu_hashtable *exports_by_fnname;
 
