@@ -16,6 +16,7 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_stack.h"
+#include "emu/emu_hashtable.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
@@ -33,16 +34,22 @@ void emu_env_w32_dll_export_free(struct emu_env_w32_dll_export *exp)
 	free(exp);
 }
 
+void emu_env_w32_dll_export_copy(struct emu_env_w32_dll_export *to, struct emu_env_w32_dll_export *from)
+{
+	to->fnhook = from->fnhook;
+	to->fnname = from->fnname;
+	to->virtualaddr = from->virtualaddr;
+}
 
 int32_t emu_env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
-    printf("Hook me Captain Cook!\n");
-    printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
-    struct emu_cpu *c = emu_cpu_get(env->emu);
+	struct emu_cpu *c = emu_cpu_get(env->emu);
 
-    uint32_t eip_save;
-    POP_DWORD(c, &eip_save);
+	uint32_t eip_save;
+	POP_DWORD(c, &eip_save);
 
 /* 
 FARPROC WINAPI GetProcAddress(
@@ -52,47 +59,51 @@ FARPROC WINAPI GetProcAddress(
 */
 
 
-    uint32_t module;// = emu_cpu_reg32_get(c, esp);
-    POP_DWORD(c, &module);
+	uint32_t module;// = emu_cpu_reg32_get(c, esp);
+	POP_DWORD(c, &module);
 
-    printf("module ptr is %08x\n", module);
+	printf("module ptr is %08x\n", module);
 
-    uint32_t p_procname;
-    POP_DWORD(c, &p_procname);
+	uint32_t p_procname;
+	POP_DWORD(c, &p_procname);
 
-    struct emu_string *procname = emu_string_new();
-    struct emu_memory *mem = emu_memory_get(env->emu);
-    emu_memory_read_string(mem, p_procname, procname, 256);
-
-
-    printf("procname name is '%s'\n", emu_string_char(procname));
-
-    int i;
-    for (i=0; env->loaded_dlls[i] != NULL; i++)
-    {
-//		printf(" %s \n", env->loaded_dlls[i]->dllname);
-        if ( env->loaded_dlls[i]->baseaddr == module )
-        {
-            printf("dll is %s %08x %08x \n", env->loaded_dlls[i]->dllname, module, env->loaded_dlls[i]->baseaddr);
-            int j;
-            for (j=0; env->loaded_dlls[i]->exports[j].fnname != NULL; j++)
-            {
-                if (strcmp(env->loaded_dlls[i]->exports[j].fnname, emu_string_char(procname)) == 0)
-                {
-                    printf("found %s at addr %08x\n",emu_string_char(procname), env->loaded_dlls[i]->baseaddr + env->loaded_dlls[i]->exports[j].realaddr );
-                    emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr + env->loaded_dlls[i]->exports[j].realaddr);
-                    break;
-                }
-            }
-            break;
-        }
-    }
-
-    emu_string_free(procname);
+	struct emu_string *procname = emu_string_new();
+	struct emu_memory *mem = emu_memory_get(env->emu);
+	emu_memory_read_string(mem, p_procname, procname, 256);
 
 
-    emu_cpu_eip_set(c, eip_save);
-    return 0;
+	printf("procname name is '%s'\n", emu_string_char(procname));
+
+	int i;
+	for ( i=0; env->loaded_dlls[i] != NULL; i++ )
+	{
+		if ( env->loaded_dlls[i]->baseaddr == module )
+		{
+			printf("dll is %s %08x %08x \n", env->loaded_dlls[i]->dllname, module, env->loaded_dlls[i]->baseaddr);
+
+			struct emu_env_w32_dll *dll = env->loaded_dlls[i];
+			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnname, (void *)emu_string_char(procname));
+
+			struct emu_env_w32_dll_export *ex = (struct emu_env_w32_dll_export *)ehi->value;
+
+			if ( ehi == NULL )
+			{
+				break;
+			}
+			else
+			{
+				printf("found %s at addr %08x\n",emu_string_char(procname), dll->baseaddr + ex->virtualaddr );
+				emu_cpu_reg32_set(c, eax, dll->baseaddr + ex->virtualaddr);
+				break;
+			}
+		}
+	}
+
+	emu_string_free(procname);
+
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
 }
 
 

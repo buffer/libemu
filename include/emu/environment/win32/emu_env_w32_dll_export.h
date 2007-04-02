@@ -12,12 +12,13 @@ struct emu_env_w32;
 struct emu_env_w32_dll_export
 {
 	char 		*fnname;
-	uint32_t 	realaddr;
+	uint32_t 	virtualaddr;
     int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 };
 
 struct emu_env_w32_dll_export *emu_env_w32_dll_export_new();
 void emu_env_w32_dll_export_free(struct emu_env_w32_dll_export *exp);
+void emu_env_w32_dll_export_copy(struct emu_env_w32_dll_export *to, struct emu_env_w32_dll_export *from);
 
 int32_t	emu_env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 int32_t	emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);

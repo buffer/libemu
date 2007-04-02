@@ -6,10 +6,12 @@
 #include "emu/emu.h"
 #include "emu/emu_cpu.h"
 #include "emu/emu_memory.h"
+#include "emu/emu_hashtable.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/environment/win32/emu_env_w32_dll_export_hooks.h"
+
 
 extern const char kernel32_dll_7c800000[];
 extern const char kernel32_dll_7c801000[];
@@ -70,7 +72,13 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 
 void emu_env_w32_free(struct emu_env_w32 *env)
 {
-	// FIXME free the dlls
+	int numdlls = 0;
+	while (env->loaded_dlls[numdlls] != NULL)
+	{
+		emu_env_w32_dll_free(env->loaded_dlls[numdlls]);
+		numdlls++;
+	}
+	free(env->loaded_dlls);
 	free(env);
 }
 
@@ -103,7 +111,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 //		printf("writing %i bytes to 0x%x\n",sizeof(kernel32_dll_7c801000),0x7C801000);
 		emu_memory_write_block(mem,0x7C801000,(void *)kernel32_dll_7c801000,32625);
 
-		dll->exports = kernel32_exports;
+		emu_env_w32_dll_exports_copy(dll, kernel32_exports);
 	}
 	else
 	if (strncmp(dllname, "ws2_32",strlen("ws2_32")) == 0)
@@ -117,7 +125,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 //		printf("writing %i bytes to 0x%x\n",sizeof(ws2_32_71a11000),0x71a11000);
 		emu_memory_write_block(mem,0x71a11000,(void *)ws2_32_71a11000,5634);
 
-		dll->exports = ws2_32_exports;
+		emu_env_w32_dll_exports_copy(dll, ws2_32_exports);
 	}
 
 
@@ -144,7 +152,7 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 	uint32_t eip = emu_cpu_eip_get(emu_cpu_get(env->emu));
 
 	int numdlls=0;
-	while (env->loaded_dlls[numdlls] != NULL)
+	while ( env->loaded_dlls[numdlls] != NULL )
 	{
 /*		printf("0x%08x %s 0x%08x - 0x%08x \n",
 			   eip,
@@ -152,36 +160,32 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 			   env->loaded_dlls[numdlls]->baseaddr,
 			   env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize);
 */
-		if (eip > env->loaded_dlls[numdlls]->baseaddr && 
-			eip < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize)
+		if ( eip > env->loaded_dlls[numdlls]->baseaddr && 
+			 eip < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize )
 		{
 			printf("eip %08x is within %s\n",eip, env->loaded_dlls[numdlls]->dllname);
 			struct emu_env_w32_dll *dll = env->loaded_dlls[numdlls];
-			int numexports = 0;
-			while (dll->exports[numexports].fnname != NULL)
+
+			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnptr, (void *)(eip - dll->baseaddr));
+
+			if ( ehi == NULL )
 			{
-				/*
-				printf("%s %x %x %x\n", 
-					   dll->exports[numexports].fnname,
-					   dll->exports[numexports].realaddr,
-					   dll->baseaddr,
-					   dll->exports[numexports].realaddr + dll->baseaddr);
-				*/
-				if (dll->exports[numexports].realaddr + dll->baseaddr == eip )
-				{
-					if (dll->exports[numexports].fnhook != NULL)
-					{
-						dll->exports[numexports].fnhook(env, &dll->exports[numexports]);
-						return &dll->exports[numexports];
-					}else
-					{ 
-						printf("unhooked call to %s\n", dll->exports[numexports].fnname);
-						return NULL;
-					}
-				}
-				numexports++;
+				printf("unknown call to %08x\n", eip);
+				return NULL;
 			}
-			break;
+
+			struct emu_env_w32_dll_export *ex = (struct emu_env_w32_dll_export *)ehi->value;
+
+			if ( ex->fnhook != NULL )
+			{
+				ex->fnhook(env, ex);
+				return ex;
+			}
+			else
+			{
+				printf("unhooked call to %s\n", ex->fnname);
+				return NULL;
+			}
 		}
 		numdlls++;
 	}

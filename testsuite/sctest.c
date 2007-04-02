@@ -1093,6 +1093,7 @@ int test(int n)
 		}
 */
 	}
+	emu_env_w32_free(env);
 	emu_free(e);
 	return 0;
 }
