@@ -62,12 +62,12 @@ uint32_t dll_export_fnname_hash(void *key)
 */
 	while (*c != 0)
 	{
-		hash = hash >> 13;
+		hash = hash << 19 | hash >> 13;
 		hash += *c;
 		c++;
 	}
 
-    return( hash );
+    return hash;
 }
 
 
