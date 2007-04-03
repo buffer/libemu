@@ -337,7 +337,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 	
 	
 	logDebug(c->emu,"decoding\n");
-	emu_cpu_debug_print(c);
+//	emu_cpu_debug_print(c);
 
 	uint8_t dis[32];
 	emu_memory_read_block(c->mem,c->eip,dis,32);
@@ -679,7 +679,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 
 	if (0)
 		debug_instruction(&c->instr.cpu);
-	emu_cpu_debug_print(c);
+//	emu_cpu_debug_print(c);
 
 	return ret;
 }
