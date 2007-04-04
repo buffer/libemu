@@ -24,7 +24,7 @@
 #include "emu/emu_string.h"
 #include "emu/emu_hashtable.h"
 
-#define CODE_OFFSET 0x402001
+#define CODE_OFFSET 0x417000
 
 #define FAILED "\033[31;1mfailed\033[0m"
 #define SUCCESS "\033[32;1msuccess\033[0m"
@@ -715,8 +715,7 @@ struct instr_vertex *instr_vertex_new(uint32_t theeip, const char *instr_string)
 	memset(iv, 0, sizeof(struct instr_vertex));
 	iv->eip = theeip;
 	iv->instr_string = emu_string_new();
-	emu_string_append_char(iv->instr_string, instr_string);
-	emu_string_append_char(iv->instr_string, "\\n");
+	emu_string_append_format(iv->instr_string, "0x%08x %s\\l",iv->eip, instr_string);
 	return iv;
 }
 
@@ -726,7 +725,15 @@ void instr_vertex_free(struct instr_vertex *iv)
 	free(iv);
 }
 
-
+struct instr_vertex *instr_vertex_copy(struct instr_vertex *from)
+{
+	struct instr_vertex *iv = (struct instr_vertex *)malloc(sizeof(struct instr_vertex));
+	memset(iv, 0, sizeof(struct instr_vertex));
+	iv->eip = from->eip;
+	iv->instr_string = emu_string_new();
+	emu_string_append_char(iv->instr_string, from->instr_string->data);
+	return iv;
+}
 
 
 
@@ -860,30 +867,37 @@ int test(int n)
 
 
 			ret = 0;
+			eipsave = emu_cpu_eip_get(emu_cpu_get(e));
+
+			if ( opts.graphfile != NULL )
+			{
+
+				ehi = emu_hashtable_search(eh, (void *)eipsave);
+				if ( ehi != NULL )
+					ev = (struct emu_vertex *)ehi->value;
+
+				if ( ev == NULL )
+				{
+					ev = emu_vertex_new();
+					emu_graph_vertex_add(graph, ev);
+
+					emu_hashtable_insert(eh, (void *)eipsave, ev);
+				}
+
+				if ( last_vertex != NULL )
+					emu_vertex_edge_add(last_vertex, ev);
+
+				last_vertex = ev;
+			}
 
 			dllhook = emu_env_w32_eip_check(env);
+
 			if ( dllhook != NULL )
 			{
-				if ( opts.graphfile != NULL )
+				if ( opts.graphfile != NULL && ev->data == NULL )
 				{
-					ehi = emu_hashtable_search(eh, (void *)eipsave);
-					if (ehi != NULL)
-						ev = (struct emu_vertex *)ehi->value;
-
-					if (ev == NULL)
-					{
-						ev = emu_vertex_new();
-						iv = instr_vertex_new(eipsave,dllhook->fnname);
-						emu_vertex_data_set(ev, iv);
-						emu_graph_vertex_add(graph, ev);
-
-						emu_hashtable_insert(eh, (void *)eipsave, ev);
-					}
-						
-					if ( last_vertex != NULL )
-                    	emu_vertex_edge_add(last_vertex, ev);
-
-					last_vertex = ev;
+					iv = instr_vertex_new(eipsave,dllhook->fnname);
+					emu_vertex_data_set(ev, iv);
 				}
 			}
 			else
@@ -891,31 +905,22 @@ int test(int n)
 
 				ret = emu_cpu_parse(emu_cpu_get(e));
 
-				eipsave = emu_cpu_eip_get(emu_cpu_get(e));
+
 				if ( ret != -1 )
 				{
 
-					if ( opts.graphfile != NULL )
+					if ( opts.graphfile != NULL && ev->data == NULL )
 					{
-						ehi = emu_hashtable_search(eh, (void *)eipsave);
-						if (ehi != NULL)
-							ev = (struct emu_vertex *)ehi->value;
-
-						if ( ev == NULL )
-						{
-							ev = emu_vertex_new();
-                            iv = instr_vertex_new(emu_cpu_eip_get(emu_cpu_get(e)),emu_cpu_get(e)->instr_string);
-							emu_vertex_data_set(ev, iv);
-							emu_graph_vertex_add(graph, ev);
-
-							emu_hashtable_insert(eh, (void *)eipsave, ev);
-						}
-
-						if ( last_vertex != NULL )
-							emu_vertex_edge_add(last_vertex, ev);
-
-						last_vertex = ev;
-
+						iv = instr_vertex_new(emu_cpu_eip_get(emu_cpu_get(e)),emu_cpu_get(e)->instr_string);
+						emu_vertex_data_set(ev, iv);
+					}
+				}
+				else
+				{
+					if ( ev->data == NULL )
+					{
+						iv = instr_vertex_new(emu_cpu_eip_get(emu_cpu_get(e)),"ERROR");
+						emu_vertex_data_set(ev, iv);
 					}
 				}
 
@@ -929,9 +934,7 @@ int test(int n)
 					printf("cpu error %s\n", emu_strerror(e));
 					break;
 				}
-
 			}
-
 
 //			printf("\n");
 		}
@@ -943,21 +946,110 @@ int test(int n)
 		{
 
 			struct emu_vertex *ev;
-
+			struct instr_vertex *iv;
 
 			FILE *f = fopen(opts.graphfile,"w+");
 
+			struct emu_graph *sgraph = emu_graph_new();
+			struct emu_hashtable *ht = emu_hashtable_new(2047, hash, cmp);
 
+			struct emu_vertex *nev;
+			struct instr_vertex *niv=NULL;
+			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+			{
+				iv = (struct instr_vertex *)ev->data;
 
-			fprintf(f, "digraph G {\n");
+				nev = emu_vertex_new();
+				emu_graph_vertex_add(sgraph, nev);
+
+				niv = instr_vertex_copy(iv); 
+				nev->data = niv;
+
+				emu_hashtable_insert(ht, (void *)iv->eip, nev);
+				ev->color = white;
+			}
 
 			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 			{
+				// ignore known 
+				if ( ev->color == black )
+					continue;
+
+
+
+				// find the first in a chain
+				iv = (struct instr_vertex *)ev->data;
+				while ( emu_edges_length(ev->backedges) == 1 && emu_edges_length(ev->edges) <= 1 && ev->color == white && iv->eip < static_offset + tests[i].codesize )
+				{
+					ev->color = grey;
+
+					struct emu_vertex *xev = emu_edges_first(ev->backedges)->destination;
+					iv = (struct instr_vertex *)xev->data;
+					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 || 
+						 iv->eip > static_offset + tests[i].codesize )
+						break;
+
+					ev = xev;
+				}
+
+
+				iv = (struct instr_vertex *)ev->data;
+
+				// create the new vertex 
+				nev = (struct emu_vertex *)emu_hashtable_search(ht, (void *)iv->eip)->value;
+				niv = (struct instr_vertex *)nev->data;
+
+				iv = (struct instr_vertex *)ev->data;
+				while ( emu_edges_length(ev->edges) == 1 && emu_edges_length(ev->backedges) <= 1 && ev->color != black && iv->eip < static_offset + tests[i].codesize )
+				{
+					ev->color = black;
+					struct emu_vertex *xev = emu_edges_first(ev->edges)->destination;
+					iv = (struct instr_vertex *)xev->data;
+
+					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 ||
+						 iv->eip > static_offset + tests[i].codesize )
+						break;
+
+					ev = xev;
+
+					iv = (struct instr_vertex *)ev->data;
+					emu_string_append_char(niv->instr_string, emu_string_char(iv->instr_string));
+				}
+
+				ev->color = black;
+
+				struct emu_edge *ee;
+				for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+				{
+					struct instr_vertex *ivto = emu_vertex_data_get(ee->destination);
+					struct emu_hashtable_item *ehi = emu_hashtable_search(ht, (void *)ivto->eip);
+					struct emu_vertex *to = (struct emu_vertex *)ehi->value;
+					if ( nev != to && to->color != black )
+					{
+						struct emu_edge *nee = emu_vertex_edge_add(nev, to);
+						nee->count = ee->count;
+					}
+				}
+
+			}
+
+			graph->vertex_destructor = instr_vertex_destructor;
+			emu_graph_free(graph);
+			graph = sgraph;
+
+			emu_hashtable_free(ht);
+			fprintf(f, "digraph G {\n\trankdir=LR\n");
+
+			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+			{
+				if ( emu_edges_length(ev->edges) == 0 && emu_edges_length(ev->backedges) == 0 )
+					continue;
+
 				struct instr_vertex *iv = emu_vertex_data_get(ev);
 				if ( iv->eip > static_offset + tests[i].codesize )
-					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"0x%08x %s\"]\n",iv->eip, iv->eip, emu_string_char(iv->instr_string));
+					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
 				else
-					fprintf(f, "\t %i [label = \"0x%08x %s\"]\n",iv->eip, iv->eip, emu_string_char(iv->instr_string));
+					fprintf(f, "\t %i [shape=box, label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
 			}
 			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 			{
@@ -975,6 +1067,9 @@ int test(int n)
 					else
 						if ( ee->count > 25 )
 						fprintf(f, "\t %i -> %i [style=bold, color=green]; \n",ivfrom->eip, ivto->eip);
+					else
+						if ( ee->count > 1 )
+						fprintf(f, "\t %i -> %i [style=bold, color=orange]; \n",ivfrom->eip, ivto->eip);
 					else
 						fprintf(f, "\t %i -> %i; \n",ivfrom->eip, ivto->eip);
 				}
@@ -1000,11 +1095,11 @@ int test(int n)
 			}
 		}
 */
-		if (opts.graphfile != NULL)
+		if ( opts.graphfile != NULL )
 		{
-        		graph->vertex_destructor = instr_vertex_destructor;
-				emu_graph_free(graph);
-				emu_hashtable_free(eh);
+			graph->vertex_destructor = instr_vertex_destructor;
+			emu_graph_free(graph);
+			emu_hashtable_free(eh);
 		}
 
 
