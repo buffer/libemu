@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 
 #include "emu/emu_string.h"
@@ -35,4 +36,17 @@ void emu_string_append_char(struct emu_string *s, const char *data)
 	*(unsigned char *)(s->data + s->size + strlen(data)) = 0;
 	s->size += strlen(data);
 //	printf("after %i |%s|\n", s->size, (char *)s->data);
+}
+
+void emu_string_append_format(struct emu_string *s, const char *format, ...)
+{
+	va_list         ap;
+	char            *message;
+
+	va_start(ap, format);
+	vasprintf(&message, format, ap);
+	va_end(ap);
+
+	emu_string_append_char(s, message);
+	free(message);
 }

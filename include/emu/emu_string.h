@@ -18,6 +18,7 @@ void emu_string_free(struct emu_string *s);
 char *emu_string_char(struct emu_string *s);
 
 void emu_string_append_char(struct emu_string *s, const char *data);
+void emu_string_append_format(struct emu_string *s, const char *format, ...);
 
 #endif
 
