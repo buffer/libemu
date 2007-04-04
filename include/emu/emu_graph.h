@@ -35,6 +35,7 @@ struct emu_vertex
 	emu_vertex_link link;
 	enum emu_vertex_color color;
 
+	emu_edge_root  *backedges;
 	uint32_t backlinks;
 };
 

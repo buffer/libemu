@@ -29,6 +29,7 @@ struct emu_vertex *emu_vertex_new()
 	struct emu_vertex *ev = (struct emu_vertex *)malloc(sizeof(struct emu_vertex));
 	memset(ev, 0, sizeof(struct emu_vertex));
 	ev->edges = emu_edges_create();
+	ev->backedges = emu_edges_create();
 	return ev;
 }
 
@@ -66,6 +67,26 @@ struct emu_edge *emu_vertex_edge_add(struct emu_vertex *ev, struct emu_vertex *t
 	ee->count++;
 	to->backlinks++;
 	emu_edges_insert_last(ev->edges, ee);
+
+	struct emu_edge *bee;
+	int8_t has_edge = 0;
+	for (bee = emu_edges_first(to->backedges); !emu_edges_istail(bee); bee = emu_edges_next(bee))
+	{
+		if (bee->destination == ev)
+		{
+			has_edge = 1;
+			break;
+		}
+	}
+
+	if (has_edge == 0)
+	{
+		bee = emu_edge_new();
+		bee->destination = ev;
+		bee->count++;
+		emu_edges_insert_last(to->backedges, bee);
+	}
+
 	return ee;
 }
 
@@ -86,6 +107,7 @@ void emu_graph_free(struct emu_graph *eg)
 		if (eg->vertex_destructor != NULL)
         	eg->vertex_destructor(ev->data);
 		emu_edges_destroy(ev->edges);
+		emu_edges_destroy(ev->backedges);
 	}
 	emu_vertexes_destroy(eg->vertexes);
 	free(eg);
