@@ -194,7 +194,7 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 			else
 			{
 				printf("unhooked call to %s\n", ex->fnname);
-				return NULL;
+				return ex;
 			}
 		}
 		numdlls++;
