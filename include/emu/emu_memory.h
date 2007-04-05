@@ -33,11 +33,12 @@ int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, s
 void emu_memory_segment_select(struct emu_memory *m, enum emu_segment s);
 enum emu_segment emu_memory_segment_get(struct emu_memory *m);
 
-/* information */
-uint32_t emu_memory_get_usage(struct emu_memory *m);
-
 /* alloc */
 int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len);
+/*int32_t emu_memory_alloc_at(struct emu_memory *m, uint32_t addr, size_t len);*/
+
+/* information */
+uint32_t emu_memory_get_usage(struct emu_memory *m);
 
 
 #define MEM_BYTE_READ(cpu_p, addr, data_p) \

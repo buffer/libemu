@@ -137,15 +137,46 @@ void emu_memory_free(struct emu_memory *m)
 	free(m);
 }
 
+static inline int page_is_alloc(struct emu_memory *em, uint32_t addr)
+{
+	if( em->pagetable[PAGESET(addr)] != NULL )
+	{
+		if( em->pagetable[PAGESET(addr)][PAGE(addr)] != NULL )
+		{
+			return -1;
+		} 
+	}
+	
+	return 0;
+}
+
 static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 {
 	if( em->pagetable[PAGESET(addr)] == NULL )
 	{
 		em->pagetable[PAGESET(addr)] = malloc(PAGESET_SIZE * sizeof(void *));
+		
+		if( em->pagetable[PAGESET(addr)] == NULL )
+		{
+			emu_errno_set(em->emu, ENOMEM);
+			emu_strerror_set(em->emu, "out of memory\n", addr);
+			return -1;
+		}
+		
 		memset(em->pagetable[PAGESET(addr)], 0, PAGESET_SIZE * sizeof(void *));
 	}
 
-	em->pagetable[PAGESET(addr)][PAGE(addr)] = malloc(PAGE_SIZE);
+	if( em->pagetable[PAGESET(addr)][PAGE(addr)] == NULL )
+	{
+		em->pagetable[PAGESET(addr)][PAGE(addr)] = malloc(PAGE_SIZE);
+		
+		if( em->pagetable[PAGESET(addr)][PAGE(addr)] == NULL )
+		{
+			emu_errno_set(em->emu, ENOMEM);
+			emu_strerror_set(em->emu, "out of memory\n", addr);
+			return -1;
+		}
+	}
 
 	return 0;
 }
@@ -318,9 +349,69 @@ enum emu_segment emu_memory_segment_get(struct emu_memory *m)
 	return m->segment_current;
 }
 
+/* make sure a memory block of size *len* is allocated at *addr* */
+/*int32_t emu_memory_alloc_at(struct emu_memory *m, uint32_t addr, size_t len)
+{
+	len += addr % PAGE_SIZE;
+	addr = (addr >> PAGE_BITS) << PAGE_BITS;
+	
+	while( len > 0 )
+	{
+		if( len > PAGE_SIZE )
+		{
+			len -= PAGE_SIZE;
+			page_alloc(m, addr);
+			addr += PAGE_SIZE;
+		}
+		else
+		{
+			len -= len; 
+			page_alloc(m, addr);
+		}
+	}
+
+	return 0;
+}*/
 
 int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len)
 {
-	*addr = rand();
-	return 0;
+	*addr = 0x00200000;
+	
+	uint32_t pages = len / PAGE_SIZE;
+	
+	if( len % PAGE_SIZE != 0 )
+	{
+		pages++;
+	}
+
+	int i;
+	
+	/* TODO: ensure termination */
+	for( ; ; )
+	{
+		for( i = 0; i < pages; i++ )
+		{
+			if( page_is_alloc(m, *addr + i * PAGE_SIZE) != 0 )
+			{
+				break;
+			}
+		}
+		
+		if( i == pages )
+		{
+			for( i = 0; i < pages; i++ )
+			{
+				if( page_alloc(m, *addr + i * PAGE_SIZE) )
+				{
+					return -1;
+				}
+			}
+			
+			return 0;
+		}
+		
+		*addr += len + PAGE_SIZE;
+	}
+	
+	return -1;
 }
