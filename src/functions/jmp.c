@@ -10,6 +10,8 @@
 int32_t instr_jmp_e9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
+	
+
 	/* E9 cw  
 	 * Jump near, relative, displacement relative to next instruction         
 	 * JMP rel16    
@@ -22,6 +24,8 @@ int32_t instr_jmp_e9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 */
 
 	c->eip += i->disp;
+
+	SOURCE_NORM_POS(i, c->eip);
 
 	return 0;
 }
@@ -52,7 +56,9 @@ int32_t instr_jmp_eb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * JMP rel8     
 	 */
 
-	c->eip += i->disp;
+    c->eip += i->disp;
+
+	SOURCE_NORM_POS(i, c->eip);
 
 	return 0;
 }
@@ -75,6 +81,8 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				MEM_WORD_READ(c, i->modrm.ea, &disp);
 				
 				c->eip = disp;
+
+				SOURCE_NORM_POS(i, c->eip);
 			}
 			else
 			{
@@ -87,6 +95,8 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				MEM_DWORD_READ(c, i->modrm.ea, &disp);
 				
 				c->eip = disp;
+
+				SOURCE_NORM_POS(i, c->eip);
 			}
 		}
 		else
@@ -99,6 +109,9 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				 */
 
 				c->eip = *c->reg16[i->modrm.rm];
+
+				SOURCE_NORM_POS(i, c->eip);
+				TRACK_NEED_REG16( i, i->modrm.rm);
 			}
 			else
 			{
@@ -108,6 +121,9 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				 */
 
 				c->eip = c->reg[i->modrm.rm];
+
+				SOURCE_NORM_POS(i, c->eip);
+				TRACK_NEED_REG32( i, i->modrm.rm);
 			}
 		}
 	}
