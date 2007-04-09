@@ -917,7 +917,7 @@ int test(int n)
 				}
 				else
 				{
-					if ( ev->data == NULL )
+					if (  opts.graphfile != NULL && ev->data == NULL )
 					{
 						iv = instr_vertex_new(emu_cpu_eip_get(emu_cpu_get(e)),"ERROR");
 						emu_vertex_data_set(ev, iv);
