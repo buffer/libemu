@@ -80,6 +80,23 @@ struct emu_cpu_instruction
 	uint8_t *imm8;
 
 	int32_t disp;
+
+	struct 
+	{
+		struct 
+		{
+			uint32_t eflags;
+			uint32_t reg[8];
+		}init, need;
+
+	} track;
+
+	struct 
+	{
+		uint8_t has_cond_pos : 1;
+		uint32_t norm_pos;
+		uint32_t cond_pos;
+	} source;
 };
 
 
