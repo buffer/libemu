@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
@@ -19,6 +20,12 @@ static const char *regm[] = {
 static uint8_t scalem[] = {
 	1, 2, 4, 8
 };
+
+	                      /* 0     1     2     3      4       5       6     7 */
+   const char *eflagm[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
+	                        "TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
+	                        "RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
+	                        "  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "};
 
 
 static uint16_t prefix_map[0x100];
@@ -164,11 +171,6 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	logDebug(c->emu,"eax=0x%08x  ecx=0x%08x  edx=0x%08x  ebx=0x%08x\n", c->reg[eax], c->reg[ecx], c->reg[edx], c->reg[ebx]);
 	logDebug(c->emu,"esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n", c->reg[esp], c->reg[ebp], c->reg[esi], c->reg[edi]);
 
-	                      /* 0     1     2     3      4       5       6     7 */
-	const char *flags[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
-	                        "TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
-	                        "RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
-	                        "  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "};
 
 	char *fmsg;
 	fmsg = (char *)malloc(32*3+1);
@@ -178,7 +180,7 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	{
 		if ( CPU_FLAG_ISSET(c, i) )
 		{
-			strcat(fmsg, flags[i]);
+			strcat(fmsg, eflagm[i]);
 			strcat(fmsg," ");
 		}
 	}
@@ -290,8 +292,101 @@ static void debug_instruction(struct emu_cpu_instruction *i)
 	if( ii->format.imm_data != 0 )
 	{
 	}
-		
 	printf("\n");
+
+
+	int j;
+
+	bool trace_eflag_need = false;
+	bool trace_eflag_init = false;
+	bool trace_reg_need = false;
+	bool trace_reg_init = false;
+
+
+	for (j=0;j<8;j++)
+	{
+		if (i->track.need.reg[j] != 0)
+			trace_reg_need = true;
+
+		if ( i->track.need.eflags & 1 << j)
+			trace_eflag_need = true;
+
+		if (i->track.init.reg[j] != 0)
+			trace_reg_init = true;
+
+		if ( i->track.init.eflags & 1 << j)
+			trace_eflag_init = true;
+
+	}
+
+	if ( trace_eflag_need ||  trace_reg_need )
+	{
+
+
+		printf("\ttrace:\n");
+
+		if ( trace_eflag_need || trace_reg_need )
+			printf("\t\tneeds \n");
+
+		if ( trace_reg_need )
+		{
+			printf("\t\t\t reg  ");
+			for ( j=0;j<8;j++ )
+			{
+				if ( i->track.need.reg[j] != 0 )
+					printf("%s ", regm[j]);
+
+			}
+			printf("\n");
+		}
+
+		if ( trace_eflag_need )
+		{
+			printf("\t\t\t eflag ");
+			for ( j=0;j<8;j++ )
+			{
+				if ( i->track.need.eflags & 1 << j )
+					printf("%s ", eflagm[j]);
+
+			}
+			printf("\n");
+		}
+	}
+
+	if ( trace_eflag_init || trace_reg_init )
+		printf("\t\tinits \n");
+
+
+	if ( trace_reg_init )
+	{
+		printf("\t\t\t reg ");
+		for ( j=0;j<8;j++ )
+		{
+			if ( i->track.init.reg[j] != 0 )
+				printf("%s ", regm[j]);
+
+		}
+		printf("\n");
+	}
+
+	if ( trace_eflag_init )
+	{
+		printf("\t\t\t eflag ");
+		for ( j=0;j<8;j++ )
+		{
+			if ( i->track.init.eflags & 1 << j )
+				printf("%s ", eflagm[j]);
+
+		}
+		printf("\n");
+	}
+
+	printf("\tsource:\n");
+	printf("\t\tnormal pos 0x%08x\n", i->source.norm_pos);
+	if (i->source.has_cond_pos == 1)
+    	printf("\t\tcond pos 0x%08x\n", i->source.cond_pos);
+	
+
 }
 
 #undef PREFIX_LOCK
@@ -345,6 +440,18 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 	uint32_t eip_before = c->eip;
 	uint32_t eip_after = 0;
+
+
+	/* reset the instruction source and track infos, maybe move to a fn and call the fn instead? */
+
+	c->instr.cpu.source.has_cond_pos = 0;
+
+	c->instr.cpu.track.init.eflags = 0;
+	memset(c->instr.cpu.track.init.reg, 0, sizeof(uint32_t) * 8);
+
+	c->instr.cpu.track.need.eflags = 0;
+	memset(c->instr.cpu.track.need.reg, 0, sizeof(uint32_t) * 8);
+
 
 	while( 1 )
 	{
@@ -419,7 +526,10 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 						if( c->instr.cpu.modrm.mod != 3 )
 						{
 							if( c->instr.cpu.modrm.rm != 4 && !(c->instr.cpu.modrm.mod == 0 && c->instr.cpu.modrm.rm == 5) )
-								c->instr.cpu.modrm.ea = c->reg[c->instr.cpu.modrm.rm];
+							{
+                                c->instr.cpu.modrm.ea = c->reg[c->instr.cpu.modrm.rm];
+								TRACK_NEED_REG32(&c->instr.cpu, c->instr.cpu.modrm.rm);
+							}
 							else
 								c->instr.cpu.modrm.ea = 0;
 							
@@ -437,15 +547,18 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 								if( c->instr.cpu.modrm.sib.base != 5 )
 								{
 									c->instr.cpu.modrm.ea += c->reg[c->instr.cpu.modrm.sib.base];
+									TRACK_NEED_REG32(&c->instr.cpu, c->instr.cpu.modrm.sib.base);
 								}
 								else if( c->instr.cpu.modrm.mod != 0 )
 								{
 									c->instr.cpu.modrm.ea += c->reg[ebp];
+									TRACK_NEED_REG32(&c->instr.cpu, ebp);
 								}
 	
 								if( c->instr.cpu.modrm.sib.index != 4 )
 								{
 									c->instr.cpu.modrm.ea += c->reg[c->instr.cpu.modrm.sib.index] * scalem[c->instr.cpu.modrm.sib.scale];
+									TRACK_NEED_REG32(&c->instr.cpu, c->instr.cpu.modrm.sib.index);
 								}
 							}
 							
@@ -655,6 +768,17 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 					   expected_instr_size);
 				return -1;
 			}
+
+
+			/* the default normal position is behind the instruction, specific instructions as call jmp set their
+			 * norm position 
+			 */
+			if (c->instr.is_fpu == 0)
+				SOURCE_NORM_POS(&c->instr.cpu, c->eip);
+/*			else
+				FIXME FPU
+*/
+
 			break;
 		}
 	}
@@ -677,7 +801,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 		emu_memory_segment_select(c->mem, s_cs);
 	}
 
-	if (0)
+	if (1)
 		debug_instruction(&c->instr.cpu);
 //	emu_cpu_debug_print(c);
 
