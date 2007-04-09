@@ -46,6 +46,8 @@ int32_t instr_call_e8(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	PUSH_DWORD(c, c->eip);
 	c->eip += i->disp;
 
+	SOURCE_NORM_POS(i, c->eip);
+
 	return 0;
 }
 
@@ -69,6 +71,8 @@ int32_t instr_group_5_ff_call(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				MEM_WORD_READ(c, i->modrm.ea, &disp);
 				
 				c->eip = disp;
+
+				SOURCE_NORM_POS(i, c->eip);
 			}
 			else
 			{
@@ -81,6 +85,8 @@ int32_t instr_group_5_ff_call(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				MEM_DWORD_READ(c, i->modrm.ea, &disp);
 				
 				c->eip = disp;
+
+				SOURCE_NORM_POS(i, c->eip);
 			}
 		}
 		else
@@ -93,6 +99,9 @@ int32_t instr_group_5_ff_call(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				 */
 
 				c->eip = *c->reg16[i->modrm.rm];
+
+				SOURCE_NORM_POS(i, c->eip);
+				TRACK_NEED_REG16( i, i->modrm.rm);
 			}
 			else
 			{
@@ -102,6 +111,9 @@ int32_t instr_group_5_ff_call(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				 */
 
 				c->eip = c->reg[i->modrm.rm];
+
+				SOURCE_NORM_POS(i, c->eip);
+				TRACK_NEED_REG32( i, i->modrm.rm);
 			}
 		}
 	}
