@@ -45,8 +45,8 @@ int32_t instr_jmp_ea(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * JMP ptr16:32 
 	 */
 
+	UNIMPLEMENTED(c, SST);
 
-	return 0;
 }
 
 int32_t instr_jmp_eb(struct emu_cpu *c, struct emu_cpu_instruction *i)
@@ -141,8 +141,8 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * JMP m16:32   
 		 */
 
+		UNIMPLEMENTED(c, SST);
 
-		return -1;
 	}
 
 	return 0;

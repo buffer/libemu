@@ -18,14 +18,12 @@ int32_t instr_call_9a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Call far, absolute, address given in operand
 	 */
 
-
-
 	/* 9A cp  
 	 * CALL ptr16:32 
 	 * Call far, absolute, address given in operand
 	 */
 
-	return 0;
+	UNIMPLEMENTED(c, SST);
 }
 
 
@@ -129,7 +127,8 @@ int32_t instr_group_5_ff_call(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * Call far, absolute indirect, address given in m16:32  
 		 */
 
-		return -1;
+		UNIMPLEMENTED(c, SST);
+
 	}
 
 	return 0;

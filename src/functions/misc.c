@@ -81,7 +81,7 @@ int32_t instr_lea_8d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * Store effective address for m in register r16
 		 * LEA r16,m 
 		 */
-
+		UNIMPLEMENTED(c, SST);
 	}
 	else
 	{

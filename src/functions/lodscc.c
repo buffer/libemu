@@ -25,6 +25,7 @@ int32_t instr_lods_ac(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	if ( i->prefixes & PREFIX_ADSIZE )
 	{
 //    	MEM_BYTE_READ(c, c->reg16[si], c->reg8[al]);
+		UNIMPLEMENTED(c, SST);
 	}
 	else
 	{
@@ -62,6 +63,7 @@ int32_t instr_lods_ad(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		if ( i->prefixes & PREFIX_ADSIZE )
 		{
 //        	MEM_WORD_READ(c, c->reg16[si], c->reg16[ax]);
+			UNIMPLEMENTED(c, SST);
 		}
 		else
 		{
@@ -92,6 +94,7 @@ int32_t instr_lods_ad(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		if ( i->prefixes & PREFIX_ADSIZE )
 		{
 //			MEM_DWORD_READ(c, c->reg16[si], &c->reg[eax]);
+			UNIMPLEMENTED(c, SST);
 
 		}
 		else

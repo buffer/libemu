@@ -17,6 +17,7 @@ int32_t instr_push_06(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push ES		
 	 * PUSH ES
 	 */
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -28,7 +29,7 @@ int32_t instr_push_0e(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push CS       
 	 * PUSH CS    
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -42,7 +43,7 @@ int32_t instr_push_16(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push SS       
 	 * PUSH SS    
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -56,7 +57,7 @@ int32_t instr_push_1e(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push DS       
 	 * PUSH DS    
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -142,7 +143,7 @@ int32_t instr_push_0fa0(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push FS       
 	 * PUSH FS    
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -154,7 +155,7 @@ int32_t instr_push_0f08(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push GS       
 	 * PUSH GS    
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }

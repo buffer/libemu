@@ -37,6 +37,7 @@ int32_t instr_ret_ca(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Far return to calling procedure and pop imm16 bytes from stack
 	 * RET imm16  
 	 */
+	UNIMPLEMENTED(c, NNY);
 	return -1;
 }
 
@@ -46,6 +47,7 @@ int32_t instr_ret_cb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Far return to calling procedure
 	 * RET
 	 */
+	UNIMPLEMENTED(c, NNY);
 	return -1;
 }
 

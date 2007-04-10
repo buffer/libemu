@@ -15,7 +15,7 @@ int32_t instr_pop_07(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Pop top of stack into ES; increment stack pointer   
 	 * POP ES  
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -27,7 +27,7 @@ int32_t instr_pop_17(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Pop top of stack into SS; increment stack pointer   
 	 * POP SS  
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -39,8 +39,8 @@ int32_t instr_pop_1f(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Pop top of stack into DS; increment stack pointer   
 	 * POP DS  
 	 */
-
-
+	UNIMPLEMENTED(c, NNY);
+	
 	return 0;
 }
 
@@ -72,7 +72,7 @@ int32_t instr_pop_0fa1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Pop top of stack into FS; increment stack pointer   
 	 * POP FS  
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }
@@ -84,7 +84,7 @@ int32_t instr_pop_0fa9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Pop top of stack into GS; increment stack pointer   
 	 * POP GS  
 	 */
-
+	UNIMPLEMENTED(c, NNY);
 
 	return 0;
 }

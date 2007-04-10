@@ -45,6 +45,7 @@ int32_t instr_scas_ae(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * Compare AL with byte at ES:DI and set status flags
 		 * SCASB    
 		 */
+		UNIMPLEMENTED(c, SST);
 
 	}
 	else
@@ -86,6 +87,7 @@ int32_t instr_scas_af(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * Compare AX with word at ES:DI and set status flags
 			 * SCASW    
 			 */
+			UNIMPLEMENTED(c, SST);
 		}
 		else
 		{
@@ -95,8 +97,9 @@ int32_t instr_scas_af(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * Compare EAX with doubleword at ES:DI and set status flags
 			 * SCASD    
 			 */
-
+			UNIMPLEMENTED(c, SST);
 		}
+
 
 	}else
 	{

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include <emu/emu.h>
 #include <emu/emu_cpu_instruction.h>
 #include <emu/emu_instruction.h>
 
@@ -218,5 +219,14 @@ memcpy(&to+4,&lower,4);
 
 #define SOURCE_NORM_POS(instruction_p, pos) (instruction_p)->source.norm_pos = pos;
 #define SOURCE_COND_POS(instruction_p, pos)	(instruction_p)->source.has_cond_pos = 1; (instruction_p)->source.cond_pos = pos;
+
+
+
+#define NNY "no need yet"
+#define SST "16bit memory access is unsupported"
+
+#define UNIMPLEMENTED(cpu_p, reason) \
+emu_strerror_set((cpu_p)->emu, "The following function is unimplemented %s %s:%i (%s)", __PRETTY_FUNCTION__, __FILE__, __LINE__,  reason); \
+return -1; 
 
 #endif /*EMU_CPU_DATA_H_*/

@@ -25,6 +25,7 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	if ( i->prefixes & PREFIX_ADSIZE )
 	{
 //		MEM_BYTE_WRITE(c,c->reg16[si],*c->reg8[al]);
+		UNIMPLEMENTED(c, SST);
 	}
 	else
 	{
@@ -80,6 +81,7 @@ int32_t instr_stos_ab(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		if ( i->prefixes & PREFIX_ADSIZE )
 		{
 //			MEM_WORD_WRITE(c,c->reg16[si],*c->reg16[ax]);
+			UNIMPLEMENTED(c, SST);
 		}
 		else
 		{
@@ -109,6 +111,7 @@ int32_t instr_stos_ab(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		if ( i->prefixes & PREFIX_ADSIZE )
 		{
 //			MEM_DWORD_WRITE(c,c->reg16[si],c->reg[eax]);
+			UNIMPLEMENTED(c, SST);
 		}
 		else
 		{
