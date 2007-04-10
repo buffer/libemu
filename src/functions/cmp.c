@@ -268,15 +268,36 @@ int32_t instr_cmp_3d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	return 0;
 }
 
-int32_t instr_group_1_80_cmp(struct emu_cpu *cpu, uint8_t a, uint8_t b)
+int32_t instr_group_1_80_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	INSTR_CALC_AND_SET_FLAGS(8, 
-							 cpu, 
-							 a, 
-							 b, 
-							 -)
+
+	if( i->modrm.mod != 3 )
+	{
+		uint8_t dst;
+		MEM_BYTE_READ(c, i->modrm.ea, &dst);
+		/* dst <-- dst <OPC> imm8 */
+
+		INSTR_CALC_AND_SET_FLAGS(8, 
+								 c, 
+								 dst, 
+								 *i->imm8, 
+								 -)
+
+		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
+	}
+	else
+	{
+		/* reg8[rm] <-- reg8[rm] <OPC> imm8 */
+		INSTR_CALC_AND_SET_FLAGS(8, 
+								 c, 
+								 *c->reg8[i->modrm.rm], 
+								 *i->imm8, 
+								 -)
+	}
+
 	return 0;
 }
+
 
 int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {

@@ -64,8 +64,18 @@ INSTR_SET_FLAG_OF(cpu, operation, bits)								\
 INSTR_SET_FLAG_CF(cpu, operation)
 
 
+
+#define TRACK_INIT_ALL_FLAGS(instruction_p) \
+TRACK_INIT_EFLAG(instruction_p, f_zf); \
+TRACK_INIT_EFLAG(instruction_p, f_pf); \
+TRACK_INIT_EFLAG(instruction_p, f_sf); \
+TRACK_INIT_EFLAG(instruction_p, f_of); \
+TRACK_INIT_EFLAG(instruction_p, f_cf); 
+
+
 int32_t instr_sbb_18(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
 
 	/* 18 /r
 	 * Subtract with borrow r8 from r/m8
@@ -99,9 +109,7 @@ int32_t instr_sbb_18(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_sbb_19(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-
-
-
+	TRACK_INIT_ALL_FLAGS(i);
 
 	if ( i->modrm.mod != 3 )
 	{
@@ -178,6 +186,8 @@ int32_t instr_sbb_19(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_sbb_1a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	/* 1A /r
 	 * Subtract with borrow r/m8 from r8
 	 * SBB r8,r/m8 
@@ -209,8 +219,8 @@ int32_t instr_sbb_1a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 }
 
 int32_t instr_sbb_1b(struct emu_cpu *c, struct emu_cpu_instruction *i)
-{
-	 
+{	
+	TRACK_INIT_ALL_FLAGS(i); 
 
 	if ( i->modrm.mod != 3 )
 	{
@@ -284,6 +294,8 @@ int32_t instr_sbb_1b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_sbb_1c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	/* 1C ib
 	 * Subtract with borrow imm8 from AL
 	 * SBB AL,imm8
@@ -300,8 +312,7 @@ int32_t instr_sbb_1c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_sbb_1d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-		
-
+	TRACK_INIT_ALL_FLAGS(i);	
 
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -335,20 +346,44 @@ int32_t instr_sbb_1d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 }
 
 
-int32_t instr_group_1_80_sbb(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+int32_t instr_group_1_80_sbb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	INSTR_CALC_AND_SET_FLAGS(8, 
-							 cpu, 
-							 a, 
-							 b, 
-							 *result, 
-							 -)
+	TRACK_INIT_ALL_FLAGS(i);
+
+	if( i->modrm.mod != 3 )
+	{
+		uint8_t dst;
+		MEM_BYTE_READ(c, i->modrm.ea, &dst);
+		/* dst <-- dst <OPC> imm8 */
+
+		INSTR_CALC_AND_SET_FLAGS(8, 
+								 c, 
+								 dst, 
+								 *i->imm8, 
+								 dst, 
+								 -)
+
+		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
+	}
+	else
+	{
+		/* reg8[rm] <-- reg8[rm] <OPC> imm8 */
+		INSTR_CALC_AND_SET_FLAGS(8, 
+								 c, 
+								 *c->reg8[i->modrm.rm], 
+								 *i->imm8, 
+								 *c->reg8[i->modrm.rm],
+								 -)
+	}
+
 	return 0;
 }
 
 
 int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
@@ -432,6 +467,8 @@ int32_t instr_group_1_81_sbb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_group_1_83_sbb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )

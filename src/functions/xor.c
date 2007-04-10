@@ -23,8 +23,18 @@ INSTR_SET_FLAG_SF(cpu)
 
 
 
+#define TRACK_INIT_ALL_FLAGS(instruction_p) \
+TRACK_INIT_EFLAG(instruction_p, f_of); \
+TRACK_INIT_EFLAG(instruction_p, f_cf); \
+TRACK_INIT_EFLAG(instruction_p, f_zf); \
+TRACK_INIT_EFLAG(instruction_p, f_pf); \
+TRACK_INIT_EFLAG(instruction_p, f_sf); 
+
+
 int32_t instr_xor_30(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	/* 30 /r
 	 * r/m8 XOR r8
 	 * XOR r/m8,r8     
@@ -49,6 +59,10 @@ int32_t instr_xor_30(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.rm], 
 								 ^)
+
+		TRACK_NEED_REG8(i, i->modrm.rm);
+		TRACK_INIT_REG8(i, i->modrm.rm);
+
 	}
 
 	return 0;
@@ -56,6 +70,8 @@ int32_t instr_xor_30(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
@@ -108,6 +124,9 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.rm], 
 									 ^)
+			TRACK_NEED_REG16(i, i->modrm.rm);
+			TRACK_NEED_REG16(i, i->modrm.opc);
+			TRACK_INIT_REG16(i, i->modrm.rm);
 		}
 		else
 		{
@@ -122,6 +141,10 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.rm], 
 									 ^)
+			TRACK_NEED_REG32(i, i->modrm.rm);
+			TRACK_NEED_REG32(i, i->modrm.opc);
+			TRACK_INIT_REG32(i, i->modrm.rm);
+
 		}
 	}
 
@@ -130,6 +153,8 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	/* 32 /r
 	 * r8 XOR r/m8
 	 * XOR r8,r/m8     
@@ -146,6 +171,9 @@ int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg8[i->modrm.opc], 
 								 *c->reg8[i->modrm.opc], 
 								 ^)
+
+		TRACK_NEED_REG8(i, i->modrm.opc);
+		TRACK_INIT_REG8(i, i->modrm.opc);
 	}
 	else
 	{
@@ -155,6 +183,10 @@ int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg8[i->modrm.rm], 
 								 *c->reg8[i->modrm.opc], 
 								 ^)
+
+		TRACK_NEED_REG8(i, i->modrm.opc);
+		TRACK_NEED_REG8(i, i->modrm.rm);
+		TRACK_INIT_REG8(i, i->modrm.opc);
 	}
 
 	return 0;
@@ -162,6 +194,8 @@ int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
@@ -181,6 +215,9 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
 									 ^)
+
+			TRACK_NEED_REG16(i, i->modrm.opc);
+			TRACK_INIT_REG16(i, i->modrm.opc);
 		}
 		else
 		{
@@ -197,6 +234,9 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.opc], 
 									 ^)
+			TRACK_NEED_REG32(i, i->modrm.opc);
+			TRACK_INIT_REG32(i, i->modrm.opc);
+
 		}
 	}
 	else
@@ -213,6 +253,11 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.opc], 
 									 ^)
+
+			TRACK_NEED_REG16(i, i->modrm.rm);
+			TRACK_NEED_REG16(i, i->modrm.opc);
+			TRACK_INIT_REG16(i, i->modrm.opc);
+
 		}
 		else
 		{
@@ -226,6 +271,11 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.opc], 
 									 ^)
+
+			TRACK_NEED_REG32(i, i->modrm.rm);
+			TRACK_NEED_REG32(i, i->modrm.opc);
+			TRACK_INIT_REG32(i, i->modrm.opc);
+
 		}
 	}
 
@@ -234,6 +284,8 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_34(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	/* 34 ib
 	 * AL XOR imm8
 	 * XOR AL,imm8
@@ -245,11 +297,16 @@ int32_t instr_xor_34(struct emu_cpu *c, struct emu_cpu_instruction *i)
 							 *i->imm8, 
 							 *c->reg8[al], 
 							 ^)
+
+	TRACK_NEED_REG8(i, al);
+	TRACK_INIT_REG8(i, al);
+
 	return 0;
 }
 
 int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
 
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -265,6 +322,10 @@ int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *i->imm16, 
 								 *c->reg16[ax], 
 								 ^)
+
+		TRACK_NEED_REG16(i, ax);
+		TRACK_INIT_REG16(i, ax);
+
 	}
 	else
 	{
@@ -278,24 +339,57 @@ int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 i->imm, 
 								 c->reg[eax], 
 								 ^)
+
+		TRACK_NEED_REG32(i, eax);
+		TRACK_INIT_REG32(i, eax);
+
 	}
 
 	return 0;
 }
 
-int32_t instr_group_1_80_xor(struct emu_cpu *cpu, uint8_t a, uint8_t b, uint8_t *result)
+
+int32_t instr_group_1_80_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	INSTR_CALC_AND_SET_FLAGS(8, 
-							 cpu, 
-							 a, 
-							 b, 
-							 *result, 
-							 ^)
+	TRACK_INIT_ALL_FLAGS(i);
+
+	if( i->modrm.mod != 3 )
+	{
+		uint8_t dst;
+		MEM_BYTE_READ(c, i->modrm.ea, &dst);
+		/* dst <-- dst <OPC> imm8 */
+
+		INSTR_CALC_AND_SET_FLAGS(8, 
+								 c, 
+								 dst, 
+								 *i->imm8, 
+								 dst, 
+								 ^)
+
+		MEM_BYTE_WRITE(c, i->modrm.ea, dst);
+	}
+	else
+	{
+		/* reg8[rm] <-- reg8[rm] <OPC> imm8 */
+		INSTR_CALC_AND_SET_FLAGS(8, 
+								 c, 
+								 *c->reg8[i->modrm.rm], 
+								 *i->imm8, 
+								 *c->reg8[i->modrm.rm],
+								 ^)
+
+		TRACK_INIT_REG8(i, i->modrm.rm);
+		TRACK_NEED_REG8(i, i->modrm.rm);
+	}
+
 	return 0;
 }
 
+
 int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
@@ -353,6 +447,8 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 ^)
 
+			TRACK_NEED_REG16(i, i->modrm.rm);
+			TRACK_INIT_REG16(i, i->modrm.rm);
 		}
 		else
 		{
@@ -367,6 +463,10 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.rm], 
 									 ^)
 
+			TRACK_NEED_REG32(i, i->modrm.rm);
+			TRACK_INIT_REG32(i, i->modrm.rm);
+
+
 		}
 	}
 	return 0;
@@ -374,6 +474,8 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+	TRACK_INIT_ALL_FLAGS(i);
+
 	if ( i->modrm.mod != 3 )
 	{
 
@@ -435,6 +537,9 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 ^)
 
+			TRACK_NEED_REG16(i, i->modrm.rm);
+			TRACK_INIT_REG16(i, i->modrm.rm);
+
 		}
 		else
 		{
@@ -450,6 +555,10 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 sexd, 
 									 c->reg[i->modrm.rm], 
 									 ^)
+
+			TRACK_NEED_REG32(i, i->modrm.rm);
+			TRACK_INIT_REG32(i, i->modrm.rm);
+
 		}
 	}
 	return 0;
