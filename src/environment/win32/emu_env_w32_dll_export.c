@@ -1145,3 +1145,57 @@ int fclose( FILE *stream );
 	return 0;
 }
 
+
+int32_t	emu_env_w32_hook_URLDownloadToFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+HRESULT URLDownloadToFile(
+  LPUNKNOWN pCaller,
+  LPCTSTR szURL,
+  LPCTSTR szFileName,
+  DWORD dwReserved,
+  LPBINDSTATUSCALLBACK lpfnCB
+);
+*/
+	uint32_t p_caller;
+	POP_DWORD(c, &p_caller);
+
+	uint32_t p_url;
+	POP_DWORD(c, &p_url);
+
+	uint32_t p_filename;
+	POP_DWORD(c, &p_filename);
+
+	uint32_t reserved;
+	POP_DWORD(c, &reserved);
+
+	uint32_t statuscallbackfn;
+	POP_DWORD(c, &statuscallbackfn);
+
+
+
+	struct emu_string *url = emu_string_new();
+	emu_memory_read_string(c->mem, p_url, url, 512);
+
+	struct emu_string *filename = emu_string_new();
+	emu_memory_read_string(c->mem, p_filename, filename, 512);
+
+
+	printf(" %s -> %s\n", emu_string_char(url), emu_string_char(filename));
+
+	emu_string_free(url);
+	emu_string_free(filename);
+
+    emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+

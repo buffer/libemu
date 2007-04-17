@@ -55,9 +55,12 @@ int32_t	emu_env_w32_hook_fopen(struct emu_env_w32 *env, struct emu_env_w32_dll_e
 int32_t	emu_env_w32_hook_fwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 int32_t	emu_env_w32_hook_fclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 
+int32_t	emu_env_w32_hook_URLDownloadToFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+
 extern struct emu_env_w32_dll_export kernel32_exports[];
 extern struct emu_env_w32_dll_export ws2_32_exports[];
 extern struct emu_env_w32_dll_export wininet_exports[];
+extern struct emu_env_w32_dll_export urlmon_exports[];
 
 
 #endif
