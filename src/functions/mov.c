@@ -115,6 +115,7 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		if( i->modrm.mod != 3 )
 		{
 			MEM_DWORD_READ(c, i->modrm.ea, &c->reg[i->modrm.opc]);
+			TRACK_INIT_REG32(i, i->modrm.opc);
 		}
 		else
 		{

@@ -54,6 +54,7 @@ int32_t instr_pop_5x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * POP r16 
 		 */
 		POP_WORD(c, c->reg16[i->opc & 7 ]);
+		TRACK_INIT_REG16(i, i->opc & 7);
 	}else
 	{
 		/* 58+ rd 
@@ -61,6 +62,7 @@ int32_t instr_pop_5x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * POP r32 
 		 */
 		POP_DWORD(c, &c->reg[i->opc & 7]);
+		TRACK_INIT_REG32(i, i->opc & 7);
 	}
 	return 0;
 }

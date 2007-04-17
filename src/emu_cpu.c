@@ -208,7 +208,7 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	
 }
 
-static void debug_instruction(struct emu_cpu_instruction *i)
+void debug_instruction(struct emu_cpu_instruction *i)
 {
 	struct emu_cpu_instruction_info *ii;
 	
@@ -294,6 +294,7 @@ static void debug_instruction(struct emu_cpu_instruction *i)
 	}
 	printf("\n");
 
+	return;
 
 	int j;
 
@@ -801,7 +802,7 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 		emu_memory_segment_select(c->mem, s_cs);
 	}
 
-	if (1)
+	if (0)
 		debug_instruction(&c->instr.cpu);
 //	emu_cpu_debug_print(c);
 

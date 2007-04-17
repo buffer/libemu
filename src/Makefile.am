@@ -21,6 +21,7 @@ libemu_la_SOURCES += emu_string.c
 libemu_la_SOURCES += emu_getpc.c
 libemu_la_SOURCES += emu_graph.c
 libemu_la_SOURCES += emu_hashtable.c
+libemu_la_SOURCES += emu_track.c
 libemu_la_SOURCES += functions/aaa.c
 libemu_la_SOURCES += functions/adc.c
 libemu_la_SOURCES += functions/add.c
