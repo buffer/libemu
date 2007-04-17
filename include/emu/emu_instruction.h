@@ -1,5 +1,5 @@
 /* @header@ */
-#ifndef EMU_INSTRUCTiON_H
+#ifndef EMU_INSTRUCTION_H
 #define EMU_INSTRUCTION_H
 
 #include <emu/emu_cpu_instruction.h>
