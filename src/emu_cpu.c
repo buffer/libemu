@@ -729,34 +729,11 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 					}
 				}
 				
-				/* for now we only support three critical instructions. */
-				if( c->instr.fpu.fpu_data[0] == 0xd9 )
-				{
-					if( (c->instr.fpu.fpu_data[1] & 0x38) == 0x30 )
-					{
-						/* fnstenv volume 1, page 230 */
-						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x00, 0);
-						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x04, 0);
-						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x08, 0);
-						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x0c, c->last_fpu_instr);
-						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x10, 0);
-						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x14, 0);
-						MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x18, 0);
-					}
-					else if( c->instr.fpu.fpu_data[1] == 0xee )
-					{
-						/* fldz */
-					}
-				}
-				else if( c->instr.fpu.fpu_data[0] == 0xdd )
-				{
-					if( (c->instr.fpu.fpu_data[1] & 0xf8) == 0xc0 )
-					{
-						/* ffree */
-					}
-				}
-
-				c->last_fpu_instr = eip_before;
+				/*c->instr.fpu.last_instr = c->last_fpu_instr;*/
+				
+				
+				c->last_fpu_instr[1] = c->last_fpu_instr[0]; 
+				c->last_fpu_instr[0] = eip_before;
 			}
 			
 			logDebug(c->emu,"\n");
@@ -789,18 +766,53 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 int32_t emu_cpu_step(struct emu_cpu *c)
 {
-	if( c->instr.cpu.prefixes & PREFIX_FS_OVR )
-	{
-		emu_memory_segment_select(c->mem, s_fs);
-	}
+	int32_t ret = 0;
 
 	/* call the function */
-	int32_t ret = c->cpu_instr_info->function(c, &c->instr.cpu);
-
-	if( c->instr.cpu.prefixes & PREFIX_FS_OVR )
+	if( c->instr.is_fpu == 0 )
 	{
-		emu_memory_segment_select(c->mem, s_cs);
+		if( c->instr.cpu.prefixes & PREFIX_FS_OVR )
+		{
+			emu_memory_segment_select(c->mem, s_fs);
+		}
+
+		ret = c->cpu_instr_info->function(c, &c->instr.cpu);
+
+		if( c->instr.cpu.prefixes & PREFIX_FS_OVR )
+		{
+			emu_memory_segment_select(c->mem, s_cs);
+		}
 	}
+	else
+	{
+		/* for now we only support three critical instructions. */
+		if( c->instr.fpu.fpu_data[0] == 0xd9 )
+		{
+			if( (c->instr.fpu.fpu_data[1] & 0x38) == 0x30 )
+			{
+				/* fnstenv volume 1, page 230 */
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x00, 0);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x04, 0);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x08, 0);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x0c, c->last_fpu_instr[1]);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x10, 0);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x14, 0);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x18, 0);
+			}
+			else if( c->instr.fpu.fpu_data[1] == 0xee )
+			{
+				/* fldz */
+			}
+		}
+		else if( c->instr.fpu.fpu_data[0] == 0xdd )
+		{
+			if( (c->instr.fpu.fpu_data[1] & 0xf8) == 0xc0 )
+			{
+				/* ffree */
+			}
+		}
+	}
+
 
 	if (0)
 		debug_instruction(&c->instr.cpu);

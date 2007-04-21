@@ -31,7 +31,7 @@ struct emu_cpu
 	struct emu_instruction 			instr;
 	struct emu_cpu_instruction_info 	*cpu_instr_info;
 	
-	uint32_t last_fpu_instr;
+	uint32_t last_fpu_instr[2];
 
 	char *instr_string;
 };
