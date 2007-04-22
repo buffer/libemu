@@ -1199,3 +1199,35 @@ HRESULT URLDownloadToFile(
 	return 0;
 }
 
+
+
+int32_t emu_env_w32_hook_GetSystemDirectoryA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+UINT GetSystemDirectory(
+  LPTSTR lpBuffer,
+  UINT uSize
+);
+*/
+	uint32_t p_buffer;
+	POP_DWORD(c, &p_buffer);
+
+	uint32_t size;
+	POP_DWORD(c, &size);
+
+	emu_memory_write_block(emu_memory_get(env->emu), p_buffer, "c:\\WINDOWS\\system32\x00", 20);
+	emu_cpu_reg32_set(c, eax, 19);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+

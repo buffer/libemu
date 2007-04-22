@@ -446,7 +446,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"GetSystemDefaultLCID", 0x0000BF3D, NULL},
 	{"GetSystemDefaultLangID", 0x000127B2, NULL},
 	{"GetSystemDefaultUILanguage", 0x00013038, NULL},
-	{"GetSystemDirectoryA", 0x00014EEA, NULL},
+	{"GetSystemDirectoryA", 0x00014EEA, emu_env_w32_hook_GetSystemDirectoryA },
 	{"GetSystemDirectoryW", 0x00031DB9, NULL},
 	{"GetSystemInfo", 0x00012D56, NULL},
 	{"GetSystemPowerStatus", 0x00035340, NULL},
