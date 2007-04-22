@@ -18,6 +18,7 @@
 #include "emu/emu_log.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/environment/win32/emu_env_w32.h"
+#include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/emu_getpc.h"
 #include "emu/emu_graph.h"
@@ -42,17 +43,18 @@ static struct run_time_options
 	char *graphfile;
 } opts;
 
+/*
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
 };
 
 
-/* 0     1     2     3      4       5       6     7 */
+// 0     1     2     3      4       5       6     7 
 static const char *flags[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
 	"TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
 	"RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
 	"  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "};
-
+*/
 
 struct instr_test
 {
@@ -722,6 +724,50 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
+	{
+		.instr = "win32_bind pex & ./clet -S win32_bind_pex -b 50 -t -B -c -f ../spectrum/stat2 -a -n 123",
+		.code =  
+		"\x56\x4F\x4C\x41\x54\x49\x4C\x49\x54\x49\x45\x53\x52\x45\x43\x45"
+		"\x44\x45\x44\x42\x45\x4C\x4C\x4D\x41\x4E\x54\x52\x41\x44\x49\x54"
+		"\x49\x4F\x4E\x53\x45\x58\x41\x4D\x49\x4E\x45\x44\x55\x50\x52\x4F"
+		"\x4F\x54\x53\x50\x41\x52\x4C\x4F\x52\x53\x45\x58\x43\x45\x4C\x4C"
+		"\x45\x4E\x43\x45\x4C\x41\x42\x53\x44\x45\x45\x50\x45\x4E\x53\x52"
+		"\x41\x44\x49\x41\x4E\x54\x46\x52\x45\x53\x48\x57\x41\x54\x45\x52"
+		"\x53\x55\x53\x50\x45\x43\x54\x49\x4E\x47\x42\x52\x4F\x49\x4C\x53"
+		"\x42\x41\x44\x47\x45\x52\x49\x4E\x47\x4D\x41\xEB\x32\x59\x31\xC0"
+		"\xB0\x5C\x8B\x11\x81\xEA\xC1\x58\x63\x43\x81\xC2\x8D\xED\x76\x39"
+		"\x81\xF2\x74\x22\x74\x71\xC1\xC2\x0F\xC1\xC2\x15\x89\x11\x81\xE9"
+		"\xFE\xFF\xFF\xFF\x41\x41\x2C\x01\x48\x48\x48\x74\x07\xEB\xD3\xE8"
+		"\xC9\xFF\xFF\xFF\x1B\x8A\xD8\x59\x33\x48\x78\x88\xBF\x98\x84\x8E"
+		"\x50\x30\xF1\x6E\xF9\x8B\x34\x53\xEE\x78\x26\xA8\x23\x91\x94\xD3"
+		"\x12\xD8\x75\x8C\x83\x90\xAA\x05\x36\x8C\x1A\x53\x27\xC7\x0D\xD7"
+		"\x8B\xCE\xB4\x8F\xF8\x8D\x7A\x02\x86\x8E\xD4\x13\x3C\x8B\x5A\xC7"
+		"\x92\xFB\xD6\xEE\x3E\x06\x27\xD4\x84\xAA\x96\x87\x94\x9A\x24\x1C"
+		"\x37\x41\xE1\xC9\x4B\x98\x7A\x62\x86\x8E\x04\x55\xBC\x8E\xAE\xBF"
+		"\xB9\xED\xB2\xFD\xB4\x8C\xDA\x3F\x3A\xBC\x53\xD5\x90\x8B\x27\x45"
+		"\xAC\x02\xB2\xBF\xB8\x8E\x6A\x14\xC5\x94\x6A\xD3\xD4\x81\x7C\x8F"
+		"\xD8\xBE\x64\xF2\x63\x69\x2D\x02\xFA\x10\x42\x78\x6A\x0F\x3E\x98"
+		"\x39\xD1\x65\xFA\x2A\xBB\xA4\x8C\x77\xD1\x05\xBA\x09\x37\x05\x05"
+		"\xCC\x88\x42\x27\x19\x21\x73\x5C\x01\x71\xD7\x17\xD3\x54\x70\x5C"
+		"\xB1\x11\x30\x72\xA9\x11\x2F\x42\xA8\xD1\x65\x3A\xFA\xF0\xA3\x72"
+		"\xAA\x71\x5A\x6D\xFD\x40\xC9\x66\x6B\x5A\x70\x0C\x21\x01\x54\x72"
+		"\xE9\x07\xE8\x65\xCE\xE4\xD0\x4D\xE9\x67\x38\x82\xE9\x07\xE8\x65"
+		"\x12\x63\xDB\x63\xE9\x67\x68\x82\x39\x31\x70\x4C\xB1\x85\xEC\x0C"
+		"\x5B\x7A\xED\xA1\x63\x39\x70\xFC\x61\xA0\x1C\x15\xFA\x10\x8D\x75"
+		"\x4C\xA8\x5C\xA2\x09\xBD\xD6\x9F\x22\x41\xCF\x7F\x92\xFB\x36\x2C"
+		"\xDE\x27\x8F\xB9\xA3\xC2\x30\xEE\x1C\x80\xB1\xE1\x2E\x85\x3C\xC4"
+		"\xB3\x63\x74\xEC\x3B\xD2\x05\x5A\x69\x21\x50\xC2\x89\xA1\x4C\x27"
+		"\x89\x31\x50\x22\x83\x89\x8C\x01\x51\xDE\x36\xA2\x63\xA9\x6C\xFC"
+		"\x73\xCB\x65\xFA\x6C\xC1\x35\xBF\x40\xD0\x05\x4A\xE9\x07\xE8\x35"
+		"\x23\x47\x73\x12\xE9\x67\x78\x3C\x81\xFE\x62\x17\xAF\x96\x69\x92"
+		"\x43\x42\x42\x41\x42\x43\x43\x43\x41\x41\x42\x42\x42\x43\x41\x43"
+		"\x43\x41\x43\x41\x42\x43\x41\x41\x43\x41\x43\x42\x43\x41\x41\x43"
+		"\x43\x43\x43\x41\x41\x42\x43\x41\x41\x43\x43\x41\x43\x43\x43\x43"
+		"\x43\x43\x03\x43",
+		.codesize = 580,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
 	/*{
 		.instr = "",
 		.code =  
@@ -737,6 +783,7 @@ struct instr_vertex
 {
 	uint32_t    eip;
 	struct emu_string  *instr_string;
+	struct emu_env_w32_dll *dll;
 };
 
 struct instr_vertex *instr_vertex_new(uint32_t theeip, const char *instr_string)
@@ -761,6 +808,7 @@ struct instr_vertex *instr_vertex_copy(struct instr_vertex *from)
 	memset(iv, 0, sizeof(struct instr_vertex));
 	iv->eip = from->eip;
 	iv->instr_string = emu_string_new();
+	iv->dll = from->dll;
 	emu_string_append_char(iv->instr_string, from->instr_string->data);
 	return iv;
 }
@@ -824,7 +872,7 @@ int test(int n)
 		if ( n != -1 && i != n )
 			continue;
 
-		int failed = 0;
+//		int failed = 0;
 
 		printf("testing (#%d) '%s' \t", i, tests[i].instr);
 		int j=0;
@@ -915,7 +963,12 @@ int test(int n)
 				}
 
 				if ( last_vertex != NULL )
-					emu_vertex_edge_add(last_vertex, ev);
+				{
+					struct emu_edge *ee = emu_vertex_edge_add(last_vertex, ev);
+					struct emu_cpu *cpu = emu_cpu_get(e);
+					if ( cpu->instr.is_fpu == 0 && cpu->instr.cpu.source.cond_pos == eipsave && cpu->instr.cpu.source.has_cond_pos == 1)
+						ee->data = (void *)0x1;
+				}
 
 				last_vertex = ev;
 			}
@@ -928,7 +981,27 @@ int test(int n)
 				{
 					iv = instr_vertex_new(eipsave,dllhook->fnname);
 					emu_vertex_data_set(ev, iv);
+
+					// get the dll
+					int numdlls=0;
+					while ( env->loaded_dlls[numdlls] != NULL )
+					{
+						if ( eipsave > env->loaded_dlls[numdlls]->baseaddr && 
+							 eipsave < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize )
+						{
+							iv->dll = env->loaded_dlls[numdlls];
+						}
+						numdlls++;
+					}
+
 				}
+
+				if (strcmp("ExitThread",dllhook->fnname) == 0)
+					break;
+
+				if (dllhook->fnhook == NULL)
+					break;
+
 			}
 			else
 			{
@@ -1058,7 +1131,8 @@ int test(int n)
 					{
 						struct emu_edge *nee = emu_vertex_edge_add(nev, to);
 						nee->count = ee->count;
-					}
+						nee->data = ee->data;
+                    }
 				}
 
 			}
@@ -1070,17 +1144,47 @@ int test(int n)
 			emu_hashtable_free(ht);
 			fprintf(f, "digraph G {\n\trankdir=LR\n");
 
+#if 0
+			int numdlls=0;
+			while ( env->loaded_dlls[numdlls] != NULL )
+			{
+				int has_dll = 0;
+				struct emu_string *fs = emu_string_new();
+				emu_string_append_format(fs, "\t subgraph cluster%i {\n\t\t node [shape=box, style=filled, color=\".7 .3 1.0\"];\n\t\tstyle=filled;\n\t\tcolor=lightgrey;\n\t\tlabel=\"%s\"\n\t\t", numdlls, env->loaded_dlls[numdlls]->dllname);
+				for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+				{
+					struct instr_vertex *iv = emu_vertex_data_get(ev);
+					if ( iv->dll == env->loaded_dlls[numdlls] )
+					{
+						emu_string_append_format(fs, "\t\%i [label = \"%s\"];\n", iv->eip, emu_string_char(iv->instr_string));
+
+						has_dll = 1;
+					}
+
+				}
+
+				emu_string_append_char(fs, "\t}\n");
+
+				fprintf(f, "%s", emu_string_char(fs));
+				numdlls++;
+			}
+#endif // 0
 			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 			{
 				if ( emu_edges_length(ev->edges) == 0 && emu_edges_length(ev->backedges) == 0 )
 					continue;
 
 				struct instr_vertex *iv = emu_vertex_data_get(ev);
+#if 0
+				if ( iv->dll != NULL )
+					continue;
+#endif // 0
 				if ( iv->eip > static_offset + tests[i].codesize )
 					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
 				else
 					fprintf(f, "\t %i [shape=box, label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
 			}
+
 			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 			{
 				struct instr_vertex *ivfrom = emu_vertex_data_get(ev);
@@ -1089,22 +1193,35 @@ int test(int n)
 				for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
 				{
 					struct instr_vertex *ivto = emu_vertex_data_get(ee->destination);
+					struct emu_string *fs = emu_string_new();
+
+					emu_string_append_format(fs, "\t %i -> %i [style = bold", ivfrom->eip, ivto->eip);
+
 					if ( ee->count > 100 )
-						fprintf(f, "\t %i -> %i [style=bold, color=red]; \n",ivfrom->eip, ivto->eip);
+						emu_string_append_char(fs, ", color=red");
 					else
 						if ( ee->count > 50 )
-						fprintf(f, "\t %i -> %i [style=bold, color=blue]; \n",ivfrom->eip, ivto->eip);
+						emu_string_append_char(fs, ", color=blue");
 					else
 						if ( ee->count > 25 )
-						fprintf(f, "\t %i -> %i [style=bold, color=green]; \n",ivfrom->eip, ivto->eip);
+						emu_string_append_char(fs, ", color=green");
 					else
 						if ( ee->count > 1 )
-						fprintf(f, "\t %i -> %i [style=bold, color=orange]; \n",ivfrom->eip, ivto->eip);
-					else
-						fprintf(f, "\t %i -> %i; \n",ivfrom->eip, ivto->eip);
+						emu_string_append_char(fs, ", color=orange");
+
+					if ( ee->data != (void *)0x0 )
+                    	emu_string_append_char(fs, ", style=dashed");
+					
+
+					emu_string_append_char(fs, " ]\n");
+
+					fprintf(f, "%s", emu_string_char(fs));
+					emu_string_free(fs);
 				}
 
 			}
+
+
 			fprintf(f, "}");
 			fclose(f);
 
@@ -1116,107 +1233,12 @@ int test(int n)
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 		}
 
-/*
-		for (j=0;j<eh->size;j++)
-		{
-			if (eh->buckets[j] != NULL)
-			{
-				printf("bucket %i %i\n", j, emu_hashtable_bucket_items_length(eh->buckets[j]->items));
-			}
-		}
-*/
 		if ( opts.graphfile != NULL )
 		{
 			graph->vertex_destructor = instr_vertex_destructor;
 			emu_graph_free(graph);
 			emu_hashtable_free(eh);
 		}
-
-
-
-		/* check the registers for the exptected values */
-
-		for ( j=0;j<8;j++ )
-		{
-			if ( emu_cpu_reg32_get(cpu, j) ==  tests[i].out_state.reg[j] )
-			{
-				if ( opts.verbose == 1 )
-					printf("\t %s "SUCCESS"\n",regm[j]);
-			}
-			else
-			{
-				printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n",regm[j],emu_cpu_reg32_get(cpu, j),tests[i].out_state.reg[j]);
-				failed = 1;
-			}
-		}
-
-
-		/* check the memory for expected values */
-		uint32_t value;
-
-		if ( tests[i].out_state.mem_state[0] != 0 ||  tests[i].out_state.mem_state[1] != 0 )
-		{
-			if ( emu_memory_read_dword(mem,tests[i].out_state.mem_state[0],&value) == 0 )
-			{
-				if ( value == tests[i].out_state.mem_state[1] )
-				{
-					if ( opts.verbose == 1 )
-						printf("\t memory "SUCCESS" 0x%08x = 0x%08x\n",tests[i].out_state.mem_state[0], tests[i].out_state.mem_state[1]);
-				}
-				else
-				{
-					printf("\t memory "FAILED" at 0x%08x got 0x%08x expected 0x%08x\n",tests[i].out_state.mem_state[0],value, tests[i].out_state.mem_state[1]);
-					failed = 1;
-				}
-
-			}
-			else
-			{
-				printf("\tmemory "FAILED" emu says: '%s' when accessing %08x\n", strerror(emu_errno(e)),tests[i].out_state.mem_state[0]);
-				failed = 1;
-			}
-
-		}
-
-		/* check the cpu flags for expected values */
-		if ( tests[i].out_state.eflags != emu_cpu_eflags_get(cpu) )
-		{
-			printf("\t flags "FAILED" got %08x expected %08x\n",emu_cpu_eflags_get(cpu),tests[i].out_state.eflags);
-			for ( j=0;j<32;j++ )
-			{
-				uint32_t f = emu_cpu_eflags_get(cpu);
-				if ( (tests[i].out_state.eflags & (1 << j)) != (f & (1 <<j)) )
-					printf("\t flag %s (bit %i) failed, expected %i is %i\n",flags[j], j, 
-						   (tests[i].out_state.eflags & (1 << j)),
-						   (f & (1 <<j)));
-			}
-
-			failed = 1;
-		}
-		else
-		{
-			if ( opts.verbose == 1 )
-				printf("\t flags "SUCCESS"\n");
-		}
-
-
-		if ( tests[i].out_state.eip != 0 && tests[i].out_state.eip != emu_cpu_eip_get(cpu) )
-		{
-			printf("\t %s "FAILED" got 0x%08x expected 0x%08x\n", "eip", emu_cpu_eip_get(cpu), tests[i].out_state.eip);
-			failed = 1;
-		}
-
-
-		/* bail out on *any* error */
-/*		if (0 && failed == 0 )
-		{
-			printf(SUCCESS"\n");
-		}
-		else
-		{
-			return -1;
-		}
-*/
 	}
 	emu_env_w32_free(env);
 	emu_free(e);
@@ -1266,7 +1288,8 @@ int32_t run_and_track(struct emu *e, struct emu_track *et, struct emu_env_w32 *e
 
 		if ( dllhook != NULL )
 		{
-
+			if (strcmp("ExitThread",dllhook->fnname) == 0)
+				break;
 		}
 		else
 		{

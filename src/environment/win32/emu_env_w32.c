@@ -103,8 +103,12 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 	struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
 	struct emu_memory *mem = emu_memory_get(env->emu);
 
+	
 
 	dll->dllname = strdup(dllname);
+	if (strstr(dll->dllname, ".") != NULL)
+		*strstr(dll->dllname, ".") = 0x0;
+
 
 	if (strncmp(dllname, "kernel32",strlen("kernel32")) == 0)
 	{
