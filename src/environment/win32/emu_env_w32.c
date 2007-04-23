@@ -219,7 +219,28 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 	return NULL;
 }
 
-
+int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
+								const char *dllname,
+								const char *exportname, 
+								int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex))
+{
+	int numdlls=0;
+	while ( env->loaded_dlls[numdlls] != NULL )
+	{
+		if (dllname == NULL || strcmp(dllname,env->loaded_dlls[numdlls]->dllname) == 0)
+		{
+			struct emu_hashtable_item *ehi = emu_hashtable_search(env->loaded_dlls[numdlls]->exports_by_fnname, (void *)exportname);
+			if (ehi != NULL)
+			{
+				struct emu_env_w32_dll_export *ex = (struct emu_env_w32_dll_export *)ehi->value;
+				ex->fnhook = fnhook;
+				return 0;
+			}
+		}
+		numdlls++;
+	}
+	return -1;
+}
 
 const char kernel32_dll_7c800000[] =
 /* 7C800000 */ "\x4D\x5A\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF\x00\x00" // MZ.......ÿÿ..

@@ -17,6 +17,7 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_log.h"
 #include "emu/emu_cpu_data.h"
+#include "emu/emu_cpu_stack.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
@@ -836,6 +837,60 @@ uint32_t hash(void *key)
 }
 
 
+
+int32_t	user_hook_ExitProcess(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+VOID WINAPI ExitProcess(
+  UINT uExitCode
+);
+*/
+
+	uint32_t exitcode;
+	POP_DWORD(c, &exitcode);
+
+
+	emu_cpu_eip_set(c, eip_save);
+	opts.steps = 0;
+	return 0;
+}
+
+
+int32_t	user_hook_ExitThread(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+VOID ExitThread(
+  DWORD dwExitCode
+);
+*/
+
+	uint32_t exitcode;
+	POP_DWORD(c, &exitcode);
+
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+
+}
+
 int test(int n)
 {
 	int i=0;
@@ -844,13 +899,17 @@ int test(int n)
 	struct emu_memory *mem = emu_memory_get(e);
 	struct emu_env_w32 *env = emu_env_w32_new(e);
 
-
+	
 	if ( env == 0 )
 	{
 		printf("%s \n", emu_strerror(e));
 		printf("%s \n", strerror(emu_errno(e)));
 		return -1;
 	}
+
+
+	emu_env_w32_export_hook(env, NULL, "ExitProcess", user_hook_ExitProcess);
+	emu_env_w32_export_hook(env, NULL, "ExitThread", user_hook_ExitThread);
 
 /*	uint32_t x;
 	for (x=0x7c800000;x<0x7c902400;x++)
@@ -995,9 +1054,6 @@ int test(int n)
 					}
 
 				}
-
-				if (strcmp("ExitThread",dllhook->fnname) == 0)
-					break;
 
 				if (dllhook->fnhook == NULL)
 					break;
