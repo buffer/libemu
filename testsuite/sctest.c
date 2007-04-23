@@ -1448,7 +1448,7 @@ int32_t run_and_track(struct emu *e, struct emu_track *et, struct emu_env_w32 *e
 	int track = 0;
 	int j;
 	/* run the code */
-	for ( j=0;j<opts.steps;j++ )
+	for ( j=0;j<64;j++ )
 	{
 		uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
@@ -1525,6 +1525,7 @@ int getpctest(int n)
 	return 0;
 */
 
+	bool found_good_candidate_after_getpc = false;
 
 	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 	{
@@ -1534,7 +1535,7 @@ int getpctest(int n)
 		printf("testing (#%d) '%s' \n", i, tests[i].instr);
 
 		uint32_t offset;
-		for ( offset=0; offset<tests[i].codesize;offset++ )
+		for ( offset=0; offset<tests[i].codesize && found_good_candidate_after_getpc == false; offset++ )
 		{
 
 			if ( emu_getpc_check(e, (uint8_t *)tests[i].code, tests[i].codesize, offset) == 1 )
@@ -1625,17 +1626,17 @@ int getpctest(int n)
 						ev->color = white;
 					}
 
-					for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+/*					for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 					{
 						bfs_from_getpc(ev);
 					}
-
+*/
 					struct emu_hashtable_item *ehi = emu_hashtable_search(et->instrtable, (void *)(static_offset+offset));
 
 					if (ehi != NULL)
 					{
 						ev = (struct emu_vertex *)ehi->value;
-
+						bfs_from_getpc(ev);
 
 						for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 						{
@@ -1653,9 +1654,9 @@ int getpctest(int n)
 
 								
 								emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
-								if (run_and_track(e, et, env) > 10)
+								if (run_and_track(e, et, env) == 64)
 								{
-									goto done;
+									found_good_candidate_after_getpc = true;
 								}
 
 							}
@@ -1664,19 +1665,15 @@ int getpctest(int n)
 
 				}
 
-done:
-
-
 				/* bail out on *any* error */
-				if ( failed == 0 )
-				{
-					printf(SUCCESS"\n");
-				}
-				else
-				{
+				if ( failed != 0 )
 					return -1;
-				}
 			}
+		}
+
+		if (found_good_candidate_after_getpc == true)
+		{
+			printf(SUCCESS"\n");
 		}
 	}
 	emu_free(e);
