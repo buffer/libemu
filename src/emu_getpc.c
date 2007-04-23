@@ -124,7 +124,9 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 			break;
 
 		printf("found valid fnstenv\n");
+			return 1;
 
+		/* FIXME THE CODE HERE IS CRAP */
 		espcopy = emu_cpu_reg32_get(c, esp);
 		for (j=0;j<64;j++)
 		{

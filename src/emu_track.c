@@ -16,9 +16,9 @@ struct emu_track_instr_info *emu_track_instr_info_new(struct emu_cpu *cpu, uint3
 	etii->eip = eip_before_instruction;
 	etii->instrstring = strdup(cpu->instr_string);
 
-	if ( cpu->instr.is_fpu)
+	if ( cpu->instr.is_fpu )
 	{
-		
+		etii->source.norm_pos 		= cpu->instr.fpu.source.norm_pos;		
 	}else
 	{
 		etii->source.has_cond_pos 	= cpu->instr.cpu.source.has_cond_pos;
@@ -107,24 +107,29 @@ uint32_t emu_track_tree_create(struct emu *e, struct emu_track *et, uint32_t dat
 		struct emu_track_instr_info *etii = (struct emu_track_instr_info *)ev->data;
 
 		struct emu_hashtable_item *ehi = emu_hashtable_search(et->instrtable, (void *)etii->source.norm_pos);
+		printf("NORM from %08x to %08x\n",((struct emu_track_instr_info *)ev->data)->eip, etii->source.norm_pos);
 		if (ehi != NULL)
 		{
 			struct emu_vertex *to = (struct emu_vertex *)ehi->value;
 			emu_vertex_edge_add(ev, to);
-			printf("from %08x to %08x\n",((struct emu_track_instr_info *)ev->data)->eip,((struct emu_track_instr_info *)to->data)->eip);
+			
 		}else
 		{
-//			printf("EHI IS UNKNOWN\n");
+			printf("NORM IS UNKNOWN\n");
 		}
 
 		if (etii->source.has_cond_pos == 1)
 		{
+			printf("COND from %08x to %08x\n",((struct emu_track_instr_info *)ev->data)->eip, etii->source.cond_pos);
 			ehi = emu_hashtable_search(et->instrtable, (void *)etii->source.cond_pos);
 			if (ehi != NULL)
 			{
 				struct emu_vertex *to = (struct emu_vertex *)ehi->value;
 				emu_vertex_edge_add(ev, to);
-				printf("from %08x to %08x\n",((struct emu_track_instr_info *)ev->data)->eip,((struct emu_track_instr_info *)to->data)->eip);
+				
+			}else
+			{
+				printf("COND IS UNKNOWN\n");
 			}
 		}
 	}

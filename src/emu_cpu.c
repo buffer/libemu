@@ -751,11 +751,15 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 			/* the default normal position is behind the instruction, specific instructions as call jmp set their
 			 * norm position 
 			 */
-			if (c->instr.is_fpu == 0)
+			if ( c->instr.is_fpu == 0 )
+			{
 				SOURCE_NORM_POS(&c->instr.cpu, c->eip);
-/*			else
-				FIXME FPU
-*/
+			}
+			else
+			{
+				SOURCE_NORM_POS(&c->instr.fpu, c->eip);
+			}
+
 
 			break;
 		}
