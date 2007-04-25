@@ -252,6 +252,11 @@ int32_t instr_sub_2b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.rm], 
 									 c->reg[i->modrm.opc], 
 									 -)
+
+			if ( i->modrm.opc == i->modrm.rm )
+			{
+				TRACK_INIT_REG32(i, i->modrm.opc);
+			}
 		}
 	}
 

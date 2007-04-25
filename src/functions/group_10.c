@@ -44,6 +44,9 @@ int32_t instr_group_10_8f(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		/* 7 */ NULL,
 	};
 
-	return group_10_8f_fn[i->modrm.opc](c, i);
+	if ( group_10_8f_fn[i->modrm.opc] != NULL )
+		return group_10_8f_fn[i->modrm.opc](c, i);
+	else
+		return 0;
 }
 

@@ -228,7 +228,7 @@ int32_t instr_mov_bx_2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 
 
-	if( i->prefixes & PREFIX_OPSIZE )
+	if ( i->prefixes & PREFIX_OPSIZE )
 	{
 		/* B8+ rw 
 		 * Move imm16 to r16                                
@@ -242,9 +242,10 @@ int32_t instr_mov_bx_2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		/* B8+ rd 
 		 * Move imm32 to r32                                
 		 * MOV r32,imm32    
-		 */							
+		 */                         
 
-    	c->reg[i->opc & 7] = i->imm;
+		c->reg[i->opc & 7] = i->imm;
+		TRACK_INIT_REG32(i, i->opc & 7);
 	}
 
 	return 0;
