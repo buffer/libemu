@@ -94,6 +94,9 @@ uint32_t emu_track_tree_create(struct emu *e, struct emu_track *et, uint32_t dat
 		if ( emu_cpu_parse(c) != 0)
 			continue;
 
+		if ( emu_cpu_step(c) != 0)
+			continue;
+
         struct emu_track_instr_info *etii = emu_track_instr_info_new(c,i);
 		struct emu_vertex *ev = emu_vertex_new();
 		ev->data = etii;

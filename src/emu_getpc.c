@@ -120,14 +120,17 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 		if ( emu_cpu_parse(c) != 0 )
 			break;
 
-		if( (c->instr.fpu.fpu_data[1] & 0x38) != 0x30 )
+		if ( (c->instr.fpu.fpu_data[1] & 0x38) != 0x30 )
 			break;
 
-		printf("found valid fnstenv\n");
+		if ( c->instr.fpu.ea == emu_cpu_reg32_get(c, esp) - 0xc )
+		{
+			printf("found fnstenv with ea = esp - 0xc\n");
 			return 1;
+		}
 
 		/* FIXME THE CODE HERE IS CRAP */
-		espcopy = emu_cpu_reg32_get(c, esp);
+/*		espcopy = emu_cpu_reg32_get(c, esp);
 		for (j=0;j<64;j++)
 		{
 			int ret = emu_cpu_parse(emu_cpu_get(e));
@@ -149,7 +152,7 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 					return 1;
 			}
 		}
-
+*/
 
 		break;
 
