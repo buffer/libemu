@@ -1422,23 +1422,29 @@ int test(int n)
 
 void bfs_from_getpc(struct emu_vertex *ev)
 {
-	printf("%s\n",((struct emu_track_instr_info *)ev->data)->instrstring);
+	printf("%08x %s\n", (unsigned int)ev, ((struct emu_track_instr_info *)ev->data)->instrstring);
 
 	struct emu_edge *ee;
-	for ( ee = emu_edges_first(ev->backedges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+/*	for ( ee = emu_edges_first(ev->backedges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
 	{
 		if (ee->destination->color == white)
 			bfs_from_getpc(ee->destination);
 	}
-
-	if (emu_edges_length(ev->backedges) == 0)
+*/
+	if ( emu_edges_length(ev->backedges) == 0 )
 	{
 		ev->color = grey;
-	}else
+	}
+	else
 	{
 		ev->color = black;
 	}
-	
+
+	for ( ee = emu_edges_first(ev->backedges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+	{
+		if ( ee->destination->color == white )
+			bfs_from_getpc(ee->destination);
+	}
 
 }
 
@@ -1461,7 +1467,7 @@ int32_t run_and_track(struct emu *e, struct emu_track *et, struct emu_env_w32 *e
 
 		if ( dllhook != NULL )
 		{
-			if (strcmp("ExitThread",dllhook->fnname) == 0)
+			if ( strcmp("ExitThread",dllhook->fnname) == 0 )
 				break;
 		}
 		else
@@ -1478,8 +1484,11 @@ int32_t run_and_track(struct emu *e, struct emu_track *et, struct emu_env_w32 *e
 			if ( ret != -1 )
 			{
 				track = emu_track_instruction_check(e, et);
-				if( track == -1)
+				if ( track == -1 )
+				{
+					printf("tracking complained\n");
 					break;
+				}
 			}
 
 			if ( ret == -1 )
@@ -1540,7 +1549,7 @@ int getpctest(int n)
 
 			if ( emu_getpc_check(e, (uint8_t *)tests[i].code, tests[i].codesize, offset) == 1 )
 			{
-                int failed = 0;
+				int failed = 0;
 
 
 				int j=0;
@@ -1591,8 +1600,11 @@ int getpctest(int n)
 						if ( ret != -1 )
 						{
 							track = emu_track_instruction_check(e, et);
-							if( track == -1)
+							if ( track == -1 )
+							{
+								printf("tracking found uninitialised var\n");
 								break;
+							}
 						}
 
 						if ( ret != -1 )
@@ -1615,7 +1627,12 @@ int getpctest(int n)
 				uint32_t possible_starts[MAX_STARTS]
 				uint32_t max_start = 0;
 */
-				if (track == -1)
+				for ( j = 0; j < tests[i].codesize; j++ )
+				{
+					emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
+				}
+
+				if ( track == -1 )
 				{
 					printf("FOX\n");
 					emu_track_tree_create(e, et, static_offset, tests[i].codesize);
@@ -1633,12 +1650,14 @@ int getpctest(int n)
 */
 					struct emu_hashtable_item *ehi = emu_hashtable_search(et->instrtable, (void *)(static_offset+offset));
 
-					if (ehi != NULL)
+					if ( ehi != NULL )
 					{
 						ev = (struct emu_vertex *)ehi->value;
 						bfs_from_getpc(ev);
 
-						for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+						for ( ev = emu_vertexes_first(et->trackgraph->vertexes); 
+							!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 
+							ev = emu_vertexes_next(ev) )
 						{
 							if ( ev->color == grey )
 							{
@@ -1652,9 +1671,9 @@ int getpctest(int n)
 								for ( j = 0; j < tests[i].codesize; j++ )
 									emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
 
-								
+
 								emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
-								if (run_and_track(e, et, env) == 64)
+								if ( run_and_track(e, et, env) == 64 )
 								{
 									found_good_candidate_after_getpc = true;
 								}
@@ -1671,7 +1690,7 @@ int getpctest(int n)
 			}
 		}
 
-		if (found_good_candidate_after_getpc == true)
+		if ( found_good_candidate_after_getpc == true )
 		{
 			printf(SUCCESS"\n");
 		}
