@@ -26,7 +26,10 @@ void emu_edge_free(struct emu_edge *ee);
 header_list_typedefs(emu_vertex_root,emu_vertex,emu_vertex_link);
 header_list_functions(emu_vertexes,emu_vertex_root, emu_vertex, link);
 
-enum emu_vertex_color { white, grey, black };
+
+
+
+enum emu_color { black, blue, cyan, green, grey, magenta, red, white, yellow };
 
 struct emu_vertex
 {
@@ -34,7 +37,7 @@ struct emu_vertex
 	emu_edge_root  *edges;
 
 	emu_vertex_link link;
-	enum emu_vertex_color color;
+	enum emu_color color;
 
 	emu_edge_root  *backedges;
 	uint32_t backlinks;

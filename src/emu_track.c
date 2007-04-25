@@ -1,3 +1,5 @@
+/* @header@ */
+
 #include <string.h>
 
 #include "emu/emu.h"
@@ -5,143 +7,34 @@
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_instruction.h"
 #include "emu/emu_track.h"
+#include "emu/emu_source.h"
 #include "emu/emu_hashtable.h"
 #include "emu/emu_graph.h"
 
-struct emu_track_instr_info *emu_track_instr_info_new(struct emu_cpu *cpu, uint32_t eip_before_instruction)
+struct emu_track_and_source *emu_track_and_source_new()
 {
-	struct emu_track_instr_info *etii = (struct emu_track_instr_info *)malloc(sizeof(struct emu_track_instr_info));
-	memset(etii, 0, sizeof(struct emu_track_instr_info));
-
-	etii->eip = eip_before_instruction;
-	etii->instrstring = strdup(cpu->instr_string);
-
-	if ( cpu->instr.is_fpu )
-	{
-		etii->source.norm_pos 		= cpu->instr.fpu.source.norm_pos;		
-	}else
-	{
-		etii->source.has_cond_pos 	= cpu->instr.cpu.source.has_cond_pos;
-		etii->source.cond_pos 		= cpu->instr.cpu.source.cond_pos;
-		etii->source.norm_pos 		= cpu->instr.cpu.source.norm_pos;
-
-		etii->track.init.eflags 	= cpu->instr.cpu.track.init.eflags;
-		memcpy(etii->track.init.reg, cpu->instr.cpu.track.init.reg, sizeof(uint32_t)*8);
-
-		etii->track.need.eflags 	= cpu->instr.cpu.track.need.eflags;
-		memcpy(etii->track.need.reg, cpu->instr.cpu.track.need.reg, sizeof(uint32_t)*8);
-	}
-	return etii;
-}
-
-void emu_track_instr_info_free(struct emu_track_instr_info *etii)
-{
-	if (etii->instrstring != NULL)
-		free(etii->instrstring);
-
-	free(etii);
-}
-
-bool emu_track_instr_info_cmp(void *a, void *b)
-{
-	if ((uint32_t)a == (uint32_t)b)
-		return true;
-
-	return false;
-}
-
-uint32_t emu_track_instr_info_hash(void *key)
-{
-	uint32_t ukey = (uint32_t)key;
-	ukey++;
-	return ukey;
-}
-
-
-struct emu_track *emu_track_new()
-{
-	struct emu_track *et = (struct emu_track *)malloc(sizeof(struct emu_track));
-	memset(et, 0, sizeof(struct emu_track));
+	struct emu_track_and_source *et = (struct emu_track_and_source *)malloc(sizeof(struct emu_track_and_source));
+	memset(et, 0, sizeof(struct emu_track_and_source));
 	et->reg[esp] = 0xffffffff;
 	return et;
 }
 
-void emu_track_free(struct emu_track *et)
+void emu_track_and_source_free(struct emu_track_and_source *et)
 {
-	if (et->instrtable != NULL)
-		emu_hashtable_free(et->instrtable);
+	if (et->instr_table != NULL)
+		emu_hashtable_free(et->instr_table);
 
-	if (et->trackgraph != NULL)
-		emu_graph_free(et->trackgraph);
+	if (et->instr_graph != NULL)
+		emu_graph_free(et->instr_graph);
 
 	free(et);
 
 }
 
-uint32_t emu_track_tree_create(struct emu *e, struct emu_track *et, uint32_t datastart, uint32_t datasize)
-{
-	printf("tracking from %x to %x\n", datastart, datastart+datasize);
-	struct emu_cpu *c = emu_cpu_get(e);
-
-	et->trackgraph = emu_graph_new();
-	et->instrtable = emu_hashtable_new(datasize/2, emu_track_instr_info_hash,  emu_track_instr_info_cmp);
-
-	uint32_t i;
-	for (i=datastart;i<datastart+datasize;i++)
-	{
-		emu_cpu_eip_set(c, i);
-
-		if ( emu_cpu_parse(c) != 0)
-			continue;
-
-		if ( emu_cpu_step(c) != 0)
-			continue;
-
-        struct emu_track_instr_info *etii = emu_track_instr_info_new(c,i);
-		struct emu_vertex *ev = emu_vertex_new();
-		ev->data = etii;
-		emu_hashtable_insert(et->instrtable, (void *)i, ev);
-		emu_graph_vertex_add(et->trackgraph, ev);
-	}
-
-	struct emu_vertex *ev;
-	for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
-	{
-		struct emu_track_instr_info *etii = (struct emu_track_instr_info *)ev->data;
-
-		struct emu_hashtable_item *ehi = emu_hashtable_search(et->instrtable, (void *)etii->source.norm_pos);
-		printf("NORM from %08x to %08x\n",((struct emu_track_instr_info *)ev->data)->eip, etii->source.norm_pos);
-		if (ehi != NULL)
-		{
-			struct emu_vertex *to = (struct emu_vertex *)ehi->value;
-			emu_vertex_edge_add(ev, to);
-			
-		}else
-		{
-			printf("NORM IS UNKNOWN\n");
-		}
-
-		if (etii->source.has_cond_pos == 1)
-		{
-			printf("COND from %08x to %08x\n",((struct emu_track_instr_info *)ev->data)->eip, etii->source.cond_pos);
-			ehi = emu_hashtable_search(et->instrtable, (void *)etii->source.cond_pos);
-			if (ehi != NULL)
-			{
-				struct emu_vertex *to = (struct emu_vertex *)ehi->value;
-				emu_vertex_edge_add(ev, to);
-				
-			}else
-			{
-				printf("COND IS UNKNOWN\n");
-			}
-		}
-	}
-	return 0;
-}
 
 void debug_instruction(struct emu_cpu_instruction *i);
 
-int32_t emu_track_instruction_check(struct emu *e, struct emu_track *et)
+int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *et)
 {
 	struct emu_cpu *c = emu_cpu_get(e);
 	int i;
@@ -178,3 +71,54 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track *et)
 
 	return 0;
 }
+
+
+struct emu_source_and_track_instr_info *emu_source_and_track_instr_info_new(struct emu_cpu *cpu, uint32_t eip_before_instruction)
+{
+	struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)malloc(sizeof(struct emu_source_and_track_instr_info));
+	memset(etii, 0, sizeof(struct emu_source_and_track_instr_info));
+
+	etii->eip = eip_before_instruction;
+	etii->instrstring = strdup(cpu->instr_string);
+
+	if ( cpu->instr.is_fpu )
+	{
+		etii->source.norm_pos 		= cpu->instr.fpu.source.norm_pos;		
+	}else
+	{
+		etii->source.has_cond_pos 	= cpu->instr.cpu.source.has_cond_pos;
+		etii->source.cond_pos 		= cpu->instr.cpu.source.cond_pos;
+		etii->source.norm_pos 		= cpu->instr.cpu.source.norm_pos;
+
+		etii->track.init.eflags 	= cpu->instr.cpu.track.init.eflags;
+		memcpy(etii->track.init.reg, cpu->instr.cpu.track.init.reg, sizeof(uint32_t)*8);
+
+		etii->track.need.eflags 	= cpu->instr.cpu.track.need.eflags;
+		memcpy(etii->track.need.reg, cpu->instr.cpu.track.need.reg, sizeof(uint32_t)*8);
+	}
+	return etii;
+}
+
+void emu_source_and_track_instr_info_free(struct emu_source_and_track_instr_info *etii)
+{
+	if (etii->instrstring != NULL)
+		free(etii->instrstring);
+
+	free(etii);
+}
+
+bool emu_source_and_track_instr_info_cmp(void *a, void *b)
+{
+	if ((uint32_t)a == (uint32_t)b)
+		return true;
+
+	return false;
+}
+
+uint32_t emu_source_and_track_instr_info_hash(void *key)
+{
+	uint32_t ukey = (uint32_t)key;
+	ukey++;
+	return ukey;
+}
+

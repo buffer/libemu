@@ -1419,36 +1419,9 @@ int test(int n)
 }
 
 #include <emu/emu_track.h>
+#include <emu/emu_source.h>
 
-void bfs_from_getpc(struct emu_vertex *ev)
-{
-	printf("%08x %s\n", (unsigned int)ev, ((struct emu_track_instr_info *)ev->data)->instrstring);
-
-	struct emu_edge *ee;
-/*	for ( ee = emu_edges_first(ev->backedges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
-	{
-		if (ee->destination->color == white)
-			bfs_from_getpc(ee->destination);
-	}
-*/
-	if ( emu_edges_length(ev->backedges) == 0 )
-	{
-		ev->color = grey;
-	}
-	else
-	{
-		ev->color = black;
-	}
-
-	for ( ee = emu_edges_first(ev->backedges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
-	{
-		if ( ee->destination->color == white )
-			bfs_from_getpc(ee->destination);
-	}
-
-}
-
-int32_t run_and_track(struct emu *e, struct emu_track *et, struct emu_env_w32 *env)
+int32_t run_and_track(struct emu *e, struct emu_track_and_source *et, struct emu_env_w32 *env)
 {
 	int ret = -1;
 	int track = 0;
@@ -1511,7 +1484,7 @@ int getpctest(int n)
 	struct emu_cpu *cpu = emu_cpu_get(e);
 	struct emu_memory *mem = emu_memory_get(e);
 	struct emu_env_w32 *env = emu_env_w32_new(e);
-	struct emu_track *et = emu_track_new();
+	struct emu_track_and_source *et = emu_track_and_source_new();
 
 	if ( env == 0 )
 	{
@@ -1635,34 +1608,25 @@ int getpctest(int n)
 				if ( track == -1 )
 				{
 					printf("FOX\n");
-					emu_track_tree_create(e, et, static_offset, tests[i].codesize);
+					emu_source_instruction_graph_create(e, et, static_offset, tests[i].codesize);
 
 					struct emu_vertex *ev;
-					for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
-					{
-						ev->color = white;
-					}
 
-/*					for ( ev = emu_vertexes_first(et->trackgraph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
-					{
-						bfs_from_getpc(ev);
-					}
-*/
-					struct emu_hashtable_item *ehi = emu_hashtable_search(et->instrtable, (void *)(static_offset+offset));
+					struct emu_hashtable_item *ehi = emu_hashtable_search(et->instr_table, (void *)(static_offset+offset));
 
 					if ( ehi != NULL )
 					{
 						ev = (struct emu_vertex *)ehi->value;
-						bfs_from_getpc(ev);
+						emu_source_bfs(et, ev);
 
-						for ( ev = emu_vertexes_first(et->trackgraph->vertexes); 
+						for ( ev = emu_vertexes_first(et->instr_graph->vertexes); 
 							!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 
 							ev = emu_vertexes_next(ev) )
 						{
-							if ( ev->color == grey )
+							if ( ev->color == green )
 							{
 								printf("POSSIBLE\n");
-								struct emu_track_instr_info *etii = (struct emu_track_instr_info *)ev->data;
+								struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
 
 								for ( j=0;j<8;j++ )
 									emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
