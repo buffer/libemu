@@ -104,13 +104,14 @@ void emu_source_bfs(struct emu_track_and_source *et, struct emu_vertex *ev)
 		}
 
 		if ( emu_edges_length(ev->backedges) == 0 )
-        	ev->color = black;
-		else
 			ev->color = green;
-		
+		else
+			ev->color = black;
+
 	}
 
 	emu_queue_free(eq);
 
 	it->color = red;
 }
+
