@@ -143,8 +143,11 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 				break;
 			}
 
-			if (emu_cpu_reg32_get(c, esp) == espcopy + 4) // eip written by fnstenv
-				return 1;
+			for (reg=0; reg<8; reg++)
+			{
+				if (reg != 4 && emu_cpu_reg32_get(c, reg) == espcopy + 4) // eip written by fnstenv
+					return 1;
+			}
 		}
 
 
