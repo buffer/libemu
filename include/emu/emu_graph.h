@@ -61,6 +61,6 @@ struct emu_graph *emu_graph_new();
 void emu_graph_free(struct emu_graph *eg);
 void emu_graph_vertex_add(struct emu_graph *eg, struct emu_vertex *ev);
 
-
-
+bool emu_graph_path_exists(struct emu_graph *eg, struct emu_vertex *from, struct emu_vertex *to);
+bool emu_graph_loop_detect(struct emu_graph *eg, struct emu_vertex *from);
 

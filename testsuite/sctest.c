@@ -1617,7 +1617,22 @@ int getpctest(int n)
 					if ( ehi != NULL )
 					{
 						ev = (struct emu_vertex *)ehi->value;
-						emu_source_bfs(et, ev);
+						if( emu_graph_loop_detect(et->instr_graph, ev) == false)
+						{
+							printf("NO LOOP DETECTED\n");
+						}else
+						{
+							printf("LOOP DETECTED\n");
+						}
+
+/*
+						emu_source_forward_bfs(et, ev);
+						for ( ev = emu_vertexes_first(et->instr_graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+							if ( ev->color == yellow )
+								printf("current endpoint %08x\n", ((struct emu_source_and_track_instr_info *)ev->data)->eip);
+*/
+						ev = (struct emu_vertex *)ehi->value;
+						emu_source_backward_bfs(et, ev);
 
 						for ( ev = emu_vertexes_first(et->instr_graph->vertexes); 
 							!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 

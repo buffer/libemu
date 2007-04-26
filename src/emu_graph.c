@@ -3,6 +3,7 @@
 
 
 #include "emu/emu_graph.h"
+#include "emu/emu_queue.h"
 
 
 source_list_functions(emu_vertexes,emu_vertex_root, emu_vertex, link);
@@ -120,3 +121,107 @@ void emu_graph_vertex_add(struct emu_graph *eg, struct emu_vertex *ev)
 
 
 
+bool emu_graph_path_exists(struct emu_graph *eg, struct emu_vertex *from, struct emu_vertex *to)
+{
+	struct emu_vertex *it;
+	struct emu_vertex *ev;
+	for ( it = emu_vertexes_first(eg->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
+		it->color = white;
+
+	it = from;
+
+	struct emu_queue *eq = emu_queue_new();
+
+	emu_queue_enqueue(eq, from);
+
+	while ( emu_queue_empty(eq) == false )
+	{
+		ev = (struct emu_vertex *)emu_queue_dequeue(eq);
+
+		if ( ev == to )
+			return true;
+
+
+		struct emu_edge *ee;
+		for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+		{
+			if ( ee->destination->color != white )
+				continue;
+
+			ee->destination->color = grey;
+			emu_queue_enqueue(eq, ee->destination);
+		}
+
+		ev->color = black;
+	}
+
+	emu_queue_free(eq);
+
+	return false;
+}
+
+bool emu_graph_loop_detect(struct emu_graph *eg, struct emu_vertex *from)
+{
+	struct emu_vertex *it;
+	struct emu_vertex *ev;
+	for ( it = emu_vertexes_first(eg->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
+		it->color = white;
+
+	it = from;
+
+	struct emu_queue *eq = emu_queue_new();
+
+	emu_queue_enqueue(eq, from);
+
+	while ( emu_queue_empty(eq) == false )
+	{
+		ev = (struct emu_vertex *)emu_queue_dequeue(eq);
+
+		struct emu_edge *ee;
+		for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+		{
+			if ( ee->destination->color != white )
+				continue;
+
+			ee->destination->color = grey;
+			emu_queue_enqueue(eq, ee->destination);
+		}
+
+		ev->color = black;
+	}
+
+	for ( it = emu_vertexes_first(eg->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
+	{
+//		printf("%08x \n\tcolor %i\n\tedges %i\n\tpath %i\n",((struct emu_source_and_track_instr_info *)it->data)->eip, it->color, emu_edges_length(it->edges), (int)emu_graph_path_exists(eg, from, it));
+		if (it->color == white)
+			continue;
+
+		if (emu_edges_length(it->edges) < 2)
+			continue;
+
+/*
+		if (emu_graph_path_exists(eg, from, it) == false)
+			continue;
+*/
+
+//		printf("%08x => %08x\n", ((struct emu_source_and_track_instr_info *)from->data)->eip, 
+//			   ((struct emu_source_and_track_instr_info *)it->data)->eip); 
+		emu_queue_enqueue(eq, it);
+	}
+
+	while ( emu_queue_empty(eq) == false )
+	{
+		ev = (struct emu_vertex *)emu_queue_dequeue(eq);
+
+		struct emu_edge *ee;
+		for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+		{
+			if ( emu_graph_path_exists(eg, ee->destination, ev) == true )
+				return true;
+		}
+	}
+
+	emu_queue_free(eq);
+
+	return false;
+}

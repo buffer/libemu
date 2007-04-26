@@ -46,6 +46,7 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			iterations = &nonrepcc;
 		}
 
+		if ( *iterations > 100 ) *iterations = 100;
 
 		while ( *iterations > 0 )
 		{

@@ -26,10 +26,16 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 		emu_cpu_eip_set(c, i);
 
 		if ( emu_cpu_parse(c) != 0)
+		{
+			printf("parse error %s\n", emu_strerror(e));
 			continue;
+		}
 
 		if ( emu_cpu_step(c) != 0)
-			continue;
+		{
+			printf("step error %s\n", emu_strerror(e));
+//			continue;
+		}
 
         struct emu_source_and_track_instr_info *etii = emu_source_and_track_instr_info_new(c,i);
 		struct emu_vertex *ev = emu_vertex_new();
@@ -52,7 +58,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 			
 		}else
 		{
-			printf("NORM IS UNKNOWN\n");
+			printf("NORM IS UNKNOWN %08x\n", etii->source.norm_pos);
 		}
 
 		if (etii->source.has_cond_pos == 1)
@@ -75,9 +81,8 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 
 
 
-void emu_source_bfs(struct emu_track_and_source *et, struct emu_vertex *ev)
+void emu_source_backward_bfs(struct emu_track_and_source *et, struct emu_vertex *ev)
 {
-
 	struct emu_vertex *it;
 	for ( it = emu_vertexes_first(et->instr_graph->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
 		it->color = white;
@@ -115,3 +120,41 @@ void emu_source_bfs(struct emu_track_and_source *et, struct emu_vertex *ev)
 	it->color = red;
 }
 
+void emu_source_forward_bfs(struct emu_track_and_source *et, struct emu_vertex *ev)
+{
+	struct emu_vertex *it;
+	for ( it = emu_vertexes_first(et->instr_graph->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
+		it->color = white;
+
+	it = ev;
+
+	struct emu_queue *eq = emu_queue_new();
+
+	emu_queue_enqueue(eq, ev);
+
+	while (emu_queue_empty(eq) == false)
+	{
+		ev = (struct emu_vertex *)emu_queue_dequeue(eq);
+
+		struct emu_edge *ee;
+		for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
+		{
+			if (ee->destination->color != white)
+				continue;
+
+			ee->destination->color = grey;
+			emu_queue_enqueue(eq, ee->destination);
+
+		}
+
+		if ( emu_edges_length(ev->edges) == 0 )
+			ev->color = yellow;
+		else
+			ev->color = black;
+
+	}
+
+	emu_queue_free(eq);
+
+	it->color = red;
+}
