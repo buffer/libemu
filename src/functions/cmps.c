@@ -60,32 +60,55 @@ int32_t instr_cmps_a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	else
 	{
 		/* A6 
-		 * Compares byte at address DS:(E)SI with byte at address ES:(E)DI and sets the status flags accordingly
+		 * Compares byte at address DS:ESI with byte at address ES:EDI and sets the status flags accordingly
 		 * CMPSB         
-		 * Compares byte at address DS:(E)SI with byte at address ES:(E)DI and sets the status flags accordingly
+		 * Compares byte at address DS:ESI with byte at address ES:EDI and sets the status flags accordingly
 		 * CMPS m8, m8   
 		 */
 
-		uint32_t nonrepcc = 1;
-		uint32_t *iterations;
-
-		if (i->prefixes & PREFIX_F3)
+		if ( i->prefixes & PREFIX_F3 )
 		{
 			/* F3 A6 
 			 * Find nonmatching bytes in ES:[EDI] and DS:[ESI]
 			 * REPE CMPS m8,m8    
 			 */
-			iterations = &c->reg[ecx];
+			if ( c->reg[ecx] > 0 )
+			{
+				c->reg[ecx]--;
+				c->repeat_current_instr = true;
+
+				enum emu_segment oldseg = emu_memory_segment_get(c->mem);
+
+				emu_memory_segment_select(c->mem,s_ds);
+
+				uint8_t m8a;
+				MEM_BYTE_READ(c, c->reg[esi], &m8a);
+
+				emu_memory_segment_select(c->mem,s_es);
+				uint8_t m8b;
+				MEM_BYTE_READ(c, c->reg[edi], &m8b);
+
+				emu_memory_segment_select(c->mem,oldseg);
+
+				INSTR_CALC_AND_SET_FLAGS(8,
+										 c,
+										 m8a,
+										 m8b)
+
+				INSTR_CALC_EDI_ESI(c, 8)
+
+				/* REPE */
+				if ( CPU_FLAG_ISSET(c, f_zf) == 0 )
+					c->repeat_current_instr = false;
+			}
+			else
+			{
+				c->repeat_current_instr = false;
+			}
+		
 		}
 		else
 		{
-			iterations = &nonrepcc;
-		}
-
-
-		while ( *iterations > 0 )
-		{
-			(*iterations)--;
 			enum emu_segment oldseg = emu_memory_segment_get(c->mem);
 
 			emu_memory_segment_select(c->mem,s_ds);
@@ -105,11 +128,7 @@ int32_t instr_cmps_a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 m8b)
 
 			INSTR_CALC_EDI_ESI(c, 8)
-
-			/* REPE */
-			if ((i->prefixes & PREFIX_F3) && (CPU_FLAG_ISSET(c, f_zf) == 0) )
-				break;
-
+			
 		}
 	}
 	return 0;

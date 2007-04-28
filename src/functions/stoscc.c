@@ -29,9 +29,6 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	}
 	else
 	{
-		uint32_t nonrepcc = 1;
-		uint32_t *iterations;
-
 		if (i->prefixes & PREFIX_F3)
 		{
 			/* F3 AA 
@@ -39,18 +36,26 @@ int32_t instr_stos_aa(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * REP STOS m8        
 			 */
 
-			iterations = &c->reg[ecx];
-		}
-		else
-		{
-			iterations = &nonrepcc;
-		}
 
-		if ( *iterations > 100 ) *iterations = 100;
+			if (c->reg[ecx] > 0 )
+			{
+				c->reg[ecx]--;
+				c->repeat_current_instr = true;
+				MEM_BYTE_WRITE(c,c->reg[edi],*c->reg8[al]);
+				if ( !CPU_FLAG_ISSET(c,f_df) )
+				{ /* increment */
+					c->reg[edi] += 1;
+				}else
+				{ /* decrement */
+					c->reg[edi] -= 1;
+				}
+			}
+			else
+				c->repeat_current_instr = false;
 
-		while ( *iterations > 0 )
+			
+		}else
 		{
-			(*iterations)--;
 			MEM_BYTE_WRITE(c,c->reg[edi],*c->reg8[al]);
 			if ( !CPU_FLAG_ISSET(c,f_df) )
 			{ /* increment */

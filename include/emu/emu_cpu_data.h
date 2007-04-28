@@ -2,6 +2,7 @@
 #define EMU_CPU_DATA_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <emu/emu.h>
 #include <emu/emu_cpu_instruction.h>
@@ -34,6 +35,8 @@ struct emu_cpu
 	uint32_t last_fpu_instr[2];
 
 	char *instr_string;
+
+	bool repeat_current_instr;
 };
 
 

@@ -103,6 +103,7 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 	}
 
 	c->instr_string = (char *)malloc(32);
+	c->repeat_current_instr = false;
 	init_prefix_map();
 	
 	return c;
@@ -152,6 +153,7 @@ void emu_cpu_eflags_set(struct emu_cpu *c, uint32_t val)
 void emu_cpu_eip_set(struct emu_cpu *c, uint32_t val)
 {
 	c->eip = val;
+	c->repeat_current_instr = false;
 }
 
 uint32_t emu_cpu_eip_get(struct emu_cpu *c)
@@ -424,6 +426,11 @@ static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t siz
 
 int32_t emu_cpu_parse(struct emu_cpu *c)
 {
+	if (c->repeat_current_instr == true)
+	{
+		return 0;
+	}
+
 	/* TODO make unstatic for threadsafety */
 	static uint8_t byte;
 	static uint8_t *opcode;

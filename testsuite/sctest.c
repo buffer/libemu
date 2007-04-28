@@ -1004,6 +1004,7 @@ VOID ExitThread(
 
 
 	emu_cpu_eip_set(c, eip_save);
+	opts.steps = 0;
 	return 0;
 
 }
