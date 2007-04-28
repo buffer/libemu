@@ -17,8 +17,8 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 	printf("tracking from %x to %x\n", datastart, datastart+datasize);
 	struct emu_cpu *c = emu_cpu_get(e);
 
-	es->instr_graph = emu_graph_new();
-	es->instr_table = emu_hashtable_new(datasize/2, emu_source_and_track_instr_info_hash,  emu_source_and_track_instr_info_cmp);
+	es->static_instr_graph = emu_graph_new();
+	es->static_instr_table = emu_hashtable_new(datasize/2, emu_source_and_track_instr_info_hash,  emu_source_and_track_instr_info_cmp);
 
 	uint32_t i;
 	for (i=datastart;i<datastart+datasize;i++)
@@ -40,16 +40,16 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
         struct emu_source_and_track_instr_info *etii = emu_source_and_track_instr_info_new(c,i);
 		struct emu_vertex *ev = emu_vertex_new();
 		ev->data = etii;
-		emu_hashtable_insert(es->instr_table, (void *)i, ev);
-		emu_graph_vertex_add(es->instr_graph, ev);
+		emu_hashtable_insert(es->static_instr_table, (void *)i, ev);
+		emu_graph_vertex_add(es->static_instr_graph, ev);
 	}
 
 	struct emu_vertex *ev;
-	for ( ev = emu_vertexes_first(es->instr_graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
+	for ( ev = emu_vertexes_first(es->static_instr_graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 	{
 		struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
 
-		struct emu_hashtable_item *ehi = emu_hashtable_search(es->instr_table, (void *)etii->source.norm_pos);
+		struct emu_hashtable_item *ehi = emu_hashtable_search(es->static_instr_table, (void *)etii->source.norm_pos);
 		printf("NORM from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.norm_pos);
 		if (ehi != NULL)
 		{
@@ -64,7 +64,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 		if (etii->source.has_cond_pos == 1)
 		{
 			printf("COND from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.cond_pos);
-			ehi = emu_hashtable_search(es->instr_table, (void *)etii->source.cond_pos);
+			ehi = emu_hashtable_search(es->static_instr_table, (void *)etii->source.cond_pos);
 			if (ehi != NULL)
 			{
 				struct emu_vertex *to = (struct emu_vertex *)ehi->value;
@@ -84,7 +84,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 void emu_source_backward_bfs(struct emu_track_and_source *et, struct emu_vertex *ev)
 {
 	struct emu_vertex *it;
-	for ( it = emu_vertexes_first(et->instr_graph->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
+	for ( it = emu_vertexes_first(et->static_instr_graph->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
 		it->color = white;
     
 	it = ev;
@@ -123,7 +123,7 @@ void emu_source_backward_bfs(struct emu_track_and_source *et, struct emu_vertex 
 void emu_source_forward_bfs(struct emu_track_and_source *et, struct emu_vertex *ev)
 {
 	struct emu_vertex *it;
-	for ( it = emu_vertexes_first(et->instr_graph->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
+	for ( it = emu_vertexes_first(et->static_instr_graph->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
 		it->color = white;
 
 	it = ev;

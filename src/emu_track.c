@@ -21,11 +21,11 @@ struct emu_track_and_source *emu_track_and_source_new()
 
 void emu_track_and_source_free(struct emu_track_and_source *et)
 {
-	if (et->instr_table != NULL)
-		emu_hashtable_free(et->instr_table);
+	if (et->static_instr_table != NULL)
+		emu_hashtable_free(et->static_instr_table);
 
-	if (et->instr_graph != NULL)
-		emu_graph_free(et->instr_graph);
+	if (et->static_instr_graph != NULL)
+		emu_graph_free(et->static_instr_graph);
 
 	free(et);
 
@@ -33,6 +33,9 @@ void emu_track_and_source_free(struct emu_track_and_source *et)
 
 
 void debug_instruction(struct emu_cpu_instruction *i);
+
+
+#include "emu/emu_cpu_functions.h"
 
 int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *et)
 {
@@ -45,6 +48,14 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 	}else
 	{
 //		debug_instruction(&c->instr.cpu);
+
+		if (c->cpu_instr_info->function == instr_xchg_9x)
+		{
+			uint32_t reg1 = et->reg[eax];
+			et->reg[eax] = et->reg[c->instr.cpu.opc & 7];
+			et->reg[c->instr.cpu.opc & 7] = reg1;
+		}
+
 		for (i=0;i<8;i++)
 		{
 //			printf("0x%08x 0x%08x\n", c->instr.cpu.track.need.reg[i], et->reg[i]);

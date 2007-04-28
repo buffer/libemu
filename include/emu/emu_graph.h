@@ -41,6 +41,8 @@ struct emu_vertex
 
 	emu_edge_root  *backedges;
 	uint32_t backlinks;
+
+	uint32_t distance;
 };
 
 
@@ -63,4 +65,4 @@ void emu_graph_vertex_add(struct emu_graph *eg, struct emu_vertex *ev);
 
 bool emu_graph_path_exists(struct emu_graph *eg, struct emu_vertex *from, struct emu_vertex *to);
 bool emu_graph_loop_detect(struct emu_graph *eg, struct emu_vertex *from);
-
+int32_t emu_graph_distance(struct emu_graph *eg, struct emu_vertex *from, struct emu_vertex *to);

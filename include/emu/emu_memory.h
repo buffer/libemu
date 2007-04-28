@@ -40,6 +40,9 @@ int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len);
 /* information */
 uint32_t emu_memory_get_usage(struct emu_memory *m);
 
+void emu_memory_mode_ro(struct emu_memory *m);
+void emu_memory_mode_rw(struct emu_memory *m);
+
 
 #define MEM_BYTE_READ(cpu_p, addr, data_p) \
  { int32_t ret = emu_memory_read_byte((cpu_p)->mem, addr, data_p); \

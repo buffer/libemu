@@ -1421,13 +1421,24 @@ int test(int n)
 #include <emu/emu_track.h>
 #include <emu/emu_source.h>
 
-int32_t run_and_track(struct emu *e, struct emu_track_and_source *et, struct emu_env_w32 *env)
+int32_t run_and_track(struct emu *e, struct emu_track_and_source *et, struct emu_env_w32 *env, uint32_t steps)
 {
 	int ret = -1;
 	int track = 0;
 	int j;
 	/* run the code */
-	for ( j=0;j<64;j++ )
+
+	struct emu_vertex *last_vertex = NULL;
+	struct emu_vertex *ev          = NULL;
+	struct emu_hashtable_item *ehi = NULL;
+
+	struct emu_cpu *cpu = emu_cpu_get(e);
+
+	et->run_instr_graph = emu_graph_new();
+	et->run_instr_table = emu_hashtable_new(steps, emu_source_and_track_instr_info_hash,  emu_source_and_track_instr_info_cmp);
+
+
+	for ( j=0;j<steps;j++ )
 	{
 		uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
@@ -1438,8 +1449,44 @@ int32_t run_and_track(struct emu *e, struct emu_track_and_source *et, struct emu
 
 		dllhook = emu_env_w32_eip_check(env);
 
+
+		if ( (ehi = emu_hashtable_search(et->run_instr_table, (void *)eipsave)) == NULL )
+		{
+//			printf("creating new vertex for %08x\n", eipsave);
+			ev = emu_vertex_new();
+			emu_graph_vertex_add(et->run_instr_graph, ev);
+			emu_hashtable_insert(et->run_instr_table, (void *)eipsave, ev);
+		}else
+		{
+//			printf("found vertex for %08x\n", eipsave);
+			ev = (struct emu_vertex *)ehi->value;
+		}
+
+		if ( last_vertex != NULL )
+		{
+/*			printf("adding edge from %08x -> %08x\n",
+				   ((struct emu_source_and_track_instr_info *)last_vertex->data)->eip,
+				   eipsave);
+*/
+			struct emu_edge *ee = emu_vertex_edge_add(last_vertex, ev);
+
+			if ( cpu->instr.is_fpu == 0 && cpu->instr.cpu.source.cond_pos == eipsave && cpu->instr.cpu.source.has_cond_pos == 1)
+				ee->data = (void *)0x1;
+		}
+
+		last_vertex = ev;
+
+
 		if ( dllhook != NULL )
 		{
+			if (ev->data == NULL)
+			{
+				struct emu_source_and_track_instr_info *esatii = emu_source_and_track_instr_info_new(cpu, eipsave);
+				free(esatii->instrstring);
+				esatii->instrstring = strdup(dllhook->fnname);
+				ev->data = esatii;
+			}
+
 			if ( strcmp("ExitThread",dllhook->fnname) == 0 )
 				break;
 		}
@@ -1447,12 +1494,16 @@ int32_t run_and_track(struct emu *e, struct emu_track_and_source *et, struct emu
 		{
 
 			ret = emu_cpu_parse(emu_cpu_get(e));
-
-
 			if ( ret != -1 )
 			{
 				ret = emu_cpu_step(emu_cpu_get(e));
+				if (ev->data == NULL)
+				{
+					struct emu_source_and_track_instr_info *esatii = emu_source_and_track_instr_info_new(cpu, eipsave);
+					ev->data = esatii;
+				}
 			}
+
 
 			if ( ret != -1 )
 			{
@@ -1548,6 +1599,7 @@ int getpctest(int n)
 
 				int ret = -1;
 				int track = 0;
+				int stepped_steps = 0;
 
 				/* run the code */
 				for ( j=0;j<opts.steps;j++ )
@@ -1595,6 +1647,8 @@ int getpctest(int n)
 				}
 
 				printf("stepcount %i\n",j);
+				stepped_steps = j;
+
 /*
 				#define MAX_STARTS 20
 				uint32_t possible_starts[MAX_STARTS]
@@ -1608,21 +1662,28 @@ int getpctest(int n)
 				if ( track == -1 )
 				{
 					printf("FOX\n");
+
+					emu_env_w32_free(env);
+					env = emu_env_w32_new(e);
+
+
+					emu_memory_mode_ro(emu_memory_get(e));
 					emu_source_instruction_graph_create(e, et, static_offset, tests[i].codesize);
+					emu_memory_mode_rw(emu_memory_get(e));
 
 					struct emu_vertex *ev;
 
-					struct emu_hashtable_item *ehi = emu_hashtable_search(et->instr_table, (void *)(static_offset+offset));
+					struct emu_hashtable_item *ehi = emu_hashtable_search(et->static_instr_table, (void *)(static_offset+offset));
 
 					if ( ehi != NULL )
 					{
 						ev = (struct emu_vertex *)ehi->value;
-						if( emu_graph_loop_detect(et->instr_graph, ev) == false)
+						if( emu_graph_loop_detect(et->static_instr_graph, ev) == false)
 						{
-							printf("NO LOOP DETECTED\n");
+							printf("NO LOOP DETECTED (static)\n");
 						}else
 						{
-							printf("LOOP DETECTED\n");
+							printf("LOOP DETECTED (static)\n");
 						}
 
 /*
@@ -1634,7 +1695,7 @@ int getpctest(int n)
 						ev = (struct emu_vertex *)ehi->value;
 						emu_source_backward_bfs(et, ev);
 
-						for ( ev = emu_vertexes_first(et->instr_graph->vertexes); 
+						for ( ev = emu_vertexes_first(et->static_instr_graph->vertexes); 
 							!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 
 							ev = emu_vertexes_next(ev) )
 						{
@@ -1650,10 +1711,35 @@ int getpctest(int n)
 								for ( j = 0; j < tests[i].codesize; j++ )
 									emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
 
+								emu_env_w32_free(env);
+								env = emu_env_w32_new(e);
+								uint32_t dist = emu_graph_distance(et->static_instr_graph, ev, (struct emu_vertex *)ehi->value);
+
+								printf("step distance new_eip -> old_eip: %i\n", dist);
+								printf("step distance old_eip -> b0rked : %i\n", stepped_steps);
+
+#define        MIN(a,b) (((a)<(b))?(a):(b))
+#define        MAX(a,b) (((a)>(b))?(a):(b))
 
 								emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
-								if ( run_and_track(e, et, env) == 64 )
+								if ( run_and_track(e, et, env, MAX((dist + stepped_steps) * 2, 256) ) >= dist + stepped_steps )
 								{
+									struct emu_vertex *x;
+									struct emu_hashtable_item *y = emu_hashtable_search(et->run_instr_table, (void *)etii->eip);
+
+									if ( y != NULL )
+									{
+										x = (struct emu_vertex *)y->value;
+
+										if ( emu_graph_loop_detect(et->run_instr_graph, x) == false )
+										{
+											printf("NO LOOP DETECTED (runtime)\n");
+										}
+										else
+										{
+											printf("LOOP DETECTED (runtime)\n");
+										}
+									}
 									found_good_candidate_after_getpc = true;
 								}
 

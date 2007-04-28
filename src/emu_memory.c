@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include "emu/emu.h"
 #include "emu/emu_log.h"
@@ -33,6 +34,8 @@ struct emu_memory
 	enum emu_segment segment_current;
 	
 	uint32_t segment_table[6];
+
+	bool read_only_access;
 };
 
 #if 1
@@ -113,7 +116,9 @@ struct emu_memory *emu_memory_new(struct emu *e)
 	memset(em->pagetable, 0, (1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *));
 	
 	em->segment_table[s_fs] = FS_SEGMENT_DEFAULT_OFFSET;
-	
+
+	em->read_only_access = false;
+
 	return em;
 }
 
@@ -280,6 +285,10 @@ int32_t emu_memory_read_string(struct emu_memory *m, uint32_t addr, struct emu_s
 
 int32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte)
 {
+	if ( m->read_only_access == true )
+		return 0;
+	
+
 	addr += m->segment_offset;
 
 	void *address = translate_addr(m, addr);
@@ -299,16 +308,25 @@ int32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte)
 
 int32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word)
 {
+	if (m->read_only_access == true)
+		return 0;
+
 	return emu_memory_write_block(m, addr, &word, 2);
 }
 
 int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword)
 {
+	if (m->read_only_access == true)
+		return 0;
+
 	return emu_memory_write_block(m, addr, &dword, 4);
 }
 
 int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
 {
+	if (m->read_only_access == true)
+		return 0;
+
 	uint32_t oaddr = addr; /* save original addr for recursive call */
 	addr += m->segment_offset;
 
@@ -415,3 +433,14 @@ int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len)
 	
 	return -1;
 }
+
+void emu_memory_mode_ro(struct emu_memory *m)
+{
+	m->read_only_access = true;
+}
+
+void emu_memory_mode_rw(struct emu_memory *m)
+{
+	m->read_only_access = false;
+}
+

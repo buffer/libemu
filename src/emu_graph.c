@@ -126,7 +126,10 @@ bool emu_graph_path_exists(struct emu_graph *eg, struct emu_vertex *from, struct
 	struct emu_vertex *it;
 	struct emu_vertex *ev;
 	for ( it = emu_vertexes_first(eg->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
+	{
 		it->color = white;
+		it->distance = 0;
+	}
 
 	it = from;
 
@@ -148,6 +151,7 @@ bool emu_graph_path_exists(struct emu_graph *eg, struct emu_vertex *from, struct
 			if ( ee->destination->color != white )
 				continue;
 
+			ee->destination->distance = ev->distance + 1;
 			ee->destination->color = grey;
 			emu_queue_enqueue(eq, ee->destination);
 		}
@@ -159,6 +163,11 @@ bool emu_graph_path_exists(struct emu_graph *eg, struct emu_vertex *from, struct
 
 	return false;
 }
+
+/*
+#include <stdio.h>
+#include "emu/emu_track.h"
+*/
 
 bool emu_graph_loop_detect(struct emu_graph *eg, struct emu_vertex *from)
 {
@@ -193,19 +202,22 @@ bool emu_graph_loop_detect(struct emu_graph *eg, struct emu_vertex *from)
 	for ( it = emu_vertexes_first(eg->vertexes); !emu_vertexes_attail(it); it = emu_vertexes_next(it) )
 	{
 //		printf("%08x \n\tcolor %i\n\tedges %i\n\tpath %i\n",((struct emu_source_and_track_instr_info *)it->data)->eip, it->color, emu_edges_length(it->edges), (int)emu_graph_path_exists(eg, from, it));
+
 		if (it->color == white)
 			continue;
 
-		if (emu_edges_length(it->edges) < 2)
-			continue;
+//		if (emu_edges_length(it->edges) < 2)
+//			continue;
 
 /*
 		if (emu_graph_path_exists(eg, from, it) == false)
 			continue;
 */
 
-//		printf("%08x => %08x\n", ((struct emu_source_and_track_instr_info *)from->data)->eip, 
-//			   ((struct emu_source_and_track_instr_info *)it->data)->eip); 
+/*
+		printf("%08x => %08x\n", ((struct emu_source_and_track_instr_info *)from->data)->eip, 
+			   ((struct emu_source_and_track_instr_info *)it->data)->eip); 
+*/
 		emu_queue_enqueue(eq, it);
 	}
 
@@ -224,4 +236,12 @@ bool emu_graph_loop_detect(struct emu_graph *eg, struct emu_vertex *from)
 	emu_queue_free(eq);
 
 	return false;
+}
+
+int32_t emu_graph_distance(struct emu_graph *eg, struct emu_vertex *from, struct emu_vertex *to)
+{
+	if ( emu_graph_path_exists(eg, from, to) == false )
+		return -1;
+
+	return to->distance;
 }

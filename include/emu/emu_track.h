@@ -7,10 +7,9 @@
 #include <stdbool.h>
 
 struct emu;
+struct emu_cpu;
 struct emu_graph;
 struct emu_instruction;
-struct emu_source;
-
 
 struct emu_source_and_track_instr_info
 {
@@ -47,10 +46,12 @@ struct emu_track_and_source
 	uint32_t eflags;
 	uint32_t reg[8];
 
-	struct emu_graph 		*instr_graph;
-	struct emu_hashtable 	*instr_table;
+	struct emu_graph        *static_instr_graph;
+	struct emu_hashtable    *static_instr_table;
 
-	struct emu_source 		*source;
+	struct emu_graph        *run_instr_graph;
+	struct emu_hashtable    *run_instr_table;
+
 };
 
 
