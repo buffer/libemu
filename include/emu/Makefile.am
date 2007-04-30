@@ -1,5 +1,9 @@
 # $Id$
 
+AUTOMAKE_OPTIONS = foreign
+
+SUBDIRS = environment
+
 includedir = $(prefix)/include/emu
 
 include_HEADERS = emu.h
