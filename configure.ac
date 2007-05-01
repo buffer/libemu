@@ -141,6 +141,8 @@ AC_CONFIG_FILES([Makefile
 		src/functions/Makefile
 		include/Makefile
 		include/emu/Makefile
+		include/emu/environment/Makefile
+		include/emu/environment/win32/Makefile
 		testsuite/Makefile])
 
                  
