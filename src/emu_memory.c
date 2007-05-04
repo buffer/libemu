@@ -150,6 +150,29 @@ void emu_memory_free(struct emu_memory *m)
 	free(m);
 }
 
+void emu_memory_clear(struct emu_memory *m)
+{
+	int i, j;
+	
+	for( i = 0; i < (1 << (32 - PAGESET_BITS - PAGE_BITS)); i++ )
+	{
+		if( m->pagetable[i] != NULL )
+		{
+			for( j = 0; j < PAGESET_SIZE; j++ )
+				if( m->pagetable[i][j] != NULL )
+					free(m->pagetable[i][j]);
+			
+			free(m->pagetable[i]);
+		}
+	}
+
+	memset(m->pagetable, 0, (1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *));
+	
+	m->segment_table[s_fs] = FS_SEGMENT_DEFAULT_OFFSET;
+
+	m->read_only_access = false;
+}
+
 static inline int page_is_alloc(struct emu_memory *em, uint32_t addr)
 {
 	if( em->pagetable[PAGESET(addr)] != NULL )

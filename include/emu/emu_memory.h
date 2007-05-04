@@ -14,6 +14,7 @@ struct emu_memory;
 struct emu_string;
 
 struct emu_memory *emu_memory_new(struct emu *e);
+void emu_memory_clear(struct emu_memory *em);
 void emu_memory_free(struct emu_memory *em);
 
 /* read access, these functions return -1 on error  */
