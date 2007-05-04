@@ -11,6 +11,10 @@
 struct emu_string *emu_string_new()
 {
     struct emu_string *s = (struct emu_string *)malloc(sizeof(struct emu_string));
+    if( s == NULL )
+    {
+    	return NULL;
+    }
     memset(s, 0, sizeof(struct emu_string));
     return s;
 }

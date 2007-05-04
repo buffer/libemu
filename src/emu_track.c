@@ -87,6 +87,10 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 struct emu_source_and_track_instr_info *emu_source_and_track_instr_info_new(struct emu_cpu *cpu, uint32_t eip_before_instruction)
 {
 	struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)malloc(sizeof(struct emu_source_and_track_instr_info));
+	if( etii == NULL )
+	{
+		return NULL;
+	}
 	memset(etii, 0, sizeof(struct emu_source_and_track_instr_info));
 
 	etii->eip = eip_before_instruction;

@@ -17,6 +17,10 @@ struct emu_hashtable *emu_hashtable_new(uint32_t size,
 {
 	
 	struct emu_hashtable *eh = (struct emu_hashtable *)malloc(sizeof(struct emu_hashtable));
+	if( eh == NULL )
+	{
+		return NULL;
+	}
 	memset(eh, 0, sizeof(struct emu_hashtable));
 
 	eh->size = size;
@@ -111,6 +115,10 @@ bool emu_hashtable_delete(struct emu_hashtable *eh, void *key)
 struct emu_hashtable_item *emu_hashtable_item_new(void *key, void *value)
 {
 	struct emu_hashtable_item *ehi = (struct emu_hashtable_item *)malloc(sizeof(struct emu_hashtable_item));
+	if( ehi == NULL )
+	{
+		return NULL;
+	}
 	memset(ehi, 0, sizeof(struct emu_hashtable_item));
 	ehi->key = key;
 	ehi->value = value;
@@ -125,6 +133,10 @@ void emu_hashtable_item_free(struct emu_hashtable_item *ehi)
 struct emu_hashtable_bucket *emu_hashtable_bucket_new()
 {
 	struct emu_hashtable_bucket *ehb = (struct emu_hashtable_bucket *)malloc(sizeof(struct emu_hashtable_bucket));
+	if( ehb == NULL )
+	{
+		return NULL;
+	}
 	memset(ehb, 0, sizeof(struct emu_hashtable_bucket));
 	ehb->items = emu_hashtable_bucket_items_create();
 	return ehb;
@@ -139,6 +151,10 @@ void emu_hashtable_bucket_free(struct emu_hashtable_bucket *ehb)
 struct emu_hashtable_bucket_item *emu_hashtable_bucket_item_new(void *key, void *value)
 {
 	struct emu_hashtable_bucket_item *ehbi = (struct emu_hashtable_bucket_item *)malloc(sizeof(struct emu_hashtable_bucket_item));
+	if( ehbi == NULL )
+	{
+		return NULL;
+	}
 	memset(ehbi, 0, sizeof(struct emu_hashtable_bucket_item));
 
 	emu_hashtable_bucket_items_init_link(ehbi);

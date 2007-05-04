@@ -23,9 +23,17 @@ struct emu
 struct emu *emu_new()
 {
 	struct emu *e = (struct emu *)malloc(sizeof(struct emu));
+	if( e == NULL )
+	{
+		return NULL;
+	}
 	memset(e, 0, sizeof(struct emu));
 	e->log = emu_log_new();
 	e->memory = emu_memory_new(e);
+	if( e->memory == NULL )
+	{
+		return NULL;
+	}
 	e->cpu = emu_cpu_new(e);
 	logDebug(e,"%s %x\n", __PRETTY_FUNCTION__,(unsigned int)e);
 	return e;

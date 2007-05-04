@@ -50,6 +50,12 @@ static void init_prefix_map()
 struct emu_cpu *emu_cpu_new(struct emu *e)
 {
 	struct emu_cpu *c = (struct emu_cpu *)malloc(sizeof(struct emu_cpu));
+	
+	if( c == NULL )
+	{
+		return NULL;
+	}
+	
 	memset((void *)c, 0, sizeof(struct emu_cpu));
 	
 	c->emu = e;

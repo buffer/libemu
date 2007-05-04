@@ -108,11 +108,19 @@ uint32_t emu_memory_get_usage(struct emu_memory *m)
 struct emu_memory *emu_memory_new(struct emu *e)
 {
 	struct emu_memory *em = (struct emu_memory *)malloc(sizeof(struct emu_memory));
+	if( em == NULL )
+	{
+		return NULL;
+	}
 	memset(em, 0, sizeof(struct emu_memory));
 	
 	em->emu = e;
 	
 	em->pagetable = malloc((1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *));
+	if( em->pagetable == NULL )
+	{
+		return NULL;
+	}
 	memset(em->pagetable, 0, (1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *));
 	
 	em->segment_table[s_fs] = FS_SEGMENT_DEFAULT_OFFSET;

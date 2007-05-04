@@ -9,6 +9,10 @@
 struct emu_queue *emu_queue_new()
 {
 	struct emu_queue *eq = (struct emu_queue *)malloc(sizeof(struct emu_queue));
+	if( eq == NULL )
+	{
+		return NULL;
+	}
 	memset(eq, 0, sizeof(struct emu_queue));
 	return eq;
 }
@@ -70,6 +74,10 @@ bool  emu_queue_empty(struct emu_queue *eq)
 struct emu_queue_item *emu_queue_item_new()
 {
 	struct emu_queue_item *eqi = (struct emu_queue_item *)malloc(sizeof(struct emu_queue_item));
+	if( eqi == NULL )
+	{
+		return NULL;
+	}
 	memset(eqi, 0, sizeof(struct emu_queue_item));
 	return eqi;
 
