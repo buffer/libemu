@@ -65,4 +65,41 @@ extern struct emu_env_w32_dll_export wininet_exports[];
 extern struct emu_env_w32_dll_export urlmon_exports[];
 
 
+#define HANDLE int32_t
+#define DWORD uint32_t
+#define  WORD uint16_t
+
+#define LPTSTR char *
+#define LPBYTE char *
+
+typedef struct _PROCESS_INFORMATION 
+{
+	HANDLE hProcess;
+	HANDLE hThread;
+	DWORD dwProcessId;
+	DWORD dwThreadId;
+}PROCESS_INFORMATION, *LPPROCESS_INFORMATION;
+
+
+typedef struct _STARTUPINFO {
+  DWORD cb;
+  LPTSTR lpReserved;
+  LPTSTR lpDesktop;
+  LPTSTR lpTitle;
+  DWORD dwX;
+  DWORD dwY;
+  DWORD dwXSize;
+  DWORD dwYSize;
+  DWORD dwXCountChars;
+  DWORD dwYCountChars;
+  DWORD dwFillAttribute;
+  DWORD dwFlags;
+  WORD wShowWindow;
+  WORD cbReserved2;
+  LPBYTE lpReserved2;
+  HANDLE hStdInput;
+  HANDLE hStdOutput;
+  HANDLE hStdError;
+} STARTUPINFO, 
+ *LPSTARTUPINFO;
 #endif

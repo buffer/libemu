@@ -10,6 +10,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
@@ -405,6 +408,8 @@ int closesocket(
 	uint32_t s;
 	POP_DWORD(c, &s);
 
+	close((int)s);
+
 	emu_cpu_reg32_set(c, eax, 0);
 
 	emu_cpu_eip_set(c, eip_save);
@@ -597,15 +602,99 @@ int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_
 	uint32_t cwd;
 	POP_DWORD(c, &cwd);
 
-	uint32_t startinfo;
-	POP_DWORD(c, &startinfo);
+	uint32_t p_startinfo;
+	POP_DWORD(c, &p_startinfo);
 
-	uint32_t procinfo;
-	POP_DWORD(c, &procinfo);
+	uint32_t p_procinfo;
+	POP_DWORD(c, &p_procinfo);
 
 
 	printf("CreateProcessA \n");	
 	emu_cpu_reg32_set(c, eax, 0);
+
+	struct emu_memory *m = emu_memory_get(env->emu);
+    PROCESS_INFORMATION *pi = malloc(sizeof(PROCESS_INFORMATION));
+	emu_memory_read_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+
+	STARTUPINFO *si = malloc(sizeof(STARTUPINFO));
+	emu_memory_read_block(m, p_startinfo, si, sizeof(STARTUPINFO));
+
+	fflush(NULL);
+
+// the code is meant to be an example how one could do it
+#if 0
+	
+
+	pid_t pid;
+	if ((pid = fork()) == 0)
+	{ // child
+
+#ifdef UNDEFINED_PROXY_SHELL
+
+
+		int remote_socket = si->hStdInput;
+		int shell_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+		struct sockaddr_in soai;
+		soai.sin_family=AF_INET;
+		soai.sin_port=htons(atoi("1234"));
+		soai.sin_addr.s_addr=inet_addr("127.0.0.1");
+		memset(&soai.sin_zero, 0, sizeof(soai.sin_zero));
+
+		if ( connect(shell_socket, (struct sockaddr*)&soai, sizeof(soai)) < 0 )
+		{
+			perror("connect error");
+		}
+
+#define        MAX(a,b) (((a)>(b))?(a):(b))
+
+		while (1)
+		{
+        		struct timeval timeout = {1,0};
+				fd_set r_fds; 
+				FD_ZERO(&r_fds);
+				FD_SET(shell_socket, &r_fds);
+				FD_SET(remote_socket, &r_fds);
+
+				int r_sockets = select(MAX(shell_socket, remote_socket)+1, &r_fds, NULL, NULL, &timeout);
+
+				if (r_sockets != 0)
+				{
+					int from;
+					int to;
+					from = to = shell_socket;
+					if (FD_ISSET(shell_socket,&r_fds))
+                    	to = remote_socket;
+					else
+					if (FD_ISSET(remote_socket,&r_fds))
+						from = remote_socket;
+
+					char rxbuffer[256];
+					int rxsize;
+					rxsize = recv(from, rxbuffer, 256, 0);
+					if (rxsize <= 0)
+					{
+						exit(EXIT_SUCCESS);
+					}
+					send(to, rxbuffer, rxsize, 0);
+				}
+		}
+#endif 
+
+#ifdef UNDEFINED_REAL_SHELL
+		dup2(si->hStdInput,  fileno(stdin));
+		dup2(si->hStdOutput, fileno(stdout));
+		dup2(si->hStdError,  fileno(stderr));
+
+        system("/tmp/cmd/cmdexe.pl -p winxp -l /tmp/cmd");
+		exit(EXIT_SUCCESS);
+#endif
+	}else
+	{ // parent 
+		pi->hThread = pid;
+	}
+
+#endif // 0
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -647,6 +736,10 @@ UINT WINAPI WinExec(
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
+       #include <sys/types.h>
+       #include <sys/wait.h>
+
+
 
 int32_t	emu_env_w32_hook_WaitForSingleObject(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
@@ -672,7 +765,11 @@ DWORD WINAPI WaitForSingleObject(
 	uint32_t msecs;
 	POP_DWORD(c, &msecs);
 
-
+#if 0
+// the code is meant to be an example how one could do it
+	int status, options = 0;
+	waitpid(handle, &status, options);
+#endif 
 
 	emu_cpu_reg32_set(c, eax, 32);
 
