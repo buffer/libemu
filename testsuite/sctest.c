@@ -26,6 +26,9 @@
 #include "emu/emu_string.h"
 #include "emu/emu_hashtable.h"
 
+#include "emu/emu_shellcode.h"
+
+
 #define CODE_OFFSET 0x417000
 
 #define FAILED "\033[31;1mfailed\033[0m"
@@ -1533,233 +1536,20 @@ int getpctest(int n)
 {
 	int i=0;
 	struct emu *e = emu_new();
-	struct emu_cpu *cpu = emu_cpu_get(e);
-	struct emu_memory *mem = emu_memory_get(e);
-	struct emu_env_w32 *env = emu_env_w32_new(e);
-	struct emu_track_and_source *et = emu_track_and_source_new();
-
-	if ( env == 0 )
-	{
-		printf("%s \n", emu_strerror(e));
-		printf("%s \n", strerror(emu_errno(e)));
-		return -1;
-	}
-
-/*	uint32_t x;
-	for (x=0x7c800000;x<0x7c902400;x++)
-	{
-		uint8_t b;
-		emu_memory_read_byte(mem,x,&b);
-		printf("%02x ",b);
-		if (x % 16 == 0)
-		{
-			printf("\n");
-		}
-	}
-	return 0;
-*/
-
-	bool found_good_candidate_after_getpc = false;
 
 	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 	{
 		if ( n != -1 && i != n )
 			continue;
 
-		printf("testing (#%d) '%s' \n", i, tests[i].instr);
-
-		uint32_t offset;
-		for ( offset=0; offset<tests[i].codesize && found_good_candidate_after_getpc == false; offset++ )
-		{
-
-			if ( emu_getpc_check(e, (uint8_t *)tests[i].code, tests[i].codesize, offset) == 1 )
-			{
-				int failed = 0;
-
-
-				int j=0;
-
-				/* set the registers to the initial values */
-				for ( j=0;j<8;j++ )
-					emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
-
-				/* set the flags */
-				emu_cpu_eflags_set(cpu,tests[i].in_state.eflags);
-
-				/* write the code to the offset */
-				int static_offset = CODE_OFFSET;
-				for ( j = 0; j < tests[i].codesize; j++ )
-				{
-					emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
-				}
-
-
-
-				/* set eip to the getpc code */
-				emu_cpu_eip_set(emu_cpu_get(e), static_offset+offset);
-
-				int ret = -1;
-				int track = 0;
-				int stepped_steps = 0;
-
-				/* run the code */
-				for ( j=0;j<opts.steps;j++ )
-				{
-					uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
-
-					struct emu_env_w32_dll_export *dllhook = NULL;
-
-					ret = 0;
-					eipsave = emu_cpu_eip_get(emu_cpu_get(e));
-
-					dllhook = emu_env_w32_eip_check(env);
-
-					if ( dllhook != NULL )
-					{
-
-					}
-					else
-					{
-
-						ret = emu_cpu_parse(emu_cpu_get(e));
-
-						if ( ret != -1 )
-						{
-							track = emu_track_instruction_check(e, et);
-							if ( track == -1 )
-							{
-								printf("tracking found uninitialised var\n");
-								break;
-							}
-						}
-
-						if ( ret != -1 )
-						{
-							ret = emu_cpu_step(emu_cpu_get(e));
-						}
-
-						if ( ret == -1 )
-						{
-							printf("cpu error %s\n", emu_strerror(e));
-							break;
-						}
-					}
-
-				}
-
-				printf("stepcount %i\n",j);
-				stepped_steps = j;
-
-/*
-				#define MAX_STARTS 20
-				uint32_t possible_starts[MAX_STARTS]
-				uint32_t max_start = 0;
-*/
-				for ( j = 0; j < tests[i].codesize; j++ )
-				{
-					emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
-				}
-
-				if ( track == -1 )
-				{
-					printf("FOX\n");
-
-					emu_env_w32_free(env);
-					env = emu_env_w32_new(e);
-
-
-					emu_memory_mode_ro(emu_memory_get(e));
-					emu_source_instruction_graph_create(e, et, static_offset, tests[i].codesize);
-					emu_memory_mode_rw(emu_memory_get(e));
-
-					struct emu_vertex *ev;
-
-					struct emu_hashtable_item *ehi = emu_hashtable_search(et->static_instr_table, (void *)(static_offset+offset));
-
-					if ( ehi != NULL )
-					{
-						ev = (struct emu_vertex *)ehi->value;
-						if( emu_graph_loop_detect(et->static_instr_graph, ev) == false)
-						{
-							printf("NO LOOP DETECTED (static)\n");
-						}else
-						{
-							printf("LOOP DETECTED (static)\n");
-						}
-
-/*
-						emu_source_forward_bfs(et, ev);
-						for ( ev = emu_vertexes_first(et->instr_graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
-							if ( ev->color == yellow )
-								printf("current endpoint %08x\n", ((struct emu_source_and_track_instr_info *)ev->data)->eip);
-*/
-						ev = (struct emu_vertex *)ehi->value;
-						emu_source_backward_bfs(et, ev);
-
-						for ( ev = emu_vertexes_first(et->static_instr_graph->vertexes); 
-							!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 
-							ev = emu_vertexes_next(ev) )
-						{
-							if ( ev->color == green )
-							{
-								printf("POSSIBLE\n");
-								struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
-
-								for ( j=0;j<8;j++ )
-									emu_cpu_reg32_set(cpu,j ,tests[i].in_state.reg[j]);
-								emu_cpu_eflags_set(cpu,tests[i].in_state.eflags);
-								int static_offset = CODE_OFFSET;
-								for ( j = 0; j < tests[i].codesize; j++ )
-									emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
-
-								emu_env_w32_free(env);
-								env = emu_env_w32_new(e);
-								uint32_t dist = emu_graph_distance(et->static_instr_graph, ev, (struct emu_vertex *)ehi->value);
-
-								printf("step distance new_eip -> old_eip: %i\n", dist);
-								printf("step distance old_eip -> b0rked : %i\n", stepped_steps);
-
-#define        MIN(a,b) (((a)<(b))?(a):(b))
-#define        MAX(a,b) (((a)>(b))?(a):(b))
-
-								emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
-								if ( run_and_track(e, et, env, MAX((dist + stepped_steps) * 2, 256) ) >= dist + stepped_steps )
-								{
-									struct emu_vertex *x;
-									struct emu_hashtable_item *y = emu_hashtable_search(et->run_instr_table, (void *)etii->eip);
-
-									if ( y != NULL )
-									{
-										x = (struct emu_vertex *)y->value;
-
-										if ( emu_graph_loop_detect(et->run_instr_graph, x) == false )
-										{
-											printf("NO LOOP DETECTED (runtime)\n");
-										}
-										else
-										{
-											printf("LOOP DETECTED (runtime)\n");
-										}
-									}
-									found_good_candidate_after_getpc = true;
-								}
-
-							}
-						}
-					}
-
-				}
-
-				/* bail out on *any* error */
-				if ( failed != 0 )
-					return -1;
-			}
-		}
-
-		if ( found_good_candidate_after_getpc == true )
-		{
+		printf("testing (#%d) '%s' \t", i, tests[i].instr);
+		
+		if ( emu_shellcode_test(e, (uint8_t *)tests[i].code, tests[i].codesize) > 0)
 			printf(SUCCESS"\n");
-		}
+		else
+			printf(FAILED"\n");
+
+		emu_memory_clear(emu_memory_get(e));
 	}
 	emu_free(e);
 	return 0;

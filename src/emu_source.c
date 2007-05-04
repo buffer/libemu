@@ -14,7 +14,7 @@
 
 uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and_source *es, uint32_t datastart, uint32_t datasize)
 {
-	printf("tracking from %x to %x\n", datastart, datastart+datasize);
+//	printf("tracking from %x to %x\n", datastart, datastart+datasize);
 	struct emu_cpu *c = emu_cpu_get(e);
 
 	es->static_instr_graph = emu_graph_new();
@@ -27,13 +27,13 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 
 		if ( emu_cpu_parse(c) != 0)
 		{
-			printf("parse error %s\n", emu_strerror(e));
+//			printf("parse error %s\n", emu_strerror(e));
 			continue;
 		}
 
 		if ( emu_cpu_step(c) != 0)
 		{
-			printf("step error %s\n", emu_strerror(e));
+//			printf("step error %s\n", emu_strerror(e));
 //			continue;
 		}
 
@@ -50,7 +50,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 		struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
 
 		struct emu_hashtable_item *ehi = emu_hashtable_search(es->static_instr_table, (void *)etii->source.norm_pos);
-		printf("NORM from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.norm_pos);
+//		printf("NORM from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.norm_pos);
 		if (ehi != NULL)
 		{
 			struct emu_vertex *to = (struct emu_vertex *)ehi->value;
@@ -58,12 +58,12 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 			
 		}else
 		{
-			printf("NORM IS UNKNOWN %08x\n", etii->source.norm_pos);
+//			printf("NORM IS UNKNOWN %08x\n", etii->source.norm_pos);
 		}
 
 		if (etii->source.has_cond_pos == 1)
 		{
-			printf("COND from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.cond_pos);
+//			printf("COND from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.cond_pos);
 			ehi = emu_hashtable_search(es->static_instr_table, (void *)etii->source.cond_pos);
 			if (ehi != NULL)
 			{
@@ -72,7 +72,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 				
 			}else
 			{
-				printf("COND IS UNKNOWN\n");
+//				printf("COND IS UNKNOWN\n");
 			}
 		}
 	}
@@ -158,3 +158,4 @@ void emu_source_forward_bfs(struct emu_track_and_source *et, struct emu_vertex *
 
 	it->color = red;
 }
+

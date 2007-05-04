@@ -98,21 +98,21 @@ int32_t emu_shellcode_run_and_track(struct emu *e, struct emu_track_and_source *
 				track = emu_track_instruction_check(e, et);
 				if ( track == -1 )
 				{
-					printf("tracking complained\n");
+//					printf("tracking complained\n");
 					break;
 				}
 			}
 
 			if ( ret == -1 )
 			{
-				printf("cpu error %s\n", emu_strerror(e));
+//				printf("cpu error %s\n", emu_strerror(e));
 				break;
 			}
 		}
 
 	}
 
-	printf("stepcount %i\n",j);
+//	printf("stepcount %i\n",j);
 	return j;
 }
 
@@ -126,7 +126,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	struct emu_track_and_source *et = emu_track_and_source_new();
 
 	uint32_t offset;
-	bool found_good_candidate_after_getpc = true;
+	bool found_good_candidate_after_getpc = false;
 
 	uint32_t best_eip=0;
 
@@ -143,6 +143,8 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 			/* set the registers to the initial values */
 			for ( j=0;j<8;j++ )
 				emu_cpu_reg32_set(cpu,j ,0x0);
+
+			emu_cpu_reg32_set(cpu, esp, 0x00120000);
 
 			/* set the flags */
 			emu_cpu_eflags_set(cpu,0x0);
@@ -187,7 +189,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 						track = emu_track_instruction_check(e, et);
 						if ( track == -1 )
 						{
-							printf("tracking found uninitialised var\n");
+//							printf("tracking found uninitialised var\n");
 							break;
 						}
 					}
@@ -199,14 +201,14 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 
 					if ( ret == -1 )
 					{
-						printf("cpu error %s\n", emu_strerror(e));
+//						printf("cpu error %s\n", emu_strerror(e));
 						break;
 					}
 				}
 
 			}
 
-			printf("stepcount %i\n",j);
+//			printf("stepcount %i\n",j);
 			stepped_steps = j;
 
 			
@@ -238,10 +240,10 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 					ev = (struct emu_vertex *)ehi->value;
 					if( emu_graph_loop_detect(et->static_instr_graph, ev) == false)
 					{
-						printf("NO LOOP DETECTED (static)\n");
+//						printf("NO LOOP DETECTED (static)\n");
 					}else
 					{
-						printf("LOOP DETECTED (static)\n");
+//						printf("LOOP DETECTED (static)\n");
 					}
 
 					/* static backwards analysis, binary backwards traversal using breath first search */
@@ -254,11 +256,13 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 					{
 						if ( ev->color == green )
 						{
-							printf("POSSIBLE\n");
+//							printf("POSSIBLE\n");
 							struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
 
 							for ( j=0;j<8;j++ )
 								emu_cpu_reg32_set(cpu,j ,0x0);
+
+							emu_cpu_reg32_set(cpu, esp, 0x00120000);
 
 							emu_cpu_eflags_set(cpu,0x0);
 
@@ -269,8 +273,8 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 							env = emu_env_w32_new(e);
 							uint32_t dist = emu_graph_distance(et->static_instr_graph, ev, (struct emu_vertex *)ehi->value);
 
-							printf("step distance new_eip -> old_eip: %i\n", dist);
-							printf("step distance old_eip -> b0rked : %i\n", stepped_steps);
+//							printf("step distance new_eip -> old_eip: %i\n", dist);
+//							printf("step distance old_eip -> b0rked : %i\n", stepped_steps);
 
 							best_eip = etii->eip;
 							emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
@@ -286,11 +290,11 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 
 									if ( emu_graph_loop_detect(et->run_instr_graph, x) == false )
 									{
-										printf("NO LOOP DETECTED (runtime)\n");
+//										printf("NO LOOP DETECTED (runtime)\n");
 									}
 									else
 									{
-										printf("LOOP DETECTED (runtime)\n");
+//										printf("LOOP DETECTED (runtime)\n");
 										found_good_candidate_after_getpc = true;
 									}
 								}
@@ -308,7 +312,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 
 	if ( found_good_candidate_after_getpc == true )
 	{
-		printf("GREAT\n");
+//		printf("GREAT\n");
 	}
 
 	if (found_good_candidate_after_getpc == true)
