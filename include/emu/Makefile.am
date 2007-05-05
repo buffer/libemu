@@ -26,11 +26,6 @@ include_HEADERS += emu_source.h
 include_HEADERS += emu_string.h
 include_HEADERS += emu_track.h
 
-include_HEADERS += environment/win32/emu_env_w32.h
-include_HEADERS += environment/win32/emu_env_w32_dll.h
-include_HEADERS += environment/win32/emu_env_w32_dll_export_hooks.h
-include_HEADERS += environment/win32/emu_env_w32_dll_export.h
-
 
 #include_HEADERS = emu.h
 #include_HEADERS += emu_log.h
