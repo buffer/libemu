@@ -19,6 +19,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 
 	es->static_instr_graph = emu_graph_new();
 	es->static_instr_table = emu_hashtable_new(datasize/2, emu_source_and_track_instr_info_hash,  emu_source_and_track_instr_info_cmp);
+	es->static_instr_graph->vertex_destructor = emu_source_and_track_instr_info_free_void;
 
 	uint32_t i;
 	for (i=datastart;i<datastart+datasize;i++)

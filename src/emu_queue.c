@@ -19,6 +19,10 @@ struct emu_queue *emu_queue_new()
 
 void emu_queue_free(struct emu_queue *eq)
 {
+	while ( emu_queue_empty(eq) == false )
+	{
+		emu_queue_dequeue(eq);
+	}
 	free(eq);
 }
 

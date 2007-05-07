@@ -27,6 +27,12 @@ void emu_track_and_source_free(struct emu_track_and_source *et)
 	if (et->static_instr_graph != NULL)
 		emu_graph_free(et->static_instr_graph);
 
+	if (et->run_instr_table != NULL)
+		emu_hashtable_free(et->run_instr_table);
+
+	if (et->run_instr_graph != NULL)
+		emu_graph_free(et->run_instr_graph);
+
 	free(et);
 
 }
@@ -120,6 +126,11 @@ void emu_source_and_track_instr_info_free(struct emu_source_and_track_instr_info
 		free(etii->instrstring);
 
 	free(etii);
+}
+
+void emu_source_and_track_instr_info_free_void(void *x)
+{
+	emu_source_and_track_instr_info_free((struct emu_source_and_track_instr_info *)x);
 }
 
 bool emu_source_and_track_instr_info_cmp(void *a, void *b)

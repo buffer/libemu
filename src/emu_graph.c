@@ -154,7 +154,10 @@ bool emu_graph_path_exists(struct emu_graph *eg, struct emu_vertex *from, struct
 		ev = (struct emu_vertex *)emu_queue_dequeue(eq);
 
 		if ( ev == to )
+		{
+			emu_queue_free(eq);
 			return true;
+		}
 
 
 		struct emu_edge *ee;
@@ -241,7 +244,10 @@ bool emu_graph_loop_detect(struct emu_graph *eg, struct emu_vertex *from)
 		for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
 		{
 			if ( emu_graph_path_exists(eg, ee->destination, ev) == true )
+			{
+				emu_queue_free(eq);
 				return true;
+			}
 		}
 	}
 

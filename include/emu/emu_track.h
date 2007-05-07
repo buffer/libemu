@@ -35,7 +35,8 @@ struct emu_source_and_track_instr_info
 };
 
 struct emu_source_and_track_instr_info *emu_source_and_track_instr_info_new(struct emu_cpu *cpu, uint32_t eip_before_instruction);
-void emu_source_track_instr_info_free(struct emu_source_and_track_instr_info *esantii);
+void emu_source_and_track_instr_info_free(struct emu_source_and_track_instr_info *esantii);
+void emu_source_and_track_instr_info_free_void(void *x);
 
 bool emu_source_and_track_instr_info_cmp(void *a, void *b);
 uint32_t emu_source_and_track_instr_info_hash(void *key);
