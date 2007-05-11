@@ -11,6 +11,36 @@
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 645*/
 
+/*
+F2 A6 REPNE CMPS m8,m8   Find matching bytes in ES:[(E)DI] and DS:[(E)SI]
+F2 A7 REPNE CMPS m16,m16 Find matching words in ES:[(E)DI] and DS:[(E)SI]
+F2 A7 REPNE CMPS m32,m32 Find matching doublewords in ES:[(E)DI] and DS:[(E)SI]
+F2 AE REPNE SCAS m8      Find AL, starting at ES:[(E)DI]
+F2 AF REPNE SCAS m16     Find AX, starting at ES:[(E)DI]
+F2 AF REPNE SCAS m32     Find EAX, starting at ES:[(E)DI]
+F3 6C REP INS r/m8, DX   Input (E)CX bytes from port DX into ES:[(E)DI]                            
+F3 6D REP INS r/m16,DX   Input (E)CX words from port DX into ES:[(E)DI]                            
+F3 6D REP INS r/m32,DX   Input (E)CX doublewords from port DX into ES:[(E)DI]                      
+F3 6E REP OUTS DX,r/m8   Output (E)CX bytes from DS:[(E)SI] to port DX        
+F3 6F REP OUTS DX,r/m16  Output (E)CX words from DS:[(E)SI] to port DX        
+F3 6F REP OUTS DX,r/m32  Output (E)CX doublewords from DS:[(E)SI] to port DX  
+F3 A4 REP MOVS m8,m8     Move (E)CX bytes from DS:[(E)SI] to ES:[(E)DI]                            
+F3 A5 REP MOVS m16,m16   Move (E)CX words from DS:[(E)SI] to ES:[(E)DI]                            
+F3 A5 REP MOVS m32,m32   Move (E)CX doublewords from DS:[(E)SI] to ES:[(E)DI]                      
+F3 A6 REPE CMPS m8,m8    Find nonmatching bytes in ES:[(E)DI] and DS:[(E)SI]
+F3 A7 REPE CMPS m16,m16  Find nonmatching words in ES:[(E)DI] and DS:[(E)SI]
+F3 A7 REPE CMPS m32,m32  Find nonmatching doublewords in ES:[(E)DI] and DS:[(E)SI]
+F3 AA REP STOS m8        Fill (E)CX bytes at ES:[(E)DI] with AL
+F3 AB REP STOS m16       Fill (E)CX words at ES:[(E)DI] with AX
+F3 AB REP STOS m32       Fill (E)CX doublewords at ES:[(E)DI] with EAX
+F3 AC REP LODS AL        Load (E)CX bytes from DS:[(E)SI] to AL
+F3 AD REP LODS AX        Load (E)CX words from DS:[(E)SI] to AX
+F3 AD REP LODS EAX       Load (E)CX doublewords from DS:[(E)SI] to EAX
+F3 AE REPE SCAS m8       Find non-AL byte starting at ES:[(E)DI]
+F3 AF REPE SCAS m16      Find non-AX word starting at ES:[(E)DI]
+F3 AF REPE SCAS m32      Find non-EAX doubleword starting at ES:[(E)DI]
+*/
+
 int32_t instr_repcc_f2a6(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* F2 A6 

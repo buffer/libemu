@@ -283,9 +283,16 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 				best_eip = etii->eip;
 				emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
 
+				cpu->tracking = et;
+				
 				if ( emu_shellcode_run_and_track(e, et, env, MAX((dist + stepped_steps) * 2, 256) ) < dist + stepped_steps )
+				{
+					cpu->tracking = NULL;
 					continue;
-
+				}
+				
+				cpu->tracking = NULL;
+					
 
 				struct emu_vertex *x;
 				struct emu_hashtable_item *y = emu_hashtable_search(et->run_instr_table, (void *)etii->eip);

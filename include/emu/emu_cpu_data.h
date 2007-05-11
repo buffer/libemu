@@ -18,6 +18,8 @@ enum emu_cpu_flag {
 #define CPU_FLAG_TOGGLE(cpu_p, fl) (cpu_p)->eflags ^= 1 << (fl)
 #define CPU_FLAG_ISSET(cpu_p, fl) ((cpu_p)->eflags & (1 << (fl)))
 
+struct emu_track_and_source;
+
 struct emu_cpu
 {
 	struct emu *emu;
@@ -37,6 +39,8 @@ struct emu_cpu
 	char *instr_string;
 
 	bool repeat_current_instr;
+
+	struct emu_track_and_source *tracking;
 };
 
 

@@ -6,6 +6,8 @@
 
 #include "emu/emu_memory.h"
 
+#include "emu/emu_track.h"
+
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 442*/
 
 int32_t instr_mov_88(struct emu_cpu *c, struct emu_cpu_instruction *i)
@@ -120,6 +122,11 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		else
 		{
 			c->reg[i->modrm.opc] = c->reg[i->modrm.rm];
+
+			if ( c->tracking != NULL )
+			{
+				c->tracking->reg[i->modrm.opc] = c->tracking->reg[i->modrm.rm];
+			}
 		}
 	}
 
