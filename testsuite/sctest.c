@@ -1544,7 +1544,7 @@ int getpctest(int n)
 
 		printf("testing (#%d) '%s' \t", i, tests[i].instr);
 		
-		if ( emu_shellcode_test(e, (uint8_t *)tests[i].code, tests[i].codesize) > 0)
+		if ( emu_shellcode_test(e, (uint8_t *)tests[i].code, tests[i].codesize) >= 0)
 			printf(SUCCESS"\n");
 		else
 			printf(FAILED"\n");
