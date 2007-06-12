@@ -22,6 +22,103 @@ extern const char msvcrt_77be0000[];
 extern const char urlmon_7DF20000[];
 extern const char urlmon_7DF21000[];
 
+
+struct emu_env_w32_known_dll_segment kernel32_segments[] = 
+{
+	{
+		.address = 0x7c800000,
+		.segment = kernel32_dll_7c800000,
+		.segment_size = 641,
+	},
+	{
+		.address = 0x7c801000,
+		.segment = kernel32_dll_7c801000,
+		.segment_size = 32625,
+	},
+	{ 0, NULL, 0 }
+};
+
+struct emu_env_w32_known_dll_segment ws2_32_segments[] = 
+{
+	{
+		.address = 0x71a10000,
+		.segment = ws2_32_71a10000,
+		.segment_size = 786,
+	},
+	{
+		.address = 0x71a11000,
+		.segment = ws2_32_71a11000,
+		.segment_size = 5634,
+	},
+	{ 0, NULL, 0 }
+};
+
+struct emu_env_w32_known_dll_segment msvcrt_segments[] = 
+{
+	{
+		.address = 0x77be0000,
+		.segment = msvcrt_77be0000,
+		.segment_size = 5634,
+	},
+	{ 0, NULL, 0 }
+};
+
+struct emu_env_w32_known_dll_segment urlmon_segments[] = 
+{
+	{
+		.address = 0x7DF20000,
+		.segment = urlmon_7DF20000,
+		.segment_size = 786,
+	},
+	{
+		.address = 0x7DF21000,
+		.segment = urlmon_7DF21000,
+		.segment_size = 6144,
+	},
+	{ 0, NULL, 0 }
+};
+
+
+struct emu_env_w32_known_dll known_dlls[] = 
+{
+	{
+		.dllname = "kernel32",
+		.baseaddress = 0x7C800000,
+		.imagesize = 0x00106000,
+		.exports = kernel32_exports,
+		.memory_segments = kernel32_segments,
+	},
+	{
+		.dllname = "ws2_32",
+		.baseaddress = 0x71A10000,
+		.imagesize = 0x00017000,
+		.exports = ws2_32_exports,
+		.memory_segments = ws2_32_segments,
+	},
+	{
+		.dllname = "msvcrt",
+		.baseaddress = 0x77BE0000,
+		.imagesize = 0x00058000,
+		.exports = msvcrt_exports,
+		.memory_segments = msvcrt_segments,
+	},
+	{
+		.dllname = "urlmon",
+		.baseaddress = 0x7DF20000,
+		.imagesize = 0x000A0000,
+		.exports = urlmon_exports,
+		.memory_segments = urlmon_segments,
+	},
+	{
+		.dllname = NULL,
+		.baseaddress = 0,
+		.imagesize = 0,
+		.exports = NULL,
+		.memory_segments = NULL,
+	},
+
+};
+
 struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 {
 	struct emu_env_w32 *env = (struct emu_env_w32 *)malloc(sizeof(struct emu_env_w32));
@@ -88,88 +185,49 @@ void emu_env_w32_free(struct emu_env_w32 *env)
 
 int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 {
-    if (strncmp(dllname, "kernel32",strlen("kernel32")) != 0 &&
-        strncasecmp(dllname, "ws2_32",strlen("ws2_32")) != 0 && 
-		strncmp(dllname, "msvcrt",strlen("msvcrt")) != 0 &&
-		strncmp(dllname, "urlmon",strlen("urlmon")) != 0 
-		)
-    {
-        printf("unknown dll %s\n", dllname);
-        return -1;
-    }
-
-//	printf("loading dll %s\n",dllname);
-
-	struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
-	struct emu_memory *mem = emu_memory_get(env->emu);
-
-	
-
-	dll->dllname = strdup(dllname);
-	if (strstr(dll->dllname, ".") != NULL)
-		*strstr(dll->dllname, ".") = 0x0;
-
-
-	if (strncmp(dllname, "kernel32",strlen("kernel32")) == 0)
+	int i;
+	for ( i=0; known_dlls[i].dllname != NULL; i++ )
 	{
-		dll->baseaddr = 0x7C800000;
-		dll->imagesize = 0x00106000;
+		printf("dllname is %s\n", known_dlls[i].dllname);
+		if (strncasecmp(dllname, known_dlls[i].dllname, strlen(known_dlls[i].dllname)) == 0)
+		{
+			printf("loading dll %s\n",dllname);
+			struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
+			struct emu_memory *mem = emu_memory_get(env->emu);
 
-//		printf("writing %i bytes to 0x%x\n",sizeof(kernel32_dll_7c800000),0x7C800000);
-		emu_memory_write_block(mem,0x7C800000,(void *)kernel32_dll_7c800000, 641);
+			dll->dllname = strdup(known_dlls[i].dllname);
+			dll->baseaddr = known_dlls[i].baseaddress;
+			dll->imagesize = known_dlls[i].imagesize;
+			int j;
+			for (j=0; known_dlls[i].memory_segments[j].address != 0; j++)
+			{
+				printf(" 0x%08x %i bytes\n", known_dlls[i].memory_segments[j].address, 
+					   known_dlls[i].memory_segments[j].segment_size);
+				emu_memory_write_block(mem,
+									   known_dlls[i].memory_segments[j].address,
+							   (void *)known_dlls[i].memory_segments[j].segment,
+									   known_dlls[i].memory_segments[j].segment_size);
+			}
 
-//		printf("writing %i bytes to 0x%x\n",sizeof(kernel32_dll_7c801000),0x7C801000);
-		emu_memory_write_block(mem,0x7C801000,(void *)kernel32_dll_7c801000,32625);
+			emu_env_w32_dll_exports_copy(dll, known_dlls[i].exports);
 
-		emu_env_w32_dll_exports_copy(dll, kernel32_exports);
-	}
-	else
-	if (strncasecmp(dllname, "ws2_32",strlen("ws2_32")) == 0)
-	{
-		dll->baseaddr = 0x71A10000;
-		dll->imagesize = 0x00017000;
+			int numdlls=0;
+			if (env->loaded_dlls != NULL)
+			{
+				while (env->loaded_dlls[numdlls] != NULL)
+					numdlls++;
+			}
 
-//		printf("writing %i bytes to 0x%x\n",sizeof(ws2_32_71a10000),0x71a10000);
-		emu_memory_write_block(mem,0x71a10000,(void *)ws2_32_71a10000,786);
+			env->loaded_dlls = realloc(env->loaded_dlls, sizeof(struct emu_env_w32_dll *) * (numdlls+2));
+			env->loaded_dlls[numdlls] = dll;
+			env->loaded_dlls[numdlls+1] = NULL;
 
-//		printf("writing %i bytes to 0x%x\n",sizeof(ws2_32_71a11000),0x71a11000);
-		emu_memory_write_block(mem,0x71a11000,(void *)ws2_32_71a11000,5634);
+			return 0;
 
-		emu_env_w32_dll_exports_copy(dll, ws2_32_exports);
-	}else
-	if (strncmp(dllname, "msvcrt",strlen("msvcrt")) == 0)
-	{
-		dll->baseaddr = 0x77BE0000;
-		dll->imagesize = 0x00058000;
-		emu_memory_write_block(mem,0x77BE0000,(void *)msvcrt_77be0000,5634);
-		emu_env_w32_dll_exports_copy(dll, msvcrt_exports);
-	}else
-	if (strncmp(dllname, "urlmon",strlen("urlmon")) == 0)
-	{
-		dll->baseaddr = 0x7DF20000;
-		dll->imagesize = 0x000A0000;
-		emu_memory_write_block(mem,0x7DF20000,(void *)urlmon_7DF20000,786);
-		emu_memory_write_block(mem,0x7DF21000,(void *)urlmon_7DF21000,6144);
-		emu_env_w32_dll_exports_copy(dll, urlmon_exports);
+		}
 	}
 
-
-
-	int numdlls=0;
-	if (env->loaded_dlls != NULL)
-	{
-    	while (env->loaded_dlls[numdlls] != NULL)
-			numdlls++;
-	}
-
-	env->loaded_dlls = realloc(env->loaded_dlls, sizeof(struct emu_env_w32_dll *) * (numdlls+2));
-	env->loaded_dlls[numdlls] = dll;
-	env->loaded_dlls[numdlls+1] = NULL;
-
-
-
-
-	return 0;
+	return -1;
 }
 
 
