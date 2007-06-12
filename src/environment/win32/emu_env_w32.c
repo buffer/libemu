@@ -89,7 +89,7 @@ void emu_env_w32_free(struct emu_env_w32 *env)
 int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 {
     if (strncmp(dllname, "kernel32",strlen("kernel32")) != 0 &&
-        strncmp(dllname, "ws2_32",strlen("ws2_32")) != 0 && 
+        strncasecmp(dllname, "ws2_32",strlen("ws2_32")) != 0 && 
 		strncmp(dllname, "msvcrt",strlen("msvcrt")) != 0 &&
 		strncmp(dllname, "urlmon",strlen("urlmon")) != 0 
 		)
@@ -98,7 +98,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
         return -1;
     }
 
-	printf("loading dll %s\n",dllname);
+//	printf("loading dll %s\n",dllname);
 
 	struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
 	struct emu_memory *mem = emu_memory_get(env->emu);
@@ -124,7 +124,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 		emu_env_w32_dll_exports_copy(dll, kernel32_exports);
 	}
 	else
-	if (strncmp(dllname, "ws2_32",strlen("ws2_32")) == 0)
+	if (strncasecmp(dllname, "ws2_32",strlen("ws2_32")) == 0)
 	{
 		dll->baseaddr = 0x71A10000;
 		dll->imagesize = 0x00017000;

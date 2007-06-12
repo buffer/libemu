@@ -33,8 +33,11 @@ int32_t emu_shellcode_run_and_track(struct emu *e, struct emu_track_and_source *
 	if ( et->run_instr_graph != NULL )
 		emu_graph_free(et->run_instr_graph);
 
+	if ( et->run_instr_table != NULL)
+		emu_hashtable_free(et->run_instr_table);
+
 	et->run_instr_graph = emu_graph_new();
-	et->run_instr_table = emu_hashtable_new(steps, emu_source_and_track_instr_info_hash,  emu_source_and_track_instr_info_cmp);
+	et->run_instr_table = emu_hashtable_new(1024, emu_source_and_track_instr_info_hash,  emu_source_and_track_instr_info_cmp);
 	et->run_instr_graph->vertex_destructor = emu_source_and_track_instr_info_free_void;
 
 	for ( j=0;j<steps;j++ )
@@ -101,21 +104,22 @@ int32_t emu_shellcode_run_and_track(struct emu *e, struct emu_track_and_source *
 				track = emu_track_instruction_check(e, et);
 				if ( track == -1 )
 				{
-//					printf("tracking complained\n");
+					printf("tracking complained\n%s\n",cpu->instr_string);
 					break;
 				}
 			}
 
 			if ( ret == -1 )
 			{
-//				printf("cpu error %s\n", emu_strerror(e));
+				printf("cpu error %s\n", emu_strerror(e));
 				break;
 			}
 		}
 
 	}
 
-//	printf("stepcount %i\n",j);
+
+	printf("stepcount %i\n",j);
 	return j;
 }
 
@@ -136,183 +140,274 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	for ( offset=0; offset<size && found_good_candidate_after_getpc == false; offset++ )
 	{
 
-		if ( emu_getpc_check(e, (uint8_t *)data, size, offset) != 1 )
+		int getpc_check_result = emu_getpc_check(e, (uint8_t *)data, size, offset);
+
+		if (getpc_check_result == 0)
 			continue;
 
-		int j=0;
-
-		/* set the registers to the initial values */
-		for ( j=0;j<8;j++ )
-			emu_cpu_reg32_set(cpu,j ,0x0);
-
-		emu_cpu_reg32_set(cpu, esp, 0x00120000);
-
-		/* set the flags */
-		emu_cpu_eflags_set(cpu,0x0);
-
-		/* write the code to the offset */
-		for ( j = 0; j < size; j++ )
-			emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
-
-
-
-
-		/* set eip to the getpc code */
-		emu_cpu_eip_set(emu_cpu_get(e), STATIC_OFFSET+offset);
-
-		int ret = -1;
-		int track = 0;
-		int stepped_steps = 0;
-
-		/* run the code */
-		for ( j=0;j<EMU_SHELLCODE_TEST_MAX_STEPS;j++ )
+		if ( getpc_check_result == 1 )
 		{
-			uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
-			struct emu_env_w32_dll_export *dllhook = NULL;
+			int j=0;
 
-			ret = 0;
-			eipsave = emu_cpu_eip_get(emu_cpu_get(e));
+			/* set the registers to the initial values */
+			for ( j=0;j<8;j++ )
+				emu_cpu_reg32_set(cpu,j ,0x0);
 
-			dllhook = emu_env_w32_eip_check(env);
+			emu_cpu_reg32_set(cpu, esp, 0x00120000);
 
-			if ( dllhook != NULL )
+			/* set the flags */
+			emu_cpu_eflags_set(cpu,0x0);
+
+			/* write the code to the offset */
+			for ( j = 0; j < size; j++ )
+				emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
+
+
+
+
+			/* set eip to the getpc code */
+			emu_cpu_eip_set(emu_cpu_get(e), STATIC_OFFSET+offset);
+
+			int ret = -1;
+			int track = 0;
+			int stepped_steps = 0;
+
+			/* run the code */
+			for ( j=0;j<EMU_SHELLCODE_TEST_MAX_STEPS;j++ )
 			{
+				uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
-			}
-			else
-			{
+				struct emu_env_w32_dll_export *dllhook = NULL;
 
-				ret = emu_cpu_parse(emu_cpu_get(e));
+				ret = 0;
+				eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
-				if ( ret != -1 )
+				dllhook = emu_env_w32_eip_check(env);
+
+				if ( dllhook != NULL )
 				{
-					track = emu_track_instruction_check(e, et);
-					if ( track == -1 )
+
+				}
+				else
+				{
+
+					ret = emu_cpu_parse(emu_cpu_get(e));
+
+					if ( ret != -1 )
 					{
+						track = emu_track_instruction_check(e, et);
+						if ( track == -1 )
+						{
 //							printf("tracking found uninitialised var\n");
+							break;
+						}
+					}
+
+					if ( ret != -1 )
+					{
+						ret = emu_cpu_step(emu_cpu_get(e));
+					}
+
+					if ( ret == -1 )
+					{
+//						printf("cpu error %s\n", emu_strerror(e));
 						break;
 					}
 				}
 
-				if ( ret != -1 )
-				{
-					ret = emu_cpu_step(emu_cpu_get(e));
-				}
-
-				if ( ret == -1 )
-				{
-//						printf("cpu error %s\n", emu_strerror(e));
-					break;
-				}
 			}
-
-		}
 
 //			printf("stepcount %i\n",j);
-		stepped_steps = j;
+			stepped_steps = j;
 
 
 
-		if ( track != -1 )
-			continue;
+			if ( track != -1 )
+				continue;
 
-		/* rewrite the shellcode */
-		for ( j = 0; j < size; j++ )
-			emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
-
-
-		/* recreate the env */
-		emu_env_w32_free(env);
-		env = emu_env_w32_new(e);
+			/* rewrite the shellcode */
+			for ( j = 0; j < size; j++ )
+				emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
 
 
-		/* set memory read only so instructions can't change it*/
-		emu_memory_mode_ro(emu_memory_get(e));
-		emu_source_instruction_graph_create(e, et, STATIC_OFFSET, size);
-		emu_memory_mode_rw(emu_memory_get(e));
+			/* recreate the env */
+			emu_env_w32_free(env);
+			env = emu_env_w32_new(e);
+
+
+			/* set memory read only so instructions can't change it*/
+			emu_memory_mode_ro(emu_memory_get(e));
+			emu_source_instruction_graph_create(e, et, STATIC_OFFSET, size);
+			emu_memory_mode_rw(emu_memory_get(e));
 
 
 
-		struct emu_vertex *ev;
-		struct emu_hashtable_item *ehi = emu_hashtable_search(et->static_instr_table, (void *)(STATIC_OFFSET+offset));
-		if ( ehi != NULL )
-		{
-			/* static instruction analysis, try to detect a loop*/
-			ev = (struct emu_vertex *)ehi->value;
-			if ( emu_graph_loop_detect(et->static_instr_graph, ev) == false )
+			struct emu_vertex *ev;
+			struct emu_hashtable_item *ehi = emu_hashtable_search(et->static_instr_table, (void *)(STATIC_OFFSET+offset));
+			if ( ehi != NULL )
 			{
+				/* static instruction analysis, try to detect a loop*/
+				ev = (struct emu_vertex *)ehi->value;
+				if ( emu_graph_loop_detect(et->static_instr_graph, ev) == false )
+				{
 //						printf("NO LOOP DETECTED (static)\n");
-			}
-			else
-			{
+				}
+				else
+				{
 //						printf("LOOP DETECTED (static)\n");
-			}
+				}
 
-			/* static backwards analysis, binary backwards traversal using breath first search */
-			ev = (struct emu_vertex *)ehi->value;
-			emu_source_backward_bfs(et, ev);
+				/* static backwards analysis, binary backwards traversal using breath first search */
+				ev = (struct emu_vertex *)ehi->value;
+				emu_source_backward_bfs(et, ev);
 
-			for ( ev = emu_vertexes_first(et->static_instr_graph->vertexes); 
-				!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 
-				ev = emu_vertexes_next(ev) )
-			{
-				if ( ev->color != green )
-					continue;
+				for ( ev = emu_vertexes_first(et->static_instr_graph->vertexes); 
+					!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 
+					ev = emu_vertexes_next(ev) )
+				{
+					if ( ev->color != green )
+						continue;
 
 //							printf("POSSIBLE\n");
-				struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
+					struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
 
-				for ( j=0;j<8;j++ )
-					emu_cpu_reg32_set(cpu,j ,0x0);
+					for ( j=0;j<8;j++ )
+						emu_cpu_reg32_set(cpu,j ,0x0);
 
-				emu_cpu_reg32_set(cpu, esp, 0x00120000);
+					emu_cpu_reg32_set(cpu, esp, 0x00120000);
 
-				emu_cpu_eflags_set(cpu,0x0);
+					emu_cpu_eflags_set(cpu,0x0);
 
-				for ( j = 0; j < size; j++ )
-					emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
+					for ( j = 0; j < size; j++ )
+						emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
 
-				emu_env_w32_free(env);
-				env = emu_env_w32_new(e);
-				uint32_t dist = emu_graph_distance(et->static_instr_graph, ev, (struct emu_vertex *)ehi->value);
+					emu_env_w32_free(env);
+					env = emu_env_w32_new(e);
+					uint32_t dist = emu_graph_distance(et->static_instr_graph, ev, (struct emu_vertex *)ehi->value);
 
 //							printf("step distance new_eip -> old_eip: %i\n", dist);
 //							printf("step distance old_eip -> b0rked : %i\n", stepped_steps);
 
-				best_eip = etii->eip;
-				emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
+					best_eip = etii->eip;
+					emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
 
-				cpu->tracking = et;
-				
-				if ( emu_shellcode_run_and_track(e, et, env, MAX((dist + stepped_steps) * 2, 256) ) < dist + stepped_steps )
-				{
+					cpu->tracking = et;
+
+					if ( emu_shellcode_run_and_track(e, et, env, MAX((dist + stepped_steps) * 2, 256) ) < dist + stepped_steps )
+					{
+						cpu->tracking = NULL;
+						continue;
+					}
+
 					cpu->tracking = NULL;
-					continue;
-				}
-				
-				cpu->tracking = NULL;
-					
-
-				struct emu_vertex *x;
-				struct emu_hashtable_item *y = emu_hashtable_search(et->run_instr_table, (void *)etii->eip);
-
-				if ( y == NULL )
-					continue;
 
 
-				x = (struct emu_vertex *)y->value;
+					struct emu_vertex *x;
+					struct emu_hashtable_item *y = emu_hashtable_search(et->run_instr_table, (void *)etii->eip);
 
-				if ( emu_graph_loop_detect(et->run_instr_graph, x) == false )
-				{
+					if ( y == NULL )
+						continue;
+
+
+					x = (struct emu_vertex *)y->value;
+
+					if ( emu_graph_loop_detect(et->run_instr_graph, x) == false )
+					{
 //										printf("NO LOOP DETECTED (runtime)\n");
-				}
-				else
-				{
+					}
+					else
+					{
 //										printf("LOOP DETECTED (runtime)\n");
-					found_good_candidate_after_getpc = true;
+						found_good_candidate_after_getpc = true;
+					}
 				}
 			}
+		}
+		else
+		if ( getpc_check_result == 2 ) // mov
+		{
+			printf("MOV at offset %x\n", offset);
+			int j;
+			/* set the registers to the initial values */
+			for ( j=0;j<8;j++ )
+				emu_cpu_reg32_set(cpu,j ,0x0);
+
+			emu_cpu_reg32_set(cpu, esp, 0x00120000);
+
+			/* set the flags */
+			emu_cpu_eflags_set(cpu,0x0);
+
+			/* write the code to the offset */
+			for ( j = 0; j < size; j++ )
+				emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
+
+			/* set memory read only so instructions can't change it*/
+			emu_memory_mode_ro(emu_memory_get(e));
+			emu_source_instruction_graph_create(e, et, STATIC_OFFSET, size);
+			emu_memory_mode_rw(emu_memory_get(e));
+
+			struct emu_vertex *ev;
+			struct emu_hashtable_item *ehi = emu_hashtable_search(et->static_instr_table, (void *)(STATIC_OFFSET+offset));
+			if ( ehi != NULL )
+			{
+				/* static instruction analysis, try to detect a loop*/
+				ev = (struct emu_vertex *)ehi->value;
+
+				/* static backwards analysis, binary backwards traversal using breath first search */
+				ev = (struct emu_vertex *)ehi->value;
+				emu_source_backward_bfs(et, ev);
+
+				for ( ev = emu_vertexes_first(et->static_instr_graph->vertexes); 
+					!emu_vertexes_attail(ev) && found_good_candidate_after_getpc == false; 
+					ev = emu_vertexes_next(ev) )
+				{
+					if ( ev->color != green )
+						continue;
+
+					printf("POSSIBLE\n");
+					struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
+
+					for ( j=0;j<8;j++ )
+						emu_cpu_reg32_set(cpu,j ,0x0);
+
+					emu_cpu_reg32_set(cpu, esp, 0x00120000);
+
+					emu_cpu_eflags_set(cpu,0x0);
+
+					for ( j = 0; j < size; j++ )
+						emu_memory_write_byte(mem, STATIC_OFFSET+j, data[j]);
+
+					emu_env_w32_free(env);
+					env = emu_env_w32_new(e);
+					int32_t dist = emu_graph_distance(et->static_instr_graph, ev, (struct emu_vertex *)ehi->value);
+
+					printf("DISTANCE %x\n", dist);
+
+//					if (dist <= 0)
+//						continue;
+
+					printf("starting at 0x%x\n", etii->eip-STATIC_OFFSET);
+					best_eip = etii->eip;
+					emu_cpu_eip_set(emu_cpu_get(e), etii->eip);
+
+					cpu->tracking = et;
+
+					int tracked_steps = emu_shellcode_run_and_track(e, et, env, MAX(dist* 2, 256));
+					if (  tracked_steps < dist )
+					{
+						cpu->tracking = NULL;
+						continue;
+					}else
+					{
+						found_good_candidate_after_getpc = true;
+					}
+					cpu->tracking = NULL;
+
+
+				}
+			}
+
 		}
 	}
 
@@ -324,7 +419,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 //		printf("GREAT\n");
 	}
 
-	if (found_good_candidate_after_getpc == true)
+	if ( found_good_candidate_after_getpc == true )
 		return best_eip-STATIC_OFFSET;
 	else
 		return -1;

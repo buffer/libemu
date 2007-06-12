@@ -451,7 +451,7 @@ int connect(
 		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
 
 	struct sockaddr_in si;
-	si.sin_port = htons(4711);
+	si.sin_port = htons(4444);
 	si.sin_family = AF_INET;
 	si.sin_addr.s_addr = inet_addr("127.0.0.1");
 

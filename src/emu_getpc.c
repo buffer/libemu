@@ -16,6 +16,7 @@
 #define        MIN(a,b) (((a)<(b))?(a):(b))
 #define        MAX(a,b) (((a)>(b))?(a):(b))
 
+
 uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t offset)
 {
 	struct emu_cpu *c = emu_cpu_get(e);
@@ -48,7 +49,7 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 
 
 
-		printf("call within %i bytes \n", c->instr.cpu.disp);
+//		printf("call within %i bytes \n", c->instr.cpu.disp);
 		if (abs(c->instr.cpu.disp) > 512)
 		{
 			break;
@@ -56,7 +57,7 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 		else
 		{
 
-			printf("size is within\n");
+//			printf("size is within\n");
 		}
 
 		if (c->instr.cpu.disp < 0)
@@ -67,7 +68,7 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 			}
 			else
 			{
-				printf("eip is within\n");
+//				printf("eip is within\n");
 			}
 
 		}
@@ -80,11 +81,11 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 			}
 			else
 			{
-				printf("eip is _still_ within size: %i i: %i disp: %i (%i)\n", size, offset, c->instr.cpu.disp, size - offset + c->instr.cpu.disp);
+//				printf("eip is _still_ within size: %i i: %i disp: %i (%i)\n", size, offset, c->instr.cpu.disp, size - offset + c->instr.cpu.disp);
 			}
 		}
 
-		printf("writing from offset %i to offset %i\n", offset + MIN(c->instr.cpu.disp, 0), 0x1000+MIN(c->instr.cpu.disp, 0));
+//		printf("writing from offset %i to offset %i\n", offset + MIN(c->instr.cpu.disp, 0), 0x1000+MIN(c->instr.cpu.disp, 0));
 		emu_memory_write_block(m, 0x1000 + MIN(c->instr.cpu.disp, 0), data + offset + MIN(c->instr.cpu.disp, 0), size - offset - MIN(c->instr.cpu.disp, 0));
 		emu_cpu_eip_set(c, 0x1000);
 
@@ -101,7 +102,7 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 
 			if ( ret == -1 )
 			{
-				printf("cpu error %s\n", emu_strerror(e));
+//				printf("cpu error %s\n", emu_strerror(e));
 				break;
 			}
 
@@ -125,7 +126,7 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 
 		if ( c->instr.fpu.ea == emu_cpu_reg32_get(c, esp) - 0xc )
 		{
-			printf("found fnstenv with ea = esp - 0xc\n");
+//			printf("found fnstenv with ea = esp - 0xc\n");
 			return 1;
 		}
 
@@ -153,7 +154,19 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 			}
 		}
 */
+		break;
 
+	case 0x64: // fs: prefix
+		if ( data[offset+1] == 0x8b )
+		{
+			emu_memory_write_block(m, 0x1000, data+offset, MIN(size-offset, 64));
+			emu_cpu_eip_set(c, 0x1000);
+
+			if ( emu_cpu_parse(c) != 0 )
+				break;
+
+			return 2;
+		}
 		break;
 
 	}

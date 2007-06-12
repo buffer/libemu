@@ -74,15 +74,15 @@ struct list__hack
 /* static inline */ bool name##_islast(t_elem *elem); \
  \
 /* internal list manipulation */					 \
-/* static inline */ void name##__splice_before(t_elem *elem, t_elem *new0, t_elem *newN); \
-/* static inline */ void name##__splice_after(t_elem *elem, t_elem *new0, t_elem *newN); \
+/* static inline */ void name##__splice_before(t_elem *elem, t_elem *newX0, t_elem *newXN); \
+/* static inline */ void name##__splice_after(t_elem *elem, t_elem *newX0, t_elem *newXN); \
 /* static inline */ void name##__unsplice(t_elem *old0, t_elem *oldN); \
 									 \
 /* single element manipulation */		 \
-/* static inline */ void name##_insert_before(t_elem *elem, t_elem *new); \
-/* static inline */ void name##_insert_after(t_elem *elem, t_elem *new); \
-/* static inline */ void name##_insert_first(t_root *root, t_elem *new); \
-/* static inline */ void name##_insert_last(t_root *root, t_elem *new); \
+/* static inline */ void name##_insert_before(t_elem *elem, t_elem *newX); \
+/* static inline */ void name##_insert_after(t_elem *elem, t_elem *newX); \
+/* static inline */ void name##_insert_first(t_root *root, t_elem *newX); \
+/* static inline */ void name##_insert_last(t_root *root, t_elem *newX); \
 /* static inline */ void name##_remove(t_elem *elem); \
 /* static inline */ t_elem *name##_remove_first(t_root *root); \
 /* static inline */ t_elem *name##_remove_last(t_root *root); \
@@ -195,18 +195,18 @@ struct list__hack
 									\
 /* internal list manipulation */					\
 /* static inline */ void name##__splice_before				\
-		(t_elem *elem, t_elem *new0, t_elem *newN) {		\
-	new0->link.prev = elem->link.prev;				\
-	newN->link.next = elem;						\
-	elem->link.prev->link.next = new0;				\
-	elem->link.prev = newN;						\
+		(t_elem *elem, t_elem *newX0, t_elem *newXN) {		\
+	newX0->link.prev = elem->link.prev;				\
+	newXN->link.next = elem;						\
+	elem->link.prev->link.next = newX0;				\
+	elem->link.prev = newXN;						\
 }									\
 /* static inline */ void name##__splice_after					\
-		(t_elem *elem, t_elem *new0, t_elem *newN) {		\
-	newN->link.next = elem->link.next;				\
-	new0->link.prev = elem;						\
-	elem->link.next->link.prev = newN;				\
-	elem->link.next = new0;						\
+		(t_elem *elem, t_elem *newX0, t_elem *newXN) {		\
+	newXN->link.next = elem->link.next;				\
+	newX0->link.prev = elem;						\
+	elem->link.next->link.prev = newXN;				\
+	elem->link.next = newX0;						\
 }									\
 /* static inline */ void name##__unsplice(t_elem *old0, t_elem *oldN) {	\
 	old0->link.prev->link.next = oldN->link.next;			\
@@ -214,19 +214,19 @@ struct list__hack
 }									\
 									\
 /* single element manipulation */					\
-/* static inline */ void name##_insert_before(t_elem *elem, t_elem *new) {	\
-	name##__splice_before(elem, new, new);				\
+/* static inline */ void name##_insert_before(t_elem *elem, t_elem *newX) {	\
+	name##__splice_before(elem, newX, newX);				\
 }									\
-/* static inline */ void name##_insert_after(t_elem *elem, t_elem *new) {	\
-	name##__splice_after(elem, new, new);				\
+/* static inline */ void name##_insert_after(t_elem *elem, t_elem *newX) {	\
+	name##__splice_after(elem, newX, newX);				\
 }									\
-/* static inline */ void name##_insert_first(t_root *root, t_elem *new) {	\
-	name##_insert_before(root->head.next, new);			\
-	/* or name##_insert_after(name##__head2elem(root), new); */	\
+/* static inline */ void name##_insert_first(t_root *root, t_elem *newX) {	\
+	name##_insert_before(root->head.next, newX);			\
+	/* or name##_insert_after(name##__head2elem(root), newX); */	\
 }									\
-/* static inline */ void name##_insert_last(t_root *root, t_elem *new) {	\
-	name##_insert_after(root->tail.prev, new);			\
-	/* or name##_insert_before(name##__tail2elem(root), new); */	\
+/* static inline */ void name##_insert_last(t_root *root, t_elem *newX) {	\
+	name##_insert_after(root->tail.prev, newX);			\
+	/* or name##_insert_before(name##__tail2elem(root), newX); */	\
 }									\
 /* static inline */ void name##_remove(t_elem *elem) {			\
 	name##__unsplice(elem, elem);					\
