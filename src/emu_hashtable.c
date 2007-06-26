@@ -87,23 +87,28 @@ struct emu_hashtable_item *emu_hashtable_search(struct emu_hashtable *eh, void *
 
 struct emu_hashtable_item *emu_hashtable_insert(struct emu_hashtable *eh, void *key, void *data)
 {
-	struct emu_hashtable_bucket_item *ehbi = emu_hashtable_bucket_item_new(key, data);
-
-
-	uint32_t first_hash = eh->hash(key) % eh->size;
-
-	struct emu_hashtable_bucket *ehb;
-	if ((ehb = eh->buckets[first_hash]) == NULL)
+	struct emu_hashtable_item *ehi;
+	if ((ehi = emu_hashtable_search(eh, key)) == NULL)
 	{
-		ehb = emu_hashtable_bucket_new();
-		eh->buckets[first_hash] = ehb;
+		struct emu_hashtable_bucket_item *ehbi = emu_hashtable_bucket_item_new(key, data);
+		ehi = ehbi->item;
+
+		uint32_t first_hash = eh->hash(key) % eh->size;
+
+		struct emu_hashtable_bucket *ehb;
+		if ((ehb = eh->buckets[first_hash]) == NULL)
+		{
+			ehb = emu_hashtable_bucket_new();
+			eh->buckets[first_hash] = ehb;
+		}
+
+		emu_hashtable_bucket_items_insert_last(ehb->items,ehbi);
+	}else
+	{
+		ehi->value = data;
 	}
-
-	emu_hashtable_delete(eh, key);
-	emu_hashtable_bucket_items_insert_last(ehb->items,ehbi);
 	
-
-	return ehbi->item;
+	return ehi;
 }
 
 bool emu_hashtable_delete(struct emu_hashtable *eh, void *key)
@@ -121,6 +126,12 @@ bool emu_hashtable_delete(struct emu_hashtable *eh, void *key)
 			ehi = ehbi->item;
 			if (eh->cmp(ehi->key, key) == true)
 			{
+				if (eh->value_destructor != NULL)
+                	eh->value_destructor(ehi->value);
+
+				if (eh->key_destructor != NULL)
+					eh->key_destructor(ehi->key);
+				
 				emu_hashtable_bucket_items_remove(ehbi);
 				return true;
 			}
