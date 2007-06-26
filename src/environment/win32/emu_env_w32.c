@@ -189,7 +189,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 	for ( i=0; known_dlls[i].dllname != NULL; i++ )
 	{
 		printf("dllname is %s\n", known_dlls[i].dllname);
-		if (strncasecmp(dllname, known_dlls[i].dllname, strlen(known_dlls[i].dllname)) == 0)
+		if ( strncasecmp(dllname, known_dlls[i].dllname, strlen(known_dlls[i].dllname)) == 0 )
 		{
 			printf("loading dll %s\n",dllname);
 			struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
@@ -199,22 +199,22 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 			dll->baseaddr = known_dlls[i].baseaddress;
 			dll->imagesize = known_dlls[i].imagesize;
 			int j;
-			for (j=0; known_dlls[i].memory_segments[j].address != 0; j++)
+			for ( j=0; known_dlls[i].memory_segments[j].address != 0; j++ )
 			{
 				printf(" 0x%08x %i bytes\n", known_dlls[i].memory_segments[j].address, 
 					   known_dlls[i].memory_segments[j].segment_size);
 				emu_memory_write_block(mem,
 									   known_dlls[i].memory_segments[j].address,
-							   (void *)known_dlls[i].memory_segments[j].segment,
+									   (void *)known_dlls[i].memory_segments[j].segment,
 									   known_dlls[i].memory_segments[j].segment_size);
 			}
 
 			emu_env_w32_dll_exports_copy(dll, known_dlls[i].exports);
 
 			int numdlls=0;
-			if (env->loaded_dlls != NULL)
+			if ( env->loaded_dlls != NULL )
 			{
-				while (env->loaded_dlls[numdlls] != NULL)
+				while ( env->loaded_dlls[numdlls] != NULL )
 					numdlls++;
 			}
 
