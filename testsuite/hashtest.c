@@ -10,7 +10,7 @@ struct addr_instr
 };
 
 
-struct addr_instr testdata[] = 
+struct addr_instr insert_data[] = 
 {
 	{ 0x0012fc90, "sub esp,0x20"},
 	{ 0x0012fc93, "mov ebp,esp"},
@@ -185,10 +185,19 @@ struct addr_instr testdata[] =
 	{ 0x00402115, "jmp ebp"}
 };
 
+struct addr_instr dup_data[] = 
+{
+	{ 0x0012fc90, "fox"},
+	{ 0x0012fc90, "foo"},
+	{ 0x0012fc90, "bar"},
+	{ 0x0012fc90, "baz"},
+	{ 0x0012fc90, "success"}
+};
+
 
 bool cmp(void *a, void *b)
 {
-	if (*(uint32_t *)a == *(uint32_t *)b)
+	if ((uint32_t)a == (uint32_t)b)
 		return true;
 
 	return false;
@@ -196,7 +205,7 @@ bool cmp(void *a, void *b)
 
 uint32_t hash(void *key)
 {
-	uint32_t ukey = *(uint32_t *)key;
+	uint32_t ukey = (uint32_t)key;
 	ukey++;
 	return ukey;
 }
@@ -205,27 +214,38 @@ int main()
 {
 	struct emu_hashtable *eh = emu_hashtable_new(4095, hash, cmp);
 	int i;
-	for (i=0;i<sizeof(testdata)/sizeof(struct addr_instr);i++)
+	for (i=0;i<sizeof(insert_data)/sizeof(struct addr_instr);i++)
 	{
-		emu_hashtable_insert(eh, &testdata[i].addr, &testdata[i].instr);
+		emu_hashtable_insert(eh, (void *)insert_data[i].addr, (void *)insert_data[i].instr);
 	}
 
 
 	struct emu_hashtable_item *ehi;
-	for (i=0;i<sizeof(testdata)/sizeof(struct addr_instr);i++)
+	for (i=0;i<sizeof(insert_data)/sizeof(struct addr_instr);i++)
 	{
-		ehi = emu_hashtable_search(eh, &testdata[i].addr);
+		ehi = emu_hashtable_search(eh, (void *)insert_data[i].addr);
 
-		if (strcmp(testdata[i].instr, *(char **)ehi->value) != 0 )
+		if (strcmp(insert_data[i].instr, (char *)ehi->value) != 0 )
 		{
-			printf("mismatch %x %s %s\n", testdata[i].addr, testdata[i].instr, 
-				   (char *)ehi->value);
+			printf("mismatch %x %s %s\n", insert_data[i].addr, insert_data[i].instr, 
+				   (char *)(ehi->value));
 			return -1;
 		}
 
 	}
 
-	printf("success\n");
+	for (i=0;i<sizeof(dup_data)/sizeof(struct addr_instr);i++)
+	{
+		emu_hashtable_insert(eh, (void *)dup_data[i].addr, (void *)dup_data[i].instr);
+	}
+
+	ehi = emu_hashtable_search(eh, (void *)0x0012fc90);
+	if (ehi != NULL)
+	{
+		printf("%s\n", (char *)ehi->value);
+	}
+
+//	printf("success\n");
 //	emu_hashtable_free(eh);
 
 //	eh = emu_hashtable_double_new(4095, double_hash1

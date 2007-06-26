@@ -99,6 +99,7 @@ struct emu_hashtable_item *emu_hashtable_insert(struct emu_hashtable *eh, void *
 		eh->buckets[first_hash] = ehb;
 	}
 
+	emu_hashtable_delete(eh, key);
 	emu_hashtable_bucket_items_insert_last(ehb->items,ehbi);
 	
 
@@ -107,6 +108,25 @@ struct emu_hashtable_item *emu_hashtable_insert(struct emu_hashtable *eh, void *
 
 bool emu_hashtable_delete(struct emu_hashtable *eh, void *key)
 {
+	uint32_t first_hash = eh->hash(key) % eh->size;
+
+	struct emu_hashtable_bucket *ehb;
+	if ((ehb = eh->buckets[first_hash]) != NULL)
+	{
+		struct emu_hashtable_bucket_item *ehbi;
+
+		for (ehbi = emu_hashtable_bucket_items_first(ehb->items); !emu_hashtable_bucket_items_attail(ehbi); ehbi = emu_hashtable_bucket_items_next(ehbi))
+		{
+			struct emu_hashtable_item *ehi;
+			ehi = ehbi->item;
+			if (eh->cmp(ehi->key, key) == true)
+			{
+				emu_hashtable_bucket_items_remove(ehbi);
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 

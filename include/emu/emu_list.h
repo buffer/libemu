@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdint.h>
+
 
 /* credit http://dotat.at/prog/lists/list.h
  * $Copyright: (C) 2001, 2002 Tony Finch <dot@dotat.at> $
@@ -344,5 +346,25 @@ struct list__hack
 									\
 struct list__hack
 
+
+
+/* emu_list_* */
+
+header_list_typedefs(emu_list_root,emu_list_item,emu_list_link);
+
+struct emu_list_item
+{
+	union
+	{
+		void 		*data;
+		uint32_t 	uint32;
+		int32_t 	int32;
+		char 		*str;
+	};
+
+	emu_list_link link;
+};
+
+header_list_functions(emu_list, emu_list_root, emu_list_item, link);
 
 #endif // HAVE_EMU_LIST_H
