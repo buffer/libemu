@@ -122,8 +122,8 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 					{
 
 						/* save the requirements of the failed instruction */
-						struct emu_tracking_info *instruction_needs_ti = emu_tracking_info_new();
-						emu_tracking_info_copy(&cpu->instr.cpu.track.need, instruction_needs_ti);
+//						struct emu_tracking_info *instruction_needs_ti = emu_tracking_info_new();
+//						emu_tracking_info_copy(&cpu->instr.cpu.track.need, instruction_needs_ti);
 
 						struct emu_queue *bfs_queue = emu_queue_new();
 
@@ -200,7 +200,9 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 								emu_tracking_info_debug_print(&current_pos_satii->track.init);
 								emu_queue_enqueue(eq, (void *)((uint32_t)current_pos_satii->eip));
 							}
+							emu_tracking_info_free( current_pos_ti_diff);
 						}
+						emu_queue_free(bfs_queue);
 					}
 					/* the shellcode did not run correctly as he was missing instructions initializing required registers
 					 * we did what we could do in the prev lines of code to find better offsets to start from
@@ -213,8 +215,12 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 				}
 			}
 		}
+		/* TODO improve this */
+		emu_queue_free(eq);
 		return j;
 	}
+
+	emu_queue_free(eq);
 
 	return -1;
 }
@@ -317,5 +323,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 
 	emu_hashtable_free(eh);
 	emu_list_destroy(el);
+	emu_env_w32_free(env);
+	emu_track_and_source_free(etas);
 	return steps;
 }
