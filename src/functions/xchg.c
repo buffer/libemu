@@ -141,9 +141,9 @@ int32_t instr_xchg_9x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 		if ( c->tracking != NULL )
 		{
-			swap32 = c->tracking->reg[eax];
-			c->tracking->reg[eax] = c->tracking->reg[i->opc & 7];
-			c->tracking->reg[i->opc & 7] = swap32;
+			swap32 = c->tracking->track.reg[eax];
+			c->tracking->track.reg[eax] = c->tracking->track.reg[i->opc & 7];
+			c->tracking->track.reg[i->opc & 7] = swap32;
 		}
 
 	}

@@ -15,7 +15,7 @@ struct emu_track_and_source *emu_track_and_source_new()
 {
 	struct emu_track_and_source *et = (struct emu_track_and_source *)malloc(sizeof(struct emu_track_and_source));
 	memset(et, 0, sizeof(struct emu_track_and_source));
-	et->reg[esp] = 0xffffffff;
+	et->track.reg[esp] = 0xffffffff;
 	return et;
 }
 
@@ -65,23 +65,23 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 		for (i=0;i<8;i++)
 		{
 //			printf("0x%08x 0x%08x\n", c->instr.cpu.track.need.reg[i], et->reg[i]);
-			if (c->instr.cpu.track.need.reg[i] > et->reg[i])
+			if (c->instr.cpu.track.need.reg[i] > et->track.reg[i])
 				return -1;
 		}
 
 		for (i=0;i<8;i++)
 		{
 //			printf("0x%1x 0x%1x\n", (c->instr.cpu.track.need.eflags & 1 << i), (et->eflags & 1 << i));
-			if ( (c->instr.cpu.track.need.eflags & 1 << i) > (et->eflags & 1 << i))
+			if ( (c->instr.cpu.track.need.eflags & 1 << i) > (et->track.eflags & 1 << i))
 				return -1;
 		}
 
 		for (i=0;i<8;i++)
 		{
 //			printf("reg %i before %08x after %08x\n", i, et->reg[i], c->instr.cpu.track.init.reg[i]);
-			et->reg[i] |= c->instr.cpu.track.init.reg[i];
+			et->track.reg[i] |= c->instr.cpu.track.init.reg[i];
 		}
-		et->eflags |= c->instr.cpu.track.init.eflags;
+		et->track.eflags |= c->instr.cpu.track.init.eflags;
 
 	}
 
@@ -148,3 +148,110 @@ uint32_t emu_source_and_track_instr_info_hash(void *key)
 	return ukey;
 }
 
+
+void emu_tracking_info_diff(struct emu_tracking_info *a, struct emu_tracking_info *b, struct emu_tracking_info *result)
+{
+	int i;
+	for (i=0;i<8;i++)
+	{
+		result->reg[i] = a->reg[i] & ~b->reg[i];
+	}
+	result->eflags = a->eflags & ~b->eflags;
+}
+
+struct emu_tracking_info *emu_tracking_info_new()
+{
+	struct emu_tracking_info *eti = malloc(sizeof(struct emu_tracking_info));
+	memset(eti, 0, sizeof(struct emu_tracking_info));
+	return eti;
+}
+
+void emu_tracking_info_free(struct emu_tracking_info *eti)
+{
+	free(eti);
+}
+
+void emu_tracking_info_clear(struct emu_tracking_info *eti)
+{
+	memset(eti, 0, sizeof(struct emu_tracking_info));
+}
+
+void emu_tracking_info_copy(struct emu_tracking_info *from, struct emu_tracking_info *to)
+{
+	memcpy(to, from, sizeof(struct emu_tracking_info));
+}
+
+bool emu_tracking_info_covers(struct emu_tracking_info *a, struct emu_tracking_info *b)
+{
+	int i;
+	for (i=0;i<8;i++)
+	{
+		if (b->reg[i] > a->reg[i])
+			return false;
+	}
+
+	for (i=0;i<8;i++)
+	{
+		if ( (b->eflags & 1 << i) > (b->eflags & 1 << i))
+			return false;
+	}
+
+	return true;
+}
+
+
+
+void emu_tracking_info_debug_print(struct emu_tracking_info *a)
+{
+
+	static const char *regm32[] = {
+		"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
+	};
+
+/*	static const char *regm16[] = {
+		"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"
+	};
+
+	static const char *regm8[] = {
+		"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"
+	};
+*/
+	/* 0     1     2     3      4       5       6     7 */
+	const char *eflagm[] = 
+	{ 
+		"CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "SF", 
+		"TF", "IF", "DF", "OF" , "IOPL", "IOPL", "NT", "  ",
+		"RF", "VM", "AC", "VIF", "RIP" , "ID"  , "  ", "  ",
+		"  ", "  ", "  ", "   ", "    ", "    ", "  ", "  "
+	};
+
+	int i;
+
+	printf("tracking_info %08x :\n\tregs: ", (unsigned int)a);
+	for ( i=0; i<7; i++ )
+	{
+		if ( a->reg[i] > 0 )
+		{
+			printf("%s ", regm32[i]);
+		}
+		else
+		{
+			printf("    ");
+		}
+	}
+	printf("\n\tflags:");
+
+	for ( i=0; i<8; i++ )
+	{
+		if ( (a->eflags & 1 << i) )
+		{
+			printf("%.4s ", eflagm[i]);
+		}
+		else
+		{
+			printf("     ");
+		}
+	}
+	printf("\n");
+
+}

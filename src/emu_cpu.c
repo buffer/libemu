@@ -415,6 +415,8 @@ static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t siz
 	// step 3: print it
 	get_instruction_string(&inst, FORMAT_INTEL, 0, str, 32);
 
+	return instrsize;
+
 	printf("%08x ", eip);
 	int i;
 	for (i=0; i<instrsize; i++)
@@ -445,7 +447,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 	c->instr.prefixes = 0;
 	
 	
-	logDebug(c->emu,"decoding\n");
+//	logDebug(c->emu,"decoding\n");
 //	emu_cpu_debug_print(c);
 
 	uint8_t dis[32];
@@ -510,12 +512,13 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 				{
 					emu_strerror_set(c->emu,"opcode %02x not supported\n", c->instr.cpu.opc);
 					emu_errno_set(c->emu, ENOTSUP);
-					int y=0;
+/*					int y=0;
 					for (y=0;y<expected_instr_size;y++)
 					{
 						printf("%02x ", dis[y]);
 					}
 					printf("\n");
+*/
 					return -1;
 				}
 				
@@ -749,7 +752,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 				c->last_fpu_instr[0] = eip_before;
 			}
 			
-			logDebug(c->emu,"\n");
+//			logDebug(c->emu,"\n");
 
 			eip_after = c->eip;
 			if (eip_after - eip_before != expected_instr_size)

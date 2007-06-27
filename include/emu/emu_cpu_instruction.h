@@ -1,6 +1,8 @@
 #ifndef HAVE_EMU_CPU_INSTRUCTION
 #define HAVE_EMU_CPU_INSTRUCTION
 
+#include "emu/emu_track.h"
+
 #include <stdint.h>
 
 
@@ -83,12 +85,8 @@ struct emu_cpu_instruction
 
 	struct 
 	{
-		struct 
-		{
-			uint32_t eflags;
-			uint32_t reg[8];
-		}init, need;
-
+		struct emu_tracking_info init;
+		struct emu_tracking_info need;		
 	} track;
 
 	struct 
