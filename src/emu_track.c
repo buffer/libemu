@@ -38,7 +38,7 @@ void emu_track_and_source_free(struct emu_track_and_source *et)
 }
 
 
-void debug_instruction(struct emu_cpu_instruction *i);
+void debug_instruction(struct emu_instruction *i);
 
 
 #include "emu/emu_cpu_functions.h"
@@ -50,10 +50,15 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 
 	if (c->instr.is_fpu)
 	{
+		printf("fpu instr %i %i\n", c->instr.track.need.fpu, et->track.fpu);
+		if (c->instr.track.need.fpu  > et->track.fpu )
+			return -1;
+
+		et->track.fpu |= c->instr.track.init.fpu;
 
 	}else
 	{
-//		debug_instruction(&c->instr.cpu);
+//		debug_instruction(&c->instr);
 /*
 		if (c->cpu_instr_info->function == instr_xchg_9x)
 		{
@@ -64,6 +69,9 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 */
 		for (i=0;i<8;i++)
 		{
+			if (i == esp)
+				continue;
+
 //			printf("0x%08x 0x%08x\n", c->instr.cpu.track.need.reg[i], et->reg[i]);
 			if (c->instr.track.need.reg[i] > et->track.reg[i])
 				return -1;
@@ -81,6 +89,7 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 //			printf("reg %i before %08x after %08x\n", i, et->reg[i], c->instr.cpu.track.init.reg[i]);
 			et->track.reg[i] |= c->instr.track.init.reg[i];
 		}
+
 		et->track.eflags |= c->instr.track.init.eflags;
 
 	}
@@ -104,7 +113,8 @@ struct emu_source_and_track_instr_info *emu_source_and_track_instr_info_new(stru
 
 	if ( cpu->instr.is_fpu )
 	{
-		etii->source.norm_pos 		= cpu->instr.source.norm_pos;		
+		etii->source.norm_pos 		= cpu->instr.source.norm_pos;
+		etii->track.init.fpu 		= cpu->instr.track.init.fpu;
 	}else
 	{
 		etii->source.has_cond_pos 	= cpu->instr.source.has_cond_pos;
@@ -157,12 +167,14 @@ void emu_tracking_info_diff(struct emu_tracking_info *a, struct emu_tracking_inf
 		result->reg[i] = a->reg[i] & ~b->reg[i];
 	}
 	result->eflags = a->eflags & ~b->eflags;
+	result->fpu = a->fpu & ~b->fpu;
 }
 
 struct emu_tracking_info *emu_tracking_info_new()
 {
 	struct emu_tracking_info *eti = malloc(sizeof(struct emu_tracking_info));
 	memset(eti, 0, sizeof(struct emu_tracking_info));
+	eti->reg[esp] = 0xffffffff;
 	return eti;
 }
 
@@ -174,6 +186,7 @@ void emu_tracking_info_free(struct emu_tracking_info *eti)
 void emu_tracking_info_clear(struct emu_tracking_info *eti)
 {
 	memset(eti, 0, sizeof(struct emu_tracking_info));
+	eti->reg[esp] = 0xffffffff;
 }
 
 void emu_tracking_info_copy(struct emu_tracking_info *from, struct emu_tracking_info *to)
@@ -186,15 +199,25 @@ bool emu_tracking_info_covers(struct emu_tracking_info *a, struct emu_tracking_i
 	int i;
 	for (i=0;i<8;i++)
 	{
+		if (i == esp)
+			continue;
+
 		if (b->reg[i] > a->reg[i])
 			return false;
 	}
 
 	for (i=0;i<8;i++)
 	{
-		if ( (b->eflags & 1 << i) > (b->eflags & 1 << i))
+		if ( (b->eflags & 1 << i) > (a->eflags & 1 << i))
 			return false;
 	}
+
+	for (i=0;i<8;i++)
+	{
+		if ( (b->fpu & 1 << i) > (a->eflags & 1 << i))
+			return false;
+	}
+
 
 	return true;
 }
@@ -252,6 +275,16 @@ void emu_tracking_info_debug_print(struct emu_tracking_info *a)
 			printf("     ");
 		}
 	}
-	printf("\n");
+
+	printf("\n\tfpu:");
+	if (a->fpu)
+	{
+		printf("initialized\n");
+	}else
+	{
+		printf("\n");
+	}
+
+	
 
 }

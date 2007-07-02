@@ -216,8 +216,9 @@ void emu_cpu_debug_print(struct emu_cpu *c)
 	
 }
 
-void debug_instruction(struct emu_cpu_instruction *i)
+void debug_instruction(struct emu_instruction *ei)
 {
+	struct emu_cpu_instruction *i = &ei->cpu;
 	struct emu_cpu_instruction_info *ii;
 	
 	if( i->opc == 0x0f )
@@ -302,8 +303,12 @@ void debug_instruction(struct emu_cpu_instruction *i)
 	}
 	printf("\n");
 
-	return;
-/*
+//	return;
+
+	if (ei->is_fpu)
+		return;
+
+//	printf("%s\n",
 
 	int j;
 
@@ -314,16 +319,16 @@ void debug_instruction(struct emu_cpu_instruction *i)
 
 	for (j=0;j<8;j++)
 	{
-		if (i->track.need.reg[j] != 0)
+		if (ei->track.need.reg[j] != 0)
 			trace_reg_need = true;
 
-		if ( i->track.need.eflags & 1 << j)
+		if ( ei->track.need.eflags & 1 << j)
 			trace_eflag_need = true;
 
-		if (i->track.init.reg[j] != 0)
+		if (ei->track.init.reg[j] != 0)
 			trace_reg_init = true;
 
-		if ( i->track.init.eflags & 1 << j)
+		if ( ei->track.init.eflags & 1 << j)
 			trace_eflag_init = true;
 
 	}
@@ -342,7 +347,7 @@ void debug_instruction(struct emu_cpu_instruction *i)
 			printf("\t\t\t reg  ");
 			for ( j=0;j<8;j++ )
 			{
-				if ( i->track.need.reg[j] != 0 )
+				if ( ei->track.need.reg[j] != 0 )
 					printf("%s ", regm[j]);
 
 			}
@@ -354,7 +359,7 @@ void debug_instruction(struct emu_cpu_instruction *i)
 			printf("\t\t\t eflag ");
 			for ( j=0;j<8;j++ )
 			{
-				if ( i->track.need.eflags & 1 << j )
+				if ( ei->track.need.eflags & 1 << j )
 					printf("%s ", eflagm[j]);
 
 			}
@@ -371,7 +376,7 @@ void debug_instruction(struct emu_cpu_instruction *i)
 		printf("\t\t\t reg ");
 		for ( j=0;j<8;j++ )
 		{
-			if ( i->track.init.reg[j] != 0 )
+			if ( ei->track.init.reg[j] != 0 )
 				printf("%s ", regm[j]);
 
 		}
@@ -383,7 +388,7 @@ void debug_instruction(struct emu_cpu_instruction *i)
 		printf("\t\t\t eflag ");
 		for ( j=0;j<8;j++ )
 		{
-			if ( i->track.init.eflags & 1 << j )
+			if ( ei->track.init.eflags & 1 << j )
 				printf("%s ", eflagm[j]);
 
 		}
@@ -391,11 +396,11 @@ void debug_instruction(struct emu_cpu_instruction *i)
 	}
 
 	printf("\tsource:\n");
-	printf("\t\tnormal pos 0x%08x\n", i->source.norm_pos);
-	if (i->source.has_cond_pos == 1)
-    	printf("\t\tcond pos 0x%08x\n", i->source.cond_pos);
+	printf("\t\tnormal pos 0x%08x\n", ei->source.norm_pos);
+	if (ei->source.has_cond_pos == 1)
+    	printf("\t\tcond pos 0x%08x\n", ei->source.cond_pos);
 	
-*/
+
 }
 
 #undef PREFIX_LOCK
@@ -464,9 +469,11 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 	c->instr.track.init.eflags = 0;
 	memset(c->instr.track.init.reg, 0, sizeof(uint32_t) * 8);
+	c->instr.track.init.fpu = 0;
 
 	c->instr.track.need.eflags = 0;
 	memset(c->instr.track.need.reg, 0, sizeof(uint32_t) * 8);
+	c->instr.track.need.fpu = 0;
 
 
 	while( 1 )
@@ -818,10 +825,14 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x10, 0);
 				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x14, 0);
 				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x18, 0);
+
+				TRACK_NEED_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
+				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
 			}
 			else if( c->instr.fpu.fpu_data[1] == 0xee )
 			{
 				/* fldz */
+				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
 			}
 		}
 		else if( c->instr.fpu.fpu_data[0] == 0xdd )
@@ -829,13 +840,14 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			if( (c->instr.fpu.fpu_data[1] & 0xf8) == 0xc0 )
 			{
 				/* ffree */
+				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
 			}
 		}
 	}
 
 
 	if (0)
-		debug_instruction(&c->instr.cpu);
+		debug_instruction(&c->instr);
 //	emu_cpu_debug_print(c);
 
 	return ret;

@@ -38,6 +38,14 @@ uint32_t hash_uint32_t(void *key)
 }
 
 
+int tested_positions_cmp(struct emu_list_item *a, struct emu_list_item *b)
+{
+	if ( ((struct emu_stats *)a->data)->cpu.steps > ((struct emu_stats *)b->data)->cpu.steps )
+		return 0;
+	return 1;
+}
+
+
 int32_t     emu_shellcode_run_and_track(struct emu *e, 
 										uint8_t *data, 
 										uint16_t datasize, 
@@ -46,7 +54,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 										struct emu_env_w32 *env, 
 										struct emu_track_and_source *etas,
 										struct emu_hashtable *known_positions,
-										struct emu_stats *running_stats
+										struct emu_stats **running_stats
 									   )
 {
 	struct emu_cpu *cpu = emu_cpu_get(e);
@@ -56,9 +64,11 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 	struct emu_queue *eq = emu_queue_new();
 	emu_queue_enqueue(eq, (void *)((uint32_t)eipoffset+STATIC_OFFSET));
 
+	struct emu_list_root *tested_positions = emu_list_create();
+
 	while ( !emu_queue_empty(eq) )
 	{
-
+		
 		uint32_t current_offset = (uint32_t)emu_queue_dequeue(eq);
 
 		/* init the cpu/memory 
@@ -120,7 +130,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 				{
 					logDebug(e, "failed instr %s\n", cpu->instr_string);
 					logDebug(e, "tracking at eip %08x\n", eipsave);
-					if ( cpu->instr.is_fpu )
+					if ( 0 && cpu->instr.is_fpu )
 					{
 
 					}
@@ -139,12 +149,23 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 						 */
 						{ 
 							struct emu_tracking_info *eti = emu_tracking_info_new();
+							printf("here the bfs starts,  this is the first diff\n");
 							emu_tracking_info_diff(&cpu->instr.track.need, &etas->track, eti);
 							eti->eip = current_offset;
 							emu_tracking_info_debug_print(eti);
 							emu_queue_enqueue(bfs_queue, eti);
 						}
 
+/*						{ // mark all vertexes white
+
+							struct emu_vertex *x;
+							for ( x= emu_vertexes_first(etas->static_instr_graph->vertexes); !emu_vertexes_attail(x); x = emu_vertexes_next(x))
+							{
+								x->color = white;
+							}
+
+						}
+*/
 						while ( !emu_queue_empty(bfs_queue) )
 						{
 							logDebug(e, "loop %s:%i\n", __FILE__, __LINE__);
@@ -168,6 +189,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 							while ( !emu_tracking_info_covers(&current_pos_satii->track.init, current_pos_ti_diff) )
 							{
 								logDebug(e, "loop %s:%i\n", __FILE__, __LINE__);
+
 								if ( current_pos_v->backlinks == 0 )
 								{
 									break;
@@ -181,7 +203,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 									{
 										ev = ee->destination;
 										struct emu_tracking_info *eti = emu_tracking_info_new();
-										emu_tracking_info_diff(&current_pos_satii->track.init, current_pos_ti_diff, eti);
+										emu_tracking_info_diff(current_pos_ti_diff, &current_pos_satii->track.init, eti);
 										eti->eip = ((struct emu_source_and_track_instr_info *)ev->data)->eip;
 										emu_queue_enqueue(bfs_queue, eti);
 
@@ -194,6 +216,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 								else
 								if ( current_pos_v->backlinks == 1 )
 								{ /* follow the single link */
+
 									current_pos_v = emu_edges_first(current_pos_v->backedges)->destination;
 									current_pos_satii = (struct emu_source_and_track_instr_info *)current_pos_v->data;
 									emu_tracking_info_diff(current_pos_ti_diff, &current_pos_satii->track.init, current_pos_ti_diff);
@@ -221,19 +244,51 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 				}
 			}
 		}
-		/* TODO improve this */
-		emu_queue_free(eq);
-		if ( j < 200 )
-		{
-        	printf("ran %i steps!\n", j);
-			printf("error: %s\n", emu_strerror(e));
-		}
-		return j;
+
+		struct emu_stats *es = emu_stats_new();
+		es->eip = current_offset;
+		es->cpu.steps = j;
+		struct emu_list_item *eli = emu_list_item_create();
+		eli->data = es;
+		emu_list_insert_last(tested_positions, eli);
 	}
 
 	emu_queue_free(eq);
 
-	return -1;
+
+	/* sort all tested positions by the number of steps ascending */
+	emu_list_qsort(tested_positions, tested_positions_cmp);
+
+
+//#if 0
+	{
+		struct emu_list_item *eli;
+		for ( eli = emu_list_first(tested_positions); !emu_list_attail(eli); eli = emu_list_next(eli) )
+		{
+			struct emu_stats *es = (struct emu_stats *)eli->data;
+			printf("a offset 0x%08x steps %i\n",es->eip, es->cpu.steps);
+		}
+	}
+//#endif // 0
+
+	struct emu_list_item *eli = emu_list_first(tested_positions);
+	struct emu_stats *es = (struct emu_stats *)eli->data;
+	uint32_t best_offset = es->eip;
+
+	*running_stats = es;
+	eli->data = NULL;
+
+	for (eli = emu_list_first(tested_positions); !emu_list_attail(eli); eli = emu_list_next(eli))
+	{
+		if (eli->data != NULL)
+		{
+			emu_stats_free((struct emu_stats *)eli->data);
+		}
+	}
+
+
+
+	return best_offset - STATIC_OFFSET;
 }
 
 
@@ -308,33 +363,54 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	struct emu_hashtable *eh = emu_hashtable_new(size+4/4, hash_uint32_t, cmp_uint32_t);
 	struct emu_list_item *eli;
 	struct emu_env_w32 *env = emu_env_w32_new(e);
-	struct emu_stats *stats = NULL;
+	
 
-	int steps = -1;
+	struct emu_list_root *results = emu_list_create();
+
 	for ( eli = emu_list_first(el); !emu_list_attail(eli); eli = emu_list_next(eli) )
 	{
 		logDebug(e, "testing offset %i %08x\n", eli->uint32, eli->uint32);
-/*		emu_shellcode_run_and_track(struct emu *e, 
-									 uint8_t *data, 
-									 uint16_t datasize, 
-									 uint16_t eipoffset,
-									 uint32_t steps,
-									 struct emu_env_w32 *env, 
-									 struct emu_track_and_source *etas,
-									 struct emu_hashtable *eh,
-									 struct emu_stats *est
-									 );
-*/
 
+		struct emu_list_item *xeli = emu_list_item_create();
+		void **v = &xeli->data;
+		struct emu_stats **stats = (struct emu_stats **)v;
 
-		steps = emu_shellcode_run_and_track(e, data, size, eli->uint32, 256, env, etas, eh, stats);
+		int32_t this_offset = emu_shellcode_run_and_track(e, data, size, eli->uint32, 256, env, etas, eh, stats);
+
+		((struct emu_stats *)xeli->data)->eip = this_offset;
+		emu_list_insert_last(results, xeli);
 	}
 
 	emu_hashtable_free(eh);
 	emu_list_destroy(el);
 	emu_env_w32_free(env);
 	emu_track_and_source_free(etas);
-	return steps;
+
+	/* for all positions we got, take the best, maybe take memory access into account later */
+	emu_list_qsort(results, tested_positions_cmp);
+
+//#if 0
+	{
+		struct emu_list_item *eli;
+		for ( eli = emu_list_first(results); !emu_list_attail(eli); eli = emu_list_next(eli) )
+		{
+			struct emu_stats *es = (struct emu_stats *)eli->data;
+			printf("b offset 0x%08x steps %i\n",es->eip, es->cpu.steps);
+		}
+	}
+//#endif // 0
+
+	eli = emu_list_first(results);
+	struct emu_stats *es = (struct emu_stats *)eli->data;
+
+	offset = es->eip;
+
+	for (eli = emu_list_first(results); !emu_list_attail(eli); eli = emu_list_next(eli))
+	{
+		emu_stats_free((struct emu_stats *)eli->data);
+	}
+
+	return offset;
 }
 
 struct emu_stats *emu_stats_new()

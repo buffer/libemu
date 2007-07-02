@@ -11,6 +11,8 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size);
 
 struct emu_stats
 {
+	uint32_t eip;
+
 	struct 
 	{
 		uint32_t read_access;
