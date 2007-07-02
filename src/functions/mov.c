@@ -123,6 +123,8 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		{
 			c->reg[i->modrm.opc] = c->reg[i->modrm.rm];
 
+			TRACK_INIT_REG32(c->instr, i->modrm.opc);
+
 			if ( c->tracking != NULL )
 			{
 				c->tracking->track.reg[i->modrm.opc] = c->tracking->track.reg[i->modrm.rm];
