@@ -25,7 +25,7 @@ int32_t instr_jmp_e9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 	c->eip += i->disp;
 
-	SOURCE_NORM_POS(i, c->eip);
+	SOURCE_NORM_POS(c->instr, c->eip);
 
 	return 0;
 }
@@ -58,7 +58,7 @@ int32_t instr_jmp_eb(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
     c->eip += i->disp;
 
-	SOURCE_NORM_POS(i, c->eip);
+	SOURCE_NORM_POS(c->instr, c->eip);
 
 	return 0;
 }
@@ -82,7 +82,7 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				
 				c->eip = disp;
 
-				SOURCE_NORM_POS(i, c->eip);
+				SOURCE_NORM_POS(c->instr, c->eip);
 			}
 			else
 			{
@@ -96,7 +96,7 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 				
 				c->eip = disp;
 
-				SOURCE_NORM_POS(i, c->eip);
+				SOURCE_NORM_POS(c->instr, c->eip);
 			}
 		}
 		else
@@ -110,8 +110,8 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 				c->eip = *c->reg16[i->modrm.rm];
 
-				SOURCE_NORM_POS(i, c->eip);
-				TRACK_NEED_REG16( i, i->modrm.rm);
+				SOURCE_NORM_POS(c->instr, c->eip);
+				TRACK_NEED_REG16(c->instr, i->modrm.rm);
 			}
 			else
 			{
@@ -122,8 +122,8 @@ int32_t instr_group_5_ff_jmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 				c->eip = c->reg[i->modrm.rm];
 
-				SOURCE_NORM_POS(i, c->eip);
-				TRACK_NEED_REG32( i, i->modrm.rm);
+				SOURCE_NORM_POS(c->instr, c->eip);
+				TRACK_NEED_REG32(c->instr, i->modrm.rm);
 			}
 		}
 	}

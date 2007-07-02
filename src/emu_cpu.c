@@ -303,6 +303,7 @@ void debug_instruction(struct emu_cpu_instruction *i)
 	printf("\n");
 
 	return;
+/*
 
 	int j;
 
@@ -310,7 +311,6 @@ void debug_instruction(struct emu_cpu_instruction *i)
 	bool trace_eflag_init = false;
 	bool trace_reg_need = false;
 	bool trace_reg_init = false;
-
 
 	for (j=0;j<8;j++)
 	{
@@ -395,7 +395,7 @@ void debug_instruction(struct emu_cpu_instruction *i)
 	if (i->source.has_cond_pos == 1)
     	printf("\t\tcond pos 0x%08x\n", i->source.cond_pos);
 	
-
+*/
 }
 
 #undef PREFIX_LOCK
@@ -460,13 +460,13 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 	/* reset the instruction source and track infos, maybe move to a fn and call the fn instead? */
 
-	c->instr.cpu.source.has_cond_pos = 0;
+	c->instr.source.has_cond_pos = 0;
 
-	c->instr.cpu.track.init.eflags = 0;
-	memset(c->instr.cpu.track.init.reg, 0, sizeof(uint32_t) * 8);
+	c->instr.track.init.eflags = 0;
+	memset(c->instr.track.init.reg, 0, sizeof(uint32_t) * 8);
 
-	c->instr.cpu.track.need.eflags = 0;
-	memset(c->instr.cpu.track.need.reg, 0, sizeof(uint32_t) * 8);
+	c->instr.track.need.eflags = 0;
+	memset(c->instr.track.need.reg, 0, sizeof(uint32_t) * 8);
 
 
 	while( 1 )
@@ -545,7 +545,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 							if( c->instr.cpu.modrm.rm != 4 && !(c->instr.cpu.modrm.mod == 0 && c->instr.cpu.modrm.rm == 5) )
 							{
                                 c->instr.cpu.modrm.ea = c->reg[c->instr.cpu.modrm.rm];
-								TRACK_NEED_REG32(&c->instr.cpu, c->instr.cpu.modrm.rm);
+								TRACK_NEED_REG32(c->instr, c->instr.cpu.modrm.rm);
 							}
 							else
 								c->instr.cpu.modrm.ea = 0;
@@ -564,18 +564,18 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 								if( c->instr.cpu.modrm.sib.base != 5 )
 								{
 									c->instr.cpu.modrm.ea += c->reg[c->instr.cpu.modrm.sib.base];
-									TRACK_NEED_REG32(&c->instr.cpu, c->instr.cpu.modrm.sib.base);
+									TRACK_NEED_REG32(c->instr, c->instr.cpu.modrm.sib.base);
 								}
 								else if( c->instr.cpu.modrm.mod != 0 )
 								{
 									c->instr.cpu.modrm.ea += c->reg[ebp];
-									TRACK_NEED_REG32(&c->instr.cpu, ebp);
+									TRACK_NEED_REG32(c->instr, ebp);
 								}
 	
 								if( c->instr.cpu.modrm.sib.index != 4 )
 								{
 									c->instr.cpu.modrm.ea += c->reg[c->instr.cpu.modrm.sib.index] * scalem[c->instr.cpu.modrm.sib.scale];
-									TRACK_NEED_REG32(&c->instr.cpu, c->instr.cpu.modrm.sib.index);
+									TRACK_NEED_REG32(c->instr, c->instr.cpu.modrm.sib.index);
 								}
 							}
 							
@@ -769,11 +769,11 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 			 */
 			if ( c->instr.is_fpu == 0 )
 			{
-				SOURCE_NORM_POS(&c->instr.cpu, c->eip);
+				SOURCE_NORM_POS(c->instr, c->eip);
 			}
 			else
 			{
-				SOURCE_NORM_POS(&c->instr.fpu, c->eip);
+				SOURCE_NORM_POS(c->instr, c->eip);
 			}
 
 

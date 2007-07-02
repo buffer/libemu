@@ -212,20 +212,20 @@ memcpy(&to+4,&lower,4);
 
 
 
-#define TRACK_INIT_REG32(instruction_p, reg32) (instruction_p)->track.init.reg[reg32] = 0xffffffff;
-#define TRACK_NEED_REG32(instruction_p, reg32) (instruction_p)->track.need.reg[reg32] = 0xffffffff;
+#define TRACK_INIT_REG32(instruction, reg32) (instruction).track.init.reg[reg32] = 0xffffffff;
+#define TRACK_NEED_REG32(instruction, reg32) (instruction).track.need.reg[reg32] = 0xffffffff;
 
-#define TRACK_INIT_REG16(instruction_p, reg16) (instruction_p)->track.init.reg[reg16] |= 0xffff << 16;
-#define TRACK_NEED_REG16(instruction_p, reg16) (instruction_p)->track.need.reg[reg16] |= 0xffff << 16;
+#define TRACK_INIT_REG16(instruction, reg16) (instruction).track.init.reg[reg16] |= 0xffff << 16;
+#define TRACK_NEED_REG16(instruction, reg16) (instruction).track.need.reg[reg16] |= 0xffff << 16;
 
-#define TRACK_INIT_REG8(instruction_p, reg8) (instruction_p)->track.init.reg[reg8] |= 0xff << 24;
-#define TRACK_NEED_REG8(instruction_p, reg8) (instruction_p)->track.need.reg[reg8] |= 0xff << 24;
+#define TRACK_INIT_REG8(instruction, reg8) (instruction).track.init.reg[reg8] |= 0xff << 24;
+#define TRACK_NEED_REG8(instruction, reg8) (instruction).track.need.reg[reg8] |= 0xff << 24;
 
-#define TRACK_INIT_EFLAG(instruction_p, fl) (instruction_p)->track.init.eflags |= 1 << (fl)
-#define TRACK_NEED_EFLAG(instruction_p, fl) (instruction_p)->track.need.eflags |= 1 << (fl)
+#define TRACK_INIT_EFLAG(instruction, fl) (instruction).track.init.eflags |= 1 << (fl)
+#define TRACK_NEED_EFLAG(instruction, fl) (instruction).track.need.eflags |= 1 << (fl)
 
-#define SOURCE_NORM_POS(instruction_p, pos) (instruction_p)->source.norm_pos = pos;
-#define SOURCE_COND_POS(instruction_p, pos)	(instruction_p)->source.has_cond_pos = 1; (instruction_p)->source.cond_pos = pos;
+#define SOURCE_NORM_POS(instruction, pos) (instruction).source.norm_pos = pos;
+#define SOURCE_COND_POS(instruction, pos)	(instruction).source.has_cond_pos = 1; (instruction).source.cond_pos = pos;
 
 
 

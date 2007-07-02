@@ -16,10 +16,6 @@ struct emu_fpu_instruction
 	
 	uint32_t last_instr;
 
-	struct 
-	{
-		uint32_t norm_pos;
-	} source;
 };
 
 #endif

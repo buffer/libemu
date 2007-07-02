@@ -1,7 +1,7 @@
 #ifndef HAVE_EMU_CPU_INSTRUCTION
 #define HAVE_EMU_CPU_INSTRUCTION
 
-#include "emu/emu_track.h"
+
 
 #include <stdint.h>
 
@@ -83,18 +83,7 @@ struct emu_cpu_instruction
 
 	int32_t disp;
 
-	struct 
-	{
-		struct emu_tracking_info init;
-		struct emu_tracking_info need;		
-	} track;
 
-	struct 
-	{
-		uint8_t has_cond_pos : 1;
-		uint32_t norm_pos;
-		uint32_t cond_pos;
-	} source;
 };
 
 

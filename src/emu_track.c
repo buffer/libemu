@@ -65,23 +65,23 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 		for (i=0;i<8;i++)
 		{
 //			printf("0x%08x 0x%08x\n", c->instr.cpu.track.need.reg[i], et->reg[i]);
-			if (c->instr.cpu.track.need.reg[i] > et->track.reg[i])
+			if (c->instr.track.need.reg[i] > et->track.reg[i])
 				return -1;
 		}
 
 		for (i=0;i<8;i++)
 		{
 //			printf("0x%1x 0x%1x\n", (c->instr.cpu.track.need.eflags & 1 << i), (et->eflags & 1 << i));
-			if ( (c->instr.cpu.track.need.eflags & 1 << i) > (et->track.eflags & 1 << i))
+			if ( (c->instr.track.need.eflags & 1 << i) > (et->track.eflags & 1 << i))
 				return -1;
 		}
 
 		for (i=0;i<8;i++)
 		{
 //			printf("reg %i before %08x after %08x\n", i, et->reg[i], c->instr.cpu.track.init.reg[i]);
-			et->track.reg[i] |= c->instr.cpu.track.init.reg[i];
+			et->track.reg[i] |= c->instr.track.init.reg[i];
 		}
-		et->track.eflags |= c->instr.cpu.track.init.eflags;
+		et->track.eflags |= c->instr.track.init.eflags;
 
 	}
 
@@ -104,18 +104,18 @@ struct emu_source_and_track_instr_info *emu_source_and_track_instr_info_new(stru
 
 	if ( cpu->instr.is_fpu )
 	{
-		etii->source.norm_pos 		= cpu->instr.fpu.source.norm_pos;		
+		etii->source.norm_pos 		= cpu->instr.source.norm_pos;		
 	}else
 	{
-		etii->source.has_cond_pos 	= cpu->instr.cpu.source.has_cond_pos;
-		etii->source.cond_pos 		= cpu->instr.cpu.source.cond_pos;
-		etii->source.norm_pos 		= cpu->instr.cpu.source.norm_pos;
+		etii->source.has_cond_pos 	= cpu->instr.source.has_cond_pos;
+		etii->source.cond_pos 		= cpu->instr.source.cond_pos;
+		etii->source.norm_pos 		= cpu->instr.source.norm_pos;
 
-		etii->track.init.eflags 	= cpu->instr.cpu.track.init.eflags;
-		memcpy(etii->track.init.reg, cpu->instr.cpu.track.init.reg, sizeof(uint32_t)*8);
+		etii->track.init.eflags 	= cpu->instr.track.init.eflags;
+		memcpy(etii->track.init.reg, cpu->instr.track.init.reg, sizeof(uint32_t)*8);
 
-		etii->track.need.eflags 	= cpu->instr.cpu.track.need.eflags;
-		memcpy(etii->track.need.reg, cpu->instr.cpu.track.need.reg, sizeof(uint32_t)*8);
+		etii->track.need.eflags 	= cpu->instr.track.need.eflags;
+		memcpy(etii->track.need.reg, cpu->instr.track.need.reg, sizeof(uint32_t)*8);
 	}
 	return etii;
 }

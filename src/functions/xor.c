@@ -33,7 +33,7 @@ TRACK_INIT_EFLAG(instruction_p, f_sf);
 
 int32_t instr_xor_30(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	/* 30 /r
 	 * r/m8 XOR r8
@@ -60,8 +60,8 @@ int32_t instr_xor_30(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg8[i->modrm.rm], 
 								 ^)
 
-		TRACK_NEED_REG8(i, i->modrm.rm);
-		TRACK_INIT_REG8(i, i->modrm.rm);
+		TRACK_NEED_REG8(c->instr, i->modrm.rm);
+		TRACK_INIT_REG8(c->instr, i->modrm.rm);
 
 	}
 
@@ -70,7 +70,7 @@ int32_t instr_xor_30(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	if ( i->modrm.mod != 3 )
 	{
@@ -124,9 +124,9 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 *c->reg16[i->modrm.rm], 
 									 ^)
-			TRACK_NEED_REG16(i, i->modrm.rm);
-			TRACK_NEED_REG16(i, i->modrm.opc);
-			TRACK_INIT_REG16(i, i->modrm.rm);
+			TRACK_NEED_REG16(c->instr, i->modrm.rm);
+			TRACK_NEED_REG16(c->instr, i->modrm.opc);
+			TRACK_INIT_REG16(c->instr, i->modrm.rm);
 		}
 		else
 		{
@@ -144,12 +144,12 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 			if (i->modrm.opc == i->modrm.rm)
 			{
-				TRACK_INIT_REG32(i, i->modrm.opc);
+				TRACK_INIT_REG32(c->instr, i->modrm.opc);
 			}
 
-/*			TRACK_NEED_REG32(i, i->modrm.rm);
-			TRACK_NEED_REG32(i, i->modrm.opc);
-			TRACK_INIT_REG32(i, i->modrm.rm);
+/*			TRACK_NEED_REG32(c->instr, i->modrm.rm);
+			TRACK_NEED_REG32(c->instr, i->modrm.opc);
+			TRACK_INIT_REG32(c->instr, i->modrm.rm);
 */
 		}
 	}
@@ -159,7 +159,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	/* 32 /r
 	 * r8 XOR r/m8
@@ -178,8 +178,8 @@ int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg8[i->modrm.opc], 
 								 ^)
 
-		TRACK_NEED_REG8(i, i->modrm.opc);
-		TRACK_INIT_REG8(i, i->modrm.opc);
+		TRACK_NEED_REG8(c->instr, i->modrm.opc);
+		TRACK_INIT_REG8(c->instr, i->modrm.opc);
 	}
 	else
 	{
@@ -190,9 +190,9 @@ int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg8[i->modrm.opc], 
 								 ^)
 
-		TRACK_NEED_REG8(i, i->modrm.opc);
-		TRACK_NEED_REG8(i, i->modrm.rm);
-		TRACK_INIT_REG8(i, i->modrm.opc);
+		TRACK_NEED_REG8(c->instr, i->modrm.opc);
+		TRACK_NEED_REG8(c->instr, i->modrm.rm);
+		TRACK_INIT_REG8(c->instr, i->modrm.opc);
 	}
 
 	return 0;
@@ -200,7 +200,7 @@ int32_t instr_xor_32(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	if ( i->modrm.mod != 3 )
 	{
@@ -222,8 +222,8 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 ^)
 
-			TRACK_NEED_REG16(i, i->modrm.opc);
-			TRACK_INIT_REG16(i, i->modrm.opc);
+			TRACK_NEED_REG16(c->instr, i->modrm.opc);
+			TRACK_INIT_REG16(c->instr, i->modrm.opc);
 		}
 		else
 		{
@@ -243,10 +243,10 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 			if (operation_result == 0)
 			{
-				TRACK_INIT_REG32(i, i->modrm.opc);			
+				TRACK_INIT_REG32(c->instr, i->modrm.opc);			
 			}
 
-/*			TRACK_NEED_REG32(i, i->modrm.opc);
+/*			TRACK_NEED_REG32(c->instr, i->modrm.opc);
 
 */
 		}
@@ -268,12 +268,12 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 			if (i->modrm.opc == i->modrm.rm)
 			{
-				TRACK_INIT_REG16(i, i->modrm.opc);
+				TRACK_INIT_REG16(c->instr, i->modrm.opc);
 			}
 
-/*			TRACK_NEED_REG16(i, i->modrm.rm);
-			TRACK_NEED_REG16(i, i->modrm.opc);
-			TRACK_INIT_REG16(i, i->modrm.opc);
+/*			TRACK_NEED_REG16(c->instr, i->modrm.rm);
+			TRACK_NEED_REG16(c->instr, i->modrm.opc);
+			TRACK_INIT_REG16(c->instr, i->modrm.opc);
 */
 		}
 		else
@@ -291,13 +291,13 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 			if (i->modrm.opc == i->modrm.rm)
 			{
-				TRACK_INIT_REG32(i, i->modrm.opc);
+				TRACK_INIT_REG32(c->instr, i->modrm.opc);
 			}
 			
 /*
-			TRACK_NEED_REG32(i, i->modrm.rm);
-			TRACK_NEED_REG32(i, i->modrm.opc);
-			TRACK_INIT_REG32(i, i->modrm.opc);
+			TRACK_NEED_REG32(c->instr, i->modrm.rm);
+			TRACK_NEED_REG32(c->instr, i->modrm.opc);
+			TRACK_INIT_REG32(c->instr, i->modrm.opc);
 */
 		}
 	}
@@ -307,7 +307,7 @@ int32_t instr_xor_33(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_xor_34(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	/* 34 ib
 	 * AL XOR imm8
@@ -321,15 +321,15 @@ int32_t instr_xor_34(struct emu_cpu *c, struct emu_cpu_instruction *i)
 							 *c->reg8[al], 
 							 ^)
 
-	TRACK_NEED_REG8(i, al);
-	TRACK_INIT_REG8(i, al);
+	TRACK_NEED_REG8(c->instr, al);
+	TRACK_INIT_REG8(c->instr, al);
 
 	return 0;
 }
 
 int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	if ( i->prefixes & PREFIX_OPSIZE )
 	{
@@ -346,8 +346,8 @@ int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg16[ax], 
 								 ^)
 
-		TRACK_NEED_REG16(i, ax);
-		TRACK_INIT_REG16(i, ax);
+		TRACK_NEED_REG16(c->instr, ax);
+		TRACK_INIT_REG16(c->instr, ax);
 
 	}
 	else
@@ -363,8 +363,8 @@ int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 c->reg[eax], 
 								 ^)
 
-		TRACK_NEED_REG32(i, eax);
-		TRACK_INIT_REG32(i, eax);
+		TRACK_NEED_REG32(c->instr, eax);
+		TRACK_INIT_REG32(c->instr, eax);
 
 	}
 
@@ -374,7 +374,7 @@ int32_t instr_xor_35(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_group_1_80_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	if( i->modrm.mod != 3 )
 	{
@@ -401,8 +401,8 @@ int32_t instr_group_1_80_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 								 *c->reg8[i->modrm.rm],
 								 ^)
 
-		TRACK_INIT_REG8(i, i->modrm.rm);
-		TRACK_NEED_REG8(i, i->modrm.rm);
+		TRACK_INIT_REG8(c->instr, i->modrm.rm);
+		TRACK_NEED_REG8(c->instr, i->modrm.rm);
 	}
 
 	return 0;
@@ -411,7 +411,7 @@ int32_t instr_group_1_80_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	if ( i->modrm.mod != 3 )
 	{
@@ -470,8 +470,8 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 ^)
 
-			TRACK_NEED_REG16(i, i->modrm.rm);
-			TRACK_INIT_REG16(i, i->modrm.rm);
+			TRACK_NEED_REG16(c->instr, i->modrm.rm);
+			TRACK_INIT_REG16(c->instr, i->modrm.rm);
 		}
 		else
 		{
@@ -486,8 +486,8 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.rm], 
 									 ^)
 
-			TRACK_NEED_REG32(i, i->modrm.rm);
-			TRACK_INIT_REG32(i, i->modrm.rm);
+			TRACK_NEED_REG32(c->instr, i->modrm.rm);
+			TRACK_INIT_REG32(c->instr, i->modrm.rm);
 
 
 		}
@@ -497,7 +497,7 @@ int32_t instr_group_1_81_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	TRACK_INIT_ALL_FLAGS(i);
+	TRACK_INIT_ALL_FLAGS(c->instr);
 
 	if ( i->modrm.mod != 3 )
 	{
@@ -560,8 +560,8 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.rm], 
 									 ^)
 
-			TRACK_NEED_REG16(i, i->modrm.rm);
-			TRACK_INIT_REG16(i, i->modrm.rm);
+			TRACK_NEED_REG16(c->instr, i->modrm.rm);
+			TRACK_INIT_REG16(c->instr, i->modrm.rm);
 
 		}
 		else
@@ -579,8 +579,8 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.rm], 
 									 ^)
 
-			TRACK_NEED_REG32(i, i->modrm.rm);
-			TRACK_INIT_REG32(i, i->modrm.rm);
+			TRACK_NEED_REG32(c->instr, i->modrm.rm);
+			TRACK_INIT_REG32(c->instr, i->modrm.rm);
 
 		}
 	}

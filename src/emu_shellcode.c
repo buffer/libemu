@@ -104,11 +104,17 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 
 				int32_t ret = emu_cpu_parse(emu_cpu_get(e));
 				if ( ret == -1 )
+				{
+					printf("error at %s\n", cpu->instr_string);
 					break;
+				}
 
 				ret = emu_cpu_step(emu_cpu_get(e));
 				if ( ret == -1 )
+				{
+					printf("error at %s\n", cpu->instr_string);
 					break;
+				}
 
 				if ( emu_track_instruction_check(e, etas) == -1 )
 				{
@@ -133,7 +139,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 						 */
 						{ 
 							struct emu_tracking_info *eti = emu_tracking_info_new();
-							emu_tracking_info_diff(&cpu->instr.cpu.track.need, &etas->track, eti);
+							emu_tracking_info_diff(&cpu->instr.track.need, &etas->track, eti);
 							eti->eip = current_offset;
 							emu_tracking_info_debug_print(eti);
 							emu_queue_enqueue(bfs_queue, eti);
@@ -217,6 +223,11 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 		}
 		/* TODO improve this */
 		emu_queue_free(eq);
+		if ( j < 200 )
+		{
+        	printf("ran %i steps!\n", j);
+			printf("error: %s\n", emu_strerror(e));
+		}
 		return j;
 	}
 
@@ -254,9 +265,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 		if ( emu_getpc_check(e, (uint8_t *)data, size, offset) != 0 )
 		{
 			logDebug(e, "possible getpc at offset %i (%08x)\n", offset, offset);
-			struct emu_list_item *eli = malloc(sizeof(struct emu_list_item));
-			memset(eli, 0, sizeof(struct emu_list_item));
-			emu_list_init_link(eli);
+			struct emu_list_item *eli = emu_list_item_create();
 			eli->uint32 = offset;
 			emu_list_insert_last(el, eli);
 		}
@@ -327,3 +336,16 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	emu_track_and_source_free(etas);
 	return steps;
 }
+
+struct emu_stats *emu_stats_new()
+{
+	struct emu_stats *es = malloc(sizeof(struct emu_stats));
+	memset(es, 0, sizeof(struct emu_stats));
+	return es;
+}
+
+void emu_stats_free(struct emu_stats *es)
+{
+	free(es);
+}
+

@@ -22,5 +22,13 @@ struct emu_stats
 		uint32_t steps;
 	}cpu;
 };
+
+
+
+
+struct emu_stats *emu_stats_new();
+void emu_stats_free(struct emu_stats *es);
+
+
 #endif
 

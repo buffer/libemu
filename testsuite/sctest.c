@@ -1667,7 +1667,7 @@ int test(int n)
 				{
 					struct emu_edge *ee = emu_vertex_edge_add(last_vertex, ev);
 					struct emu_cpu *cpu = emu_cpu_get(e);
-					if ( cpu->instr.is_fpu == 0 && cpu->instr.cpu.source.cond_pos == eipsave && cpu->instr.cpu.source.has_cond_pos == 1 )
+					if ( cpu->instr.is_fpu == 0 && cpu->instr.source.cond_pos == eipsave && cpu->instr.source.has_cond_pos == 1 )
 						ee->data = (void *)0x1;
 				}
 
@@ -1996,7 +1996,7 @@ int32_t run_and_track(struct emu *e, struct emu_track_and_source *et, struct emu
 */
 			struct emu_edge *ee = emu_vertex_edge_add(last_vertex, ev);
 
-			if ( cpu->instr.is_fpu == 0 && cpu->instr.cpu.source.cond_pos == eipsave && cpu->instr.cpu.source.has_cond_pos == 1 )
+			if ( cpu->instr.is_fpu == 0 && cpu->instr.source.cond_pos == eipsave && cpu->instr.source.has_cond_pos == 1 )
 				ee->data = (void *)0x1;
 		}
 
@@ -2058,6 +2058,11 @@ int getpctest(int n)
 {
 	int i=0;
 	struct emu *e = emu_new();
+
+	if ( opts.verbose == 1 )
+	{
+		emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+	}
 
 	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 	{
