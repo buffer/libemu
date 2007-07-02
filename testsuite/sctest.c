@@ -1706,6 +1706,12 @@ int test(int n)
 
 				ret = emu_cpu_parse(emu_cpu_get(e));
 
+				if ( opts.verbose == 1 )
+				{
+					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+					logDebug(e, "%s\n", cpu->instr_string);
+					emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+				}
 
 				if ( ret != -1 )
 				{
