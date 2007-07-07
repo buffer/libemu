@@ -6,6 +6,16 @@
 #include <emu/emu_fpu_instruction.h>
 #include "emu/emu_track.h"
 
+
+
+/**
+ * The emu_instruction is the dummy struct for fpu/cpu instructions
+ * The track & source information is used to 
+ * create the static instruction graph and run the binary 
+ * backwards traversal.
+ * 
+ * @see emu_tracking_info
+ */
 struct emu_instruction
 {
 	uint16_t prefixes;
