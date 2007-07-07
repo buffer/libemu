@@ -185,13 +185,16 @@ void emu_env_w32_free(struct emu_env_w32 *env)
 
 int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 {
+
+	logDebug(env->emu, "trying to load dll %s\n", dllname);
+
 	int i;
 	for ( i=0; known_dlls[i].dllname != NULL; i++ )
 	{
-		printf("dllname is %s\n", known_dlls[i].dllname);
+		
 		if ( strncasecmp(dllname, known_dlls[i].dllname, strlen(known_dlls[i].dllname)) == 0 )
 		{
-			printf("loading dll %s\n",dllname);
+			logDebug(env->emu, "loading dll %s\n",dllname);
 			struct emu_env_w32_dll *dll = emu_env_w32_dll_new();
 			struct emu_memory *mem = emu_memory_get(env->emu);
 
@@ -201,7 +204,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 			int j;
 			for ( j=0; known_dlls[i].memory_segments[j].address != 0; j++ )
 			{
-				printf(" 0x%08x %i bytes\n", known_dlls[i].memory_segments[j].address, 
+				logDebug(env->emu, " 0x%08x %i bytes\n", known_dlls[i].memory_segments[j].address, 
 					   known_dlls[i].memory_segments[j].segment_size);
 				emu_memory_write_block(mem,
 									   known_dlls[i].memory_segments[j].address,
@@ -247,14 +250,14 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 		if ( eip > env->loaded_dlls[numdlls]->baseaddr && 
 			 eip < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize )
 		{
-			printf("eip %08x is within %s\n",eip, env->loaded_dlls[numdlls]->dllname);
+			logDebug(env->emu, "eip %08x is within %s\n",eip, env->loaded_dlls[numdlls]->dllname);
 			struct emu_env_w32_dll *dll = env->loaded_dlls[numdlls];
 
 			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnptr, (void *)(eip - dll->baseaddr));
 
 			if ( ehi == NULL )
 			{
-				printf("unknown call to %08x\n", eip);
+				logDebug(env->emu, "unknown call to %08x\n", eip);
 				return NULL;
 			}
 
@@ -267,7 +270,7 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 			}
 			else
 			{
-				printf("unhooked call to %s\n", ex->fnname);
+				logDebug(env->emu, "unhooked call to %s\n", ex->fnname);
 				return ex;
 			}
 		}
@@ -285,7 +288,7 @@ int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
 	int numdlls=0;
 	while ( env->loaded_dlls[numdlls] != NULL )
 	{
-		if (dllname == NULL || strcmp(dllname,env->loaded_dlls[numdlls]->dllname) == 0)
+		if (dllname == NULL || strncasecmp(env->loaded_dlls[numdlls]->dllname, dllname, strlen(env->loaded_dlls[numdlls]->dllname)) == 0)
 		{
 			struct emu_hashtable_item *ehi = emu_hashtable_search(env->loaded_dlls[numdlls]->exports_by_fnname, (void *)exportname);
 			if (ehi != NULL)
