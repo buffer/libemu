@@ -7,7 +7,18 @@
 
 struct emu;
 
+/**
+ * Tests a given buffer for possible shellcodes
+ * 
+ * @param e      the emu
+ * @param data   the buffer to test
+ * @param size   the size of the buffer
+ * 
+ * @return on success, the offset within the buffer where the shellcode is suspected
+ *         on failure (no shellcode detected), -1
+ */
 int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size);
+
 
 struct emu_stats
 {

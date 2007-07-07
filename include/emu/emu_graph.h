@@ -9,6 +9,15 @@ struct emu_vertex;
 
 header_list_typedefs(emu_edge_root,emu_edge,emu_edge_link);
 
+/**
+ * The edge connects two vertexes.
+ * 
+ * The following fields of a emu_vertex are to your own purpose:
+ *  - data, attach your own data.
+ * 
+ * @see emu_vertex
+ * @see emu_graph
+ */
 struct emu_edge
 {
 	struct emu_vertex *destination;
@@ -31,6 +40,18 @@ header_list_functions(emu_vertexes,emu_vertex_root, emu_vertex, link);
 
 enum emu_color { black, blue, cyan, green, grey, magenta, red, white, yellow };
 
+/**
+ * The vertex is a vertex in a graph.
+ * It can have edges to other vertexes, 
+ * and has backedges from the vertexes where it has edges too.
+ * The following fields of the emu_vertex are for your own purposes:
+ *  - color, usefull for bfs & dfs
+ *  - distance, usefull for distance measurement
+ *  - data, attach your own data
+ * 
+ * @see emu_edge
+ * @see emu_graph
+ */
 struct emu_vertex
 {
 	void *data;

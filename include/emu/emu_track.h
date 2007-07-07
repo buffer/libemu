@@ -11,16 +11,38 @@ struct emu_cpu;
 struct emu_graph;
 struct emu_instruction;
 
+
+
+/**
+ * The emu_tracking_info struct is used within the
+ * binary backwards traversal.
+ * The required informations about which registers
+ * need to get initialized are stored in the struct together with the
+ * eip value where we need to start searching.
+ * 
+ * @see emu_shellcode_run_and_track
+ * @see emu_source_and_track_instr_info
+ */
 struct emu_tracking_info
 {
+	uint32_t eip;
+
 	uint32_t eflags;
 	uint32_t reg[8];
-	uint32_t eip;
 
 	uint8_t fpu; // used to store the last_instruction information required for fnstenv
 };
 
 
+/**
+ * The emu_source_and_track_instr_info struct stores the register/fpu
+ * tracking information as well as the source information 
+ * for a instruction.
+ * Additionally the disassembly of the instruction can be stored 
+ * for debugging purposes.
+ * 
+ * @see emu_shellcode_run_and_track
+ */
 struct emu_source_and_track_instr_info
 {
 	uint32_t eip;
@@ -47,6 +69,7 @@ void emu_source_and_track_instr_info_free_void(void *x);
 bool emu_source_and_track_instr_info_cmp(void *a, void *b);
 uint32_t emu_source_and_track_instr_info_hash(void *key);
 
+
 struct emu_track_and_source
 {
 	struct emu_tracking_info track;
@@ -72,10 +95,29 @@ void emu_tracking_info_free(struct emu_tracking_info *eti);
 
 void emu_tracking_info_clear(struct emu_tracking_info *eti);
 
+
+/**
+ * Calculate the logic difference between two instruction_infos 
+ * and store the result.
+ * 
+ * @param a
+ * @param b
+ * @param result
+ */
 void emu_tracking_info_diff(struct emu_tracking_info *a, struct emu_tracking_info *b, struct emu_tracking_info *result);
 
 void emu_tracking_info_copy(struct emu_tracking_info *from, struct emu_tracking_info *to);
 
+/**
+ * Check if a instruction can satisfy 
+ * the requirements of another instruction.
+ * 
+ * @param a
+ * @param b
+ * 
+ * @return returns true if a covers the requirements of b
+ *         else false
+ */
 bool emu_tracking_info_covers(struct emu_tracking_info *a, struct emu_tracking_info *b);
 
 void emu_tracking_info_debug_print(struct emu_tracking_info *a);
