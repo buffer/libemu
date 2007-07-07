@@ -414,7 +414,7 @@ static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t siz
 	uint32_t instrsize = get_instruction(&inst, data, MODE_32);
 	if( instrsize == 0 )
 	{
-		printf("invalid instruction\n");
+//		printf("invalid instruction\n");
 		return 0;
 	}
 	// step 3: print it
@@ -764,7 +764,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 			eip_after = c->eip;
 			if (eip_after - eip_before != expected_instr_size)
 			{
-				printf("broken instr.cpu size %i %i\n",
+				logDebug("broken instr.cpu size %i %i\n",
 					   eip_after - eip_before,
 					   expected_instr_size);
 				return -1;

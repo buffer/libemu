@@ -50,7 +50,6 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 
 	if (c->instr.is_fpu)
 	{
-		printf("fpu instr %i %i\n", c->instr.track.need.fpu, et->track.fpu);
 		if (c->instr.track.need.fpu  > et->track.fpu )
 			return -1;
 
@@ -226,6 +225,7 @@ bool emu_tracking_info_covers(struct emu_tracking_info *a, struct emu_tracking_i
 
 void emu_tracking_info_debug_print(struct emu_tracking_info *a)
 {
+	return;
 
 	static const char *regm32[] = {
 		"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
