@@ -115,14 +115,14 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 				int32_t ret = emu_cpu_parse(emu_cpu_get(e));
 				if ( ret == -1 )
 				{
-					printf("error at %s\n", cpu->instr_string);
+					logDebug(e, "error at %s\n", cpu->instr_string);
 					break;
 				}
 
 				ret = emu_cpu_step(emu_cpu_get(e));
 				if ( ret == -1 )
 				{
-					printf("error at %s\n", cpu->instr_string);
+					logDebug(e, "error at %s\n", cpu->instr_string);
 					break;
 				}
 
@@ -149,7 +149,6 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 						 */
 						{ 
 							struct emu_tracking_info *eti = emu_tracking_info_new();
-							printf("here the bfs starts,  this is the first diff\n");
 							emu_tracking_info_diff(&cpu->instr.track.need, &etas->track, eti);
 							eti->eip = current_offset;
 							emu_tracking_info_debug_print(eti);
@@ -260,7 +259,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 	emu_list_qsort(tested_positions, tested_positions_cmp);
 
 
-//#if 0
+#if 0
 	{
 		struct emu_list_item *eli;
 		for ( eli = emu_list_first(tested_positions); !emu_list_attail(eli); eli = emu_list_next(eli) )
@@ -269,7 +268,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 			printf("a offset 0x%08x steps %i\n",es->eip, es->cpu.steps);
 		}
 	}
-//#endif // 0
+#endif // 0
 
 	struct emu_list_item *eli = emu_list_first(tested_positions);
 	struct emu_stats *es = (struct emu_stats *)eli->data;
@@ -389,7 +388,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	/* for all positions we got, take the best, maybe take memory access into account later */
 	emu_list_qsort(results, tested_positions_cmp);
 
-//#if 0
+#if 0
 	{
 		struct emu_list_item *eli;
 		for ( eli = emu_list_first(results); !emu_list_attail(eli); eli = emu_list_next(eli) )
@@ -398,7 +397,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 			printf("b offset 0x%08x steps %i\n",es->eip, es->cpu.steps);
 		}
 	}
-//#endif // 0
+#endif // 0
 
 	eli = emu_list_first(results);
 	struct emu_stats *es = (struct emu_stats *)eli->data;
@@ -409,6 +408,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	{
 		emu_stats_free((struct emu_stats *)eli->data);
 	}
+	emu_list_destroy(results);
 
 	return offset;
 }
