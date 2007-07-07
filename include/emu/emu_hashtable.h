@@ -10,14 +10,13 @@
  * The emu_hashtable_item stores the key/value pair.
  * 
  * @see emu_hashtable
+ * @see emu_hashtable_bucket_item
  */
 struct emu_hashtable_item 
 {
 	void *key;
 	void *value;
 };
-struct emu_hashtable_item *emu_hashtable_item_new(void *key, void *value);
-void emu_hashtable_item_free(struct emu_hashtable_item *ehi);
 
 
 typedef bool (*emu_hashtable_cmp_cb)(void *a, void *b);
@@ -29,7 +28,7 @@ header_list_typedefs(emu_hashtable_bucket_item_root,emu_hashtable_bucket_item,em
 
 struct emu_hashtable_bucket_item
 {
-	struct emu_hashtable_item *item; // not using a pointer would fragmentate the heap 'a little less' TODO
+	struct emu_hashtable_item item;
 	emu_hashtable_bucket_link link;
 };
 header_list_functions(emu_hashtable_bucket_items,emu_hashtable_bucket_item_root, emu_hashtable_bucket_item, link);

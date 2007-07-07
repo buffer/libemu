@@ -47,13 +47,12 @@ void emu_hashtable_free(struct emu_hashtable *eh)
 			{
 				if (eh->key_destructor != NULL)
 				{
-					eh->key_destructor(ehbi->item->key);
+					eh->key_destructor(ehbi->item.key);
 				}
 				if (eh->value_destructor != NULL)
 				{
-					eh->value_destructor(ehbi->item->value);
+					eh->value_destructor(ehbi->item.value);
 				}
-				emu_hashtable_item_free(ehbi->item);
 			}
 	
 			emu_hashtable_bucket_free(ehb);
@@ -77,7 +76,7 @@ struct emu_hashtable_item *emu_hashtable_search(struct emu_hashtable *eh, void *
 
 	for (ehbi = emu_hashtable_bucket_items_first(ehb->items); !emu_hashtable_bucket_items_attail(ehbi); ehbi = emu_hashtable_bucket_items_next(ehbi))
 	{
-		ehi = ehbi->item;
+		ehi = &ehbi->item;
 		if (eh->cmp(ehi->key, key) == true)
 			return ehi;
 	}
@@ -91,7 +90,7 @@ struct emu_hashtable_item *emu_hashtable_insert(struct emu_hashtable *eh, void *
 	if ((ehi = emu_hashtable_search(eh, key)) == NULL)
 	{
 		struct emu_hashtable_bucket_item *ehbi = emu_hashtable_bucket_item_new(key, data);
-		ehi = ehbi->item;
+		ehi = &ehbi->item;
 
 		uint32_t first_hash = eh->hash(key) % eh->size;
 
@@ -123,7 +122,7 @@ bool emu_hashtable_delete(struct emu_hashtable *eh, void *key)
 		for (ehbi = emu_hashtable_bucket_items_first(ehb->items); !emu_hashtable_bucket_items_attail(ehbi); ehbi = emu_hashtable_bucket_items_next(ehbi))
 		{
 			struct emu_hashtable_item *ehi;
-			ehi = ehbi->item;
+			ehi = &ehbi->item;
 			if (eh->cmp(ehi->key, key) == true)
 			{
 				if (eh->value_destructor != NULL)
@@ -142,24 +141,6 @@ bool emu_hashtable_delete(struct emu_hashtable *eh, void *key)
 }
 
 
-
-struct emu_hashtable_item *emu_hashtable_item_new(void *key, void *value)
-{
-	struct emu_hashtable_item *ehi = (struct emu_hashtable_item *)malloc(sizeof(struct emu_hashtable_item));
-	if( ehi == NULL )
-	{
-		return NULL;
-	}
-	memset(ehi, 0, sizeof(struct emu_hashtable_item));
-	ehi->key = key;
-	ehi->value = value;
-	return ehi;
-}
-
-void emu_hashtable_item_free(struct emu_hashtable_item *ehi)
-{
-	free(ehi);
-}
 
 struct emu_hashtable_bucket *emu_hashtable_bucket_new()
 {
@@ -189,8 +170,6 @@ struct emu_hashtable_bucket_item *emu_hashtable_bucket_item_new(void *key, void 
 	memset(ehbi, 0, sizeof(struct emu_hashtable_bucket_item));
 
 	emu_hashtable_bucket_items_init_link(ehbi);
-
-	ehbi->item = emu_hashtable_item_new(key, value);
 
 	return ehbi;
 }
