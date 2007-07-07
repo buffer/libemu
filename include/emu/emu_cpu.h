@@ -53,11 +53,44 @@ inline void emu_cpu_reg8_set(struct emu_cpu *cpu_p, enum emu_reg8 reg, uint8_t v
 uint32_t emu_cpu_eflags_get(struct emu_cpu *c);
 void emu_cpu_eflags_set(struct emu_cpu *c, uint32_t val);
 
+/**
+ * Set the cpu's EIP
+ * 
+ * @param c      the cpu
+ * @param eip    eip
+ */
 void emu_cpu_eip_set(struct emu_cpu *c, uint32_t eip);
+
+/**
+ * get the cpu's EIP
+ * 
+ * @param c      the cpu
+ * 
+ * @return EIP
+ */
 uint32_t emu_cpu_eip_get(struct emu_cpu *c);
 
+
+/**
+ * parse a instruction at EIP
+ * 
+ * @param c      the cpu
+ * 
+ * @return on success: 0
+ *         on errror : -1, check emu_errno and emu_strerror
+ */
 int32_t emu_cpu_parse(struct emu_cpu *c);
+
+/**
+ * step the last instruction
+ * 
+ * @param c      the cpu
+ * 
+ * @return on success: 0
+ *         on errror : -1, check emu_errno and emu_strerror
+ */
 int32_t emu_cpu_step(struct emu_cpu *c);
+
 int32_t emu_cpu_run(struct emu_cpu *c);
 
 void emu_cpu_free(struct emu_cpu *c);
