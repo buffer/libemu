@@ -1626,7 +1626,7 @@ int test(int n)
 
 
 
-
+		uint32_t eipsave = 0;
 		for ( j=0;j<opts.steps;j++ )
 		{
 
@@ -1637,7 +1637,10 @@ int test(int n)
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 			}
 
-			uint32_t eipsave = emu_cpu_eip_get(emu_cpu_get(e));
+
+			
+			if (cpu->repeat_current_instr == false)
+				eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
 			struct emu_env_w32_dll_export *dllhook = NULL;
 			struct emu_vertex *ev = NULL;
@@ -1646,7 +1649,6 @@ int test(int n)
 
 
 			ret = 0;
-			eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
 			if ( opts.graphfile != NULL )
 			{
@@ -1762,6 +1764,8 @@ int test(int n)
 
 			struct emu_vertex *nev;
 			struct instr_vertex *niv=NULL;
+
+			printf("copying vertexes\n");
 			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 			{
 				iv = (struct instr_vertex *)ev->data;
@@ -1776,6 +1780,7 @@ int test(int n)
 				ev->color = white;
 			}
 
+			printf("optimizing graph\n");
 			for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
 			{
 				// ignore known 
@@ -1783,6 +1788,7 @@ int test(int n)
 					continue;
 
 
+				printf("vertex %08x\n", (unsigned int)ev);
 
 				// find the first in a chain
 				iv = (struct instr_vertex *)ev->data;
@@ -1797,6 +1803,7 @@ int test(int n)
 						break;
 
 					ev = xev;
+					printf(" -> vertex %08x\n",(unsigned int)ev);
 				}
 
 
@@ -1807,6 +1814,8 @@ int test(int n)
 				niv = (struct instr_vertex *)nev->data;
 
 				iv = (struct instr_vertex *)ev->data;
+
+				printf("going forwards from %08x\n", (unsigned int)ev);
 				while ( emu_edges_length(ev->edges) == 1 && emu_edges_length(ev->backedges) <= 1 && ev->color != black && iv->eip < static_offset + tests[i].codesize )
 				{
 					ev->color = black;
@@ -1821,21 +1830,24 @@ int test(int n)
 
 					iv = (struct instr_vertex *)ev->data;
 					emu_string_append_char(niv->instr_string, emu_string_char(iv->instr_string));
+					printf(" -> vertex %08x\n",(unsigned int)ev);
 				}
 
 				ev->color = black;
 
+				printf("copying edges for %08x\n",(unsigned int)ev);
 				struct emu_edge *ee;
 				for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
 				{
 					struct instr_vertex *ivto = emu_vertex_data_get(ee->destination);
 					struct emu_hashtable_item *ehi = emu_hashtable_search(ht, (void *)ivto->eip);
 					struct emu_vertex *to = (struct emu_vertex *)ehi->value;
-					if ( nev != to && to->color != black )
+					if (1)// nev != to )//&& to->color != black )
 					{
 						struct emu_edge *nee = emu_vertex_edge_add(nev, to);
 						nee->count = ee->count;
 						nee->data = ee->data;
+						printf(" -> %08x\n", (unsigned int)to);
 					}
 				}
 
@@ -1899,7 +1911,10 @@ int test(int n)
 					struct instr_vertex *ivto = emu_vertex_data_get(ee->destination);
 					struct emu_string *fs = emu_string_new();
 
-					emu_string_append_format(fs, "\t %i -> %i [style = bold", ivfrom->eip, ivto->eip);
+					if ( ee->data != (void *)0x0 )
+						emu_string_append_format(fs, "\t %i -> %i [style = dashed", ivfrom->eip, ivto->eip);
+					else
+						emu_string_append_format(fs, "\t %i -> %i [style = bold", ivfrom->eip, ivto->eip);
 
 					if ( ee->count > 100 )
 						emu_string_append_char(fs, ", color=red");
@@ -1913,8 +1928,6 @@ int test(int n)
 						if ( ee->count > 1 )
 						emu_string_append_char(fs, ", color=orange");
 
-					if ( ee->data != (void *)0x0 )
-						emu_string_append_char(fs, ", style=dashed");
 
 
 					emu_string_append_char(fs, " ]\n");
