@@ -169,6 +169,9 @@ struct emu_hashtable_bucket_item *emu_hashtable_bucket_item_new(void *key, void 
 	}
 	memset(ehbi, 0, sizeof(struct emu_hashtable_bucket_item));
 
+	ehbi->item.key = key;
+	ehbi->item.value = value;
+
 	emu_hashtable_bucket_items_init_link(ehbi);
 
 	return ehbi;
