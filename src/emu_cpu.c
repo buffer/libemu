@@ -764,7 +764,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 			eip_after = c->eip;
 			if (eip_after - eip_before != expected_instr_size)
 			{
-				logDebug("broken instr.cpu size %i %i\n",
+				logDebug(c->emu, "broken instr.cpu size %i %i\n",
 					   eip_after - eip_before,
 					   expected_instr_size);
 				return -1;
