@@ -1,3 +1,5 @@
+/* @header@ */
+
 #ifndef HAVE_EMU_CPU_INSTRUCTION
 #define HAVE_EMU_CPU_INSTRUCTION
 

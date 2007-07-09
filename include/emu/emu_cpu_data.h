@@ -1,3 +1,5 @@
+/* @header@ */
+
 #ifndef EMU_CPU_DATA_H_
 #define EMU_CPU_DATA_H_
 

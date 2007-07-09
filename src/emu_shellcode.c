@@ -1,3 +1,4 @@
+/* @header@ */
 
 #include "emu/emu_shellcode.h"
 

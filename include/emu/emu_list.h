@@ -1,3 +1,5 @@
+/* @header@ */
+
 #ifndef HAVE_EMU_LIST_H
 #define HAVE_EMU_LIST_H
 
