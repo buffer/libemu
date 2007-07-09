@@ -22,6 +22,7 @@ include_HEADERS += emu_list.h
 include_HEADERS += emu_log.h
 include_HEADERS += emu_memory.h
 include_HEADERS += emu_queue.h
+include_HEADERS += emu_shellcode.h
 include_HEADERS += emu_source.h
 include_HEADERS += emu_string.h
 include_HEADERS += emu_track.h
