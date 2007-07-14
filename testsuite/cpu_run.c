@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -52,7 +53,7 @@ struct run_options
 {
 	uint8_t single_step;
 	uint8_t append_no_break;
-	uint8_t stdin;
+	uint8_t from_stdin;
 
 	uint32_t regs[8];
 };
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'S':
-			opt.stdin = 1;
+			opt.from_stdin = 1;
 			printf("reading from stdin\n");
 			break;
 
@@ -190,7 +191,7 @@ int main(int argc, char *argv[])
 	unsigned char *scode=NULL;
 	uint32_t size;
 
-	if ( opt.stdin )
+	if ( opt.from_stdin )
 	{
 		unsigned buffer[BUFSIZ];
 		int ret, eof=0;
