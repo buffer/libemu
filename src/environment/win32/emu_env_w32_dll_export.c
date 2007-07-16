@@ -1353,3 +1353,30 @@ UINT GetSystemDirectory(
 	return 0;
 }
 
+
+int32_t emu_env_w32_hook_SetUnhandledExceptionFilter(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilter(
+  LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter
+);*/
+
+	uint32_t lpfilter;
+	POP_DWORD(c, &lpfilter);
+
+	printf("Exception filter %08x\n", lpfilter);
+
+	emu_cpu_reg32_set(c, eax, 0x7C81CDDA);
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+

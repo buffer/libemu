@@ -852,7 +852,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"SetThreadUILanguage", 0x0001B258, NULL},
 	{"SetTimeZoneInformation", 0x0005945E, NULL},
 	{"SetTimerQueueTimer", 0x0002B26E, NULL},
-	{"SetUnhandledExceptionFilter", 0x0004479D, NULL},
+	{"SetUnhandledExceptionFilter", 0x0004479D, emu_env_w32_hook_SetUnhandledExceptionFilter},
 	{"SetUserGeoID", 0x00078C5C, NULL},
 	{"SetVDMCurrentDirectories", 0x00067714, NULL},
 	{"SetVolumeLabelA", 0x000609ED, NULL},

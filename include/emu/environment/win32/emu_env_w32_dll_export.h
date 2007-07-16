@@ -85,6 +85,8 @@ int32_t	emu_env_w32_hook_URLDownloadToFileA(struct emu_env_w32 *env, struct emu_
 
 int32_t	emu_env_w32_hook_GetSystemDirectoryA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 
+int32_t emu_env_w32_hook_SetUnhandledExceptionFilter(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+
 extern struct emu_env_w32_dll_export kernel32_exports[];
 extern struct emu_env_w32_dll_export ws2_32_exports[];
 extern struct emu_env_w32_dll_export wininet_exports[];
