@@ -2048,6 +2048,44 @@ void list_tests()
 		printf("%-2i) %s\n", i, tests[i].instr);
 }
 
+void print_help()
+{
+	struct help_info 
+	{
+		const char *short_param;
+		const char *long_param;
+		const char *args;
+		const char *description;
+	};
+
+	struct help_info help_infos[] =
+	{
+    	{"v", "verbose"     , NULL		, "be verbose"},
+		{"s", "steps"       , "INTEGER"	, "max number of steps to run"},
+		{"t", "testnumber"  , "INTEGER"	, "the test to run"},
+		{"l", "listtests"   , NULL		, "list all tests"},
+		{"d", "dump"        , "INTEGER"	, "dump the shellcode (binary) to stdout"},
+		{"g", "getpc"       , "INTEGER"	, "run getpc mode, try to detect a shellcode"},
+		{"G", "graph"       , "FILEPATH", "save a dot formatted callgraph in filepath"},
+		{"h", "help"        , NULL		, "show this help"},
+	};
+
+	int i;
+	for (i=0;i<sizeof(help_infos)/sizeof(struct help_info); i++)
+	{
+		printf("\t-%1s ", help_infos[i].short_param);
+		if (help_infos[i].args != NULL)
+			printf("%-7s ", help_infos[i].args);
+		else
+			printf("%-7s ", "");
+		printf("\t\t%s\n", help_infos[i].description);
+
+		printf("\t--%s", help_infos[i].long_param);
+		if (help_infos[i].args != NULL)
+			printf("=%7s ", help_infos[i].args);
+		printf("\n\n");
+	}
+}
 
 int main(int argc, char *argv[])
 {
@@ -2062,17 +2100,17 @@ int main(int argc, char *argv[])
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"verbose"          , 0, 0, 'v'},
-			{"nasm-force"       , 0, 0, 'n'},
 			{"steps"            , 1, 0, 's'},
 			{"testnumber"       , 1, 0, 't'},
 			{"listtests"        , 0, 0, 'l'},
 			{"dump"             , 1, 0, 'd'},
 			{"getpc"            , 0, 0, 'g'},
 			{"graph"            , 1, 0, 'G'},
+			{"help"				, 0, 0, 'h'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vns:t:ld:gG:", long_options, &option_index);
+		c = getopt_long (argc, argv, "vs:t:ld:gG:h", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -2080,10 +2118,6 @@ int main(int argc, char *argv[])
 		{
 		case 'v':
 			opts.verbose = 1;
-			break;
-
-		case 'n':
-			opts.nasm_force = 1;
 			break;
 
 		case 's':
@@ -2111,6 +2145,11 @@ int main(int argc, char *argv[])
 		case 'G':
 			opts.graphfile = strdup(optarg);
 			printf("graph file %s\n", opts.graphfile);
+			break;
+
+		case 'h':
+			print_help();
+			exit(0);
 			break;
 
 		default:
