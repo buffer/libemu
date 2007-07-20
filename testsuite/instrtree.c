@@ -31,8 +31,14 @@
 
 #include "../src/libdasm.c"
 #include "../src/libdasm.h"
+/* JMPCall 
+const char scode[] = "\xfc\xbb\xbf\x05\xeb\xd0\xeb\x0c\x5e\x56\x31\x1e\xad\x01\xc3"
+"\x85\xc0\x75\xf7\xc3\xe8\xef\xff\xff\xff\x43\x6f\x00\x97\x53";
+*/
 
-const char scode[] = "\xFC\xBB\x1E\x88\xB8\x04\xEB\x0C";
+const char scode[] = 		"\x33\xc9\x83\xe9\xb0\xe8\xff\xff\xff\xff\xc0\x5e\x81\x76\x0e\x47"
+		"\x13\x2b\xc0\x83\xee\xfc\xe2\xf4\xbb\x79\xc0\x8d\xaf\xea\xd4\x3f";
+
 
 void indent(int lev)
 {
@@ -80,6 +86,58 @@ int main()
     
 
 //	int i;
-	instrtree((uint8_t *)scode, 8, 8, 0); 
+//
+// 	instrtree((uint8_t *)scode, 16*7, 16*7 0); 
+
+	unsigned int i;
+	for ( i=0;i<sizeof(scode);i++ )
+	{
+		static char str[256];
+		INSTRUCTION inst;
+
+		int32_t isize = get_instruction(&inst, (uint8_t *)scode+i, MODE_32);
+
+		if (isize <= 0)
+			continue;
+
+		get_instruction_string(&inst, FORMAT_INTEL, 0, str, sizeof(str));
+
+		printf("         { rank = same; \"%02X\"; \"%08X %s\" };\n",i,i,str);
+	}
+
+	for ( i=0;i<sizeof(scode);i++ )
+	{
+		uint32_t off1;
+
+		static char str1[256];
+		INSTRUCTION inst1;
+
+		uint32_t off2;
+		static char str2[256];
+		INSTRUCTION inst2;
+
+		off1 = i;
+		int32_t isize = get_instruction(&inst1, (uint8_t *)scode+i, MODE_32);
+
+		if (isize <= 0)
+			continue;
+
+		off2=i+isize;
+
+		isize = get_instruction(&inst2, (uint8_t *)scode+i+isize, MODE_32);
+		if (isize <= 0)
+			continue;
+
+		
+
+		get_instruction_string(&inst1, FORMAT_INTEL, 0, str1, sizeof(str1));
+		get_instruction_string(&inst2, FORMAT_INTEL, 0, str2, sizeof(str2));
+
+		printf("         \"%08X %s\" -> \"%08X %s\";\n",off1,str1,off2,str2);
+	}
+
+
+
 	return 0;
 }
+

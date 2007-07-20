@@ -74,6 +74,9 @@ static struct run_time_options
 	int testnumber;
 	int getpc;
 	char *graphfile;
+	bool from_stdin;
+	unsigned char *scode;
+	uint32_t size;
 } opts;
 
 /*
@@ -1599,12 +1602,13 @@ int test(int n)
 
 	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 	{
-		if ( n != -1 && i != n )
+		if ( n != -1 && i != n && !opts.from_stdin )
 			continue;
 
 //		int failed = 0;
+		if (!opts.from_stdin)
+			printf("testing (#%d) '%s' \t", i, tests[i].instr);
 
-		printf("testing (#%d) '%s' \t", i, tests[i].instr);
 		int j=0;
 
 		/* set the registers to the initial values */
@@ -1620,10 +1624,10 @@ int test(int n)
 
 		/* write the code to the offset */
 		int static_offset = CODE_OFFSET;
-		for ( j = 0; j < tests[i].codesize; j++ )
-		{
-			emu_memory_write_byte(mem, static_offset+j, tests[i].code[j]);
-		}
+		if (!opts.from_stdin)
+        	emu_memory_write_block(mem, static_offset, tests[i].code,  tests[i].codesize);
+		else
+			emu_memory_write_block(mem, static_offset, opts.scode,  opts.size);
 
 
 
@@ -1985,6 +1989,9 @@ int test(int n)
 			emu_graph_free(graph);
 			emu_hashtable_free(eh);
 		}
+
+		if (opts.from_stdin)
+			break;
 	}
 	emu_env_w32_free(env);
 	emu_free(e);
@@ -2004,17 +2011,34 @@ int getpctest(int n)
 
 	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
 	{
-		if ( n != -1 && i != n )
+		if ( n != -1 && i != n && !opts.from_stdin )
 			continue;
 
-		printf("testing (#%d) '%s' \t", i, tests[i].instr);
-
-		if ( emu_shellcode_test(e, (uint8_t *)tests[i].code, tests[i].codesize) >= 0 )
-			printf(SUCCESS"\n");
-		else
-			printf(FAILED"\n");
+		if( !opts.from_stdin )
+		{
+			printf("testing (#%d) '%s' \t", i, tests[i].instr);
+			if ( emu_shellcode_test(e, (uint8_t *)tests[i].code, tests[i].codesize) >= 0 )
+				printf(SUCCESS"\n");
+			else
+				printf(FAILED"\n");
+		}else
+		{
+			uint32_t off;
+			if ( (off = emu_shellcode_test(e, (uint8_t *)opts.scode, opts.size)) >= 0 )
+			{
+				printf(SUCCESS"\n");
+				opts.scode += off;
+				opts.size -= off;
+				test(n);
+			}
+			else
+				printf(FAILED"\n");
+		}
 
 		emu_memory_clear(emu_memory_get(e));
+
+		if (opts.from_stdin)
+			break;
 	}
 	emu_free(e);
 	return 0;
@@ -2107,10 +2131,11 @@ int main(int argc, char *argv[])
 			{"getpc"            , 0, 0, 'g'},
 			{"graph"            , 1, 0, 'G'},
 			{"help"				, 0, 0, 'h'},
+			{"stdin"			, 0, 0, 'S'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vs:t:ld:gG:h", long_options, &option_index);
+		c = getopt_long (argc, argv, "vs:t:ld:gG:hS", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -2152,6 +2177,10 @@ int main(int argc, char *argv[])
 			exit(0);
 			break;
 
+		case 'S':
+			opts.from_stdin = true;
+			break;
+
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
 			break;
@@ -2159,6 +2188,57 @@ int main(int argc, char *argv[])
 	}
 
 
+	if ( opts.from_stdin )
+	{
+		unsigned buffer[BUFSIZ];
+		int ret, eof=0;
+		int16_t bytes_read=0;
+		uint32_t len=0;
+		fd_set read_fds;
+		struct timeval st;
+
+		while ( !eof )
+		{
+			FD_ZERO(&read_fds);
+			FD_SET(STDIN_FILENO, &read_fds);
+
+			st.tv_sec  = 10;
+			st.tv_usec = 0;
+
+			switch ( ret = select(FD_SETSIZE, &read_fds, NULL, NULL, &st) )
+			{
+			case -1:
+				fprintf(stderr, "Error with select(): %s.\n", strerror(errno));
+				exit(1);
+			case  0:
+				break;
+			default:
+				if ( FD_ISSET(STDIN_FILENO, &read_fds) )
+				{
+					if ( (bytes_read = read(STDIN_FILENO, buffer, BUFSIZ)) <= 0 )
+					{
+						if ( bytes_read == 0 ) eof = 1;
+						else
+						{
+							fprintf(stderr, "Error while reading data: %s.\n", strerror(errno));
+							exit(1);
+						}
+					}
+					if ( !eof )
+					{
+						if ( (opts.scode = (unsigned char *) realloc(opts.scode, len+bytes_read)) == NULL )
+						{
+							fprintf(stderr, "Error while allocating memory: %s.\n", strerror(errno));
+							exit(1);
+						}
+						memcpy(opts.scode+len, buffer, bytes_read);
+						len += bytes_read;
+					}
+				}
+			}
+		}
+		opts.size = len;
+	}
 	if ( opts.getpc == 1 )
 	{
 		getpctest(opts.testnumber);
