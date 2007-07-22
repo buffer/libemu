@@ -1825,14 +1825,13 @@ int test(int n)
 
 				// find the first in a chain
 				iv = (struct instr_vertex *)ev->data;
-				while ( emu_edges_length(ev->backedges) == 1 && emu_edges_length(ev->edges) <= 1 && ev->color == white && iv->eip < static_offset + tests[i].codesize )
+				while ( emu_edges_length(ev->backedges) == 1 && emu_edges_length(ev->edges) <= 1 && ev->color == white && iv->dll == NULL )
 				{
 					ev->color = grey;
 
 					struct emu_vertex *xev = emu_edges_first(ev->backedges)->destination;
 					iv = (struct instr_vertex *)xev->data;
-					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 || 
-						 iv->eip > static_offset + tests[i].codesize )
+					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 || iv->dll != NULL )
 						break;
 
 					ev = xev;
@@ -1849,14 +1848,14 @@ int test(int n)
 				iv = (struct instr_vertex *)ev->data;
 
 				printf("going forwards from %08x\n", (unsigned int)ev);
-				while ( emu_edges_length(ev->edges) == 1 && emu_edges_length(ev->backedges) <= 1 && ev->color != black && iv->eip < static_offset + tests[i].codesize )
+				while ( emu_edges_length(ev->edges) == 1 && emu_edges_length(ev->backedges) <= 1 && ev->color != black && iv->dll == NULL )
 				{
 					ev->color = black;
 					struct emu_vertex *xev = emu_edges_first(ev->edges)->destination;
 					iv = (struct instr_vertex *)xev->data;
 
 					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 ||
-						 iv->eip > static_offset + tests[i].codesize )
+						 iv->dll != NULL )
 						break;
 
 					ev = xev;
@@ -1928,7 +1927,7 @@ int test(int n)
 				if ( iv->dll != NULL )
 					continue;
 #endif // 0
-				if ( iv->eip > static_offset + tests[i].codesize )
+				if ( iv->dll != NULL )
 					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
 				else
 					fprintf(f, "\t %i [shape=box, label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
