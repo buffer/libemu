@@ -151,11 +151,11 @@ int32_t instr_push_6a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 */
 	if (i->prefixes & PREFIX_OPSIZE)
 	{
-		PUSH_WORD(c, *i->imm8);
+		PUSH_WORD(c, (uint16_t)((int8_t)*i->imm8));
 	}
 	else
 	{
-		PUSH_DWORD(c, *i->imm8);
+		PUSH_DWORD(c, (uint32_t)((int8_t)*i->imm8));
 	}
 
 	return 0;
