@@ -30,6 +30,9 @@
 
 #include <emu/emu.h>
 #include <emu/environment/win32/emu_env_w32_dll_export.h>
+#include <emu/environment/win32/emu_env_w32_dll_export_kernel32_hooks.h>
+#include <emu/environment/win32/emu_env_w32_dll_export_urlmon_hooks.h>
+#include <emu/environment/win32/emu_env_w32_dll_export_ws2_32_hooks.h>
 
 
 struct emu_env_w32_dll_export kernel32_exports[] = 
@@ -499,7 +502,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"GetThreadPriorityBoost", 0x00062A6B, NULL},
 	{"GetThreadSelectorEntry", 0x0005A1E8, NULL},
 	{"GetThreadTimes", 0x00062C9C, NULL},
-	{"GetTickCount", 0x0000929C, NULL},
+	{"GetTickCount", 0x0000929C, emu_env_w32_hook_GetTickCount},
 	{"GetTimeFormatA", 0x0003632D, NULL},
 	{"GetTimeFormatW", 0x00033FD3, NULL},
 	{"GetTimeZoneInformation", 0x000350BF, NULL},
@@ -1007,7 +1010,7 @@ struct emu_env_w32_dll_export ws2_32_exports[] =
 	{"recvfrom", 0x00002D0F, NULL},
 	{"select", 0x00002DC0, NULL},
 	{"send", 0x0000428A, emu_env_w32_hook_send},
-	{"sendto", 0x00002C69, NULL},
+	{"sendto", 0x00002C69, emu_env_w32_hook_sendto},
 	{"setsockopt", 0x00003EA1, NULL},
 	{"shutdown", 0x00010BDE, NULL},
 	{"socket", 0x00003B91, emu_env_w32_hook_socket},

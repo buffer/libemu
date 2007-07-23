@@ -27,29 +27,15 @@
 
 #include <stdint.h>
 
-#ifndef HAVE_EMU_ENV_W32_DLL_EXPORT_H
-#define HAVE_EMU_ENV_W32_DLL_EXPORT_H
+int32_t emu_env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_closesocket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_connect(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_recv(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_send(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_sendto(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_socket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t emu_env_w32_hook_WSAStartup(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 
-
-struct emu;
-struct emu_env_w32;
-
-
-struct emu_env_w32_dll_export
-{
-	char 		*fnname;
-	uint32_t 	virtualaddr;
-    int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-};
-
-struct emu_env_w32_dll_export *emu_env_w32_dll_export_new();
-void emu_env_w32_dll_export_copy(struct emu_env_w32_dll_export *to, struct emu_env_w32_dll_export *from);
-void emu_env_w32_dll_export_free(struct emu_env_w32_dll_export *exp);
-
-extern struct emu_env_w32_dll_export kernel32_exports[];
-extern struct emu_env_w32_dll_export ws2_32_exports[];
-extern struct emu_env_w32_dll_export wininet_exports[];
-extern struct emu_env_w32_dll_export urlmon_exports[];
-
-
-#endif

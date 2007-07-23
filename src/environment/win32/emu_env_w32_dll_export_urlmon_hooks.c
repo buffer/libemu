@@ -28,13 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// for the socket hooks
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -46,28 +39,62 @@
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_hashtable.h"
-#include "emu/environment/win32/emu_env_w32.h"
-#include "emu/environment/win32/emu_env_w32_dll_export.h"
-#include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/emu_string.h"
+#include "emu/environment/win32/emu_env_w32.h"
+#include "emu/environment/win32/emu_env_w32_dll.h"
+#include "emu/environment/win32/emu_env_w32_dll_export.h"
+#include "emu/environment/win32/emu_env_w32_dll_export_urlmon_hooks.h"
 
-struct emu_env_w32_dll_export *emu_env_w32_dll_export_new()
+int32_t	emu_env_w32_hook_URLDownloadToFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
-	struct emu_env_w32_dll_export *exp = (struct emu_env_w32_dll_export *)malloc(sizeof(struct emu_env_w32_dll_export));
-	memset(exp,0,sizeof(struct emu_env_w32_dll_export));
-	return exp;
-}
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
-void emu_env_w32_dll_export_free(struct emu_env_w32_dll_export *exp)
-{
-	free(exp);
-}
+	struct emu_cpu *c = emu_cpu_get(env->emu);
 
-void emu_env_w32_dll_export_copy(struct emu_env_w32_dll_export *to, struct emu_env_w32_dll_export *from)
-{
-	to->fnhook = from->fnhook;
-	to->fnname = from->fnname;
-	to->virtualaddr = from->virtualaddr;
-}
+	uint32_t eip_save;
 
+	POP_DWORD(c, &eip_save);
+
+/*
+HRESULT URLDownloadToFile(
+  LPUNKNOWN pCaller,
+  LPCTSTR szURL,
+  LPCTSTR szFileName,
+  DWORD dwReserved,
+  LPBINDSTATUSCALLBACK lpfnCB
+);
+*/
+	uint32_t p_caller;
+	POP_DWORD(c, &p_caller);
+
+	uint32_t p_url;
+	POP_DWORD(c, &p_url);
+
+	uint32_t p_filename;
+	POP_DWORD(c, &p_filename);
+
+	uint32_t reserved;
+	POP_DWORD(c, &reserved);
+
+	uint32_t statuscallbackfn;
+	POP_DWORD(c, &statuscallbackfn);
+
+
+
+	struct emu_string *url = emu_string_new();
+	emu_memory_read_string(c->mem, p_url, url, 512);
+
+	struct emu_string *filename = emu_string_new();
+	emu_memory_read_string(c->mem, p_filename, filename, 512);
+
+
+	printf(" %s -> %s\n", emu_string_char(url), emu_string_char(filename));
+
+	emu_string_free(url);
+	emu_string_free(filename);
+
+    emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
 
