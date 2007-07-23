@@ -78,5 +78,8 @@ libemu_la_SOURCES += libdasm.c libdasm.h opcode_tables.h
 libemu_la_SOURCES += environment/win32/emu_env_w32.c
 libemu_la_SOURCES += environment/win32/emu_env_w32_dll.c
 libemu_la_SOURCES += environment/win32/emu_env_w32_dll_export.c
+libemu_la_SOURCES += environment/win32/emu_env_w32_dll_export_kernel32_hooks.c
+libemu_la_SOURCES += environment/win32/emu_env_w32_dll_export_urlmon_hooks.c
+libemu_la_SOURCES += environment/win32/emu_env_w32_dll_export_ws2_32_hooks.c
 
 libemu_la_LDFLAGS = -no-undefined -version-info @libemu_soname@ -export-symbols-regex "^emu_"
