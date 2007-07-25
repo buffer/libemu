@@ -40,7 +40,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-
+#include "../../../config.h"
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_cpu.h"
@@ -257,6 +257,7 @@ int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_
 
 	fflush(NULL);
 
+#ifdef HAVE_INTERACTIVE_HOOKS
 // the code is meant to be an example how one could do it
 	pid_t pid;
 	if ((pid = fork()) == 0)
@@ -273,6 +274,7 @@ int32_t	emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_
 		pi->hProcess = pid;
 		emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
 	}
+#endif
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -834,6 +836,7 @@ DWORD WINAPI WaitForSingleObject(
 	printf("WaitForSingleObject(hHandle=%i,  dwMilliseconds=%i)\n", handle, msecs);
 
 // the code is meant to be an example how one could do it
+#ifdef HAVE_INTERACTIVE_HOOKS
 	int status;
 	while(1)
 	{
@@ -841,6 +844,7 @@ DWORD WINAPI WaitForSingleObject(
 			break;
 		sleep(1);
 	}
+#endif
 
 	emu_cpu_reg32_set(c, eax, 32);
 

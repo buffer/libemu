@@ -39,7 +39,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-
+#include "../../../config.h"
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_cpu.h"
@@ -80,9 +80,14 @@ int32_t	emu_env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_
 
 	printf("accept(s=%i, addr=%x, addrlen=%i);\n", s, addr, addrlen);
 
+	int a = 67;
+
+#ifdef HAVE_INTERACTIVE_HOOKS
 	struct sockaddr sa;
 	socklen_t sasize = sizeof(struct sockaddr);
-	int a = accept(s, &sa, &sasize);
+	a=accept(s, &sa, &sasize);
+#endif
+
 	printf("accept %i \n", a);	
 	emu_cpu_reg32_set(c, eax, a);
 
@@ -127,7 +132,13 @@ int32_t	emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_ex
 		   inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr),
 		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
 	}
-	int retval = bind(s, &sa, sizeof(struct sockaddr));
+
+	int retval = 0;
+
+#ifdef HAVE_INTERACTIVE_HOOKS
+	retval = bind(s, &sa, sizeof(struct sockaddr));
+#endif 
+
 	emu_cpu_reg32_set(c, eax, retval);
 
 	emu_cpu_eip_set(c, eip_save);
@@ -153,7 +164,9 @@ int closesocket(
 	uint32_t s;
 	POP_DWORD(c, &s);
 
+#ifdef HAVE_INTERACTIVE_HOOKS
 	close((int)s);
+#endif 
 
 	emu_cpu_reg32_set(c, eax, 0);
 
@@ -195,12 +208,17 @@ int connect(
 		   inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr),
 		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
 
+
+	int retval = 0;
+
+#ifdef HAVE_INTERACTIVE_HOOKS
 	struct sockaddr_in si;
 	si.sin_port = htons(4444);
 	si.sin_family = AF_INET;
 	si.sin_addr.s_addr = inet_addr("127.0.0.1");
+	connect(s, (struct sockaddr *)&si, sizeof(struct sockaddr_in));
+#endif
 
-	int retval = connect(s, (struct sockaddr *)&si, sizeof(struct sockaddr_in));
 	emu_cpu_reg32_set(c, eax, retval);
 
 	emu_cpu_eip_set(c, eip_save);
@@ -232,7 +250,12 @@ int32_t	emu_env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_
 
 	printf("listen(s=%i,  backlog=%i)\n", s,  backlog);
 
-	int retval = listen(s, backlog);
+	int retval = 0;
+
+#ifdef HAVE_INTERACTIVE_HOOKS
+	retval = listen(s, backlog);
+#endif
+
 	emu_cpu_reg32_set(c, eax, retval);
 
 	emu_cpu_eip_set(c, eip_save);
@@ -271,7 +294,12 @@ int recv(
 
 	uint32_t xlen = len;
 	char *buffer = (char *)malloc(len);
+	memset(buffer, 0, len);
+
+#ifdef HAVE_INTERACTIVE_HOOKS
 	len = recv(s, buffer, len, flags); 
+#endif
+	
 	printf("recv(%i, 0x%08x, %i) == %i \n", s, buf, xlen, (int32_t)len);
 	if ((int32_t)len > 0)
 		emu_memory_write_block(emu_memory_get(env->emu), buf, buffer, len);
@@ -318,8 +346,14 @@ int send(
 	char *buffer = (char *)malloc(len);
 	printf("send(%i, 0x%08x, %i,  %i)\n", s, buf, len, flags);
 	emu_memory_read_block(emu_memory_get(env->emu), buf, buffer, len);
-	int retval = send(s, buffer, len, flags);
+
+	int retval = len;
+
+#ifdef HAVE_INTERACTIVE_HOOKS
+	len = send(s, buffer, len, flags);
 	printf("send %i (of %i) bytes\n", retval,  len);
+#endif
+
 	emu_cpu_reg32_set(c, eax, retval);
 	free(buffer);
 
@@ -408,7 +442,12 @@ SOCKET WSAAPI socket(
 	uint32_t protocol;
 	POP_DWORD(c, &protocol);
 
-	int s = socket(af, type, protocol);
+	int s = 111;
+
+#ifdef HAVE_INTERACTIVE_HOOKS
+	s=socket(af, type, protocol);
+#endif
+
 	printf("socket %i \n", s);
 	emu_cpu_reg32_set(c, eax, s);
 
@@ -457,7 +496,13 @@ int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_
 
 	printf("SOCKET WSASocket(af=%i, type=%i, protocol=%i, lpProtocolInfo=%x, group=%i, dwFlags=%i);\n",
 		   af, type, protocol, protocolinfo, group,  flags);
-	int s = socket(af, type, protocol);
+
+	int s = 113;
+
+#ifdef HAVE_INTERACTIVE_HOOKS
+	s=socket(af, type, protocol);
+#endif
+
 	printf("socket %i \n", s);
 	emu_cpu_reg32_set(c, eax, s);
 

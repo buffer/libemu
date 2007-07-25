@@ -32,7 +32,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-
+#include "../../../config.h"
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_cpu.h"
