@@ -13,9 +13,6 @@ AC_CONFIG_SRCDIR([include/emu/emu.h])
 AM_CONFIG_HEADER([config.h])
 # AM_MAINTAINER_MODE
 
-AM_CONDITIONAL(NDEBUG, test "$disable_debug" = yes)
-AM_CONDITIONAL(PROFILE, test "$enable_profile" = yes)
-
 AC_CANONICAL_HOST
 AC_C_CONST
 AC_C_BIGENDIAN
@@ -107,6 +104,36 @@ AC_ARG_ENABLE(lfs,
  enable_lfs=yes]
  ,enable_lfs=no,)
 AC_MSG_RESULT($enableval)
+
+
+dnl **************************************************
+dnl * debug code & debug messages                    *
+dnl **************************************************
+
+AC_MSG_CHECKING(whether debug code generation should be enabled)
+AC_ARG_ENABLE([debug],
+		[AS_HELP_STRING(--enable-debug, enable debug code generation [[default=yes]])],
+		[enable_debug=${enableval}], [enable_debug="yes"])
+if test x"$enable_debug" = "xyes"; then
+	AC_DEFINE([DEBUG], 1, [enable debug code generation])
+fi
+AC_MSG_RESULT($enable_debug)
+
+
+
+dnl **************************************************
+dnl * interactive hooks                              *
+dnl **************************************************
+
+AC_MSG_CHECKING(if hooks should be interactive)
+AC_ARG_ENABLE([interactive-hooks],
+		[AS_HELP_STRING(--enable-interactive-hooks, enable interactive hooks (dangerous!)[[default=no]])],
+		[enable_interactive_hooks=${enableval}], [enable_interactive_hooks="yes"])
+if test x"$enable_interactive_hooks" = "xyes"; then
+	AC_DEFINE([HAVE_INTERACTIVE_HOOKS], 1, [enable interactive hooks])
+fi
+AC_MSG_RESULT($enable_interactive_hooks)
+
 
 
 
