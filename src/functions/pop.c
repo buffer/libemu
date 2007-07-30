@@ -79,16 +79,16 @@ int32_t instr_pop_5x(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * Pop top of stack into r16; increment stack pointer  
 		 * POP r16 
 		 */
-		POP_WORD(c, c->reg16[i->opc & 7 ]);
 		TRACK_INIT_REG16(c->instr, i->opc & 7);
+		POP_WORD(c, c->reg16[i->opc & 7 ]);
 	}else
 	{
 		/* 58+ rd 
 		 * Pop top of stack into r32; increment stack pointer  
 		 * POP r32 
 		 */
-		POP_DWORD(c, &c->reg[i->opc & 7]);
 		TRACK_INIT_REG32(c->instr, i->opc & 7);
+		POP_DWORD(c, &c->reg[i->opc & 7]);
 	}
 	return 0;
 }
