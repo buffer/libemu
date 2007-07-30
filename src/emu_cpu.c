@@ -31,6 +31,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "../config.h"
+
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_memory.h"
@@ -132,7 +134,7 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 
 	}
 
-	c->instr_string = (char *)malloc(32);
+	c->instr_string = (char *)malloc(82);
 	c->repeat_current_instr = false;
 	init_prefix_map();
 	
@@ -441,22 +443,23 @@ static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t siz
 //		printf("invalid instruction\n");
 		return 0;
 	}
+
+#ifdef DEBUG
+	str[81] = '\0';
+	memset(str, 0x20, 81);
+
+	int i; 
+	for (i=0;i<instrsize;i++)
+	{
+		snprintf(str+i*2, 36-2*i, "%02X", data[i]);
+	}
+	memset(str+strlen(str), 0x20, 81-strlen(str));
+
+
+
 	// step 3: print it
-	get_instruction_string(&inst, FORMAT_INTEL, 0, str, 32);
-
-	return instrsize;
-
-	printf("%08x ", eip);
-	int i;
-	for (i=0; i<instrsize; i++)
-	{
-		printf("%02x", data[i]);
-	}
-	for (;i<15;i++)
-	{
-		printf("  ");
-	}
-	printf(" %s\n", str);
+	get_instruction_string(&inst, FORMAT_INTEL, 0, str, 31);
+#endif // DEBUG
 
 	return instrsize;
 }
