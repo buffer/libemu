@@ -47,7 +47,13 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...);
 
 
 #define logInfo(e, format...) emu_log(e, EMU_LOG_INFO, format)
+
+#ifdef DEBUG
 #define logDebug(e, format...) emu_log(e, EMU_LOG_DEBUG, format)
+#else
+#define logDebug(e, format...)
+#endif // DEBUG
+
 #define logPF(e) logDebug(e, "in <%s> %s:%i>\n", __PRETTY_FUNCTION__, __FILE__,  __LINE__)
 
 #endif // HAVE_EMU_LOG_H
