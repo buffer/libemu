@@ -1598,6 +1598,7 @@ int test(int n)
 	struct emu_memory *mem = emu_memory_get(e);
 	struct emu_env_w32 *env = emu_env_w32_new(e);
 
+	/* IAT for sqlslammer */
 	emu_memory_write_dword(mem, 0x42AE1018, 0x7c801D77);
 	emu_memory_write_dword(mem, 0x42ae1010, 0x7c80ADA0);
 	emu_memory_write_dword(mem, 0x7c80ADA0, 0x51EC8B55);
@@ -2119,6 +2120,7 @@ void print_help()
 		{"g", "getpc"       , "INTEGER"	, "run getpc mode, try to detect a shellcode"},
 		{"G", "graph"       , "FILEPATH", "save a dot formatted callgraph in filepath"},
 		{"h", "help"        , NULL		, "show this help"},
+		{"S", "stdin"		, NULL		, "read shellcode/buffer from stdin, works with -g"},
 	};
 
 	int i;
