@@ -25,6 +25,7 @@
  *
  *******************************************************************************/
 
+#include "../config.h"
 
 #include "emu/emu_shellcode.h"
 
@@ -124,7 +125,8 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 		int j;
 		for ( j=0;j<steps;j++ )
 		{
-			uint32_t eipsave = emu_cpu_eip_get(cpu);
+			uint32_t eipsave;
+			eipsave = emu_cpu_eip_get(cpu);
 
 			struct emu_env_w32_dll_export *dllhook = NULL;
 
