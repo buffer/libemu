@@ -882,7 +882,18 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 
 int32_t emu_cpu_run(struct emu_cpu *c)
 {
-	return emu_cpu_step(c);
+	int steps=0;
+	while (emu_cpu_parse(c) == 0)
+	{
+//		printf("%s \n", c->instr_string);
+
+		if ( emu_cpu_step(c) != 0 )
+			break;
+
+		steps++;
+	}
+//	printf("%s \n", emu_strerror(c->emu));
+	return steps;
 }
 
 
