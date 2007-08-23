@@ -77,6 +77,7 @@ static struct run_time_options
 	bool from_stdin;
 	unsigned char *scode;
 	uint32_t size;
+	uint32_t offset;
 } opts;
 
 /*
@@ -1661,7 +1662,7 @@ int test(int n)
 
 
 		/* set eip to the code */
-		emu_cpu_eip_set(emu_cpu_get(e), static_offset);
+		emu_cpu_eip_set(emu_cpu_get(e), static_offset + opts.offset);
 
 		/* run the code */
 		if ( opts.verbose == 1 )
@@ -2051,12 +2052,11 @@ int getpctest(int n)
 				printf(FAILED"\n");
 		}else
 		{
-			uint32_t off;
+			int32_t off;
 			if ( (off = emu_shellcode_test(e, (uint8_t *)opts.scode, opts.size)) >= 0 )
 			{
 				printf(SUCCESS"\n");
-				opts.scode += off;
-				opts.size -= off;
+				opts.offset = off;
 				test(n);
 			}
 			else
@@ -2146,6 +2146,7 @@ int main(int argc, char *argv[])
 
 	opts.steps = 1;
 	opts.testnumber = -1;
+	opts.offset = 0;
 
 	while ( 1 )
 	{

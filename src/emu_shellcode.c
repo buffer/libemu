@@ -431,7 +431,14 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	eli = emu_list_first(results);
 	struct emu_stats *es = (struct emu_stats *)eli->data;
 
-	offset = es->eip;
+	if ( es->cpu.steps > 100 )
+	{
+		offset = es->eip;
+	}
+	else
+	{
+		offset = -1;
+	}
 
 	for (eli = emu_list_first(results); !emu_list_attail(eli); eli = emu_list_next(eli))
 	{
