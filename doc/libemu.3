@@ -1,0 +1,148 @@
+.TH EMU 3 "04 September 2007"
+.SH NAME 
+libemu - emulate x86 shellcodes 
+.SH SYNOPSIS
+.nf
+.ft B
+#include <emu/emu.h>
+#include <emu/emu_memory.h>
+#include <emu/emu_cpu.h>
+.ft
+.LP
+.nf
+.LP
+.ft B
+struct emu * emu_new ()
+void emu_free (struct emu *e)
+struct emu_memory * emu_memory_get (struct emu *e)
+struct emu_logging * emu_logging_get (struct emu *e)
+struct emu_cpu * emu_cpu_get (struct emu *e)
+void emu_errno_set (struct emu *e, int err)
+int emu_errno (struct emu *c)
+void emu_strerror_set (struct emu *e, const char *format,...)
+const char * emu_strerror (struct emu *e)
+.ft
+.LP
+.ft B
+void emu_memory_clear (struct emu_memory *em)
+int32_t emu_memory_read_byte (struct emu_memory *m, uint32_t addr, uint8_t *byte)
+int32_t emu_memory_read_word (struct emu_memory *m, uint32_t addr, uint16_t *word)
+int32_t emu_memory_read_dword (struct emu_memory *m, uint32_t addr, uint32_t *dword)
+int32_t emu_memory_read_block (struct emu_memory *m, uint32_t addr, void *dest, size_t len)
+int32_t emu_memory_read_string (struct emu_memory *m, uint32_t addr, struct emu_string *s, uint32_t maxsize)
+int32_t emu_memory_write_byte (struct emu_memory *m, uint32_t addr, uint8_t byte)
+int32_t emu_memory_write_word (struct emu_memory *m, uint32_t addr, uint16_t word)
+int32_t emu_memory_write_dword (struct emu_memory *m, uint32_t addr, uint32_t dword)
+int32_t emu_memory_write_block (struct emu_memory *m, uint32_t addr, void *src, size_t len)
+void emu_memory_segment_select (struct emu_memory *m, enum emu_segment s)
+enum emu_segment emu_memory_segment_get (struct emu_memory *m)
+int32_t emu_memory_alloc (struct emu_memory *m, uint32_t *addr, size_t len)
+uint32_t emu_memory_get_usage (struct emu_memory *m)
+void emu_memory_mode_ro (struct emu_memory *m)
+void emu_memory_mode_rw (struct emu_memory *m)
+.ft
+.LP
+.ft B
+uint32_t emu_cpu_reg32_get (struct emu_cpu *cpu_p, enum emu_reg32 reg)
+uint16_t emu_cpu_reg16_get (struct emu_cpu *cpu_p, enum emu_reg16 reg)
+uint8_t  emu_cpu_reg8_get  (struct emu_cpu *cpu_p, enum emu_reg8  reg)
+void emu_cpu_reg16_set (struct emu_cpu *cpu_p, enum emu_reg16 reg, uint16_t val)
+void emu_cpu_reg32_set (struct emu_cpu *cpu_p, enum emu_reg32 reg, uint32_t val)
+void emu_cpu_reg8_set  (struct emu_cpu *cpu_p, enum emu_reg8 reg,  uint8_t val)
+uint32_t emu_cpu_eflags_get (struct emu_cpu *c)
+void emu_cpu_eflags_set (struct emu_cpu *c, uint32_t val)
+void emu_cpu_eip_set (struct emu_cpu *c, uint32_t eip)
+uint32_t emu_cpu_eip_get (struct emu_cpu *c)
+int32_t emu_cpu_parse (struct emu_cpu *c)
+int32_t emu_cpu_step (struct emu_cpu *c)
+int32_t emu_cpu_run (struct emu_cpu *c)
+void emu_cpu_debug_print (struct emu_cpu *c)
+.ft
+.fi
+.SH DESCRIPTION
+libemu provides basic x86 emulation including memory access and registers.
+.PP
+.SH ROUTINES
+.B emu_new() 
+is used to create a new emulation entity, use
+.B emu_free() 
+to free all associated memory.
+.B emu_memory_get()
+,
+.B emu_logging_get()
+and
+.B emu_cpu_get()
+can be used to obtain pointers to different parts of the emulation.
+For errorhandling, use 
+.B emu_errno()
+or 
+.B emu_strerror()
+returning either a POSIX errno or a string describing the error.
+When writing extensions 
+.B emu_errno_set()
+and 
+.B emu_strerror_set()
+will come handy too.
+.PP
+The
+.B emu_memory
+is split up in pages, therefore there are functions to access the memory without taking care of page borders.
+.B emu_memory_read_byte()
+,
+.B emu_memory_read_word()
+,
+.B emu_memory_read_dword()
+,
+.B emu_memory_read_string()
+and 
+.B emu_memory_read_block()
+can be used to read values from the emu memory.
+.B emu_memory_read_string() 
+will allocate the required memory for the string within the 
+.B emu_string 
+provided by itself, as you won't be able to know the strings length, 
+in all other cases, the pointer to the location has to provide enough space 
+to write the data.
+
+.PP
+Once the emulation is created, code is written to the memory, 
+we need to set the registers to the initial values, the cpuflags to the start values 
+and EIP to the point where to start code execution.
+.B emu_cpu
+provides functions to access all registers, the flags and EIP for read and write.
+To access the 32bit registers use
+.B emu_cpu_reg32_get()
+and 
+.B emu_cpu_reg32_set()
+where 
+.I reg 
+is one of eax, ecx, edx, ebx, esp, ebp, esi, edi.
+To access the 16bit registers use 
+.B emu_cpu_reg16_get()
+and 
+.B emu_cpu_reg16_set()
+with ax, cx, dx, bx, sp, bp, si, di as valid values for 
+.I reg
+. In case of 8bit register access use
+.B emu_cpu_reg8_get()
+and 
+.B emu_cpu_reg8_set()
+with al, cl, dl, bl, ah, ch, dh, bh as values for 
+.IR reg .
+Accessing the cpu's flags is possible using 
+.B emu_cpu_eflags_get() 
+and 
+.BR emu_cpu_eflags_set() .
+Accessing EIP can be done using
+.B emu_cpu_eip_set()
+and
+.BR emu_cpu_eip_get() .
+Once everything is setup, parse the first instruction using 
+.B emu_cpu_parse()
+, on success it will return 0, on failure use
+.B emu_strerror()
+to get a description of the error.
+If parsing was successfull, step the first instruction using
+.B emu_cpu_step()
+.
+
