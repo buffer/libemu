@@ -19,24 +19,48 @@ struct emu_logging * emu_logging_get (struct emu *e)
 struct emu_cpu * emu_cpu_get (struct emu *e)
 void emu_errno_set (struct emu *e, int err)
 int emu_errno (struct emu *c)
-void emu_strerror_set (struct emu *e, const char *format,...)
+void emu_strerror_set (struct emu *e, 
+.ti +8
+const char *format,...)
 const char * emu_strerror (struct emu *e)
 .ft
 .LP
 .ft B
 void emu_memory_clear (struct emu_memory *em)
-int32_t emu_memory_read_byte (struct emu_memory *m, uint32_t addr, uint8_t *byte)
-int32_t emu_memory_read_word (struct emu_memory *m, uint32_t addr, uint16_t *word)
-int32_t emu_memory_read_dword (struct emu_memory *m, uint32_t addr, uint32_t *dword)
-int32_t emu_memory_read_block (struct emu_memory *m, uint32_t addr, void *dest, size_t len)
-int32_t emu_memory_read_string (struct emu_memory *m, uint32_t addr, struct emu_string *s, uint32_t maxsize)
-int32_t emu_memory_write_byte (struct emu_memory *m, uint32_t addr, uint8_t byte)
-int32_t emu_memory_write_word (struct emu_memory *m, uint32_t addr, uint16_t word)
-int32_t emu_memory_write_dword (struct emu_memory *m, uint32_t addr, uint32_t dword)
-int32_t emu_memory_write_block (struct emu_memory *m, uint32_t addr, void *src, size_t len)
-void emu_memory_segment_select (struct emu_memory *m, enum emu_segment s)
+int32_t emu_memory_read_byte (struct emu_memory *m, 
+.ti +8
+uint32_t addr, uint8_t *byte)
+int32_t emu_memory_read_word (struct emu_memory *m, 
+.ti +8
+uint32_t addr, uint16_t *word)
+int32_t emu_memory_read_dword (struct emu_memory *m, 
+.ti +8
+uint32_t addr, uint32_t *dword)
+int32_t emu_memory_read_block (struct emu_memory *m, 
+.ti +8
+uint32_t addr, void *dest, size_t len)
+int32_t emu_memory_read_string (struct emu_memory *m, 
+.ti +8
+uint32_t addr, struct emu_string *s, uint32_t maxsize)
+int32_t emu_memory_write_byte (struct emu_memory *m, 
+.ti +8
+uint32_t addr, uint8_t byte)
+int32_t emu_memory_write_word (struct emu_memory *m, 
+.ti +8
+uint32_t addr, uint16_t word)
+int32_t emu_memory_write_dword (struct emu_memory *m, 
+.ti +8
+uint32_t addr, uint32_t dword)
+int32_t emu_memory_write_block (struct emu_memory *m, 
+.ti +8
+uint32_t addr, void *src, size_t len)
+void emu_memory_segment_select (struct emu_memory *m, 
+.ti +8
+enum emu_segment s)
 enum emu_segment emu_memory_segment_get (struct emu_memory *m)
-int32_t emu_memory_alloc (struct emu_memory *m, uint32_t *addr, size_t len)
+int32_t emu_memory_alloc (struct emu_memory *m, 
+.ti +8
+uint32_t *addr, size_t len)
 uint32_t emu_memory_get_usage (struct emu_memory *m)
 void emu_memory_mode_ro (struct emu_memory *m)
 void emu_memory_mode_rw (struct emu_memory *m)
@@ -57,6 +81,27 @@ int32_t emu_cpu_parse (struct emu_cpu *c)
 int32_t emu_cpu_step (struct emu_cpu *c)
 int32_t emu_cpu_run (struct emu_cpu *c)
 void emu_cpu_debug_print (struct emu_cpu *c)
+.ft
+.LP
+.ft B
+int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
+.ft
+.LP
+.ft B
+struct emu_env_w32 *emu_env_w32_new(struct emu *e)
+void emu_env_w32_free(struct emu_env_w32 *env)
+struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
+int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
+.ti +8
+const char *dllname,
+.ti +8
+const char *exportname, 
+.ti +8 
+int32_t (*fnhook) (struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+.ti +8
+);
+
+
 .ft
 .fi
 .SH DESCRIPTION
@@ -122,8 +167,8 @@ To access the 16bit registers use
 and 
 .B emu_cpu_reg16_set()
 with ax, cx, dx, bx, sp, bp, si, di as valid values for 
-.I reg
-. In case of 8bit register access use
+.IR reg.
+In case of 8bit register access use
 .B emu_cpu_reg8_get()
 and 
 .B emu_cpu_reg8_set()
@@ -143,6 +188,26 @@ Once everything is setup, parse the first instruction using
 .B emu_strerror()
 to get a description of the error.
 If parsing was successfull, step the first instruction using
-.B emu_cpu_step()
-.
+.BR emu_cpu_step() .
+.PP
+If you want to detect shellcodes in buffers, use 
+.B emu_shellcode_test()
+, the emu will copy the buffer to it's pages and try to detect a shellcode.
+If a possible shellcode gets detected, the guessed starting offset is returned, else -1.
+.PP
+To be able to run shellcodes using windows api, one has to provide parts of the 
+windows process environment to the emulation, as well as some kind of emulation for the used api calls.
+.B emu_env_w32_new()
+will created a minimalistic process environment in 
+.I e
+and using 
+.B emu_env_w32_eip_check() 
+after step allows you intercepting calls to exported api.
+If the return value of 
+.B emu_env_w32_eip_check() 
+is not NULL, the dll exports information is returned, including the calls name and hook.
+If you want to hook calls to api exports, use 
+.BR emu_env_w32_export_hook() .
 
+.SH AUTHOR 
+Markus Koetter <nepenthesdev@gmail.com>
