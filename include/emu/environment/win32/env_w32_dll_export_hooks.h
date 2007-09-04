@@ -30,9 +30,9 @@
 
 #include <emu/emu.h>
 #include <emu/environment/win32/emu_env_w32_dll_export.h>
-#include <emu/environment/win32/emu_env_w32_dll_export_kernel32_hooks.h>
-#include <emu/environment/win32/emu_env_w32_dll_export_urlmon_hooks.h>
-#include <emu/environment/win32/emu_env_w32_dll_export_ws2_32_hooks.h>
+#include <emu/environment/win32/env_w32_dll_export_kernel32_hooks.h>
+#include <emu/environment/win32/env_w32_dll_export_urlmon_hooks.h>
+#include <emu/environment/win32/env_w32_dll_export_ws2_32_hooks.h>
 
 
 struct emu_env_w32_dll_export kernel32_exports[] = 

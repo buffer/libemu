@@ -36,7 +36,7 @@
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
-#include "emu/environment/win32/emu_env_w32_dll_export_hooks.h"
+#include "emu/environment/win32/env_w32_dll_export_hooks.h"
 
 #include "emu/emu_log.h"
 

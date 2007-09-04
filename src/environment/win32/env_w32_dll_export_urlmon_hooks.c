@@ -43,7 +43,7 @@
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
-#include "emu/environment/win32/emu_env_w32_dll_export_urlmon_hooks.h"
+#include "emu/environment/win32/env_w32_dll_export_urlmon_hooks.h"
 
 int32_t	env_w32_hook_URLDownloadToFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
