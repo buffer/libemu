@@ -52,7 +52,7 @@
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/environment/win32/emu_env_w32_dll_export_ws2_32_hooks.h"
 
-int32_t	emu_env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -95,7 +95,7 @@ int32_t	emu_env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_
 	return 0;
 }
 
-int32_t	emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -146,7 +146,7 @@ int32_t	emu_env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_ex
 }
 
 
-int32_t	emu_env_w32_hook_closesocket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_closesocket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -176,7 +176,7 @@ int closesocket(
 
 
 
-int32_t	emu_env_w32_hook_connect(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_connect(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -225,7 +225,7 @@ int connect(
 	return 0;
 }
 
-int32_t	emu_env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -262,7 +262,7 @@ int32_t	emu_env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_
 	return 0;
 }
 
-int32_t	emu_env_w32_hook_recv(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_recv(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -313,7 +313,7 @@ int recv(
 }
 
 
-int32_t	emu_env_w32_hook_send(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_send(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -363,7 +363,7 @@ int send(
 }
 
 
-int32_t	emu_env_w32_hook_sendto(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_sendto(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -415,7 +415,7 @@ int sendto(
 	return 0;
 }
 
-int32_t	emu_env_w32_hook_socket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_socket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -455,7 +455,7 @@ SOCKET WSAAPI socket(
 	return 0;
 }
 
-int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -511,7 +511,7 @@ int32_t	emu_env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_
 }
 
 
-int32_t	emu_env_w32_hook_WSAStartup(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_WSAStartup(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);

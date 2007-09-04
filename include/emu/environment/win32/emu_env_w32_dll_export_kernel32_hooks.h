@@ -27,29 +27,29 @@
 
 #include <stdint.h>
 
-int32_t emu_env_w32_hook_CloseHandle(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_CreateFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_DeleteFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_ExitProcess(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_ExitThread(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_fclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_fopen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_fwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_GetSystemDirectoryA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_GetTickCount(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook__hwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook__lclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook__lcreat(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook__lwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_malloc(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_memset(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_SetUnhandledExceptionFilter(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_WaitForSingleObject(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_WinExec(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
-int32_t emu_env_w32_hook_WriteFile(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_CloseHandle(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_CreateFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_DeleteFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_ExitProcess(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_ExitThread(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_fclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_fopen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_fwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_GetSystemDirectoryA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_GetTickCount(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook__hwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook__lclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook__lcreat(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook__lwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_malloc(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_memset(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_WaitForSingleObject(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_WinExec(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t env_w32_hook_WriteFile(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
 
 #define HANDLE int32_t
 #define DWORD uint32_t
