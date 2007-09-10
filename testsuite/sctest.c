@@ -40,7 +40,7 @@
 #endif
 #include <getopt.h>
 
-
+#include "../config.h"
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_cpu.h"
@@ -1665,7 +1665,7 @@ int test(int n)
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset + opts.offset);
 
 		/* run the code */
-		if ( opts.verbose == 1 )
+		if ( opts.verbose >= 2 )
 		{
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -1693,7 +1693,7 @@ int test(int n)
 		for ( j=0;j<opts.steps;j++ )
 		{
 
-			if ( opts.verbose == 1 )
+			if ( opts.verbose >= 2 )
 			{
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 				emu_cpu_debug_print(cpu);
@@ -1771,7 +1771,7 @@ int test(int n)
 
 				ret = emu_cpu_parse(emu_cpu_get(e));
 
-				if ( opts.verbose == 1 )
+				if ( opts.verbose >= 1 )
 				{
 					emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 					logDebug(e, "%s\n", cpu->instr_string);
@@ -1798,7 +1798,15 @@ int test(int n)
 
 				if ( ret != -1 )
 				{
-					ret = emu_cpu_step(emu_cpu_get(e));
+					if (opts.verbose >= 2)
+					{
+						emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+						ret = emu_cpu_step(emu_cpu_get(e));
+						emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+					}else
+					{
+						ret = emu_cpu_step(emu_cpu_get(e));
+					}
 				}
 
 				if ( ret == -1 )
@@ -2005,7 +2013,7 @@ int test(int n)
 			fclose(f);
 
 		}
-		if ( opts.verbose == 1 )
+		if ( opts.verbose >= 2 )
 		{
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -2112,7 +2120,7 @@ void print_help()
 
 	struct help_info help_infos[] =
 	{
-    	{"v", "verbose"     , NULL		, "be verbose"},
+    	{"v", "verbose"     , NULL		, "be verbose, can be used multiple times, f.e. -vv"},
 		{"s", "steps"       , "INTEGER"	, "max number of steps to run"},
 		{"t", "testnumber"  , "INTEGER"	, "the test to run"},
 		{"l", "listtests"   , NULL		, "list all tests"},
@@ -2172,7 +2180,7 @@ int main(int argc, char *argv[])
 		switch ( c )
 		{
 		case 'v':
-			opts.verbose = 1;
+			opts.verbose++;
 			break;
 
 		case 's':
@@ -2216,6 +2224,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+	printf("verbose = %i\n", opts.verbose);
 
 
 	if ( opts.from_stdin )
@@ -2282,3 +2291,5 @@ int main(int argc, char *argv[])
 //	dump_export_table();
 	return 0;
 }
+
+
