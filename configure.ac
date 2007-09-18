@@ -170,7 +170,8 @@ AC_CONFIG_FILES([Makefile
 		include/emu/Makefile
 		include/emu/environment/Makefile
 		include/emu/environment/win32/Makefile
-		testsuite/Makefile])
+		testsuite/Makefile
+		doc/Makefile])
 
                  
 AC_OUTPUT
