@@ -1,4 +1,18 @@
 
+	  _______________
+	 |               |
+	 |               |
+	 |    libemu     |
+	 | x86 emulation |
+	 |               |
+	 |               |
+	 |               |
+	 \ O             |
+	  \______________|
+
+	
+homepage: http://libemu.mwcollect.org
+
 
 building from svn:
   autoreconf -v -i
@@ -19,5 +33,5 @@ specific configure options:
 --enable-interactive-hooks
                         enable interactive hooks (dangerous!)[default=no]
 	the win32 api hooks get interactive, proxying the calls to the host operating system, 
-	dangerous as it allows remote code execution, but very usefull
+	dangerous as it allows remote code execution, but very usefull for profiling
 
