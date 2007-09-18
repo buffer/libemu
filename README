@@ -1,2 +1,23 @@
-building from svn
+
+
+building from svn:
   autoreconf -v -i
+  ./configure --prefix=/opt/libemu; make install
+
+building from tarball:
+  tar xvfz libemu-VERSION.tar.gz
+  cd libemu-VERSION
+  ./configure --prefix=/opt/libemu; make install
+
+
+specific configure options:
+
+--enable-debug          enable debug code generation [default=yes]
+	debug messages, instruction strings, nothing one wants to miss, even if it takes a lot of cpu cycles.
+
+
+--enable-interactive-hooks
+                        enable interactive hooks (dangerous!)[default=no]
+	the win32 api hooks get interactive, proxying the calls to the host operating system, 
+	dangerous as it allows remote code execution, but very usefull
+
