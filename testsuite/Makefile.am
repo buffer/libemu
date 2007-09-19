@@ -27,3 +27,5 @@ hashtest_SOURCES = hashtest.c
 
 memtest_LDADD = ../src/libemu.la
 memtest_SOURCES = memtest.c
+
+EXTRA_DIST = emunids.c
