@@ -3,7 +3,8 @@ AUTOMAKE_OPTIONS = foreign
 AM_CPPFLAGS = -I../include -I ../.. -Werror -Wall -g
 AM_LDFLAGS = -lemu -L../src 
 
-bin_PROGRAMS = testsuite cpurun instrtest sctest instrtree hashtest memtest
+bin_PROGRAMS = sctest
+noinst_PROGRAMS = testsuite cpurun instrtest instrtree hashtest memtest
 
 testsuite_LDADD = ../src/libemu.la
 
