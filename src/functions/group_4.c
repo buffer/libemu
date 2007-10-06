@@ -46,5 +46,8 @@ int32_t instr_group_4_fe(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		/* 7 */ 0,
 	};
 
-	return group_4_fe_fn[i->modrm.opc](c, i);
+	if (group_4_fe_fn[i->modrm.opc])
+		return group_4_fe_fn[i->modrm.opc](c, i);
+	else
+		return -1;
 }

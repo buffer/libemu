@@ -51,5 +51,8 @@ int32_t instr_group_5_ff(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		/* 7 */ 0,
 	};
 
-	return group_5_fn[i->modrm.opc](c, i);
+	if (group_5_fn[i->modrm.opc] != NULL)
+		return group_5_fn[i->modrm.opc](c, i);
+	else
+		return -1;
 }
