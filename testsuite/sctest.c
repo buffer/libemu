@@ -2063,7 +2063,7 @@ int getpctest(int n)
 			int32_t off;
 			if ( (off = emu_shellcode_test(e, (uint8_t *)opts.scode, opts.size)) >= 0 )
 			{
-				printf(SUCCESS"\n");
+				printf(SUCCESS" (offset %i (0x%x))\n",off,(unsigned int)off);
 				opts.offset = off;
 				test(n);
 			}
@@ -2125,10 +2125,11 @@ void print_help()
 		{"t", "testnumber"  , "INTEGER"	, "the test to run"},
 		{"l", "listtests"   , NULL		, "list all tests"},
 		{"d", "dump"        , "INTEGER"	, "dump the shellcode (binary) to stdout"},
-		{"g", "getpc"       , "INTEGER"	, "run getpc mode, try to detect a shellcode"},
+		{"g", "getpc"       , NULL		, "run getpc mode, try to detect a shellcode"},
 		{"G", "graph"       , "FILEPATH", "save a dot formatted callgraph in filepath"},
 		{"h", "help"        , NULL		, "show this help"},
 		{"S", "stdin"		, NULL		, "read shellcode/buffer from stdin, works with -g"},
+		{"o", "offset"		, "[INT|HEX]", "manual offset for shellcode, accepts int and hexvalues"},
 	};
 
 	int i;
@@ -2170,10 +2171,11 @@ int main(int argc, char *argv[])
 			{"graph"            , 1, 0, 'G'},
 			{"help"				, 0, 0, 'h'},
 			{"stdin"			, 0, 0, 'S'},
+			{"offset"			, 1, 0, 'o'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vs:t:ld:gG:hS", long_options, &option_index);
+		c = getopt_long (argc, argv, "vs:t:ld:gG:hSo:", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -2219,9 +2221,19 @@ int main(int argc, char *argv[])
 			opts.from_stdin = true;
 			break;
 
+		case 'o':
+			if (strncasecmp(optarg, "0x", 2) == 0)
+				opts.offset = strtol(optarg+2, NULL, 16); // hex vvalue
+			else
+				opts.offset = strtol(optarg, NULL, 10);	  // decimal vvalue
+			printf("offset %i (0x%x)\n", opts.offset, (unsigned int)opts.offset);
+			break;
+
+
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
 			break;
+
 		}
 	}
 	printf("verbose = %i\n", opts.verbose);
