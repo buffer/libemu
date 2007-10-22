@@ -171,7 +171,8 @@ AC_CONFIG_FILES([Makefile
 		include/emu/environment/Makefile
 		include/emu/environment/win32/Makefile
 		testsuite/Makefile
-		doc/Makefile])
+		doc/Makefile
+		libemu.pc])
 
                  
 AC_OUTPUT

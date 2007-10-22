@@ -1,0 +1,16 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libemu
+Description: library to detect and profile shellcodes
+URL: http://libemu.mwcollect.org
+Version: @VERSION@
+Requires: 
+Libs: -L${libdir} -lemu
+Cflags: -I${includedir}
+
+
+
