@@ -44,6 +44,7 @@ libemu_la_SOURCES += functions/group_10.c
 libemu_la_SOURCES += functions/idiv.c
 libemu_la_SOURCES += functions/imul.c
 libemu_la_SOURCES += functions/inc.c
+libemu_la_SOURCES += functions/int.c
 libemu_la_SOURCES += functions/jcc.c
 libemu_la_SOURCES += functions/jmp.c
 libemu_la_SOURCES += functions/lodscc.c
