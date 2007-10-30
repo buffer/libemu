@@ -27,13 +27,25 @@
 
 #include <stdint.h>
 
+// for the socket hooks
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
-
+#include "emu/emu_memory.h"
+#include "emu/emu_string.h"
 
 int32_t instr_int_cd(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 //	printf("interrupt %02x %i\n",*i->imm8, *c->reg8[al]);
+//	uint32_t arg0 = c->reg[ecx];
+
+
 	switch ( *c->reg8[al] )
 	{
 	case 1:
@@ -76,8 +88,14 @@ int32_t instr_int_cd(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		printf("sys_unlink\n");
 		break;
 
-	case 11:
-		printf("sys_execve\n");
+	case 11: // sys_execve
+		{
+			struct emu_string *name = emu_string_new();
+			emu_memory_read_string(emu_memory_get(c->emu), c->reg[ebx], name, 255);
+			printf("int execve (const char *dateiname=%08x={%s}, const char * argv[], const char *envp[]);\n", 
+				   c->reg[ebx],
+				   emu_string_char(name));
+		}
 		break;
 
 	case 12:
@@ -252,8 +270,9 @@ int32_t instr_int_cd(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		printf("sys_ustat\n");
 		break;
 
-	case 63:
-		printf("sys_dup2\n");
+	case 63: 
+		printf("int dup2(int oldfd=%i, int newfd=%i);\n", c->reg[ebx], c->reg[ecx]);
+		emu_cpu_reg32_set(c, eax, c->reg[ecx]);
 		break;
 
 	case 64:
@@ -406,75 +425,122 @@ int32_t instr_int_cd(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 	case 102:
 //		printf("sys_socketcall\n");
-		switch ( c->reg[ebx] )
 		{
-		case 1:	// SYS_SOCKET 
-			printf("sys_socket(2)\n");
-			break;
+/* Argument list sizes for sys_socketcall */
+#define AL(x) (x)
+			static unsigned char nargs[18]={AL(0),AL(3),AL(3),AL(3),AL(2),AL(3),
+				AL(3),AL(3),AL(4),AL(4),AL(4),AL(6),
+				AL(6),AL(2),AL(5),AL(5),AL(3),AL(3)};
+#undef AL
 
-		case 2:	// SYS_BIND 
-			printf("sys_bind(2)\n");
-			break;
+			uint32_t a[6];
+			int i;
+			for (i=0;i<nargs[c->reg[ebx]];i++)
+			{
+				emu_memory_read_dword(emu_memory_get(c->emu),c->reg[ecx]+4*i,a+i);
+			}
 
-		case 3:	// SYS_CONNECT 
-			printf("sys_connect(2)\n");
-			break;
+			switch ( c->reg[ebx] )
+			{
+			case 1:	// SYS_SOCKET 
+				printf("int socket(int domain=%i, int type=%i, int protocol=%i);\n",
+					   a[0],
+					   a[1],
+					   a[2]);
+				emu_cpu_reg32_set(c, eax, 4);
+				break;
 
-		case 4:	// SYS_LISTEN 
-			printf("sys_listen(2)\n");
-			break;
+			case 2:	// SYS_BIND 
+				printf("sys_bind(2)\n");
+				{
+					struct sockaddr sa;
+					memset(&sa, 0, sizeof(struct sockaddr));
+					emu_memory_read_block(emu_memory_get(c->emu), a[1], &sa, sizeof(struct sockaddr));
 
-		case 5:	// SYS_ACCEPT 
-			printf("sys_accept(2)\n");
-			break;
+					printf("int bind(int sockfd=%i, struct sockaddr *my_addr=%08x={host %s port %i}, int addrlen);\n",
+						   a[0],
+						   a[1], inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr), ntohs(((struct sockaddr_in *)&sa)->sin_port) 
+						   );
+				}
+				emu_cpu_reg32_set(c, eax, 0);
+				break;
 
-		case 6:	// SYS_GETSOCKNAME 
-			printf("sys_getsockname(2)\n");
-			break;
+			case 3:	// SYS_CONNECT 
+				{
+					struct sockaddr sa;
+					memset(&sa, 0, sizeof(struct sockaddr));
+					emu_memory_read_block(emu_memory_get(c->emu), a[1], &sa, sizeof(struct sockaddr));
 
-		case 7:	// SYS_GETPEERNAME 
-			printf("sys_getpeername(2)\n");
-			break;
+					printf("int connect(int sockfd=%i, struct sockaddr *my_addr=%08x={host %s port %i}, int addrlen);\n",
+						   a[0],
+						   a[1], inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr), ntohs(((struct sockaddr_in *)&sa)->sin_port)
+						   );
 
-		case 8:	// SYS_SOCKETPAIR 
-			printf("sys_socketpair(2)\n");
-			break;
+				}
+				break;
 
-		case 9:	// SYS_SEND 
-			printf("sys_send(2)\n");
-			break;
+			case 4:	// SYS_LISTEN 
+				printf("int listen(int s=%i, int backlog=%i);\n", 
+					   a[0], 
+					   a[1]);
+				break;
 
-		case 10: // SYS_RECV 
-			printf("sys_recv(2)\n");
-			break;
+			case 5:	// SYS_ACCEPT 
+                printf("int accept(int s=%i, struct sockaddr *addr=%08x, int *addrlen=%08x);\n",
+					   a[0],
+					   a[1],
+					   a[2]);
+				emu_cpu_reg32_set(c, eax, 112);
+				break;
 
-		case 11: // SYS_SENDTO 
-			printf("sys_sendto(2)\n");
-			break;
+			case 6:	// SYS_GETSOCKNAME 
+				printf("sys_getsockname(2)\n");
+				break;
 
-		case 12: // SYS_RECVFROM 
-			printf("sys_recvfrom(2)\n");
-			break;
+			case 7:	// SYS_GETPEERNAME 
+				printf("sys_getpeername(2)\n");
+				break;
 
-		case 13: // SYS_SHUTDOWN 
-			printf("sys_shutdown(2)\n");
-			break;
+			case 8:	// SYS_SOCKETPAIR 
+				printf("sys_socketpair(2)\n");
+				break;
 
-		case 14: // SYS_SETSOCKOPT 
-			printf("sys_setsockopt(2)\n");
-			break;
+			case 9:	// SYS_SEND 
+				printf("sys_send(2)\n");
+				break;
 
-		case 15: // SYS_GETSOCKOPT 
-			printf("sys_getsockopt(2)\n");
-			break;
+			case 10: // SYS_RECV 
+				printf("sys_recv(2)\n");
+				break;
 
-		case 16: // SYS_SENDMSG 
-			printf("sys_sendmsg(2)\n");
-			break;
+			case 11: // SYS_SENDTO 
+				printf("sys_sendto(2)\n");
+				break;
 
-		case 17: // SYS_RECVMSG 
-			printf("sys_recvmsg(2)\n");
-			break;
+			case 12: // SYS_RECVFROM 
+				printf("sys_recvfrom(2)\n");
+				break;
+
+			case 13: // SYS_SHUTDOWN 
+				printf("sys_shutdown(2)\n");
+				break;
+
+			case 14: // SYS_SETSOCKOPT 
+				printf("sys_setsockopt(2)\n");
+				break;
+
+			case 15: // SYS_GETSOCKOPT 
+				printf("sys_getsockopt(2)\n");
+				break;
+
+			case 16: // SYS_SENDMSG 
+				printf("sys_sendmsg(2)\n");
+				break;
+
+			case 17: // SYS_RECVMSG 
+				printf("sys_recvmsg(2)\n");
+				break;
+			}
 		}
 		break;
 
