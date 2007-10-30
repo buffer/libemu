@@ -267,7 +267,7 @@ struct emu_cpu_instruction_info ii_onebyte[0x100] = {
 	/* ca */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* cb */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* cc */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
-	/* cd */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
+	/* cd */ {0, "int", {0, 0, 0, II_IMM8, 0, 0, 0, 0}}, // instr_int_cd
 	/* ce */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* cf */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* d0 */ {instr_group_2_d0, "group2", {0, 0, II_MOD_YYY_RM, 0, 0, 0, 0, 0}},
@@ -308,16 +308,16 @@ struct emu_cpu_instruction_info ii_onebyte[0x100] = {
 	/* f3 */ {prefix_fn, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* f4 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* f5 */ {instr_cmc_f5, "cmc", {0, 0, 0, 0, 0, 0, 0, 0}},
-	/* f6 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
-	/* f7 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
+	/* f6 */ {instr_group_3_f7, "group3", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0, 0}},
+	/* f7 */ {instr_group_3_f7, "group3", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0, 0}},
 	/* f8 */ {instr_clc_f8, "clc", {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* f9 */ {instr_stc_f9, "stc", {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* fa */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* fb */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* fc */ {instr_cld_fc, "cld", {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* fd */ {instr_std_fd, "std", {0, 0, 0, 0, 0, 0, 0, 0}},
-	/* fe */ {instr_group_4_fe, "", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0, 0}},
-	/* ff */ {instr_group_5_ff, "", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0, 0}},
+	/* fe */ {instr_group_4_fe, "group4", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0, 0}},
+	/* ff */ {instr_group_5_ff, "group5", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0, 0}},
 };
 
 struct emu_cpu_instruction_info ii_twobyte[0x100] = {

@@ -131,7 +131,7 @@ int32_t instr_group_1_83_xor(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* group 3 */
-/*int32_t instr_group_3_f6(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_group_3_f6(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f6_test(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f6_test(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f6_not(struct emu_cpu *c, struct emu_cpu_instruction *i);
@@ -141,7 +141,7 @@ int32_t instr_group_3_f6_imul(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f6_div(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f6_idiv(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
-/*int32_t instr_group_3_f7(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_group_3_f7(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f7_test(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f7_test(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_group_3_f7_not(struct emu_cpu *c, struct emu_cpu_instruction *i);
@@ -401,6 +401,9 @@ int32_t instr_movsx_0fbf(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* fpu esc */
 int32_t instr_esc_fpu_dx(struct emu_cpu *c, struct emu_cpu_instruction *i);
+
+/* int */
+//int32_t instr_int_cd(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 #endif /*HAVE_EMU_CPU_FUNCTIONS_H*/                           
 															  
