@@ -170,6 +170,7 @@ AC_CONFIG_FILES([Makefile
 		include/emu/Makefile
 		include/emu/environment/Makefile
 		include/emu/environment/win32/Makefile
+		include/emu/environment/linux/Makefile
 		testsuite/Makefile
 		doc/Makefile
 		libemu.pc])

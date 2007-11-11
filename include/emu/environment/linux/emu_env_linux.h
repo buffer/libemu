@@ -25,14 +25,48 @@
  *
  *******************************************************************************/
 
+#ifndef HAVE_EMU_ENV_LINUX_H
+#define HAVE_EMU_ENV_LINUX_H
+
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+#include "emu/emu.h"
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_memory.h"
-#include "emu/emu_string.h"
+#include "emu/emu_hashtable.h"
 
-int32_t instr_int_cd(struct emu_cpu *c, struct emu_cpu_instruction *i)
+
+struct emu_env_linux
 {
-	return 0;
-}
+	struct emu *emu;
+	struct emu_hashtable *syscall_hooks_by_name;
+	struct emu_env_linux_syscall *syscall_hooks;
+};
+
+struct emu_env_linux *emu_env_linux_new(struct emu *e);
+void emu_linux_free(struct emu_env_linux *eel);
+
+struct emu_env_linux_syscall *emu_env_linux_syscall_check(struct emu_env_linux *env);
 
 
+struct emu_env_linux_syscall_entry
+{
+	const char *name;
+	const char *(*fnhook)(struct emu_env_linux *env);
+};
+
+struct emu_env_linux_syscall
+{
+	const char *name;
+	int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
+};
+
+int32_t emu_env_linux_syscall_hook(struct emu_env_linux *env, const char *syscallname,
+								   int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall));
+
+const char *env_linux_socketcall(struct emu_env_linux *env);
+
+#endif

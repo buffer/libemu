@@ -50,6 +50,7 @@
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
+#include "emu/environment/linux/emu_env_linux.h"
 #include "emu/emu_getpc.h"
 #include "emu/emu_graph.h"
 #include "emu/emu_string.h"
@@ -1497,6 +1498,7 @@ struct instr_vertex
 	uint32_t    eip;
 	struct emu_string  *instr_string;
 	struct emu_env_w32_dll *dll;
+	struct emu_env_linux_syscall *syscall;
 };
 
 struct instr_vertex *instr_vertex_new(uint32_t theeip, const char *instr_string)
@@ -1522,6 +1524,8 @@ struct instr_vertex *instr_vertex_copy(struct instr_vertex *from)
 	iv->eip = from->eip;
 	iv->instr_string = emu_string_new();
 	iv->dll = from->dll;
+	iv->syscall = from->syscall;
+
 	emu_string_append_char(iv->instr_string, from->instr_string->data);
 	return iv;
 }
@@ -1603,6 +1607,7 @@ VOID ExitThread(
 
 }
 
+
 int test(int n)
 {
 	int i=0;
@@ -1610,6 +1615,7 @@ int test(int n)
 	struct emu_cpu *cpu = emu_cpu_get(e);
 	struct emu_memory *mem = emu_memory_get(e);
 	struct emu_env_w32 *env = emu_env_w32_new(e);
+	struct emu_env_linux *lenv = emu_env_linux_new(e);
 
 	/* IAT for sqlslammer */
 	emu_memory_write_dword(mem, 0x42AE1018, 0x7c801D77);
@@ -1790,13 +1796,26 @@ int test(int n)
 					emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 				}
 
+				struct emu_env_linux_syscall *syscall =NULL;
 				if ( ret != -1 )
 				{
 
-					if ( opts.graphfile != NULL && ev->data == NULL )
+					if ( ( syscall = emu_env_linux_syscall_check(lenv)) != NULL)
 					{
-						iv = instr_vertex_new(eipsave, emu_cpu_get(e)->instr_string);
-						emu_vertex_data_set(ev, iv);
+						if ( opts.graphfile != NULL && ev->data == NULL )
+						{
+							iv = instr_vertex_new(eipsave, syscall->name);
+							emu_vertex_data_set(ev, iv);
+							iv->syscall = syscall;
+						}
+					}else
+					{
+					
+						if ( opts.graphfile != NULL && ev->data == NULL )
+						{
+							iv = instr_vertex_new(eipsave, emu_cpu_get(e)->instr_string);
+							emu_vertex_data_set(ev, iv);
+						}
 					}
 				}
 				else
@@ -1810,14 +1829,26 @@ int test(int n)
 
 				if ( ret != -1 )
 				{
-					if (opts.verbose >= 2)
+					if ( syscall == NULL )
 					{
-						emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
-						ret = emu_cpu_step(emu_cpu_get(e));
-						emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
-					}else
+
+						if ( opts.verbose >= 2 )
+						{
+							emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
+							ret = emu_cpu_step(emu_cpu_get(e));
+							emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+						}
+						else
+						{
+							ret = emu_cpu_step(emu_cpu_get(e));
+						}
+					}
+					else
 					{
-						ret = emu_cpu_step(emu_cpu_get(e));
+						if (syscall->fnhook != NULL)
+							syscall->fnhook(lenv, syscall);
+						else
+							break;
 					}
 				}
 
@@ -1875,13 +1906,13 @@ int test(int n)
 
 				// find the first in a chain
 				iv = (struct instr_vertex *)ev->data;
-				while ( emu_edges_length(ev->backedges) == 1 && emu_edges_length(ev->edges) <= 1 && ev->color == white && iv->dll == NULL )
+				while ( emu_edges_length(ev->backedges) == 1 && emu_edges_length(ev->edges) <= 1 && ev->color == white && iv->dll == NULL && iv->syscall == NULL )
 				{
 					ev->color = grey;
 
 					struct emu_vertex *xev = emu_edges_first(ev->backedges)->destination;
 					iv = (struct instr_vertex *)xev->data;
-					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 || iv->dll != NULL )
+					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 || iv->dll != NULL || iv->syscall != NULL )
 						break;
 
 					ev = xev;
@@ -1898,14 +1929,14 @@ int test(int n)
 				iv = (struct instr_vertex *)ev->data;
 
 				printf("going forwards from %08x\n", (unsigned int)ev);
-				while ( emu_edges_length(ev->edges) == 1 && emu_edges_length(ev->backedges) <= 1 && ev->color != black && iv->dll == NULL )
+				while ( emu_edges_length(ev->edges) == 1 && emu_edges_length(ev->backedges) <= 1 && ev->color != black && iv->dll == NULL && iv->syscall == NULL )
 				{
 					ev->color = black;
 					struct emu_vertex *xev = emu_edges_first(ev->edges)->destination;
 					iv = (struct instr_vertex *)xev->data;
 
 					if ( emu_edges_length(xev->backedges) > 1 || emu_edges_length(xev->edges) > 1 ||
-						 iv->dll != NULL )
+						 iv->dll != NULL || iv->syscall != NULL )
 						break;
 
 					ev = xev;
@@ -1977,7 +2008,7 @@ int test(int n)
 				if ( iv->dll != NULL )
 					continue;
 #endif // 0
-				if ( iv->dll != NULL )
+				if ( iv->dll != NULL || iv->syscall != NULL )
 					fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
 				else
 					fprintf(f, "\t %i [shape=box, label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));

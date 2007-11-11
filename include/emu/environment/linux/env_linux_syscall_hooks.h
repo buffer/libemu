@@ -25,14 +25,35 @@
  *
  *******************************************************************************/
 
-#include "emu/emu_cpu.h"
-#include "emu/emu_cpu_data.h"
-#include "emu/emu_memory.h"
-#include "emu/emu_string.h"
+/* 11 execve */
+int32_t env_linux_hook_execve(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
 
-int32_t instr_int_cd(struct emu_cpu *c, struct emu_cpu_instruction *i)
-{
-	return 0;
-}
+/* 63 dup2 */
+int32_t env_linux_hook_dup2(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
+
+/* 102 socketcall */
+/*
+	accept
+	bind
+	connect
+	getpeername - missing 
+	getsockname - missing
+	getsockopt - missing
+	listen
+	recv       - missing
+	recvfrom   - missing
+	recvmsg    - missing
+	send       - missing
+	sendmsg    - missing
+	sendto     - missing
+	setsockopt - missing
+	shutdown   - missing
+	socket     
+	socketpair - missing
+*/
+int32_t	env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
+
+
+
 
 

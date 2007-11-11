@@ -2,5 +2,5 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = win32
+SUBDIRS = win32 linux
 
