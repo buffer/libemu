@@ -854,13 +854,18 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x18, 0);
 
 				TRACK_NEED_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
-				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
+//				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
 			}
 			else if( c->instr.fpu.fpu_data[1] == 0xee )
 			{
 				/* fldz */
 				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
 			}
+			else
+			{ // catch all others to init fpu
+				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
+			}
+
 		}
 		else if( c->instr.fpu.fpu_data[0] == 0xdd )
 		{

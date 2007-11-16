@@ -256,7 +256,7 @@ memcpy(&to+4,&lower,4);
 #define SOURCE_COND_POS(instruction, pos)	(instruction).source.has_cond_pos = 1; (instruction).source.cond_pos = pos;
 
 
-#define TRACK_FPU_LAST_INSTRUCTION  0x1
+#define TRACK_FPU_LAST_INSTRUCTION  0x0
 
 #define TRACK_INIT_FPU(instruction, what) (instruction).track.init.fpu |= 1 << (what);
 #define TRACK_NEED_FPU(instruction, what) (instruction).track.need.fpu |= 1 << (what);

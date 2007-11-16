@@ -237,11 +237,8 @@ bool emu_tracking_info_covers(struct emu_tracking_info *a, struct emu_tracking_i
 			return false;
 	}
 
-	for (i=0;i<8;i++)
-	{
-		if ( (b->fpu & 1 << i) > (a->eflags & 1 << i))
-			return false;
-	}
+	if ( b->fpu > a->fpu )
+		return false;
 
 
 	return true;

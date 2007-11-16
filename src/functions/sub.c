@@ -163,6 +163,15 @@ int32_t instr_sub_29(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.opc], 
 									 c->reg[i->modrm.rm], 
 									 -)
+			if (i->modrm.opc == i->modrm.rm)
+			{
+				TRACK_INIT_REG32(c->instr, i->modrm.opc);
+			}else
+			{
+				TRACK_NEED_REG32(c->instr, i->modrm.rm);
+				TRACK_NEED_REG32(c->instr, i->modrm.opc);
+			}
+
 		}
 	}
 

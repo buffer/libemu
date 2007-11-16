@@ -56,7 +56,7 @@ struct emu_tracking_info
 	uint32_t eflags;
 	uint32_t reg[8];
 
-	uint8_t fpu; // used to store the last_instruction information required for fnstenv
+	uint8_t fpu:1; // used to store the last_instruction information required for fnstenv
 };
 
 
