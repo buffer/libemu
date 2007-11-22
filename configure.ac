@@ -135,6 +135,21 @@ fi
 AC_MSG_RESULT($enable_interactive_hooks)
 
 
+dnl **************************************************
+dnl * python bindings                                *
+dnl **************************************************
+
+AC_ARG_ENABLE([python-bindings],
+		[  --enable-python-bindings    Compile bindings for Python],
+		[case "${enableval}" in
+			yes) enable_python=true ;;
+			no)  enable_python=false ;;
+			*) AC_MSG_ERROR([bad value ${enableval} for --enable-bython-bindings]) ;;
+		esac],
+		[enable_python=false])
+
+AM_CONDITIONAL([ENABLE_PYTHON_BINDINGS], [test x$enable_python = xtrue])
+
 
 
 AC_DEFUN([AC_DEFINE_DIR], [
@@ -173,8 +188,17 @@ AC_CONFIG_FILES([Makefile
 		include/emu/environment/linux/Makefile
 		testsuite/Makefile
 		doc/Makefile
-		libemu.pc])
+		libemu.pc
+		bindings/Makefile
+		bindings/python/Makefile])
 
                  
 AC_OUTPUT
 
+echo
+echo "*** libemu configuration ***"
+echo "general"
+echo " - interactive hooks               : $enable_interactive_hooks"
+echo ""
+echo "bindings"
+echo " - python                          : $enable_python"

@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src include testsuite doc
+SUBDIRS = src include testsuite doc bindings
 
 
 EXTRA_DIST = configure.ac CHANGES libemu.pc.in
