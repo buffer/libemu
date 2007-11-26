@@ -85,7 +85,9 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *path);
 int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
 								const char *dllname,
 								const char *exportname, 
-								int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex));
+								int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex),
+								void *userdata);
+
 
 
 /**

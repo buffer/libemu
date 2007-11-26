@@ -310,7 +310,8 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
 								const char *dllname,
 								const char *exportname, 
-								int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex))
+								int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex),
+								void *userdata)
 {
 	int numdlls=0;
 	while ( env->loaded_dlls[numdlls] != NULL )
@@ -322,6 +323,7 @@ int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
 			{
 				struct emu_env_w32_dll_export *ex = (struct emu_env_w32_dll_export *)ehi->value;
 				ex->fnhook = fnhook;
+				ex->userdata = userdata;
 				return 0;
 			}
 		}

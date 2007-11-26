@@ -62,10 +62,12 @@ struct emu_env_linux_syscall
 {
 	const char *name;
 	int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
+	void *userdata;
 };
 
 int32_t emu_env_linux_syscall_hook(struct emu_env_linux *env, const char *syscallname,
-								   int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall));
+								   int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall),
+								   void *userdata);
 
 const char *env_linux_socketcall(struct emu_env_linux *env);
 

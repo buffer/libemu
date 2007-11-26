@@ -40,6 +40,7 @@ struct emu_env_w32_dll_export
 	char 		*fnname;
 	uint32_t 	virtualaddr;
     int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+	void 		*userdata;
 };
 
 struct emu_env_w32_dll_export *emu_env_w32_dll_export_new();

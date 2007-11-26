@@ -100,7 +100,8 @@ struct emu_env_linux_syscall *emu_env_linux_syscall_check(struct emu_env_linux *
 }
 
 int32_t emu_env_linux_syscall_hook(struct emu_env_linux *env, const char *syscallname,
-								   int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscallfox))
+								   int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscallfox),
+								   void *userdata)
 {
 
 	struct emu_hashtable_item *ehi = emu_hashtable_search(env->syscall_hooks_by_name, (void *)syscallname);
@@ -108,6 +109,7 @@ int32_t emu_env_linux_syscall_hook(struct emu_env_linux *env, const char *syscal
 	{
 		struct emu_env_linux_syscall *syscall = (struct emu_env_linux_syscall *)ehi->value;
 		syscall->fnhook = fnhook;
+		syscall->userdata = userdata;
 		return 0;
 	}
 

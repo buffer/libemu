@@ -1630,8 +1630,8 @@ int test(int n)
 	}
 
 
-	emu_env_w32_export_hook(env, NULL, "ExitProcess", user_hook_ExitProcess);
-	emu_env_w32_export_hook(env, NULL, "ExitThread", user_hook_ExitThread);
+	emu_env_w32_export_hook(env, NULL, "ExitProcess", user_hook_ExitProcess, NULL);
+	emu_env_w32_export_hook(env, NULL, "ExitThread", user_hook_ExitThread, NULL);
 
 /*	uint32_t x;
 	for (x=0x7c800000;x<0x7c902400;x++)
