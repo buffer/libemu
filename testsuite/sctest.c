@@ -1607,6 +1607,13 @@ VOID ExitThread(
 
 }
 
+int32_t userhook_exit(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	opts.steps = 0;
+	return 0;
+}
 
 int test(int n)
 {
@@ -1632,6 +1639,8 @@ int test(int n)
 
 	emu_env_w32_export_hook(env, NULL, "ExitProcess", user_hook_ExitProcess, NULL);
 	emu_env_w32_export_hook(env, NULL, "ExitThread", user_hook_ExitThread, NULL);
+
+	emu_env_linux_syscall_hook(lenv, "exit", userhook_exit, NULL);
 
 /*	uint32_t x;
 	for (x=0x7c800000;x<0x7c902400;x++)
