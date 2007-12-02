@@ -250,7 +250,7 @@ struct emu_env_linux_syscall syscall_hooks[] =
 	{ "dup"                 		, NULL},
 	{ "dup2"                		, env_linux_hook_dup2},
 	{ "execve"              		, env_linux_hook_execve},
-	{ "exit"                		, NULL},
+	{ "exit"                		, env_linux_hook_exit},
 	{ "fchdir"              		, NULL},
 	{ "fchmod"              		, NULL},
 	{ "fchown"              		, NULL},
