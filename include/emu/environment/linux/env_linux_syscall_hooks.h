@@ -25,6 +25,9 @@
  *
  *******************************************************************************/
 
+/* 2 fork */
+int32_t env_linux_hook_fork(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
+
 /* 11 execve */
 int32_t env_linux_hook_execve(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
 

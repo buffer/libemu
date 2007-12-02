@@ -185,4 +185,10 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 	return 0;
 }
 
-
+int32_t env_linux_hook_fork(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall)
+{
+	printf("sys_fork(2)\n");
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+	emu_cpu_reg32_set(c, eax, 4711);
+	return 0;
+}

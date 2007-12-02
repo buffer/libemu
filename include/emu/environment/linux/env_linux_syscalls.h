@@ -257,7 +257,7 @@ struct emu_env_linux_syscall syscall_hooks[] =
 	{ "fcntl"               		, NULL},
 	{ "fdatasync"           		, NULL},
 	{ "flock"               		, NULL},
-	{ "fork"                		, NULL},
+	{ "fork"                		, env_linux_hook_fork},
 	{ "fstat"               		, NULL},
 	{ "fstatfs"             		, NULL},
 	{ "fsync"               		, NULL},
