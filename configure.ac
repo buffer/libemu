@@ -190,7 +190,8 @@ AC_CONFIG_FILES([Makefile
 		doc/Makefile
 		libemu.pc
 		bindings/Makefile
-		bindings/python/Makefile])
+		bindings/python/Makefile
+		bindings/python/setup.py])
 
                  
 AC_OUTPUT
