@@ -4,14 +4,14 @@ from distutils.core import setup, Extension
 
 libemu = Extension('libemu',
                     sources = ['libemu_module.c'],
-                    include_dirs = ['../../include'],
+                    include_dirs = ['@includedir@'],
                     library_dirs = ['@libdir@'],
                     libraries = ['emu'],
                     )
 
 setup (name = 'libemu',
-       version = '0.1.0',
-       description = 'Python interface to the libemu x86 emualtor.',
+       version = '@VERSION@',
+       description = 'Python interface to the libemu x86 emulator.',
        author = 'Georg Wicherski',
        author_email = 'gw@mwcollect.org',
        url = 'http://libemu.mwcollect.org/',
