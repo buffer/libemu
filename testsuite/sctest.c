@@ -1881,7 +1881,8 @@ int test(struct emu *e)
 	
 	emu_env_w32_free(env);
 	emu_env_linux_free(lenv);
-	emu_free(e);
+	emu_hashtable_free(eh);
+	emu_graph_free(graph);
 	return 0;
 }
 
@@ -1986,7 +1987,7 @@ int graph_draw(struct emu_graph *graph)
 	}
 
 	graph->vertex_destructor = instr_vertex_destructor;
-	emu_graph_free(graph);
+//	emu_graph_free(graph);
 	graph = sgraph;
 
 	emu_hashtable_free(ht);
@@ -2075,7 +2076,7 @@ int graph_draw(struct emu_graph *graph)
 	fclose(f);
 
 	graph->vertex_destructor = instr_vertex_destructor;
-	emu_graph_free(graph);
+	emu_graph_free(sgraph);
 //	emu_hashtable_free(eh);
 
 	return 0;
@@ -2377,8 +2378,12 @@ int prepare_argos(struct emu *e)
 	emu_cpu_reg32_set(cpu, edi, cargos_lib_csi_regv(calib, CARGOS_LIB_EDI).val32);
 
 	emu_cpu_eip_set(cpu, cargos_lib_csi_regv(calib, CARGOS_LIB_EIP).val32);
-#endif
 	return 0;
+#else
+	printf("compiled without support for argos csi (libcargos)\n");
+	return -1;
+#endif
+	
 }
 
 int prepare(struct emu *emu)
@@ -2492,12 +2497,20 @@ int main(int argc, char *argv[])
 	printf("verbose = %i\n", opts.verbose);
 
 	struct emu *e = emu_new();
-	prepare(e);
-	test(e);
+	if ( prepare(e) == 0 )
+		test(e);
 	
 
+	emu_free(e);
 
 //	dump_export_table();
+	if (opts.from_argos_csi)
+		free(opts.from_argos_csi);
+
+	if (opts.graphfile)
+		free(opts.graphfile);
+
+
 	return 0;
 }
 
