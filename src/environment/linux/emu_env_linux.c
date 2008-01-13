@@ -55,7 +55,7 @@ struct emu_env_linux *emu_env_linux_new(struct emu *e)
 }
 
 
-void emu_linux_free(struct emu_env_linux *eel)
+void emu_env_linux_free(struct emu_env_linux *eel)
 {
 	emu_hashtable_free(eel->syscall_hooks_by_name);
 	free(eel->syscall_hooks);

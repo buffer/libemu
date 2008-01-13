@@ -63,8 +63,10 @@ void *emu_stack_pop(struct emu_stack *es)
 	if (emu_stack_empty(es) == true)
 		return NULL;
 
+	struct emu_stack_item *item = es->front;
 	void *data = es->front->data;
 	es->front = es->front->next;
+	free(item);
 	return data;
 }
 

@@ -47,7 +47,7 @@ struct emu_env_linux
 };
 
 struct emu_env_linux *emu_env_linux_new(struct emu *e);
-void emu_linux_free(struct emu_env_linux *eel);
+void emu_env_linux_free(struct emu_env_linux *eel);
 
 struct emu_env_linux_syscall *emu_env_linux_syscall_check(struct emu_env_linux *env);
 

@@ -70,12 +70,12 @@ HRESULT URLDownloadToFile(
 
 	uint32_t p_caller;
 	POP_DWORD(c, &p_caller);
-	emu_profile_argument_add_ref(env->profile, "LPUNKNOWN", "pCaller", p_caller);
-	emu_profile_argument_add_string(env->profile, "", "", ""); 
+	emu_profile_argument_add_ptr(env->profile, "LPUNKNOWN", "pCaller", p_caller);
+	emu_profile_argument_add_none(env->profile);
 
 	uint32_t p_url;
 	POP_DWORD(c, &p_url);
-	emu_profile_argument_add_ref(env->profile, "LPCTSTR", "szURL", p_url);
+	emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "szURL", p_url);
 
     struct emu_string *url = emu_string_new();
 	emu_memory_read_string(c->mem, p_url, url, 512);
@@ -84,7 +84,7 @@ HRESULT URLDownloadToFile(
 
 	uint32_t p_filename;
 	POP_DWORD(c, &p_filename);
-	emu_profile_argument_add_ref(env->profile, "LPCTSTR", "szFileName", p_filename);
+	emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "szFileName", p_filename);
 
 	struct emu_string *filename = emu_string_new();
 	emu_memory_read_string(c->mem, p_filename, filename, 512);

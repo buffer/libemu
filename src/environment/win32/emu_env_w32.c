@@ -208,7 +208,9 @@ void emu_env_w32_free(struct emu_env_w32 *env)
 		numdlls++;
 	}
 	free(env->loaded_dlls);
+	emu_profile_free(env->profile);
 	free(env);
+
 }
 
 

@@ -35,7 +35,8 @@
 
 enum emu_profile_argument_render
 {
-	render_ref,
+	render_none,
+	render_ptr,
 	render_int,
 	render_struct,
 	render_string,
@@ -64,9 +65,9 @@ struct emu_profile_argument
 		} tstruct;
 		struct
 		{
-			struct emu_profile_argument *ref;
+			struct emu_profile_argument *ptr;
 			uint32_t addr;
-		}tref;
+		}tptr;
 	} value;
 
 	emu_profile_argument_link link;
@@ -110,15 +111,17 @@ void emu_profile_argument_free(struct emu_profile_argument *argument);
 
 void emu_profile_debug(struct emu_profile *profile);
 void emu_profile_function_debug(struct emu_profile_function *function);
+
+void emu_profile_argument_add_none(struct emu_profile *profile);
 void emu_profile_argument_add_int(struct emu_profile *profile, char *argtype, char *argname, int value);
 void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype,  char *argname, char *value);
-void emu_profile_argument_add_ref(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
+void emu_profile_argument_add_ptr(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
 void emu_profile_argument_add_ip(struct emu_profile *profile, char *argtype,  char *argname, uint32_t value);
 void emu_profile_argument_add_port(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
 
 void emu_profile_function_add(struct emu_profile *profile, char *fnname);
-void emu_profile_argument_start(struct emu_profile* profile, const char* structtype, const char* structname);
-void emu_profile_argument_end(struct emu_profile *profile);
+void emu_profile_argument_struct_start(struct emu_profile* profile, const char* structtype, const char* structname);
+void emu_profile_argument_struct_end(struct emu_profile *profile);
 
 
 #endif

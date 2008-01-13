@@ -69,7 +69,8 @@ void emu_hashtable_free(struct emu_hashtable *eh)
 	{
 		if ((ehb = eh->buckets[i]) != NULL)
 		{
-			for (ehbi = emu_hashtable_bucket_items_first(ehb->items); !emu_hashtable_bucket_items_attail(ehbi); ehbi = emu_hashtable_bucket_items_next(ehbi))
+
+			while ((ehbi = emu_hashtable_bucket_items_remove_first(ehb->items)) != NULL)
 			{
 				if (eh->key_destructor != NULL)
 				{
@@ -79,6 +80,7 @@ void emu_hashtable_free(struct emu_hashtable *eh)
 				{
 					eh->value_destructor(ehbi->item.value);
 				}
+				emu_hashtable_bucket_item_free(ehbi);
 			}
 	
 			emu_hashtable_bucket_free(ehb);
@@ -201,4 +203,10 @@ struct emu_hashtable_bucket_item *emu_hashtable_bucket_item_new(void *key, void 
 	emu_hashtable_bucket_items_init_link(ehbi);
 
 	return ehbi;
+}
+
+
+void emu_hashtable_bucket_item_free(struct emu_hashtable_bucket_item *ehbi)
+{
+	free(ehbi);
 }

@@ -1880,6 +1880,7 @@ int test(struct emu *e)
 	emu_profile_debug(env->profile);
 	
 	emu_env_w32_free(env);
+	emu_env_linux_free(lenv);
 	emu_free(e);
 	return 0;
 }

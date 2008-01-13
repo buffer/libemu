@@ -60,7 +60,7 @@ struct emu_hashtable_bucket_item
 header_list_functions(emu_hashtable_bucket_items,emu_hashtable_bucket_item_root, emu_hashtable_bucket_item, link);
 
 struct emu_hashtable_bucket_item *emu_hashtable_bucket_item_new(void *key, void *value);
-
+void emu_hashtable_bucket_item_free(struct emu_hashtable_bucket_item *ehbi);
 
 struct emu_hashtable_bucket
 {
