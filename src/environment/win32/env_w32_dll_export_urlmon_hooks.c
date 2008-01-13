@@ -40,6 +40,7 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_hashtable.h"
 #include "emu/emu_string.h"
+#include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
@@ -65,31 +66,44 @@ HRESULT URLDownloadToFile(
   LPBINDSTATUSCALLBACK lpfnCB
 );
 */
+	emu_profile_function_add(env->profile, "URLDownloadToFile");
+
 	uint32_t p_caller;
 	POP_DWORD(c, &p_caller);
+	emu_profile_argument_add_ref(env->profile, "LPUNKNOWN", "pCaller", p_caller);
+	emu_profile_argument_add_string(env->profile, "", "", ""); 
 
 	uint32_t p_url;
 	POP_DWORD(c, &p_url);
+	emu_profile_argument_add_ref(env->profile, "LPCTSTR", "szURL", p_url);
+
+    struct emu_string *url = emu_string_new();
+	emu_memory_read_string(c->mem, p_url, url, 512);
+	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(url)); 
+
 
 	uint32_t p_filename;
 	POP_DWORD(c, &p_filename);
-
-	uint32_t reserved;
-	POP_DWORD(c, &reserved);
-
-	uint32_t statuscallbackfn;
-	POP_DWORD(c, &statuscallbackfn);
-
-
-
-	struct emu_string *url = emu_string_new();
-	emu_memory_read_string(c->mem, p_url, url, 512);
+	emu_profile_argument_add_ref(env->profile, "LPCTSTR", "szFileName", p_filename);
 
 	struct emu_string *filename = emu_string_new();
 	emu_memory_read_string(c->mem, p_filename, filename, 512);
+	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(filename)); 
+
+	uint32_t reserved;
+	POP_DWORD(c, &reserved);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwReserved", reserved);
+
+	uint32_t statuscallbackfn;
+	POP_DWORD(c, &statuscallbackfn);
+	emu_profile_argument_add_int(env->profile, "LPBINDSTATUSCALLBACK", "lpfnCB", statuscallbackfn);
 
 
-	printf(" %s -> %s\n", emu_string_char(url), emu_string_char(filename));
+
+
+
+
+//	printf(" %s -> %s\n", emu_string_char(url), emu_string_char(filename));
 
 	emu_string_free(url);
 	emu_string_free(filename);

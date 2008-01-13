@@ -23,6 +23,7 @@ libemu_la_SOURCES += emu_graph.c
 libemu_la_SOURCES += emu_hashtable.c
 libemu_la_SOURCES += emu_list.c
 libemu_la_SOURCES += emu_queue.c
+libemu_la_SOURCES += emu_stack.c
 libemu_la_SOURCES += emu_shellcode.c
 libemu_la_SOURCES += emu_source.c
 libemu_la_SOURCES += emu_track.c
@@ -77,6 +78,7 @@ libemu_la_SOURCES += functions/xor.c
 
 libemu_la_SOURCES += libdasm.c libdasm.h opcode_tables.h
 
+libemu_la_SOURCES += environment/emu_profile.c
 libemu_la_SOURCES += environment/win32/emu_env_w32.c
 libemu_la_SOURCES += environment/win32/emu_env_w32_dll.c
 libemu_la_SOURCES += environment/win32/emu_env_w32_dll_export.c

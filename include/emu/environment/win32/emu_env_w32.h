@@ -30,6 +30,7 @@
 struct emu;
 struct emu_env_w32_dll;
 struct emu_env_w32_dll_export;
+struct emu_profile;
 
 /**
  * the emu win32 enviroment struct
@@ -50,6 +51,8 @@ struct emu_env_w32
 	 * the baseaddress for the env
 	 */
 	uint32_t	baseaddr;
+
+	struct emu_profile *profile;
 };
 
 /**

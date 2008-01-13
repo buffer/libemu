@@ -48,6 +48,7 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_hashtable.h"
 #include "emu/emu_string.h"
+#include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
@@ -65,14 +66,18 @@ int32_t	env_w32_hook_CloseHandle(struct emu_env_w32 *env, struct emu_env_w32_dll
 
 	POP_DWORD(c, &eip_save);
 
+	
+	
 /*
 BOOL CloseHandle(
   HANDLE hObject
 );
 */
+	emu_profile_function_add(env->profile, "CloseHandle");
 
 	uint32_t object;
 	POP_DWORD(c, &object);
+	emu_profile_argument_add_int(env->profile, "Handle", "hObject", object);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -101,27 +106,38 @@ HANDLE CreateFile(
   HANDLE hTemplateFile
 );
 */
+	emu_profile_function_add(env->profile, "CreateFile");
 
 	uint32_t filename;
 	POP_DWORD(c, &filename);
+	emu_profile_argument_add_ref(env->profile, "LPCTSTR", "lpFileName", filename);
+	emu_profile_argument_add_string(env->profile, "", "", "");
+
 
 	uint32_t desiredaccess;
 	POP_DWORD(c, &desiredaccess);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwDesiredAccess", desiredaccess);
 
 	uint32_t sharemode;
 	POP_DWORD(c, &sharemode);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwShareMode", sharemode);
 
 	uint32_t securityattr;
 	POP_DWORD(c, &securityattr);
+	emu_profile_argument_add_ref(env->profile, "LPSECURITY_ATTRIBUTES", "lpSecurityAttributes", securityattr);
+	emu_profile_argument_add_int(env->profile, "", "", 0);
 
-	uint32_t createdisp;
+    uint32_t createdisp;
 	POP_DWORD(c, &createdisp);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwCreationDisposition", createdisp);
 
 	uint32_t flagsandattr;
 	POP_DWORD(c, &flagsandattr);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwFlagsAndAttributes", flagsandattr);
 
 	uint32_t templatefile;
 	POP_DWORD(c, &templatefile);
+	emu_profile_argument_add_int(env->profile, "Handle", "hTemplateFile", templatefile);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -134,6 +150,7 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
+	struct emu_memory *m = emu_memory_get(env->emu);
 
 	uint32_t eip_save;
 
@@ -152,43 +169,105 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_
   LPPROCESS_INFORMATION pProcInfo
 );*/
 
-	uint32_t imagename;
-	POP_DWORD(c, &imagename);
+	emu_profile_function_add(env->profile, "CreateProcess");
 
-	uint32_t cmdline;
-	POP_DWORD(c, &cmdline);
+	uint32_t p_imagename;
+	POP_DWORD(c, &p_imagename);
+	emu_profile_argument_add_ref(env->profile, "LPCWSTR", "pszImageName", p_imagename);
+	emu_profile_argument_add_string(env->profile, "",  "", "");
 
-	uint32_t process;
-	POP_DWORD(c, &process);
+	uint32_t p_cmdline;
+	POP_DWORD(c, &p_cmdline);
+	emu_profile_argument_add_ref(env->profile, "LPCWSTR", "pszCmdLine", p_cmdline);
 
-	uint32_t thread;
-	POP_DWORD(c, &thread);
+	struct emu_string *command = emu_string_new();
+	emu_memory_read_string(m, p_cmdline, command, 1024);
+	emu_profile_argument_add_string(env->profile, "","", emu_string_char(command));
+//	emu_string_free(command);
+
+
+	uint32_t p_process;
+	POP_DWORD(c, &p_process);
+	emu_profile_argument_add_ref(env->profile, "LPSECURITY_ATTRIBUTES", "psaProcess", p_process);
+	emu_profile_argument_add_string(env->profile, "", "", "");
+
+
+	uint32_t p_thread;
+	POP_DWORD(c, &p_thread);
+	emu_profile_argument_add_ref(env->profile, "LPSECURITY_ATTRIBUTES", "psaThread", p_thread);
+	emu_profile_argument_add_string(env->profile, "", "", "");
+
 
 	uint32_t inherithandles;
 	POP_DWORD(c, &inherithandles);
+	emu_profile_argument_add_int(env->profile, "BOOL", "fInheritHandles", inherithandles);
+
 
 	uint32_t create;
 	POP_DWORD(c, &create);
+	emu_profile_argument_add_int(env->profile, "DWORD", "fdwCreate", create);
 
 	uint32_t environment;
 	POP_DWORD(c, &environment);
+	emu_profile_argument_add_ref(env->profile, "LPVOID", "pvEnvironment", environment);
+	emu_profile_argument_add_string(env->profile, "", "", "");
+
 
 	uint32_t cwd;
 	POP_DWORD(c, &cwd);
+	emu_profile_argument_add_ref(env->profile, "LPWSTR", "pszCurDir", cwd);
+	emu_profile_argument_add_string(env->profile, "", "", "");
+
 
 	uint32_t p_startinfo;
 	POP_DWORD(c, &p_startinfo);
+	emu_profile_argument_add_ref(env->profile, "LPSTARTUPINFOW", "psiStartInfo", p_startinfo);
+
+	STARTUPINFO *si = malloc(sizeof(STARTUPINFO));
+	emu_memory_read_block(m, p_startinfo, si, sizeof(STARTUPINFO));
+
+	emu_profile_argument_start(env->profile, "", "");
+	emu_profile_argument_add_int(env->profile, "DWORD",  "cb"				, si->cb);                                                   
+	emu_profile_argument_add_int(env->profile, "LPTSTR", "lpReserved"		, (unsigned int)si->lpReserved);
+	emu_profile_argument_add_int(env->profile, "LPTSTR", "lpDesktop"		, (unsigned int)si->lpDesktop);
+	emu_profile_argument_add_int(env->profile, "LPTSTR", "lpTitle"			, (unsigned int)si->lpTitle);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwX"				, si->dwX);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwY"				, si->dwY);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwXSize"			, si->dwXSize);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwYSize"			, si->dwYSize);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwXCountChars"	, si->dwXCountChars);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwYCountChars"	, si->dwYCountChars);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwFillAttribute"	, si->dwFillAttribute);
+	emu_profile_argument_add_int(env->profile, "DWORD",  "dwFlags"			, si->dwFlags);
+	emu_profile_argument_add_int(env->profile, "WORD",   "wShowWindow"		, si->wShowWindow);
+	emu_profile_argument_add_int(env->profile, "WORD",   "cbReserved2"		, si->cbReserved2);
+	emu_profile_argument_add_int(env->profile, "LPBYTE", "lpReserved2"		, (unsigned int)si->lpReserved2);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hStdInput"		, si->hStdInput);                                            
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hStdOutput"		, si->hStdOutput);                                           
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hStdError"		, si->hStdError);                                           
+	emu_profile_argument_end(env->profile);
+	
 
 	uint32_t p_procinfo;
 	POP_DWORD(c, &p_procinfo);
+	emu_profile_argument_add_ref(env->profile, "PROCESS_INFORMATION", "pProcInfo",0x52f74c);
+
+	PROCESS_INFORMATION *pi = malloc(sizeof(PROCESS_INFORMATION));
+	emu_memory_read_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+
+	emu_profile_argument_start(env->profile, "", "");
+	emu_profile_argument_add_int(env->profile, "DWORD", "hProcess"		,pi->dwProcessId);
+	emu_profile_argument_add_int(env->profile, "DWORD", "hThread"			,pi->dwThreadId);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "dwProcessId"		,pi->hProcess);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "dwThreadId"		,pi->hThread);
+	emu_profile_argument_end(env->profile);
+
 
 
 	printf("CreateProcessA \n");	
 	emu_cpu_reg32_set(c, eax, 0);
 
-	struct emu_memory *m = emu_memory_get(env->emu);
-    PROCESS_INFORMATION *pi = malloc(sizeof(PROCESS_INFORMATION));
-	emu_memory_read_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+	
 
 	pi->dwProcessId = 4711;
 	pi->dwThreadId = 4712;
@@ -197,85 +276,34 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_
 
 	emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
 
-	STARTUPINFO *si = malloc(sizeof(STARTUPINFO));
-	emu_memory_read_block(m, p_startinfo, si, sizeof(STARTUPINFO));
-
-	printf("CreateProcess(pszImageName=%x, pszCmdLine=%x, psaProcess=%x, psaThread=%x, fInheritHandles=%i, fdwCreate=%i, pvEnvironment=%x, pszCurDir=%x, psiStartInfo=%x, pProcInfo=%x)\n", 
-		   imagename, cmdline, process, thread, inherithandles, create, environment, cwd, p_startinfo, p_procinfo);
-
-	printf("PROCESS_INFORMATION\n"
-		   "{\n"
-		   "\tHANDLE hProcess=%i;\n"
-		   "\tHANDLE hThread=%i;\n"
-		   "\tDWORD dwProcessId=%i;\n"
-		   "\tDWORD dwThreadId=%i;\n"
-		   "}\n",
-		   pi->dwProcessId, 
-		   pi->dwThreadId, 
-		   pi->hProcess, 
-		   pi->hThread);
-
-
-	printf("STARTUPINFO {\n"
-		   "\tDWORD cb=%i;\n"
-		   "\tLPTSTR lpReserved=0x%08x;\n"
-		   "\tLPTSTR lpDesktop=0x%08x;\n"
-		   "\tLPTSTR lpTitle=0x%08x;\n"
-		   "\tDWORD dwX=%i;\n"
-		   "\tDWORD dwY=%i;\n"
-		   "\tDWORD dwXSize=%i;\n"
-		   "\tDWORD dwYSize=%i;\n"
-		   "\tDWORD dwXCountChars=%i;\n"
-		   "\tDWORD dwYCountChars=%i;\n"
-		   "\tDWORD dwFillAttribute=%i;\n"
-		   "\tDWORD dwFlags=%i;\n"
-		   "\tWORD wShowWindow=%i;\n"
-		   "\tWORD cbReserved2=%i;\n"
-		   "\tLPBYTE lpReserved2=0x08%x;\n"
-		   "\tHANDLE hStdInput=%i;\n"
-		   "\tHANDLE hStdOutput=%i;\n"
-		   "\tHANDLE hStdError=%i;\n"
-		   "}\n",
-		   si->cb,
-		   (unsigned int)si->lpReserved,
-		   (unsigned int)si->lpDesktop,
-		   (unsigned int)si->lpTitle,
-		   si->dwX,
-		   si->dwY,
-		   si->dwXSize,
-		   si->dwYSize,
-		   si->dwXCountChars,
-		   si->dwYCountChars,
-		   si->dwFillAttribute,
-		   si->dwFlags,
-		   si->wShowWindow,
-		   si->cbReserved2,
-		   (unsigned int)si->lpReserved2,
-		   si->hStdInput,
-		   si->hStdOutput,
-		   si->hStdError);
 
 	fflush(NULL);
 
 #ifdef HAVE_INTERACTIVE_HOOKS
-// the code is meant to be an example how one could do it
-	pid_t pid;
-	if ((pid = fork()) == 0)
-	{ // child
-
-		dup2(si->hStdInput,  fileno(stdin));
-		dup2(si->hStdOutput, fileno(stdout));
-		dup2(si->hStdError,  fileno(stderr));
-
-        system("/opt/cmd/bin/cmdexe.pl -p winxp -l /opt/cmd/var/log/cmd/");
-		exit(EXIT_SUCCESS);
-	}else
-	{ // parent 
-		pi->hProcess = pid;
-		emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+	if (emu_string_char(command) != NULL && strncasecmp(emu_string_char(command), "cmd", 3) == 0)
+	{
+	
+	// the code is meant to be an example how one could do it
+		pid_t pid;
+		if ((pid = fork()) == 0)
+		{ // child
+	
+			dup2(si->hStdInput,  fileno(stdin));
+			dup2(si->hStdOutput, fileno(stdout));
+			dup2(si->hStdError,  fileno(stderr));
+	
+			system("/opt/cmd/bin/cmdexe.pl -p winxp -l /opt/cmd/var/log/cmd/");
+			exit(EXIT_SUCCESS);
+		}else
+		{ // parent 
+			pi->hProcess = pid;
+			emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+		}
 	}
 #endif
-
+	emu_string_free(command);
+	free(pi);
+	free(si);
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
@@ -297,8 +325,11 @@ BOOL DeleteFile(
 );
 
 */
+	emu_profile_function_add(env->profile, "DeleteFile");
 	uint32_t filename;
 	POP_DWORD(c, &filename);
+	emu_profile_argument_add_ref(env->profile, "LPCTSTR", "lpFileName", filename);
+	emu_profile_argument_add_string(env->profile, "", "", "");
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -456,10 +487,8 @@ size_t fwrite( const void *buffer, size_t size, size_t count, FILE *stream );
 
 int32_t env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
 	struct emu_cpu *c = emu_cpu_get(env->emu);
+	struct emu_memory *mem = emu_memory_get(env->emu);
 
 	uint32_t eip_save;
 	POP_DWORD(c, &eip_save);
@@ -470,20 +499,23 @@ FARPROC WINAPI GetProcAddress(
   LPCSTR lpProcName
 );
 */
-
+	emu_profile_function_add(env->profile, "GetProcAddress");
+	
 
 	uint32_t module;// = emu_cpu_reg32_get(c, esp);
 	POP_DWORD(c, &module);
+	emu_profile_argument_add_int(env->profile, "HMODULE", "hModule", module);
 
-	printf("module ptr is %08x\n", module);
+//	printf("module ptr is %08x\n", module);
 
 	uint32_t p_procname;
 	POP_DWORD(c, &p_procname);
+	emu_profile_argument_add_ref(env->profile, "LPCSTR", "lpProcName", p_procname);
+	
 
 	struct emu_string *procname = emu_string_new();
-	struct emu_memory *mem = emu_memory_get(env->emu);
 	emu_memory_read_string(mem, p_procname, procname, 256);
-
+	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(procname));
 
 	printf("procname name is '%s'\n", emu_string_char(procname));
 
@@ -536,11 +568,17 @@ UINT GetSystemDirectory(
   UINT uSize
 );
 */
+	emu_profile_function_add(env->profile, "GetSystemDirectory");
+
 	uint32_t p_buffer;
 	POP_DWORD(c, &p_buffer);
+	emu_profile_argument_add_ref(env->profile, "LPTSTR", "lpBuffer", p_buffer);
+	emu_profile_argument_add_string(env->profile, "", "", "");
 
 	uint32_t size;
 	POP_DWORD(c, &size);
+	emu_profile_argument_add_int(env->profile, "UINT", "uSize", size);
+
 
 	emu_memory_write_block(emu_memory_get(env->emu), p_buffer, "c:\\WINDOWS\\system32\x00", 20);
 	emu_cpu_reg32_set(c, eax, 19);
@@ -657,25 +695,31 @@ LONG _lwrite(
 
 int32_t	env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
-/* HMODULE WINAPI LoadLibrary(LPCTSTR lpFileName); */
+
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
 	uint32_t eip_save;
 	POP_DWORD(c, &eip_save);
 
+/* HMODULE WINAPI LoadLibrary(LPCTSTR lpFileName); */
+
+	emu_profile_function_add(env->profile, "LoadLibraryA");
+
 	uint32_t dllname_ptr;// = emu_cpu_reg32_get(c, esp);
-	
-	POP_DWORD(c, &dllname_ptr);
+    POP_DWORD(c, &dllname_ptr);
+	emu_profile_argument_add_ref(env->profile, "LPCTSTR", "lpFileName", dllname_ptr);
+    	
 
     struct emu_string *dllstr = emu_string_new();
     struct emu_memory *mem = emu_memory_get(env->emu);
     emu_memory_read_string(mem, dllname_ptr, dllstr, 256);
 
+
 	char *dllname = emu_string_char(dllstr);
+	emu_profile_argument_add_string(env->profile, "", "", dllname);
+
 
 	int i;
 	int found_dll = 0;
@@ -826,12 +870,15 @@ DWORD WINAPI WaitForSingleObject(
   DWORD dwMilliseconds
 );
 */
+	emu_profile_function_add(env->profile, "WaitForSingleObject");
 
 	uint32_t handle;
 	POP_DWORD(c, &handle);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hHandle", handle);
 
 	uint32_t msecs;
 	POP_DWORD(c, &msecs);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwMilliseconds", msecs);
 
 	printf("WaitForSingleObject(hHandle=%i,  dwMilliseconds=%i)\n", handle, msecs);
 
@@ -869,18 +916,24 @@ UINT WINAPI WinExec(
   UINT uCmdShow
 );
 */
+	emu_profile_function_add(env->profile, "WinExec");
 
-	uint32_t cmdline_ptr;
-	POP_DWORD(c, &cmdline_ptr);
+	uint32_t p_cmdline;
+	POP_DWORD(c, &p_cmdline);
+	emu_profile_argument_add_ref(env->profile, "LPCSTR", "lpCmdLine", p_cmdline);
+
+	struct emu_string *cmdstr = emu_string_new();
+	emu_memory_read_string(emu_memory_get(env->emu), p_cmdline, cmdstr, 256);
+	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(cmdstr));
+	emu_string_free(cmdstr);
+
 
 	uint32_t show;
 	POP_DWORD(c, &show);
+	emu_profile_argument_add_int(env->profile, "UINT", "uCmdShow", show);
+	
 
 
-    struct emu_string *cmdstr = emu_string_new();
-    emu_memory_read_string(emu_memory_get(env->emu), cmdline_ptr, cmdstr, 256);
-	printf("WinExec %s\n", emu_string_char(cmdstr));
-	emu_string_free(cmdstr);
 
 	emu_cpu_reg32_set(c, eax, 32);
 

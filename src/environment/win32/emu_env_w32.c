@@ -33,6 +33,7 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_hashtable.h"
+#include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
@@ -150,6 +151,7 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 {
 	struct emu_env_w32 *env = (struct emu_env_w32 *)malloc(sizeof(struct emu_env_w32));
 	memset(env,0,sizeof(struct emu_env_w32));
+	env->profile = emu_profile_new();
 	env->emu = e;
 	// write TEB and linklist
 

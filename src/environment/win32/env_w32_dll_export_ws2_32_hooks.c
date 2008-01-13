@@ -47,6 +47,7 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_hashtable.h"
 #include "emu/emu_string.h"
+#include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
@@ -54,9 +55,6 @@
 
 int32_t	env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
 	uint32_t eip_save;
@@ -69,14 +67,22 @@ int32_t	env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
   int* addrlen
 );*/
 
+	emu_profile_function_add(env->profile, "accept");
+
 	uint32_t s;
 	POP_DWORD(c, &s);
+	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t addr;
 	POP_DWORD(c, &addr);
+	emu_profile_argument_add_ref(env->profile, "sockaddr *", "addr", addr);
+	emu_profile_argument_start(env->profile, "", "");
+	emu_profile_argument_end(env->profile);
 
 	uint32_t addrlen;
 	POP_DWORD(c, &addrlen);
+	emu_profile_argument_add_ref(env->profile, "int", "addrlen", addrlen);
+	emu_profile_argument_add_int(env->profile, "", "", 0);
 
 	printf("accept(s=%i, addr=%x, addrlen=%i);\n", s, addr, addrlen);
 
@@ -97,9 +103,6 @@ int32_t	env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
 
 int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
 	uint32_t eip_save;
@@ -111,27 +114,60 @@ int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export
   SOCKET s,
   const struct sockaddr* name,
   int namelen
-); */
+); 
+*/
 
+	emu_profile_function_add(env->profile, "bind");
 	uint32_t s;
 	POP_DWORD(c, &s);
+
 
 	uint32_t name;
 	POP_DWORD(c, &name);
 	
+	
+
+/*
+struct sockaddr_in {
+    short            sin_family;   // e.g. AF_INET
+    unsigned short   sin_port;     // e.g. htons(3490)
+    struct in_addr   sin_addr;     // see struct in_addr, below
+    char             sin_zero[8];  // zero this if you want to
+};
+
+struct in_addr {
+    unsigned long s_addr;  // load with inet_aton()
+};
+*/
+	struct sockaddr sa;
+	
+	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
+	if (sa.sa_family == AF_INET)
+	{
+		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
+		emu_profile_argument_add_ref(env->profile, "sockaddr_in *", "name", name);
+		emu_profile_argument_start(env->profile, "", "");
+		emu_profile_argument_add_int(env->profile, "short", "sin_family", si->sin_family);
+		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
+		emu_profile_argument_start(env->profile, "in_addr", "sin_addr");
+		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
+		emu_profile_argument_end(env->profile);
+		emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
+		emu_profile_argument_end(env->profile);
+
+	}else
+	{
+		emu_profile_argument_start(env->profile, "sockaddr *", "name");
+		emu_profile_argument_end(env->profile);
+	}
+
+
+
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
 
 	printf("bind(s=%i, name=%x, namelen=%i\n", s, name, namelen);
 
-	struct sockaddr sa;
-	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
-	if (sa.sa_family == AF_INET)
-	{
-		printf("host %s port %i\n", 
-		   inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr),
-		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
-	}
 
 	int retval = 0;
 
@@ -161,8 +197,10 @@ int closesocket(
   SOCKET s
 );
 */
+	emu_profile_function_add(env->profile, "closesocket");
 	uint32_t s;
 	POP_DWORD(c, &s);
+	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 #ifdef HAVE_INTERACTIVE_HOOKS
 	close((int)s);
@@ -193,21 +231,38 @@ int connect(
   int namelen
 )
 */
+	emu_profile_function_add(env->profile, "connect");
 	uint32_t s;
 	POP_DWORD(c, &s);
+	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t name;
 	POP_DWORD(c, &name);
+	struct sockaddr sa;
+
+	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
+	if (sa.sa_family == AF_INET)
+	{
+		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
+		emu_profile_argument_add_ref(env->profile, "sockaddr_in *", "name", name);
+		emu_profile_argument_start(env->profile, "", "");
+		emu_profile_argument_add_int(env->profile, "short", "sin_family", si->sin_family);
+		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
+		emu_profile_argument_start(env->profile, "in_addr", "sin_addr");
+		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
+		emu_profile_argument_end(env->profile);
+		emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
+		emu_profile_argument_end(env->profile);
+
+	}else
+	{
+		emu_profile_argument_start(env->profile, "sockaddr *", "name");
+		emu_profile_argument_end(env->profile);
+	}
 
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
-
-	struct sockaddr sa;
-	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
-	printf("host %s port %i\n", 
-		   inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr),
-		   ntohs(((struct sockaddr_in *)&sa)->sin_port));
-
+	emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
 
 	int retval = 0;
 
@@ -241,12 +296,16 @@ int32_t	env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
   int backlog
 );
 */
+	emu_profile_function_add(env->profile, "listen");
+
 
 	uint32_t s;
 	POP_DWORD(c, &s);
+	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t backlog;
 	POP_DWORD(c, &backlog);
+	emu_profile_argument_add_int(env->profile, "int", "backlog", backlog);
 
 	printf("listen(s=%i,  backlog=%i)\n", s,  backlog);
 
@@ -476,23 +535,36 @@ int32_t	env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_
   DWORD dwFlags
 ); */
 
+	emu_profile_function_add(env->profile, "WSASocket");
+
 	uint32_t af;
 	POP_DWORD(c, &af);
+	emu_profile_argument_add_int(env->profile, "int", "af", af);
+
+
 
 	uint32_t type;
 	POP_DWORD(c, &type);
+	emu_profile_argument_add_int(env->profile, "int", "type", type);
 
 	uint32_t protocol;
 	POP_DWORD(c, &protocol);
+	emu_profile_argument_add_int(env->profile, "int", "protocol", protocol);
 
 	uint32_t protocolinfo;
 	POP_DWORD(c, &protocolinfo);
+	emu_profile_argument_add_int(env->profile, "LPWSAPROTOCOL_INFO", "lpProtocolInfo", protocolinfo);
+
 
 	uint32_t group;
 	POP_DWORD(c, &group);
+	emu_profile_argument_add_int(env->profile, "GROUP", "g", group);
+
 
 	uint32_t flags;
 	POP_DWORD(c, &flags);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwFlags", flags);
+
 
 	printf("SOCKET WSASocket(af=%i, type=%i, protocol=%i, lpProtocolInfo=%x, group=%i, dwFlags=%i);\n",
 		   af, type, protocol, protocolinfo, group,  flags);
@@ -528,13 +600,16 @@ int WSAStartup(
   LPWSADATA lpWSAData
 );
 */
-
+	emu_profile_function_add(env->profile, "WSAStartup");
+	
 	uint32_t wsaversionreq;
 	POP_DWORD(c, &wsaversionreq);
 	printf("WSAStartup version %x\n", wsaversionreq);
+	emu_profile_argument_add_int(env->profile, "WORD", "wVersionRequested", wsaversionreq);
 
 	uint32_t wsadata;
 	POP_DWORD(c, &wsadata);
+	emu_profile_argument_add_int(env->profile, "LPWSADATA", "lpWSAData", wsadata);
 
 
 	emu_cpu_reg32_set(c, eax, 0x0);
