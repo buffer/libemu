@@ -82,7 +82,7 @@ libemu_age=0
 libemu_soname=$libemu_current:$libemu_revision:$libemu_age
 AC_SUBST(libemu_soname)
 
-
+AM_PROG_CC_C_O
 
 dnl **************************************************
 dnl * large filesystem Support                       *
@@ -150,6 +150,55 @@ AC_ARG_ENABLE([python-bindings],
 
 AM_CONDITIONAL([ENABLE_PYTHON_BINDINGS], [test x$enable_python = xtrue])
 
+dnl **************************************************
+dnl * libcargos                                      *
+dnl **************************************************
+
+
+AC_SUBST([LIB_CARGOS])
+AC_SUBST([LIB_CARGOS_LIBDIR])
+AC_SUBST([LIB_CARGOS_INCDIR])
+
+
+enable_cargos="yes"
+
+AC_ARG_ENABLE(cargos, [  --enable-cargos      enable support for libcargos],
+			[enable_cargos="$enableval"],[enable_cargos="yes"])
+
+AC_ARG_WITH(cargos-include,
+			[  --with-cargos-include=DIR  libcargos include dir],
+				      [cargos_inc="$withval"],[cargos_inc=no])
+AC_ARG_WITH(cargos-lib,
+			[  --with-cargos-lib=DIR  libcargos library dir],
+			[cargos_lib="$withval"],[cargos_lib=no])
+
+
+if test x$enable_cargos = "xyes" ; then
+	OLD_CPPFLAGS=${CPPFLAGS};
+	if test x$cargos_inc != "xno"; then
+		CPPFLAGS="${CPPFLAGS} -I${cargos_inc}"
+	fi
+	
+	AC_CHECK_HEADER(cargos-lib.h,[enable_cargos=yes],[enable_cargos=no])
+	
+	if test x$enable_cargos = "xyes" ; then
+		OLD_LDFLAGS=${LDFLAGS}
+		if test x$cargos_lib != "xno"; then
+			LDFLAGS="${LDFLAGS}  -L${cargos_lib}"
+		fi
+	
+		AC_CHECK_LIB([cargos],[cargos_lib_create],enable_cargos="yes", enable_cargos="no")
+	
+		if test x$enable_cargos = "xyes" ; then
+			LIB_CARGOS="-lcargos"
+			LIB_CARGOS_LIBDIR="-L$cargos_lib"
+			LIB_CARGOS_INCDIR="-I$cargos_inc"
+			AC_DEFINE([HAVE_LIBCARGOS], [1], [Define to 1 to compile with cargos support])
+		fi
+	fi
+	CPPFLAGS=${OLD_CPPFLAGS}
+	LDFLAGS=${OLD_LDFLAGS}
+fi
 
 
 AC_DEFUN([AC_DEFINE_DIR], [
@@ -203,3 +252,7 @@ echo " - interactive hooks               : $enable_interactive_hooks"
 echo ""
 echo "bindings"
 echo " - python                          : $enable_python"
+echo ""
+echo "support"
+echo " - cargos                          : $enable_cargos"
+

@@ -16,6 +16,8 @@ cpurun_SOURCES = cpu_run.c
 instrtest_LDADD = ../src/libemu.la
 instrtest_SOURCES = instrtest.c
 
+sctest_CPPFLAGS = ${LIB_CARGOS_INCDIR}  ${AM_CPPFLAGS}
+sctest_LDFLAGS =  ${LIB_CARGOS} ${LIB_CARGOS_LIBDIR} ${AM_LDFLAGS}
 sctest_LDADD = ../src/libemu.la
 sctest_SOURCES = sctest.c
 
