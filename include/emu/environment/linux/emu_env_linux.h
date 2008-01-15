@@ -38,12 +38,14 @@
 #include "emu/emu_memory.h"
 #include "emu/emu_hashtable.h"
 
+struct emu_profile;
 
 struct emu_env_linux
 {
 	struct emu *emu;
 	struct emu_hashtable *syscall_hooks_by_name;
 	struct emu_env_linux_syscall *syscall_hooks;
+	struct emu_profile *profile;
 };
 
 struct emu_env_linux *emu_env_linux_new(struct emu *e);

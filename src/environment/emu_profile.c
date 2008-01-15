@@ -100,11 +100,7 @@ void emu_profile_argument_struct_start(struct emu_profile* profile, const char* 
 {
 //	printf("%s %s\n", __PRETTY_FUNCTION__,  structname);
 	struct emu_profile_argument *argument = emu_profile_argument_new(render_struct, structtype, structname);
-
-
-
 	emu_profile_argument_add(profile, argument);
-
 	emu_stack_push(profile->argument_stack, argument);
 }
 
@@ -112,6 +108,18 @@ void emu_profile_argument_struct_start(struct emu_profile* profile, const char* 
 void emu_profile_argument_struct_end(struct emu_profile *profile)
 {
 //	printf("%s %s\n", __PRETTY_FUNCTION__);
+	emu_stack_pop(profile->argument_stack);
+}
+
+void emu_profile_argument_array_start(struct emu_profile* profile, const char* arraytype, const char* arrayname)
+{
+	struct emu_profile_argument *argument = emu_profile_argument_new(render_array, arraytype, arrayname);
+	emu_profile_argument_add(profile, argument);
+	emu_stack_push(profile->argument_stack, argument);
+}
+
+void emu_profile_argument_array_end(struct emu_profile *profile)
+{
 	emu_stack_pop(profile->argument_stack);
 }
 
@@ -202,7 +210,7 @@ struct emu_profile_argument *emu_profile_argument_new(enum emu_profile_argument_
 	}
 	argument->render = render;
 
-	if (render == render_struct)
+	if (render == render_struct || render == render_array)
 	{
 		argument->value.tstruct.arguments = emu_profile_arguments_create();
 	}
@@ -235,6 +243,7 @@ void emu_profile_argument_free(struct emu_profile_argument *argument)
 		emu_profile_argument_free(argument->value.tptr.ptr);
 		break;
 
+	case render_array:
 	case render_struct:
 		{
 			struct emu_profile_argument *argumentit;
@@ -278,6 +287,17 @@ void emu_profile_argument_debug(struct emu_profile_argument *argument, int inden
 		}
 
 		printf("%s };\n", indents(indent));
+		break;
+
+	case render_array:
+		printf("%s %s %s = [\n", indents(indent), argument->argtype, argument->argname);
+		for (argumentit = emu_profile_arguments_first(argument->value.tstruct.arguments); 
+			  !emu_profile_arguments_istail(argumentit); 
+			  argumentit = emu_profile_arguments_next(argumentit))
+		{
+			emu_profile_argument_debug(argumentit,indent+1);
+		}
+		printf("%s ];\n", indents(indent));
 		break;
 
 	case render_int:

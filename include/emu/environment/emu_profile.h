@@ -41,7 +41,8 @@ enum emu_profile_argument_render
 	render_struct,
 	render_string,
 	render_ip,
-	render_port
+	render_port,
+	render_array
 };
 
 
@@ -63,6 +64,7 @@ struct emu_profile_argument
 		{
 			emu_profile_argument_root *arguments;
 		} tstruct;
+
 		struct
 		{
 			struct emu_profile_argument *ptr;
@@ -118,6 +120,9 @@ void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype,
 void emu_profile_argument_add_ptr(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
 void emu_profile_argument_add_ip(struct emu_profile *profile, char *argtype,  char *argname, uint32_t value);
 void emu_profile_argument_add_port(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
+void emu_profile_argument_array_start(struct emu_profile* profile, const char* arraytype, const char* arrayname);
+void emu_profile_argument_array_end(struct emu_profile *profile);
+
 
 void emu_profile_function_add(struct emu_profile *profile, char *fnname);
 void emu_profile_argument_struct_start(struct emu_profile* profile, const char* structtype, const char* structname);

@@ -54,7 +54,6 @@
 
 #ifdef HAVE_LIBCARGOS
 #include <cargos-lib.h>
-#include <cargos-lib-static.h>
 #endif
 
 
@@ -1878,11 +1877,16 @@ int test(struct emu *e)
 
 
 	emu_profile_debug(env->profile);
+	emu_profile_debug(lenv->profile);
 	
 	emu_env_w32_free(env);
 	emu_env_linux_free(lenv);
-	emu_hashtable_free(eh);
-	emu_graph_free(graph);
+
+	if (eh != NULL)
+		emu_hashtable_free(eh);
+
+	if (graph != NULL)
+		emu_graph_free(graph);
 	return 0;
 }
 
@@ -2268,12 +2272,15 @@ int prepare_from_stdin(struct emu *e)
 	/* write the code to the offset */
 	int static_offset = CODE_OFFSET;
 	emu_memory_write_block(mem, static_offset, opts.scode,  opts.size);
-
+	
 
 
 	/* set eip to the code */
 	emu_cpu_eip_set(emu_cpu_get(e), static_offset);
 
+	emu_cpu_reg32_set(emu_cpu_get(e), esp, 0x0012fe98);
+
+	free(opts.scode);
 	return 0;
 
 }

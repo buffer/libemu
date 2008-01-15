@@ -30,6 +30,7 @@
 #include "emu/emu_memory.h"
 
 
+#include "emu/environment/emu_profile.h"
 #include "emu/environment/linux/emu_env_linux.h"
 #include "emu/environment/linux/env_linux_syscalls.h"
 
@@ -51,6 +52,8 @@ struct emu_env_linux *emu_env_linux_new(struct emu *e)
 		emu_hashtable_insert(eel->syscall_hooks_by_name, (void *)eel->syscall_hooks[i].name, (void *)&eel->syscall_hooks[i]);
 	}
 
+	eel->profile = emu_profile_new();
+
 	return eel;
 }
 
@@ -59,6 +62,7 @@ void emu_env_linux_free(struct emu_env_linux *eel)
 {
 	emu_hashtable_free(eel->syscall_hooks_by_name);
 	free(eel->syscall_hooks);
+	emu_profile_free(eel->profile);
 	free(eel);
 }
 

@@ -154,6 +154,7 @@ int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export
 
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
+	emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
 
 	printf("bind(s=%i, name=%x, namelen=%i\n", s, name, namelen);
 

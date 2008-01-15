@@ -37,13 +37,16 @@
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_string.h"
-
+#include "emu/environment/emu_profile.h"
 #include "emu/environment/linux/emu_env_linux.h"
 
 int32_t env_linux_hook_exit(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall)
 {
 	printf("sys_exit(2)\n");
 	struct emu_cpu *c = emu_cpu_get(env->emu);
+	emu_profile_function_add(env->profile, "exit");
+	emu_profile_argument_add_ptr(env->profile, "int", "status", c->reg[ebx]);
+
 	emu_cpu_reg32_set(c, eax, 0);
 	return 0;
 }
@@ -52,18 +55,58 @@ int32_t env_linux_hook_fork(struct emu_env_linux *env, struct emu_env_linux_sysc
 {
 	printf("sys_fork(2)\n");
 	struct emu_cpu *c = emu_cpu_get(env->emu);
+	emu_profile_function_add(env->profile, "fork");
 	emu_cpu_reg32_set(c, eax, 4711);
 	return 0;
 }
 
 int32_t env_linux_hook_execve(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall)
 {
+	printf("execve\n");
 	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	emu_profile_function_add(env->profile, "execve");
+
+	emu_profile_argument_add_ptr(env->profile, "const char *", "dateiname", c->reg[ebx]);
 	struct emu_string *name = emu_string_new();
 	emu_memory_read_string(emu_memory_get(c->emu), c->reg[ebx], name, 255);
+	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(name));
+//	emu_profile_argument_add_ptr(env->profile, "", "", c->reg[ecx]);
+	emu_profile_argument_array_start(env->profile, "const char *", "argv[]");
+
+	uint32_t p_array = c->reg[ecx];
+	uint32_t p_arg = -1;
+	emu_memory_read_dword(emu_memory_get(c->emu), p_array, &p_arg);
+	int i=1;
+	while (p_arg != 0)
+	{
+		emu_profile_argument_add_ptr(env->profile, "", "", p_array+((i-1)*4));
+		emu_profile_argument_add_ptr(env->profile, "", "", p_arg);
+
+		struct emu_string *arg = emu_string_new();
+		emu_memory_read_string(emu_memory_get(c->emu), p_arg, arg, 128);
+		emu_profile_argument_add_string(env->profile, "", "", emu_string_char(arg));
+		emu_string_free(arg);
+		emu_memory_read_dword(emu_memory_get(c->emu), p_array+(i*4), &p_arg);
+		i++;
+	}
+	emu_profile_argument_add_ptr(env->profile, "", "", p_arg);
+	emu_profile_argument_add_none(env->profile);
+
+//	printf("arg is %s\n", emu_string_char(arg));
+
+
+	emu_profile_argument_array_end(env->profile);
+
+    emu_profile_argument_add_ptr(env->profile, "const char *", "envp[]", c->reg[edx]);
+	emu_profile_argument_add_none(env->profile);
+
+
 	printf("int execve (const char *dateiname=%08x={%s}, const char * argv[], const char *envp[]);\n", 
 		   c->reg[ebx],
 		   emu_string_char(name));
+
+
 	emu_string_free(name);
 	return 0;
 }
@@ -74,6 +117,10 @@ int32_t env_linux_hook_dup2(struct emu_env_linux *env, struct emu_env_linux_sysc
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
 	printf("int dup2(int oldfd=%i, int newfd=%i);\n", c->reg[ebx], c->reg[ecx]);
+	emu_profile_function_add(env->profile, "dup2");
+	emu_profile_argument_add_int(env->profile, "int", "oldfd", c->reg[ebx]);
+	emu_profile_argument_add_int(env->profile, "int", "newfd", c->reg[ecx]);
+
 	emu_cpu_reg32_set(c, eax, c->reg[ecx]);
 	return 0;
 }
@@ -104,33 +151,96 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 			   a[0],
 			   a[1],
 			   a[2]);
+		emu_profile_function_add(env->profile, "socket");
+		emu_profile_argument_add_int(env->profile, "int", "domain", 	a[0]);
+		emu_profile_argument_add_int(env->profile, "int", "type", 		a[1]);
+		emu_profile_argument_add_int(env->profile, "int", "protocol", 	a[2]);
+
 		emu_cpu_reg32_set(c, eax, 4);
 		break;
 
 	case 2:	// SYS_BIND 
 		{
-			struct sockaddr sa;
-			memset(&sa, 0, sizeof(struct sockaddr));
-			emu_memory_read_block(emu_memory_get(c->emu), a[1], &sa, sizeof(struct sockaddr));
 
+/*
 			printf("int bind(int sockfd=%i, struct sockaddr *my_addr=%08x={host %s port %i}, int addrlen);\n",
 				   a[0],
 				   a[1], inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr), ntohs(((struct sockaddr_in *)&sa)->sin_port) 
 				  );
+*/
+			emu_profile_function_add(env->profile, "bind");
+
+			emu_profile_argument_add_int(env->profile, "int", "sockfd", a[0]);
+
+
+			struct sockaddr sa;
+			memset(&sa, 0, sizeof(struct sockaddr));
+			emu_memory_read_block(emu_memory_get(c->emu), a[1], &sa, sizeof(struct sockaddr));
+
+			if ( sa.sa_family == AF_INET )
+			{
+				struct sockaddr_in *si = (struct sockaddr_in *)&sa;
+				emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "my_addr", a[1]);
+				emu_profile_argument_struct_start(env->profile, "", "");
+				emu_profile_argument_add_int(env->profile, "short", "sin_family", si->sin_family);
+				emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
+				emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
+				emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
+				emu_profile_argument_struct_end(env->profile);
+				emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
+				emu_profile_argument_struct_end(env->profile);
+
+			}
+			else
+			{
+				emu_profile_argument_add_ptr(env->profile, "sockaddr *", "my_addr", a[1]);
+				emu_profile_argument_struct_start(env->profile, "", "");
+				emu_profile_argument_struct_end(env->profile);
+			}
+
+
+
+			emu_profile_argument_add_int(env->profile, "int", "addrlen", a[2]);
+
+
 		}
 		emu_cpu_reg32_set(c, eax, 0);
 		break;
 
 	case 3:	// SYS_CONNECT 
 		{
+
+			printf("connect\n");
+			emu_profile_function_add(env->profile, "connect");
+			emu_profile_argument_add_int(env->profile, "int", "sockfd", a[0]);
+
 			struct sockaddr sa;
 			memset(&sa, 0, sizeof(struct sockaddr));
 			emu_memory_read_block(emu_memory_get(c->emu), a[1], &sa, sizeof(struct sockaddr));
 
-			printf("int connect(int sockfd=%i, struct sockaddr *my_addr=%08x={host %s port %i}, int addrlen);\n",
-				   a[0],
-				   a[1], inet_ntoa(*(struct in_addr *)&((struct sockaddr_in *)&sa)->sin_addr), ntohs(((struct sockaddr_in *)&sa)->sin_port)
-				  );
+			if (sa.sa_family == AF_INET)
+			{
+				struct sockaddr_in *si = (struct sockaddr_in *)&sa;
+				emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "serv_addr", a[1]);
+				emu_profile_argument_struct_start(env->profile, "", "");
+				emu_profile_argument_add_int(env->profile, "short", "sin_family", si->sin_family);
+				emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
+				emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
+				emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
+				emu_profile_argument_struct_end(env->profile);
+				emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
+				emu_profile_argument_struct_end(env->profile);
+
+			}else
+			{
+
+				emu_profile_argument_add_ptr(env->profile, "sockaddr *", "serv_addr", a[1]);
+				emu_profile_argument_struct_start(env->profile, "", "");
+				emu_profile_argument_struct_end(env->profile);
+			}
+
+			emu_profile_argument_add_int(env->profile, "int", "addrlen", a[2]);
+
 
 		}
 		break;
@@ -139,6 +249,9 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 		printf("int listen(int s=%i, int backlog=%i);\n", 
 			   a[0], 
 			   a[1]);
+		emu_profile_function_add(env->profile, "listen");
+		emu_profile_argument_add_int(env->profile, "int", "s", a[0]);
+		emu_profile_argument_add_int(env->profile, "int", "backlog", a[1]);
 		break;
 
 	case 5:	// SYS_ACCEPT 
@@ -146,6 +259,21 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 			   a[0],
 			   a[1],
 			   a[2]);
+
+		emu_profile_function_add(env->profile, "accept");
+		emu_profile_argument_add_int(env->profile, "int", "sockfd", a[0]);
+
+		struct sockaddr sa;
+		memset(&sa, 0, sizeof(struct sockaddr));
+		emu_memory_read_block(emu_memory_get(c->emu), a[1], &sa, sizeof(struct sockaddr));
+
+		emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "addr", a[1]);
+		emu_profile_argument_add_none(env->profile);
+
+		emu_profile_argument_add_ptr(env->profile, "int", "addrlen", a[2]);
+		emu_profile_argument_add_none(env->profile);
+
+
 		emu_cpu_reg32_set(c, eax, 112);
 		break;
 
