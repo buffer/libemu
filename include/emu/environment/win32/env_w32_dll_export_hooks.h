@@ -33,6 +33,7 @@
 #include <emu/environment/win32/env_w32_dll_export_kernel32_hooks.h>
 #include <emu/environment/win32/env_w32_dll_export_urlmon_hooks.h>
 #include <emu/environment/win32/env_w32_dll_export_ws2_32_hooks.h>
+#include <emu/environment/win32/env_w32_dll_export_msvcrt_hooks.h>
 
 
 struct emu_env_w32_dll_export kernel32_exports[] = 
@@ -1586,7 +1587,7 @@ struct emu_env_w32_dll_export msvcrt_exports[] =
 	{"_execle", 0x00018270, NULL, NULL},
 	{"_execlp", 0x00018299, NULL, NULL},
 	{"_execlpe", 0x000182B3, NULL, NULL},
-	{"_execv", 0x000182DC, NULL, NULL},
+	{"_execv", 0x000182DC, env_w32_hook__execv, NULL},
 	{"_execve", 0x00018351, NULL, NULL},
 	{"_execvp", 0x000184DF, NULL, NULL},
 	{"_execvpe", 0x000184FB, NULL, NULL},

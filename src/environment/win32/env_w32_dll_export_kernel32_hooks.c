@@ -255,26 +255,27 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_
 	PROCESS_INFORMATION *pi = malloc(sizeof(PROCESS_INFORMATION));
 	emu_memory_read_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
 
-	emu_profile_argument_struct_start(env->profile, "", "");
-	emu_profile_argument_add_int(env->profile, "DWORD", "hProcess"		,pi->dwProcessId);
-	emu_profile_argument_add_int(env->profile, "DWORD", "hThread"			,pi->dwThreadId);
-	emu_profile_argument_add_int(env->profile, "HANDLE", "dwProcessId"		,pi->hProcess);
-	emu_profile_argument_add_int(env->profile, "HANDLE", "dwThreadId"		,pi->hThread);
-	emu_profile_argument_struct_end(env->profile);
-
-
-
-	printf("CreateProcessA \n");	
-	emu_cpu_reg32_set(c, eax, 0);
-
-	
-
 	pi->dwProcessId = 4711;
 	pi->dwThreadId = 4712;
 	pi->hProcess = 4713;
 	pi->hThread = 4714;
 
 	emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+
+
+	emu_profile_argument_struct_start(env->profile, "", "");
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hProcess"		,pi->dwProcessId);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hThread"			,pi->dwThreadId);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwProcessId"		,pi->hProcess);
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwThreadId"		,pi->hThread);
+	emu_profile_argument_struct_end(env->profile);
+
+
+
+	printf("CreateProcessA \n");	
+
+	
+
 
 
 	fflush(NULL);
@@ -304,6 +305,10 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_
 	emu_string_free(command);
 	free(pi);
 	free(si);
+
+	emu_cpu_reg32_set(c, eax, 1);
+	emu_profile_function_returnvalue_int_set(env->profile, "BOOL", 1);
+
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
@@ -400,13 +405,19 @@ int32_t	env_w32_hook_fclose(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
 int _fcloseall( void );
 int fclose( FILE *stream );
 */
+	emu_profile_function_add(env->profile, "fclose");
+
 	uint32_t p_stream;
-	MEM_DWORD_READ(c, c->reg[esp]-8, &p_stream);
+	MEM_DWORD_READ(c, c->reg[esp], &p_stream);
+
+	emu_profile_argument_add_ptr(env->profile, "FILE *", "stream", p_stream);
+	emu_profile_argument_add_none(env->profile);
 
 
 	printf("fclose(0x%08x)\n", p_stream);
 	
 	emu_cpu_reg32_set(c, eax, 0);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
 
     emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -428,22 +439,32 @@ int32_t	env_w32_hook_fopen(struct emu_env_w32 *env, struct emu_env_w32_dll_expor
 FILE *fopen( const char *filename, const char *mode );
 FILE *_wfopen( const wchar_t *filename, const wchar_t *mode );
 */
+	emu_profile_function_add(env->profile, "fopen");
+
 	uint32_t p_filename;
 	MEM_DWORD_READ(c, c->reg[esp], &p_filename);
-
-
-	uint32_t p_mode;
-	MEM_DWORD_READ(c, c->reg[esp]-4, &p_mode);
-
-	struct emu_string *mode = emu_string_new();
-	emu_memory_read_string(c->mem, p_mode, mode, 512);
+	emu_profile_argument_add_ptr(env->profile, "const char *", "filename", p_filename);
 
 	struct emu_string *filename = emu_string_new();
 	emu_memory_read_string(c->mem, p_filename, filename, 512);
-
-	printf("fopen(%s, %s)\n", emu_string_char(filename), (char *)mode->data);
+	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(filename));
+	emu_string_free(filename);
 	
-	emu_cpu_reg32_set(c, eax, 0x8888);
+	uint32_t p_mode;
+	MEM_DWORD_READ(c, c->reg[esp]+4, &p_mode);
+	emu_profile_argument_add_ptr(env->profile, "const char *", "mode", p_mode);
+	emu_profile_argument_add_none(env->profile);
+
+//	struct emu_string *mode = emu_string_new();
+//	emu_memory_read_string(c->mem, p_mode, mode, 512);
+
+
+//	printf("fopen(%s, %s)\n", emu_string_char(filename), (char *)mode->data);
+	
+	
+	emu_cpu_reg32_set(c, eax, 0x89898989);
+	emu_profile_function_returnvalue_ptr_set(env->profile, "FILE *", 0x89898989);
+	emu_profile_argument_add_none(env->profile);
 
     emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -463,23 +484,33 @@ int32_t	env_w32_hook_fwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
 /*
 size_t fwrite( const void *buffer, size_t size, size_t count, FILE *stream );
 */
+	emu_profile_function_add(env->profile, "fwrite");
+
 	uint32_t p_buffer;
 	MEM_DWORD_READ(c, c->reg[esp], &p_buffer);
+	emu_profile_argument_add_ptr(env->profile, "const void *", "buffer", p_buffer);
+	emu_profile_argument_add_none(env->profile);
 
-
-	uint32_t size;
-	MEM_DWORD_READ(c, (c->reg[esp]-4), &size);
+    uint32_t size;
+	MEM_DWORD_READ(c, (c->reg[esp]+4), &size);
+	emu_profile_argument_add_int(env->profile, "size_t", "size", size);
 
 	uint32_t count;
-	MEM_DWORD_READ(c, (c->reg[esp]-8), &count);
+	MEM_DWORD_READ(c, (c->reg[esp]+8), &count);
+	emu_profile_argument_add_int(env->profile, "count_t", "count", count);
 
 	uint32_t p_stream;
-	MEM_DWORD_READ(c, c->reg[esp]-12, &p_stream);
+	MEM_DWORD_READ(c, c->reg[esp]+12, &p_stream);
+	emu_profile_argument_add_ptr(env->profile, "FILE *", "stream", p_stream);
+	emu_profile_argument_add_none(env->profile);
+	
+
 
 
 	printf("fwrite(0x%08x, %d, %d, 0x%08x)\n", p_buffer, size, count, p_stream);
 	
 	emu_cpu_reg32_set(c, eax, size*count);
+	emu_profile_function_returnvalue_int_set(env->profile, "size_t", size*count);
 
     emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -494,7 +525,7 @@ int32_t env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_
 	POP_DWORD(c, &eip_save);
 
 /* 
-FARPROC WINAPI GetProcAddress(
+FFARPROC WINAPI GetProcAddress(
   HMODULE hModule,
   LPCSTR lpProcName
 );
@@ -533,12 +564,16 @@ FARPROC WINAPI GetProcAddress(
 
 			if ( ehi == NULL )
 			{
+				emu_profile_function_returnvalue_int_set(env->profile, "FARPROC WINAPI", -1);
 				break;
 			}
 			else
 			{
 				printf("found %s at addr %08x\n",emu_string_char(procname), dll->baseaddr + ex->virtualaddr );
 				emu_cpu_reg32_set(c, eax, dll->baseaddr + ex->virtualaddr);
+
+				emu_profile_function_returnvalue_ptr_set(env->profile, "FARPROC WINAPI", dll->baseaddr + ex->virtualaddr);
+				emu_profile_argument_add_none(env->profile);
 				break;
 			}
 		}
@@ -582,6 +617,8 @@ UINT GetSystemDirectory(
 
 	emu_memory_write_block(emu_memory_get(env->emu), p_buffer, "c:\\WINDOWS\\system32\x00", 20);
 	emu_cpu_reg32_set(c, eax, 19);
+	emu_profile_function_returnvalue_int_set(env->profile, "UINT", 19);
+
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -737,12 +774,16 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll
 	{
         if (emu_env_w32_load_dll(env, dllname) == 0)
         {
-            emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr);        
+            emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr);
+			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", env->loaded_dlls[i]->baseaddr);
+			emu_profile_argument_add_none(env->profile);
         }
         else
         {
             printf("error could not find %s\n", dllname);
-            emu_cpu_reg32_set(c, eax, 0x4711);
+            emu_cpu_reg32_set(c, eax, 0x0);
+			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", 0x0);
+			emu_profile_argument_add_none(env->profile);
         }
 	}
 
@@ -893,7 +934,8 @@ DWORD WINAPI WaitForSingleObject(
 	}
 #endif
 
-	emu_cpu_reg32_set(c, eax, 32);
+	emu_cpu_reg32_set(c, eax, 0);
+	emu_profile_function_returnvalue_int_set(env->profile, "DWORD", 0);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -936,6 +978,7 @@ UINT WINAPI WinExec(
 
 
 	emu_cpu_reg32_set(c, eax, 32);
+	emu_profile_function_returnvalue_int_set(env->profile, "UINT WINAPI", 32);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;

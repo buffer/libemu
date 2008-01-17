@@ -96,6 +96,7 @@ int32_t	env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
 
 	printf("accept %i \n", a);	
 	emu_cpu_reg32_set(c, eax, a);
+	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", a);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -165,7 +166,8 @@ int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export
 	retval = bind(s, &sa, sizeof(struct sockaddr));
 #endif 
 
-	emu_cpu_reg32_set(c, eax, retval);
+    emu_cpu_reg32_set(c, eax, retval);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", retval);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -197,6 +199,7 @@ int closesocket(
 #endif 
 
 	emu_cpu_reg32_set(c, eax, 0);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -261,10 +264,11 @@ int connect(
 	si.sin_port = htons(4444);
 	si.sin_family = AF_INET;
 	si.sin_addr.s_addr = inet_addr("127.0.0.1");
-	connect(s, (struct sockaddr *)&si, sizeof(struct sockaddr_in));
+	retval = connect(s, (struct sockaddr *)&si, sizeof(struct sockaddr_in));
 #endif
 
 	emu_cpu_reg32_set(c, eax, retval);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", retval);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -306,6 +310,7 @@ int32_t	env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
 #endif
 
 	emu_cpu_reg32_set(c, eax, retval);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", retval);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -329,17 +334,24 @@ int recv(
   int flags
 );
 */
+	emu_profile_function_add(env->profile, "recv");
+
 	uint32_t s;
 	POP_DWORD(c, &s);
+	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t buf;
 	POP_DWORD(c, &buf);
+	emu_profile_argument_add_ptr(env->profile, "char *", "buf", buf);
+	emu_profile_argument_add_none(env->profile);
 
 	uint32_t len;
 	POP_DWORD(c, &len);
+	emu_profile_argument_add_int(env->profile, "int", "len", len);
 
 	uint32_t flags;
 	POP_DWORD(c, &flags);
+	emu_profile_argument_add_int(env->profile, "int", "flags", flags);
 
 	uint32_t xlen = len;
 	char *buffer = (char *)malloc(len);
@@ -347,6 +359,9 @@ int recv(
 
 #ifdef HAVE_INTERACTIVE_HOOKS
 	len = recv(s, buffer, len, flags); 
+#else
+	if (rand()%100 < 40)
+		len = 0;
 #endif
 	
 	printf("recv(%i, 0x%08x, %i) == %i \n", s, buf, xlen, (int32_t)len);
@@ -356,6 +371,7 @@ int recv(
 
 
 	emu_cpu_reg32_set(c, eax, len);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", len);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -567,6 +583,7 @@ int32_t	env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_
 
 	printf("socket %i \n", s);
 	emu_cpu_reg32_set(c, eax, s);
+	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", s);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -602,6 +619,7 @@ int WSAStartup(
 	emu_profile_argument_add_int(env->profile, "LPWSADATA", "lpWSAData", wsadata);
 
 
+	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
 	emu_cpu_reg32_set(c, eax, 0x0);
 
 	emu_cpu_eip_set(c, eip_save);

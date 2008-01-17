@@ -97,6 +97,7 @@ static struct run_time_options
 	unsigned char *scode;
 	uint32_t size;
 	uint32_t offset;
+	char *profile_file;
 } opts;
 
 
@@ -1644,6 +1645,9 @@ int test(struct emu *e)
 	struct emu_env_w32 *env = emu_env_w32_new(e);
 	struct emu_env_linux *lenv = emu_env_linux_new(e);
 
+	struct emu_profile *profile_copy = lenv->profile;
+	lenv->profile = env->profile;
+
 	/* IAT for sqlslammer */
 	emu_memory_write_dword(mem, 0x42AE1018, 0x7c801D77);
 	emu_memory_write_dword(mem, 0x42ae1010, 0x7c80ADA0);
@@ -1779,7 +1783,10 @@ int test(struct emu *e)
 			}
 
 			if ( dllhook->fnhook == NULL )
+			{
+				printf("unhooked call to %s\n", dllhook->fnname);
 				break;
+			}
 
 		}
 		else
@@ -1877,8 +1884,9 @@ int test(struct emu *e)
 
 
 	emu_profile_debug(env->profile);
-	emu_profile_debug(lenv->profile);
-	
+	emu_profile_dump(env->profile, opts.profile_file);
+
+	lenv->profile = profile_copy;
 	emu_env_w32_free(env);
 	emu_env_linux_free(lenv);
 
@@ -2432,10 +2440,11 @@ int main(int argc, char *argv[])
 			{"stdin"			, 0, 0, 'S'},
 			{"offset"			, 1, 0, 'o'},
 			{"argos-csi"		, 1, 0, 'a'},
+			{"profile"			, 1, 0, 'p'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vs:t:ld:gG:hSo:a:", long_options, &option_index);
+		c = getopt_long (argc, argv, "vs:t:ld:gG:hSo:a:p:", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -2494,6 +2503,10 @@ int main(int argc, char *argv[])
 			printf("argos-csi %s\n", opts.from_argos_csi);
 			break;
 
+		case 'p':
+			opts.profile_file = strdup(optarg);
+			printf("profile %s\n", opts.profile_file);
+			break;
 
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
@@ -2517,6 +2530,9 @@ int main(int argc, char *argv[])
 	if (opts.graphfile)
 		free(opts.graphfile);
 
+
+	if (opts.profile_file)
+		free(opts.profile_file);
 
 	return 0;
 }

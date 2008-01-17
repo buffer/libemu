@@ -85,6 +85,7 @@ struct emu_profile_function
 	emu_profile_argument_root *arguments;
 
 	emu_profile_function_link link;
+	struct emu_profile_argument *return_value;
 };
 header_list_functions(emu_profile_functions,emu_profile_function_root, emu_profile_function, link);
 
@@ -112,6 +113,10 @@ void emu_profile_argument_free(struct emu_profile_argument *argument);
 
 
 void emu_profile_debug(struct emu_profile *profile);
+
+int emu_profile_dump(struct emu_profile *profile, const char *path);
+int emu_profile_parse(struct emu_profile *profile, const char *path);
+
 void emu_profile_function_debug(struct emu_profile_function *function);
 
 void emu_profile_argument_add_none(struct emu_profile *profile);
@@ -128,5 +133,6 @@ void emu_profile_function_add(struct emu_profile *profile, char *fnname);
 void emu_profile_argument_struct_start(struct emu_profile* profile, const char* structtype, const char* structname);
 void emu_profile_argument_struct_end(struct emu_profile *profile);
 
-
+void emu_profile_function_returnvalue_int_set(struct emu_profile *profile, const char *type, int value);
+void emu_profile_function_returnvalue_ptr_set(struct emu_profile *profile, const char *type, int value);
 #endif

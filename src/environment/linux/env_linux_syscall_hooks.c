@@ -56,6 +56,7 @@ int32_t env_linux_hook_fork(struct emu_env_linux *env, struct emu_env_linux_sysc
 	printf("sys_fork(2)\n");
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 	emu_profile_function_add(env->profile, "fork");
+
 	emu_cpu_reg32_set(c, eax, 4711);
 	return 0;
 }
@@ -106,6 +107,7 @@ int32_t env_linux_hook_execve(struct emu_env_linux *env, struct emu_env_linux_sy
 		   c->reg[ebx],
 		   emu_string_char(name));
 
+	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
 
 	emu_string_free(name);
 	return 0;
@@ -121,6 +123,7 @@ int32_t env_linux_hook_dup2(struct emu_env_linux *env, struct emu_env_linux_sysc
 	emu_profile_argument_add_int(env->profile, "int", "oldfd", c->reg[ebx]);
 	emu_profile_argument_add_int(env->profile, "int", "newfd", c->reg[ecx]);
 
+	emu_profile_function_returnvalue_int_set(env->profile, "int", c->reg[ecx]);
 	emu_cpu_reg32_set(c, eax, c->reg[ecx]);
 	return 0;
 }
@@ -156,6 +159,7 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 		emu_profile_argument_add_int(env->profile, "int", "type", 		a[1]);
 		emu_profile_argument_add_int(env->profile, "int", "protocol", 	a[2]);
 
+		emu_profile_function_returnvalue_int_set(env->profile, "int", 4);
 		emu_cpu_reg32_set(c, eax, 4);
 		break;
 
@@ -204,6 +208,7 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 
 
 		}
+		emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
 		emu_cpu_reg32_set(c, eax, 0);
 		break;
 
@@ -243,6 +248,8 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 
 
 		}
+		emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
+		emu_cpu_reg32_set(c, eax, 0);
 		break;
 
 	case 4:	// SYS_LISTEN 
@@ -252,6 +259,8 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 		emu_profile_function_add(env->profile, "listen");
 		emu_profile_argument_add_int(env->profile, "int", "s", a[0]);
 		emu_profile_argument_add_int(env->profile, "int", "backlog", a[1]);
+		emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
+		emu_cpu_reg32_set(c, eax, 0);
 		break;
 
 	case 5:	// SYS_ACCEPT 
@@ -274,6 +283,7 @@ int32_t env_linux_hook_socketcall(struct emu_env_linux *env, struct emu_env_linu
 		emu_profile_argument_add_none(env->profile);
 
 
+		emu_profile_function_returnvalue_int_set(env->profile, "int", 112);
 		emu_cpu_reg32_set(c, eax, 112);
 		break;
 
