@@ -739,6 +739,23 @@ struct instr_test tests[] =
 		.out_state.reg = {0x1000,0,0,0,0,0,0,0},
 		.out_state.eflags =  FLAG(f_pf),
 	},
+	{
+		.instr = "mov eax, [ebp+ecx*4-0x100]",
+		.in_state.mem_state = {0x140, 0x22222222},
+		.in_state.reg = {0x1000,0x10,0,0,0,0x200,0,0},
+		.in_state.mem_state = {0x140, 0x22222222},
+		.out_state.reg = {0x22222222,0x10,0,0,0,0x200,0,0},
+	},
+	{
+		.instr = "mov eax, [ebp+ecx*4-0x10000000]",
+		.in_state.mem_state = {0x14000000, 0x22222222},
+		.in_state.reg = {0x1000,0x1000000,0,0,0,0x20000000,0,0},
+		.in_state.mem_state = {0x14000000, 0x22222222},
+		.out_state.reg = {0x22222222,0x1000000,0,0,0,0x20000000,0,0},
+	},
+
+
+
 };
 
 int prepare()
