@@ -36,6 +36,7 @@
 
 #include "emu/environment/emu_profile.h"
 
+/*
 static char *renderings[] =
 {
 
@@ -48,7 +49,7 @@ static char *renderings[] =
 	"render_port",
 	"render_array"
 };
-
+*/
 typedef unsigned char byte;
 
 source_list_functions(emu_profile_functions,emu_profile_function_root, emu_profile_function, link);
@@ -152,6 +153,14 @@ void emu_profile_argument_add_int(struct emu_profile *profile, char *argtype, ch
 	emu_profile_argument_add(profile, argument);
 }
 
+void emu_profile_argument_add_short(struct emu_profile *profile, char *argtype, char *argname, int16_t value)
+{
+    struct emu_profile_argument *argument = emu_profile_argument_new(render_short, argtype, argname);
+	argument->value.tshort = value;
+	emu_profile_argument_add(profile, argument);
+}
+
+
 void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype, char *argname, char *value)
 {
 
@@ -230,6 +239,180 @@ void emu_profile_function_returnvalue_ptr_set(struct emu_profile *profile, const
 	profile->last_ref = function->return_value;
 }
 
+uint32_t measure_size(struct emu_profile_argument *argument, bool followptr)
+{
+	uint32_t size = 0;
+	struct emu_profile_argument *argumentit;
+
+	switch(argument->render)
+	{
+	case render_struct:
+		for (argumentit = emu_profile_arguments_first(argument->value.tstruct.arguments); 
+			  !emu_profile_arguments_istail(argumentit); 
+			  argumentit = emu_profile_arguments_next(argumentit))
+		{
+			size += measure_size(argumentit,  followptr);
+		}
+		break;
+
+	case render_array:
+
+		for (argumentit = emu_profile_arguments_first(argument->value.tstruct.arguments); 
+			  !emu_profile_arguments_istail(argumentit); 
+			  argumentit = emu_profile_arguments_next(argumentit))
+		{
+			size += measure_size(argumentit, followptr);
+
+		}
+		break;
+
+	case render_int:
+		size += 4;
+		break;
+
+	case render_short:
+		size += 2;
+		break;
+
+	case render_string:
+		size += strlen(argument->value.tchar) +1;
+		break;
+
+	case render_ptr:
+		{
+			size += 4;
+			if (followptr)
+				size += measure_size(argument->value.tptr.ptr, followptr);
+		}
+		break;
+
+	case render_ip:
+		size += 4;
+		break;
+
+	case render_port:
+		size += 2;
+		break;
+
+	case render_none:
+		size += 4;
+		break;
+	}
+
+	return size;
+}
+
+int copy_data(struct emu_profile_argument *argument, uint8_t *addr, uint8_t **next)
+{
+	printf("%s : %i \n", __PRETTY_FUNCTION__, __LINE__);
+
+	uint32_t *addr32 = (uint32_t *)addr;
+	uint16_t *addr16 = (uint16_t *)addr;
+
+	int size = measure_size(argument, false);
+	int offset = 0;
+
+	struct emu_profile_argument *argumentit;
+
+	if (addr == *next)
+	{
+		*next = addr + size;
+	}
+
+	switch(argument->render)
+	{
+	case render_struct:
+		for (argumentit = emu_profile_arguments_first(argument->value.tstruct.arguments); 
+			  !emu_profile_arguments_istail(argumentit); 
+			  argumentit = emu_profile_arguments_next(argumentit))
+		{
+//			size += measure_size(argumentit,  false);
+			offset += copy_data(argumentit, addr+offset, next);
+		}
+		break;
+
+	case render_array:
+
+		for (argumentit = emu_profile_arguments_first(argument->value.tstruct.arguments); 
+			  !emu_profile_arguments_istail(argumentit); 
+			  argumentit = emu_profile_arguments_next(argumentit))
+		{
+//			size += measure_size(argumentit, level - 1);
+			offset += copy_data(argumentit, addr+offset, next);
+		}
+		break;
+
+	case render_int:
+//		size += 4;
+		*addr32 = argument->value.tint;
+		break;
+
+	case render_short:
+		*addr16 = argument->value.tshort;
+		break;
+
+	case render_string:
+//		size += strlen(argument->value.tchar) +1;
+		strcpy((char *)addr, argument->value.tchar); 
+		break;
+
+	case render_ptr:
+		{
+//			size += 4;
+//			size += measure_size(argument->value.tptr.ptr, false);
+			*addr32 = (uint32_t)*next;
+
+			copy_data(argument->value.tptr.ptr, *next, next);
+		}
+		break;
+
+	case render_ip:
+//		size += 4;
+		*addr32 = argument->value.tint;
+		break;
+
+	case render_port:
+//		size += 2;		
+		*addr16 = (uint16_t)argument->value.tint;
+
+		break;
+
+	case render_none:
+//		size += 4;
+		break;
+	}
+
+	return size;
+}
+
+void *emu_profile_function_argument_get(struct emu_profile_function *function, int argc)
+{
+	int i = 0;
+	struct emu_profile_argument *argument = emu_profile_arguments_first(function->arguments);
+
+	while (i < argc)
+	{
+		argument = emu_profile_arguments_next(argument);
+		i++;
+
+		if (emu_profile_arguments_istail(argument))
+			return NULL;
+	}
+
+	uint32_t size = 0;
+	size = measure_size(argument, true);
+
+	printf("%s size is %i\n", argument->argname, size);
+
+	uint8_t *data = malloc(size);
+	uint8_t *next = data;
+	memset(data, 0x90, size);
+	copy_data(argument, data, &next);
+
+	return data;
+}
+
+
 struct emu_profile_argument *emu_profile_argument_new(enum emu_profile_argument_render render, const char *type, const char *name)
 {
 	struct emu_profile_argument *argument = malloc(sizeof(struct emu_profile_argument));
@@ -265,6 +448,7 @@ void emu_profile_argument_free(struct emu_profile_argument *argument)
 	case render_ip:
 	case render_none:
 	case render_int:
+	case render_short:
 		break;
 
 	case render_string:
@@ -336,6 +520,11 @@ void emu_profile_argument_debug(struct emu_profile_argument *argument, int inden
 	case render_int:
 		printf("%s %s %s = %i;\n", indents(indent), argument->argtype, argument->argname, argument->value.tint);
 		break;
+
+	case render_short:
+		printf("%s %s %s = %i;\n", indents(indent), argument->argtype, argument->argname, argument->value.tshort);
+		break;
+
 
 	case render_string:
 		printf("%s %s %s = \"%s\";\n", indents(indent), argument->argtype, argument->argname, argument->value.tchar);
@@ -418,7 +607,7 @@ void emu_profile_function_debug(struct emu_profile_function *function)
 
 int emu_profile_dump_byte_write(FILE *f, byte value)
 {
-	if (fwrite(&value, 1, 1, f) == 4)
+	if (fwrite(&value, 1, 1, f) == 1)
 		return 0;
 	return -1;
 }
@@ -431,6 +620,16 @@ int emu_profile_dump_int_write(FILE *f, int value)
 		return 0;
 	return -1;
 }
+
+int emu_profile_dump_short_write(FILE *f, int16_t value)
+{
+	int16_t nval = htons(value);
+
+	if (fwrite(&nval, 2, 1, f) == 2)
+		return 0;
+	return -1;
+}
+
 
 int emu_profile_dump_string_write(FILE *f, const char *string)
 {
@@ -471,6 +670,11 @@ int emu_profile_argument_dump(FILE *f, struct emu_profile_argument *argument)
 	case render_int:
 		emu_profile_dump_int_write(f, argument->value.tint);
 		break;
+
+	case render_short:
+		emu_profile_dump_short_write(f, argument->value.tshort);
+		break;
+
 
 	case render_string:
 		emu_profile_dump_string_write(f, argument->value.tchar);
@@ -578,6 +782,18 @@ int emu_profile_dump_int_read(FILE *f, int *i)
 	return -1;
 }
 
+int emu_profile_dump_short_read(FILE *f, int16_t *i)
+{
+	if (fread(i, 1, 2, f) == 2)
+	{
+		*i = ntohs(*i);
+    	return 0;
+	}
+	return -1;
+}
+
+
+
 int emu_profile_dump_string_read(FILE *f, char **string)
 {
 	int strsize = 0;
@@ -604,7 +820,7 @@ int emu_profile_argument_parse(FILE *f, struct emu_profile *profile)
 	if (render > render_array)
 		return 0;
 
-	printf("%i %s %s %s\n",render , renderings[render], argtype, argname);
+//	printf("%i %s %s %s\n",render , renderings[render], argtype, argname);
 
 	switch ( render )
 	{
@@ -615,7 +831,7 @@ int emu_profile_argument_parse(FILE *f, struct emu_profile *profile)
 			emu_profile_argument_struct_start(profile, argtype, argname);
 			int argcount=0;
 			emu_profile_dump_int_read(f, &argcount);
-			printf("parsing %i struct arguments\n", argcount);
+//			printf("parsing %i struct arguments\n", argcount);
 			while ( argcount > 0 )
 			{
 				emu_profile_argument_parse(f, profile);
@@ -631,7 +847,7 @@ int emu_profile_argument_parse(FILE *f, struct emu_profile *profile)
 			emu_profile_argument_array_start(profile, argtype, argname);
 			int argcount=0;
 			emu_profile_dump_int_read(f, &argcount);
-			printf("parsing %i array arguments\n", argcount);
+//			printf("parsing %i array arguments\n", argcount);
 			while ( argcount > 0 )
 			{
 				emu_profile_argument_parse(f, profile);
@@ -646,6 +862,14 @@ int emu_profile_argument_parse(FILE *f, struct emu_profile *profile)
 			int value = 0;
 			emu_profile_dump_int_read(f, &value);
 			emu_profile_argument_add_int(profile, argtype, argname, value);
+		}
+		break;
+
+	case render_short:
+		{
+			int16_t value = 0;
+			emu_profile_dump_short_read(f,&value);
+			emu_profile_argument_add_short(profile, argtype, argname, value);
 		}
 		break;
 
@@ -701,7 +925,7 @@ int emu_profile_function_parse(FILE *f, struct emu_profile *profile)
 
 	int argcount = 0;
 	emu_profile_dump_int_read(f, &argcount);
-	printf("parsing %i function arguments\n", argcount);
+//	printf("parsing %i function arguments\n", argcount);
 	while (argcount > 0)
 	{
 		emu_profile_argument_parse(f, profile);
@@ -725,7 +949,7 @@ int emu_profile_parse(struct emu_profile *profile, const char *path)
 
 	int functions = 0;
 	emu_profile_dump_int_read(f, &functions);
-	printf("parsing %i functions\n", functions);
+//	printf("parsing %i functions\n", functions);
 	while (functions > 0)
 	{
 		emu_profile_function_parse(f, profile);

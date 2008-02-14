@@ -137,7 +137,7 @@ int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export
 		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
 		emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "name", name);
 		emu_profile_argument_struct_start(env->profile, "", "");
-		emu_profile_argument_add_int(env->profile, "short", "sin_family", si->sin_family);
+		emu_profile_argument_add_short(env->profile, "short", "sin_family", si->sin_family);
 		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
 		emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
 		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
@@ -239,7 +239,7 @@ int connect(
 		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
 		emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "name", name);
 		emu_profile_argument_struct_start(env->profile, "", "");
-		emu_profile_argument_add_int(env->profile, "short", "sin_family", si->sin_family);
+		emu_profile_argument_add_short(env->profile, "short", "sin_family", si->sin_family);
 		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
 		emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
 		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);

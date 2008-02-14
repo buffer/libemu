@@ -1513,6 +1513,7 @@ struct instr_test tests[] =
 	},*/
 };
 
+
 struct instr_vertex
 {
 	uint32_t    eip;
@@ -1747,24 +1748,22 @@ int test(struct emu *e)
 
 				emu_hashtable_insert(eh, (void *)eipsave, ev);
 			}
-
-			if ( last_vertex != NULL )
-			{
-				struct emu_edge *ee = emu_vertex_edge_add(last_vertex, ev);
-				struct emu_cpu *cpu = emu_cpu_get(e);
-				if ( cpu->instr.is_fpu == 0 && cpu->instr.source.cond_pos == eipsave && cpu->instr.source.has_cond_pos == 1 )
-					ee->data = (void *)0x1;
-			}
-
-			last_vertex = ev;
 		}
 
 		dllhook = emu_env_w32_eip_check(env);
 
 		if ( dllhook != NULL )
 		{
-			if ( opts.graphfile != NULL && ev->data == NULL )
+			 
+			if ( opts.graphfile != NULL )
 			{
+				if ( ev->data != NULL && strcmp(dllhook->fnname, "CreateProcessA") == 0)
+				{
+					ev = emu_vertex_new();
+					emu_graph_vertex_add(graph, ev);
+				}
+
+//				fnname_from_profile(env->profile, dllhook->fnname);
 				iv = instr_vertex_new(eipsave,dllhook->fnname);
 				emu_vertex_data_set(ev, iv);
 
@@ -1864,6 +1863,18 @@ int test(struct emu *e)
 				break;
 			}
 		}
+		if ( opts.graphfile != NULL )
+		{
+			if ( last_vertex != NULL )
+			{
+				struct emu_edge *ee = emu_vertex_edge_add(last_vertex, ev);
+				struct emu_cpu *cpu = emu_cpu_get(e);
+				if ( cpu->instr.is_fpu == 0 && cpu->instr.source.cond_pos == eipsave && cpu->instr.source.has_cond_pos == 1 )
+					ee->data = (void *)0x1;
+			}
+
+			last_vertex = ev;
+		}
 
 //			printf("\n");
 	}
@@ -1922,7 +1933,7 @@ int graph_draw(struct emu_graph *graph)
 		niv = instr_vertex_copy(iv); 
 		nev->data = niv;
 
-		emu_hashtable_insert(ht, (void *)iv->eip, nev);
+		emu_hashtable_insert(ht, (void *)iv, nev);
 		ev->color = white;
 	}
 
@@ -1955,7 +1966,7 @@ int graph_draw(struct emu_graph *graph)
 		iv = (struct instr_vertex *)ev->data;
 
 		// create the new vertex 
-		nev = (struct emu_vertex *)emu_hashtable_search(ht, (void *)iv->eip)->value;
+		nev = (struct emu_vertex *)emu_hashtable_search(ht, (void *)iv)->value;
 		niv = (struct instr_vertex *)nev->data;
 
 		iv = (struct instr_vertex *)ev->data;
@@ -1985,7 +1996,7 @@ int graph_draw(struct emu_graph *graph)
 		for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
 		{
 			struct instr_vertex *ivto = emu_vertex_data_get(ee->destination);
-			struct emu_hashtable_item *ehi = emu_hashtable_search(ht, (void *)ivto->eip);
+			struct emu_hashtable_item *ehi = emu_hashtable_search(ht, (void *)ivto);
 			struct emu_vertex *to = (struct emu_vertex *)ehi->value;
 			if ( 1 )// nev != to )//&& to->color != black )
 			{
@@ -2041,9 +2052,9 @@ int graph_draw(struct emu_graph *graph)
 			continue;
 #endif // 0
 		if ( iv->dll != NULL || iv->syscall != NULL )
-			fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
+			fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",(unsigned int)iv, emu_string_char(iv->instr_string));
 		else
-			fprintf(f, "\t %i [shape=box, label = \"%s\"]\n",iv->eip, emu_string_char(iv->instr_string));
+			fprintf(f, "\t %i [shape=box, label = \"%s\"]\n",(unsigned int)iv, emu_string_char(iv->instr_string));
 	}
 
 	for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
@@ -2057,9 +2068,9 @@ int graph_draw(struct emu_graph *graph)
 			struct emu_string *fs = emu_string_new();
 
 			if ( ee->data != (void *)0x0 )
-				emu_string_append_format(fs, "\t %i -> %i [style = dashed", ivfrom->eip, ivto->eip);
+				emu_string_append_format(fs, "\t %i -> %i [style = dashed", (unsigned int)ivfrom, (unsigned int)ivto);
 			else
-				emu_string_append_format(fs, "\t %i -> %i [style = bold", ivfrom->eip, ivto->eip);
+				emu_string_append_format(fs, "\t %i -> %i [style = bold", (unsigned int)ivfrom, (unsigned int)ivto);
 
 			if ( ee->count > 100 )
 				emu_string_append_char(fs, ", color=red");
@@ -2094,51 +2105,26 @@ int graph_draw(struct emu_graph *graph)
 	return 0;
 }
 
-/*
-int getpctest(int n)
+
+int getpctest()
 {
-	int i=0;
 	struct emu *e = emu_new();
 
-	if ( opts.verbose == 1 )
+	if ( opts.verbose > 1 )
 	{
 		emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 	}
 
-	for ( i=0;i<sizeof(tests)/sizeof(struct instr_test);i++ )
-	{
-		if ( n != -1 && i != n && !opts.from_stdin )
-			continue;
+	if ( (opts.offset = emu_shellcode_test(e, (uint8_t *)opts.scode, opts.size)) >= 0 )
+		printf(SUCCESS"\n");
+	else
+		printf(FAILED"\n");
 
-		if( !opts.from_stdin )
-		{
-			printf("testing (#%d) '%s' \t", i, tests[i].instr);
-			if ( emu_shellcode_test(e, (uint8_t *)tests[i].code, tests[i].codesize) >= 0 )
-				printf(SUCCESS"\n");
-			else
-				printf(FAILED"\n");
-		}else
-		{
-			int32_t off;
-			if ( (off = emu_shellcode_test(e, (uint8_t *)opts.scode, opts.size)) >= 0 )
-			{
-				printf(SUCCESS" (offset %i (0x%x))\n",off,(unsigned int)off);
-				opts.offset = off;
-				test(n);
-			}
-			else
-				printf(FAILED"\n");
-		}
-
-		emu_memory_clear(emu_memory_get(e));
-
-		if (opts.from_stdin)
-			break;
-	}
 	emu_free(e);
+
 	return 0;
 }
-*/
+
 
 void dump(int n)
 {
@@ -2209,8 +2195,7 @@ void print_help()
 	}
 }
 
-
-int prepare_from_stdin(struct emu *e)
+int prepare_from_stdin_read()
 {
 	unsigned buffer[BUFSIZ];
 	int ret, eof=0;
@@ -2261,7 +2246,12 @@ int prepare_from_stdin(struct emu *e)
 	}
 	opts.size = len;
 
+	return 0;
+}
 
+
+int prepare_from_stdin_write(struct emu *e)
+{
 	/* set the registers to the initial values */
 	struct emu_cpu *cpu = emu_cpu_get(e);
 	struct emu_memory *mem = emu_memory_get(e);
@@ -2280,7 +2270,7 @@ int prepare_from_stdin(struct emu *e)
 	/* write the code to the offset */
 	int static_offset = CODE_OFFSET;
 	emu_memory_write_block(mem, static_offset, opts.scode,  opts.size);
-	
+
 
 
 	/* set eip to the code */
@@ -2289,9 +2279,22 @@ int prepare_from_stdin(struct emu *e)
 	emu_cpu_reg32_set(emu_cpu_get(e), esp, 0x0012fe98);
 
 	free(opts.scode);
+
+	return 0;
+}
+
+int prepare_from_stdin(struct emu *e)
+{
+	if (opts.size != 0)
+		prepare_from_stdin_read();
+
+	prepare_from_stdin_write(e);
+
+
 	return 0;
 
 }
+
 
 
 int prepare_testnumber(struct emu *e)
@@ -2328,6 +2331,9 @@ int prepare_testnumber(struct emu *e)
 
 		/* set eip to the code */
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset + opts.offset);
+
+		opts.scode = (unsigned char *) tests[i].code;
+		opts.size = tests[i].codesize;
 		return 0;
 	}
 	return -1;
@@ -2518,8 +2524,18 @@ int main(int argc, char *argv[])
 
 	struct emu *e = emu_new();
 	if ( prepare(e) == 0 )
+	{
+		if (opts.getpc == 1)
+		{
+			getpctest();
+
+			emu_free(e);
+			e = emu_new();
+			prepare(e);
+		}
+
 		test(e);
-	
+	}
 
 	emu_free(e);
 

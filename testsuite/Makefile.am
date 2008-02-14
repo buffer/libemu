@@ -3,8 +3,8 @@ AUTOMAKE_OPTIONS = foreign
 AM_CPPFLAGS = -I../include -I ../.. -Werror -Wall -g
 AM_LDFLAGS = -lemu -L../src 
 
-bin_PROGRAMS = sctest
-noinst_PROGRAMS = testsuite cpurun instrtest instrtree hashtest memtest
+bin_PROGRAMS = sctest scprofiler
+noinst_PROGRAMS = testsuite cpurun instrtest instrtree hashtest memtest 
 
 testsuite_LDADD = ../src/libemu.la
 
@@ -29,5 +29,8 @@ hashtest_SOURCES = hashtest.c
 
 memtest_LDADD = ../src/libemu.la
 memtest_SOURCES = memtest.c
+
+scprofiler_LDADD = ../src/libemu.la
+scprofiler_SOURCES = scprofiler.c
 
 EXTRA_DIST = emunids.c

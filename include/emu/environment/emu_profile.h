@@ -38,6 +38,7 @@ enum emu_profile_argument_render
 	render_none,
 	render_ptr,
 	render_int,
+	render_short,
 	render_struct,
 	render_string,
 	render_ip,
@@ -58,7 +59,9 @@ struct emu_profile_argument
 
 	union
 	{
-		int tint;
+		int32_t tint;
+		int16_t tshort;
+
 		char *tchar;
 		struct 
 		{
@@ -119,8 +122,11 @@ int emu_profile_parse(struct emu_profile *profile, const char *path);
 
 void emu_profile_function_debug(struct emu_profile_function *function);
 
+void emu_profile_argument_debug(struct emu_profile_argument *argument, int indent);
+
 void emu_profile_argument_add_none(struct emu_profile *profile);
 void emu_profile_argument_add_int(struct emu_profile *profile, char *argtype, char *argname, int value);
+void emu_profile_argument_add_short(struct emu_profile *profile, char *argtype, char *argname, int16_t value);
 void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype,  char *argname, char *value);
 void emu_profile_argument_add_ptr(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
 void emu_profile_argument_add_ip(struct emu_profile *profile, char *argtype,  char *argname, uint32_t value);
@@ -135,4 +141,7 @@ void emu_profile_argument_struct_end(struct emu_profile *profile);
 
 void emu_profile_function_returnvalue_int_set(struct emu_profile *profile, const char *type, int value);
 void emu_profile_function_returnvalue_ptr_set(struct emu_profile *profile, const char *type, int value);
+
+
+void *emu_profile_function_argument_get(struct emu_profile_function *function, int argc);
 #endif
