@@ -96,7 +96,7 @@ static struct run_time_options
 	char *from_argos_csi;
 	unsigned char *scode;
 	uint32_t size;
-	uint32_t offset;
+	int offset;
 	char *profile_file;
 } opts;
 
@@ -2116,7 +2116,7 @@ int getpctest()
 	}
 
 	if ( (opts.offset = emu_shellcode_test(e, (uint8_t *)opts.scode, opts.size)) >= 0 )
-		printf(SUCCESS"\n");
+		printf("%s offset = 0x%08x\n",SUCCESS, opts.offset);
 	else
 		printf(FAILED"\n");
 
@@ -2274,18 +2274,18 @@ int prepare_from_stdin_write(struct emu *e)
 
 
 	/* set eip to the code */
-	emu_cpu_eip_set(emu_cpu_get(e), static_offset);
+	emu_cpu_eip_set(emu_cpu_get(e), static_offset + opts.offset);
 
 	emu_cpu_reg32_set(emu_cpu_get(e), esp, 0x0012fe98);
 
-	free(opts.scode);
+//	free(opts.scode);
 
 	return 0;
 }
 
 int prepare_from_stdin(struct emu *e)
 {
-	if (opts.size != 0)
+	if (opts.size == 0)
 		prepare_from_stdin_read();
 
 	prepare_from_stdin_write(e);
@@ -2332,8 +2332,12 @@ int prepare_testnumber(struct emu *e)
 		/* set eip to the code */
 		emu_cpu_eip_set(emu_cpu_get(e), static_offset + opts.offset);
 
-		opts.scode = (unsigned char *) tests[i].code;
-		opts.size = tests[i].codesize;
+		if ( opts.scode == 0 )
+		{
+			opts.scode = malloc(tests[i].codesize);
+			memcpy(opts.scode, tests[i].code, tests[i].codesize);
+			opts.size = tests[i].codesize;
+		}
 		return 0;
 	}
 	return -1;
@@ -2549,6 +2553,9 @@ int main(int argc, char *argv[])
 
 	if (opts.profile_file)
 		free(opts.profile_file);
+
+	if (opts.scode)
+		free(opts.scode);
 
 	return 0;
 }
