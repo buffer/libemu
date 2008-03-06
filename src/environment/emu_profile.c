@@ -304,7 +304,7 @@ uint32_t measure_size(struct emu_profile_argument *argument, bool followptr)
 
 int copy_data(struct emu_profile_argument *argument, uint8_t *addr, uint8_t **next)
 {
-	printf("%s : %i \n", __PRETTY_FUNCTION__, __LINE__);
+//	printf("%s : %i \n", __PRETTY_FUNCTION__, __LINE__);
 
 	uint32_t *addr32 = (uint32_t *)addr;
 	uint16_t *addr16 = (uint16_t *)addr;
@@ -387,22 +387,29 @@ int copy_data(struct emu_profile_argument *argument, uint8_t *addr, uint8_t **ne
 
 void *emu_profile_function_argument_get(struct emu_profile_function *function, int argc)
 {
-	int i = 0;
-	struct emu_profile_argument *argument = emu_profile_arguments_first(function->arguments);
+	struct emu_profile_argument *argument;
 
-	while (i < argc)
+	if ( argc == 0 )
 	{
-		argument = emu_profile_arguments_next(argument);
-		i++;
+		argument = function->return_value;
+	}else
+	{
+		int i = 1;
+		argument = emu_profile_arguments_first(function->arguments);
+		while ( i < argc )
+		{
+			argument = emu_profile_arguments_next(argument);
+			i++;
 
-		if (emu_profile_arguments_istail(argument))
-			return NULL;
+			if ( emu_profile_arguments_istail(argument) )
+				return NULL;
+		}
 	}
-
+	
 	uint32_t size = 0;
 	size = measure_size(argument, true);
 
-	printf("%s size is %i\n", argument->argname, size);
+//	printf("%s size is %i\n", argument->argname, size);
 
 	uint8_t *data = malloc(size);
 	uint8_t *next = data;
