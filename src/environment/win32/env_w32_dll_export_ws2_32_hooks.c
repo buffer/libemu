@@ -498,14 +498,19 @@ SOCKET WSAAPI socket(
 );
 */
 
+	emu_profile_function_add(env->profile, "socket");
+
 	uint32_t af;
 	POP_DWORD(c, &af);
+	emu_profile_argument_add_int(env->profile, "int", "af", af);
 
 	uint32_t type;
 	POP_DWORD(c, &type);
+	emu_profile_argument_add_int(env->profile, "int", "type", type);
 
 	uint32_t protocol;
 	POP_DWORD(c, &protocol);
+	emu_profile_argument_add_int(env->profile, "int", "protocol", protocol);
 
 	int s = 111;
 
@@ -515,6 +520,8 @@ SOCKET WSAAPI socket(
 
 	printf("socket %i \n", s);
 	emu_cpu_reg32_set(c, eax, s);
+
+	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", s);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
