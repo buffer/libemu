@@ -84,7 +84,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 										uint16_t datasize, 
 										uint16_t eipoffset,
 										uint32_t steps,
-										struct emu_env_w32 *env, 
+//										struct emu_env_w32 *env, 
 										struct emu_track_and_source *etas,
 										struct emu_hashtable *known_positions,
 										struct emu_list_root *stats_tested_positions_list,
@@ -100,6 +100,8 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 
 //	struct emu_list_root *tested_positions = emu_list_create();
 
+	struct emu_env_w32 *env = NULL;
+
 	while ( !emu_queue_empty(eq) )
 	{
 		
@@ -112,11 +114,13 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 			logDebug(e, "running at offset %i %08x\n", current_offset, current_offset);
 
 			emu_memory_clear(mem);
+			if (env)
+				emu_env_w32_free(env);
 
 			/* write the code to the offset */
 			emu_memory_write_block(mem, STATIC_OFFSET, data, datasize);
 			
-
+			env = emu_env_w32_new(e);
 			/* set the registers to the initial values */
 			int reg;
 			for ( reg=0;reg<8;reg++ )
@@ -161,7 +165,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 				ret = emu_cpu_step(emu_cpu_get(e));
 				if ( ret == -1 )
 				{
-					logDebug(e, "error at %s\n", cpu->instr_string);
+					logDebug(e, "error at %s (%s)\n", cpu->instr_string, strerror(emu_errno(e)));
 					if (brute_force)
 					{
 						logDebug(e, "goto traversal\n");
@@ -381,7 +385,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 
 	struct emu_hashtable *eh = emu_hashtable_new(size+4/4, hash_uint32_t, cmp_uint32_t);
 	struct emu_list_item *eli;
-	struct emu_env_w32 *env = emu_env_w32_new(e);
+//	struct emu_env_w32 *env = emu_env_w32_new(e);
 	
 
 	struct emu_list_root *results = emu_list_create();
@@ -389,7 +393,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	for ( eli = emu_list_first(el); !emu_list_attail(eli); eli = emu_list_next(eli) )
 	{
 		logDebug(e, "testing offset %i %08x\n", eli->uint32, eli->uint32);
-		emu_shellcode_run_and_track(e, data, size, eli->uint32, 256, env, etas, eh,
+		emu_shellcode_run_and_track(e, data, size, eli->uint32, 256, etas, eh,
 									results, false);
 	}
 
@@ -403,7 +407,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 		{
 			struct emu_stats *es = (struct emu_stats *)eli->data;
 			logDebug(e, "brute at offset 0x%08x \n",es->eip - STATIC_OFFSET);
-			emu_shellcode_run_and_track(e, data, size, es->eip - STATIC_OFFSET, 256, env, etas, eh,
+			emu_shellcode_run_and_track(e, data, size, es->eip - STATIC_OFFSET, 256, etas, eh,
 										new_results, true);
 			
 		}
@@ -415,7 +419,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 		for ( eli = emu_list_first(results); !emu_list_attail(eli); eli = emu_list_next(eli) )
 		{
 			struct emu_list_item *next = emu_list_next(eli);
-			if (next != NULL &&
+			if (!emu_list_attail(next) &&
             	((struct emu_stats *)eli->data)->eip == ((struct emu_stats *)next->data)->eip )
 				emu_list_remove(next);
 		}
@@ -425,7 +429,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 
 	emu_hashtable_free(eh);
 	emu_list_destroy(el);
-	emu_env_w32_free(env);
+//	emu_env_w32_free(env);
 	emu_track_and_source_free(etas);
 
 
