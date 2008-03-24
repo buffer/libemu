@@ -48,6 +48,7 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_hashtable.h"
 #include "emu/emu_string.h"
+#include "emu/environment/emu_env.h"
 #include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
@@ -55,7 +56,7 @@
 #include "emu/environment/win32/env_w32_dll_export_kernel32_hooks.h"
 
 
-int32_t	env_w32_hook_CloseHandle(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_CloseHandle(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -84,7 +85,7 @@ BOOL CloseHandle(
 }
 
 
-int32_t	env_w32_hook_CreateFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_CreateFileA(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -144,7 +145,7 @@ HANDLE CreateFile(
 }
 
 
-int32_t	env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -271,49 +272,41 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env_w32 *env, struct emu_env_w32_
 	emu_profile_argument_struct_end(env->profile);
 
 
-
-	printf("CreateProcessA \n");	
-
-	
-
-
-
-	fflush(NULL);
-
-#ifdef HAVE_INTERACTIVE_HOOKS
-	if (emu_string_char(command) != NULL && strncasecmp(emu_string_char(command), "cmd", 3) == 0)
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
 	{
-	
-	// the code is meant to be an example how one could do it
-		pid_t pid;
-		if ((pid = fork()) == 0)
-		{ // child
-	
-			dup2(si->hStdInput,  fileno(stdin));
-			dup2(si->hStdOutput, fileno(stdout));
-			dup2(si->hStdError,  fileno(stderr));
-	
-			system("/opt/cmd/bin/cmdexe.pl -p winxp -l /opt/cmd/var/log/cmd/");
-			exit(EXIT_SUCCESS);
-		}else
-		{ // parent 
-			pi->hProcess = pid;
-			emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
-		}
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   /* LPCWSTR pszImageName,             */ NULL,
+											   /* LPCWSTR pszCmdLine,               */ emu_string_char(command),
+											   /* LPSECURITY_ATTRIBUTES psaProcess, */ NULL,
+											   /* LPSECURITY_ATTRIBUTES psaThread,  */ NULL,
+											   /* BOOL fInheritHandles,             */ NULL,
+											   /* DWORD fdwCreate,                  */ NULL,
+											   /* LPVOID pvEnvironment,             */ NULL,
+											   /* LPWSTR pszCurDir,                 */ NULL,
+											   /* LPSTARTUPINFOW psiStartInfo,      */ si,
+											   /* LPPROCESS_INFORMATION pProcInfo   */ pi);
+	}else
+	{
+		pi->hProcess = 4712;
+		returnvalue	= -1;
 	}
-#endif
+
+	emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+
+	emu_profile_function_returnvalue_int_set(env->profile, "BOOL", returnvalue);
+	emu_cpu_reg32_set(c, eax, returnvalue);
+
+
 	emu_string_free(command);
 	free(pi);
 	free(si);
-
-	emu_cpu_reg32_set(c, eax, 1);
-	emu_profile_function_returnvalue_int_set(env->profile, "BOOL", 1);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
-int32_t	env_w32_hook_DeleteFileA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_DeleteFileA(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -340,7 +333,7 @@ BOOL DeleteFile(
 	return 0;
 }
 
-int32_t	env_w32_hook_ExitProcess(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -365,7 +358,7 @@ VOID WINAPI ExitProcess(
 	return 0;
 }
 
-int32_t	env_w32_hook_ExitThread(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_ExitThread(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -390,7 +383,7 @@ VOID ExitThread(
 	return 0;
 }
 
-int32_t	env_w32_hook_fclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_fclose(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -424,7 +417,7 @@ int fclose( FILE *stream );
 }
 
 
-int32_t	env_w32_hook_fopen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_fopen(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -470,7 +463,7 @@ FILE *_wfopen( const wchar_t *filename, const wchar_t *mode );
 	return 0;
 }
 
-int32_t	env_w32_hook_fwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_fwrite(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -516,7 +509,7 @@ size_t fwrite( const void *buffer, size_t size, size_t count, FILE *stream );
 	return 0;
 }
 
-int32_t env_w32_hook_GetProcAddress(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t env_w32_hook_GetProcAddress(struct emu_env *env, struct emu_env_hook *hook)
 {
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 	struct emu_memory *mem = emu_memory_get(env->emu);
@@ -551,16 +544,19 @@ FFARPROC WINAPI GetProcAddress(
 	printf("procname name is '%s'\n", emu_string_char(procname));
 
 	int i;
-	for ( i=0; env->loaded_dlls[i] != NULL; i++ )
+	for ( i=0; env->env.win->loaded_dlls[i] != NULL; i++ )
 	{
-		if ( env->loaded_dlls[i]->baseaddr == module )
+		if ( env->env.win->loaded_dlls[i]->baseaddr == module )
 		{
-			printf("dll is %s %08x %08x \n", env->loaded_dlls[i]->dllname, module, env->loaded_dlls[i]->baseaddr);
+			printf("dll is %s %08x %08x \n", 
+				   env->env.win->loaded_dlls[i]->dllname, 
+				   module, 
+				   env->env.win->loaded_dlls[i]->baseaddr);
 
-			struct emu_env_w32_dll *dll = env->loaded_dlls[i];
+			struct emu_env_w32_dll *dll = env->env.win->loaded_dlls[i];
 			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnname, (void *)emu_string_char(procname));
 
-			struct emu_env_w32_dll_export *ex = (struct emu_env_w32_dll_export *)ehi->value;
+			struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
 
 			if ( ehi == NULL )
 			{
@@ -569,10 +565,10 @@ FFARPROC WINAPI GetProcAddress(
 			}
 			else
 			{
-				printf("found %s at addr %08x\n",emu_string_char(procname), dll->baseaddr + ex->virtualaddr );
-				emu_cpu_reg32_set(c, eax, dll->baseaddr + ex->virtualaddr);
+				printf("found %s at addr %08x\n",emu_string_char(procname), dll->baseaddr + hook->hook.win->virtualaddr );
+				emu_cpu_reg32_set(c, eax, dll->baseaddr + hook->hook.win->virtualaddr);
 
-				emu_profile_function_returnvalue_ptr_set(env->profile, "FARPROC WINAPI", dll->baseaddr + ex->virtualaddr);
+				emu_profile_function_returnvalue_ptr_set(env->profile, "FARPROC WINAPI", dll->baseaddr + hook->hook.win->virtualaddr);
 				emu_profile_argument_add_none(env->profile);
 				break;
 			}
@@ -586,7 +582,7 @@ FFARPROC WINAPI GetProcAddress(
 	return 0;
 }
 
-int32_t env_w32_hook_GetSystemDirectoryA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t env_w32_hook_GetSystemDirectoryA(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -625,7 +621,7 @@ UINT GetSystemDirectory(
 }
 
 
-int32_t env_w32_hook_GetTickCount(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t env_w32_hook_GetTickCount(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -642,12 +638,12 @@ int32_t env_w32_hook_GetTickCount(struct emu_env_w32 *env, struct emu_env_w32_dl
 	return 0;
 }
 
-int32_t	env_w32_hook__hwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook__hwrite(struct emu_env *env, struct emu_env_hook *hook)
 {
-	return env_w32_hook__lwrite(env, ex);
+	return env_w32_hook__lwrite(env, hook);
 }
 
-int32_t	env_w32_hook__lcreat(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook__lcreat(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -676,7 +672,7 @@ LONG _lcreat(
 	return 0;
 }
 
-int32_t	env_w32_hook__lclose(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook__lclose(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -697,7 +693,7 @@ FIXME
 	return 0;
 }
 
-int32_t	env_w32_hook__lwrite(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook__lwrite(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -730,7 +726,7 @@ LONG _lwrite(
 	return 0;
 }
 
-int32_t	env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_LoadLibrayA(struct emu_env *env, struct emu_env_hook *hook)
 {
 
 
@@ -760,22 +756,22 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll
 
 	int i;
 	int found_dll = 0;
-	for (i=0; env->loaded_dlls[i] != NULL; i++)
+	for (i=0; env->env.win->loaded_dlls[i] != NULL; i++)
 	{
-		if (strncasecmp(env->loaded_dlls[i]->dllname, dllname, strlen(env->loaded_dlls[i]->dllname)) == 0)
+		if (strncasecmp(env->env.win->loaded_dlls[i]->dllname, dllname, strlen(env->env.win->loaded_dlls[i]->dllname)) == 0)
 		{
-			printf("found dll %s, baseaddr is %08x \n",env->loaded_dlls[i]->dllname,env->loaded_dlls[i]->baseaddr);
-			emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr);
+			printf("found dll %s, baseaddr is %08x \n",env->env.win->loaded_dlls[i]->dllname,env->env.win->loaded_dlls[i]->baseaddr);
+			emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
 			found_dll = 1;
 		}
 	}
 	
 	if (found_dll == 0)
 	{
-        if (emu_env_w32_load_dll(env, dllname) == 0)
+        if (emu_env_w32_load_dll(env->env.win, dllname) == 0)
         {
-            emu_cpu_reg32_set(c, eax, env->loaded_dlls[i]->baseaddr);
-			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", env->loaded_dlls[i]->baseaddr);
+            emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
+			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", env->env.win->loaded_dlls[i]->baseaddr);
 			emu_profile_argument_add_none(env->profile);
         }
         else
@@ -793,7 +789,7 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env_w32 *env, struct emu_env_w32_dll
 	return 0;
 }
 
-int32_t	env_w32_hook_malloc(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_malloc(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -827,7 +823,7 @@ void *malloc(
 	return 0;
 }
 
-int32_t	env_w32_hook_memset(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_memset(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -868,7 +864,7 @@ void *memset(
 
 }
 
-int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -894,7 +890,7 @@ int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env_w32 *env, struct
 	return 0;
 }
 
-int32_t	env_w32_hook_WaitForSingleObject(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_WaitForSingleObject(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -923,25 +919,24 @@ DWORD WINAPI WaitForSingleObject(
 
 	printf("WaitForSingleObject(hHandle=%i,  dwMilliseconds=%i)\n", handle, msecs);
 
-// the code is meant to be an example how one could do it
-#ifdef HAVE_INTERACTIVE_HOOKS
-	int status;
-	while(1)
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
 	{
-		if (waitpid(handle, &status, WNOHANG) != 0)
-			break;
-		sleep(1);
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   handle,
+											   msecs);
+	}else
+	{
+		returnvalue	= 0;
 	}
-#endif
-
-	emu_cpu_reg32_set(c, eax, 0);
-	emu_profile_function_returnvalue_int_set(env->profile, "DWORD", 0);
+	emu_profile_function_returnvalue_int_set(env->profile, "DWORD", returnvalue);
+	emu_cpu_reg32_set(c, eax, returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
-int32_t	env_w32_hook_WinExec(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_WinExec(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -984,7 +979,7 @@ UINT WINAPI WinExec(
 	return 0;
 }
 
-int32_t	env_w32_hook_WriteFile(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);

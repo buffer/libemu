@@ -39,19 +39,21 @@
 #include "emu/emu_hashtable.h"
 
 struct emu_profile;
+struct emu_env;
 
 struct emu_env_linux
 {
 	struct emu *emu;
 	struct emu_hashtable *syscall_hooks_by_name;
-	struct emu_env_linux_syscall *syscall_hooks;
-	struct emu_profile *profile;
+	struct emu_env_linux_syscall *syscall_hookx;
+	struct emu_env_hook *hooks;
+//	struct emu_profile *profile;
 };
 
 struct emu_env_linux *emu_env_linux_new(struct emu *e);
 void emu_env_linux_free(struct emu_env_linux *eel);
 
-struct emu_env_linux_syscall *emu_env_linux_syscall_check(struct emu_env_linux *env);
+struct emu_env_hook *emu_env_linux_syscall_check(struct emu_env *env);
 
 
 struct emu_env_linux_syscall_entry
@@ -60,15 +62,19 @@ struct emu_env_linux_syscall_entry
 	const char *(*fnhook)(struct emu_env_linux *env);
 };
 
+
+typedef uint32_t (*userhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall, ...);
+
 struct emu_env_linux_syscall
 {
 	const char *name;
-	int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall);
+	int32_t		(*fnhook)(struct emu_env *env, struct emu_env_hook *hook);
 	void *userdata;
+	uint32_t (*userhook)(struct emu_env *env, struct emu_env_hook *hook, ...);
 };
 
-int32_t emu_env_linux_syscall_hook(struct emu_env_linux *env, const char *syscallname,
-								   int32_t		(*fnhook)(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall),
+int32_t emu_env_linux_syscall_hook(struct emu_env *env, const char *syscallname,
+								   uint32_t (*userhook)(struct emu_env *env, struct emu_env_hook *hook, ...),
 								   void *userdata);
 
 const char *env_linux_socketcall(struct emu_env_linux *env);

@@ -40,13 +40,14 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_hashtable.h"
 #include "emu/emu_string.h"
+#include "emu/environment/emu_env.h"
 #include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/environment/win32/env_w32_dll_export_msvcrt_hooks.h"
 
-int32_t	env_w32_hook__execv(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook__execv(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);

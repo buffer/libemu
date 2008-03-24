@@ -4,7 +4,7 @@
  *                    - x86 shellcode emulation -
  *
  *
- * Copyright (C) 2007  Paul Baecher & Markus Koetter
+ * Copyright (C) 2008  Paul Baecher & Markus Koetter
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,36 +25,27 @@
  *
  *******************************************************************************/
 
-#include <stdint.h>
+#include "emu/environment/emu_env.h"
+#include "emu/environment/emu_profile.h"
+#include "emu/environment/linux/emu_env_linux.h"
+#include "emu/environment/win32/emu_env_w32.h"
+#include "emu/environment/win32/emu_env_w32_dll_export.h"
 
-#ifndef HAVE_EMU_ENV_W32_DLL_EXPORT_H
-#define HAVE_EMU_ENV_W32_DLL_EXPORT_H
-
-
-struct emu;
-struct emu_env_w32;
-struct emu_env;
-struct emu_env_hook;
-
-typedef uint32_t	(*win32userhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex, ...);
-
-struct emu_env_w32_dll_export
+struct emu_env *emu_env_new(struct emu *e)
 {
-	char 		*fnname;
-	uint32_t 	virtualaddr;
-    int32_t		(*fnhook)(struct emu_env *env, struct emu_env_hook *hook);
-	void 		*userdata;
-	uint32_t	(*userhook)(struct emu_env *env, struct emu_env_hook *hook, ...);
-};
+	struct emu_env *env = malloc(sizeof(struct emu_env));
+	memset(env, 0, sizeof(struct emu_env));
+	env->env.lin = emu_env_linux_new(e);
+	env->env.win = emu_env_w32_new(e);
+	env->emu = e;
+	env->profile = emu_profile_new();
+	return env;
+	
+}
 
-struct emu_env_w32_dll_export *emu_env_w32_dll_export_new();
-void emu_env_w32_dll_export_copy(struct emu_env_w32_dll_export *to, struct emu_env_w32_dll_export *from);
-void emu_env_w32_dll_export_free(struct emu_env_w32_dll_export *exp);
-
-extern struct emu_env_w32_dll_export kernel32_exports[];
-extern struct emu_env_w32_dll_export ws2_32_exports[];
-extern struct emu_env_w32_dll_export wininet_exports[];
-extern struct emu_env_w32_dll_export urlmon_exports[];
-
-
-#endif
+void emu_env_free(struct emu_env *env)
+{
+	emu_env_w32_free(env->env.win);
+	emu_env_linux_free(env->env.lin);
+	free(env);
+}

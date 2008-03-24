@@ -25,12 +25,17 @@
  *
  *******************************************************************************/
 
+#ifndef HAVE_EMU_ENV_W32
+#define HAVE_EMU_ENV_W32
+
 #include <stdint.h>
 
 struct emu;
 struct emu_env_w32_dll;
 struct emu_env_w32_dll_export;
 struct emu_profile;
+struct emu_env;
+struct emu_env_hook;
 
 /**
  * the emu win32 enviroment struct
@@ -51,8 +56,6 @@ struct emu_env_w32
 	 * the baseaddress for the env
 	 */
 	uint32_t	baseaddr;
-
-	struct emu_profile *profile;
 };
 
 /**
@@ -78,17 +81,15 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *path);
  * Hook an dll export from a dll
  * 
  * @param env        the env
- * @param dllname    the dllname, if NULL the export is searched within all loaded dlls
  * @param exportname the exportname, f.e. "socket"
  * @param fnhook     pointer to the hook function
  * 
  * @return on success: 0
  *         on failure: -1
  */
-int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
-								const char *dllname,
+int32_t emu_env_w32_export_hook(struct emu_env *env,
 								const char *exportname, 
-								int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex),
+								uint32_t		(*fnhook)(struct emu_env *env, struct emu_env_hook *hook, ...),
 								void *userdata);
 
 
@@ -102,4 +103,7 @@ int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
  * @return on success: pointer to the dll_export
  *         on failure: NULL
  */
-struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env);
+struct emu_env_hook *emu_env_w32_eip_check(struct emu_env *env);
+
+#endif
+

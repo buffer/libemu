@@ -76,7 +76,7 @@ AC_CHECK_FUNCS([strndup inet_ntoa  memmove memset strdup strerror])
 
 # library soname
 # check http://sources.redhat.com/autobook/autobook/autobook_91.html#SEC91
-libemu_current=1
+libemu_current=2
 libemu_revision=0
 libemu_age=0
 libemu_soname=$libemu_current:$libemu_revision:$libemu_age

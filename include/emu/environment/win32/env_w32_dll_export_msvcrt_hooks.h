@@ -27,5 +27,5 @@
 
 #include <stdint.h>
 
-int32_t	env_w32_hook__execv(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex);
+int32_t	env_w32_hook__execv(struct emu_env *env, struct emu_env_hook *hook);
 

@@ -25,8 +25,12 @@
  *
  *******************************************************************************/
 
+#ifndef HAVE_EMU_ENV_W32_DLL_H
+#define HAVE_EMU_ENV_W32_DLL_H
+
 #include <stdint.h>
 
+struct emu_env_hook;
 struct emu_env_w32_dll_export;
 
 struct emu_env_w32_dll
@@ -38,7 +42,8 @@ struct emu_env_w32_dll
 
 	uint32_t	baseaddr;
 
-	struct emu_env_w32_dll_export *exports;
+	struct emu_env_w32_dll_export *exportx;
+	struct emu_env_hook *hooks;
 	struct emu_hashtable *exports_by_fnptr;
 	struct emu_hashtable *exports_by_fnname;
 };
@@ -64,3 +69,4 @@ struct emu_env_w32_known_dll
 	struct emu_env_w32_known_dll_segment *memory_segments;
 };
 
+#endif

@@ -36,6 +36,7 @@
 #include "emu/emu_track.h"
 #include "emu/emu_source.h"
 #include "emu/emu_getpc.h"
+#include "emu/environment/emu_env.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/emu_hashtable.h"
@@ -100,7 +101,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 
 //	struct emu_list_root *tested_positions = emu_list_create();
 
-	struct emu_env_w32 *env = NULL;
+	struct emu_env *env = NULL;
 
 	while ( !emu_queue_empty(eq) )
 	{
@@ -115,12 +116,13 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 
 			emu_memory_clear(mem);
 			if (env)
-				emu_env_w32_free(env);
+				emu_env_free(env);
 
 			/* write the code to the offset */
 			emu_memory_write_block(mem, STATIC_OFFSET, data, datasize);
 			
-			env = emu_env_w32_new(e);
+			env = emu_env_new(e);
+
 			/* set the registers to the initial values */
 			int reg;
 			for ( reg=0;reg<8;reg++ )
@@ -142,14 +144,14 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 			uint32_t eipsave;
 			eipsave = emu_cpu_eip_get(cpu);
 
-			struct emu_env_w32_dll_export *dllhook = NULL;
+			struct emu_env_hook *hook = NULL;
 
-			dllhook = emu_env_w32_eip_check(env);
+			hook = emu_env_w32_eip_check(env);
 
 
-			if ( dllhook != NULL )
+			if ( hook != NULL )
 			{
-				if ( dllhook->fnhook == NULL )
+				if ( hook->hook.win->fnhook == NULL )
 					break;
 			}
 			else

@@ -78,6 +78,7 @@ libemu_la_SOURCES += functions/xor.c
 
 libemu_la_SOURCES += libdasm.c libdasm.h opcode_tables.h
 
+libemu_la_SOURCES += environment/emu_env.c
 libemu_la_SOURCES += environment/emu_profile.c
 libemu_la_SOURCES += environment/win32/emu_env_w32.c
 libemu_la_SOURCES += environment/win32/emu_env_w32_dll.c

@@ -33,6 +33,7 @@
 #include "emu/emu_cpu.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_hashtable.h"
+#include "emu/environment/emu_env.h"
 #include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
@@ -156,7 +157,7 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 {
 	struct emu_env_w32 *env = (struct emu_env_w32 *)malloc(sizeof(struct emu_env_w32));
 	memset(env,0,sizeof(struct emu_env_w32));
-	env->profile = emu_profile_new();
+//	env->profile = emu_profile_new();
 	env->emu = e;
 	// write TEB and linklist
 
@@ -195,7 +196,7 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 
 
 	// map kernel32.dll to emu's memory at 0x7c800000
-	if (emu_env_w32_load_dll(env,"kernel32.dll") == -1 )
+	if (emu_env_w32_load_dll(env,"kernel32.dll") == -1)
     {
 		free(env);
 		return NULL;
@@ -213,7 +214,7 @@ void emu_env_w32_free(struct emu_env_w32 *env)
 		numdlls++;
 	}
 	free(env->loaded_dlls);
-	emu_profile_free(env->profile);
+//	emu_profile_free(env->profile);
 	free(env);
 
 }
@@ -270,12 +271,12 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 }
 
 
-struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
+struct emu_env_hook *emu_env_w32_eip_check(struct emu_env *env)
 {
 	uint32_t eip = emu_cpu_eip_get(emu_cpu_get(env->emu));
 
 	int numdlls=0;
-	while ( env->loaded_dlls[numdlls] != NULL )
+	while ( env->env.win->loaded_dlls[numdlls] != NULL )
 	{
 /*		printf("0x%08x %s 0x%08x - 0x%08x \n",
 			   eip,
@@ -283,11 +284,11 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 			   env->loaded_dlls[numdlls]->baseaddr,
 			   env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize);
 */
-		if ( eip > env->loaded_dlls[numdlls]->baseaddr && 
-			 eip < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize )
+		if ( eip > env->env.win->loaded_dlls[numdlls]->baseaddr && 
+			 eip < env->env.win->loaded_dlls[numdlls]->baseaddr + env->env.win->loaded_dlls[numdlls]->imagesize )
 		{
-			logDebug(env->emu, "eip %08x is within %s\n",eip, env->loaded_dlls[numdlls]->dllname);
-			struct emu_env_w32_dll *dll = env->loaded_dlls[numdlls];
+			logDebug(env->env.win->emu, "eip %08x is within %s\n",eip, env->env.win->loaded_dlls[numdlls]->dllname);
+			struct emu_env_w32_dll *dll = env->env.win->loaded_dlls[numdlls];
 
 			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnptr, (void *)(eip - dll->baseaddr));
 
@@ -297,17 +298,18 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 				return NULL;
 			}
 
-			struct emu_env_w32_dll_export *ex = (struct emu_env_w32_dll_export *)ehi->value;
+		
+			struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
 
-			if ( ex->fnhook != NULL )
+			if ( hook->hook.win->fnhook != NULL )
 			{
-				ex->fnhook(env, ex);
-				return ex;
+				hook->hook.win->fnhook(env, hook);
+				return hook;
 			}
 			else
 			{
-				logDebug(env->emu, "unhooked call to %s\n", ex->fnname);
-				return ex;
+				logDebug(env->emu, "unhooked call to %s\n", hook->hook.win->fnname);
+				return hook;
 			}
 		}
 		numdlls++;
@@ -316,23 +318,23 @@ struct emu_env_w32_dll_export *emu_env_w32_eip_check(struct emu_env_w32 *env)
 	return NULL;
 }
 
-int32_t emu_env_w32_export_hook(struct emu_env_w32 *env,
-								const char *dllname,
+int32_t emu_env_w32_export_hook(struct emu_env *env,
 								const char *exportname, 
-								int32_t		(*fnhook)(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex),
+								uint32_t		(*fnhook)(struct emu_env *env, struct emu_env_hook *hook, ...),
 								void *userdata)
 {
 	int numdlls=0;
-	while ( env->loaded_dlls[numdlls] != NULL )
+	while ( env->env.win->loaded_dlls[numdlls] != NULL )
 	{
-		if (dllname == NULL || strncasecmp(env->loaded_dlls[numdlls]->dllname, dllname, strlen(env->loaded_dlls[numdlls]->dllname)) == 0)
+		if (1)//dllname == NULL || strncasecmp(env->loaded_dlls[numdlls]->dllname, dllname, strlen(env->loaded_dlls[numdlls]->dllname)) == 0)
 		{
-			struct emu_hashtable_item *ehi = emu_hashtable_search(env->loaded_dlls[numdlls]->exports_by_fnname, (void *)exportname);
+			struct emu_hashtable_item *ehi = emu_hashtable_search(env->env.win->loaded_dlls[numdlls]->exports_by_fnname, (void *)exportname);
 			if (ehi != NULL)
 			{
-				struct emu_env_w32_dll_export *ex = (struct emu_env_w32_dll_export *)ehi->value;
-				ex->fnhook = fnhook;
-				ex->userdata = userdata;
+				printf("hooked %s\n",  exportname);
+				struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
+				hook->hook.win->userhook = fnhook;
+				hook->hook.win->userdata = userdata;
 				return 0;
 			}
 		}

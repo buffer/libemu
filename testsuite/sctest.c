@@ -46,16 +46,21 @@
 #endif
 #include <stdio.h>
 
+#include <stdarg.h>
 
 
 #include <errno.h>
 #include <sys/select.h>
 
+#include <sys/wait.h>
 
 #ifdef HAVE_LIBCARGOS
 #include <cargos-lib.h>
 #endif
 
+
+#include <sys/types.h>
+#include <sys/socket.h>  
 
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
@@ -64,9 +69,11 @@
 #include "emu/emu_cpu_data.h"
 #include "emu/emu_cpu_stack.h"
 #include "emu/environment/emu_profile.h"
+#include "emu/environment/emu_env.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
+#include "emu/environment/win32/env_w32_dll_export_kernel32_hooks.h"
 #include "emu/environment/linux/emu_env_linux.h"
 #include "emu/emu_getpc.h"
 #include "emu/emu_graph.h"
@@ -98,6 +105,7 @@ static struct run_time_options
 	uint32_t size;
 	int offset;
 	char *profile_file;
+	bool interactive;
 } opts;
 
 
@@ -1575,16 +1583,10 @@ uint32_t hash(void *key)
 
 
 
-int32_t user_hook_ExitProcess(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+uint32_t user_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
-	struct emu_cpu *c = emu_cpu_get(env->emu);
-
-	uint32_t eip_save;
-
-	POP_DWORD(c, &eip_save);
 
 /*
 VOID WINAPI ExitProcess(
@@ -1592,25 +1594,23 @@ VOID WINAPI ExitProcess(
 );
 */
 
-	uint32_t exitcode;
-	POP_DWORD(c, &exitcode);
+	va_list vl;
+	va_start(vl, hook);
+	int exitcode = va_arg(vl,  int);
+	va_end(vl);
 
-	emu_cpu_eip_set(c, eip_save);
+	printf("%s(%i)\n", hook->hook.win->fnname, exitcode);
+
+
 	opts.steps = 0;
 	return 0;
 }
 
 
-int32_t user_hook_ExitThread(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+uint32_t user_hook_ExitThread(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
-	struct emu_cpu *c = emu_cpu_get(env->emu);
-
-	uint32_t eip_save;
-
-	POP_DWORD(c, &eip_save);
 
 /*
 VOID ExitThread(
@@ -1618,23 +1618,265 @@ VOID ExitThread(
 );
 */
 
-	uint32_t exitcode;
-	POP_DWORD(c, &exitcode);
+	va_list vl;
+	va_start(vl, hook);
+	int exitcode = va_arg(vl,  int);
+	va_end(vl);
 
+	printf("%s(%i)\n", hook->hook.win->fnname, exitcode);
 
-	emu_cpu_eip_set(c, eip_save);
 	opts.steps = 0;
 	return 0;
 
 }
 
-int32_t userhook_exit(struct emu_env_linux *env, struct emu_env_linux_syscall *syscall)
+uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	/* char *pszImageName				  = */ va_arg(vl, char *);
+	char *pszCmdLine                      = va_arg(vl, char *);               
+	/* void *psaProcess, 				  = */ va_arg(vl, void *);
+	/* void *psaThread,  				  = */ va_arg(vl, void *);
+	/* bool fInheritHandles,              = */ va_arg(vl, char *);
+	/* uint32_t fdwCreate,                = */ va_arg(vl, uint32_t);
+	/* void *pvEnvironment             	  = */ va_arg(vl, void *);
+	/* char *pszCurDir                 	  = */ va_arg(vl, char *);
+	STARTUPINFO *psiStartInfo       	  =  va_arg(vl, STARTUPINFO *);
+	PROCESS_INFORMATION *pProcInfo  	  =  va_arg(vl, PROCESS_INFORMATION *); 
+
+	va_end(vl);
+	printf("CreateProcess(%s)\n",pszCmdLine);
+
+	if ( pszCmdLine != NULL && strncasecmp(pszCmdLine, "cmd", 3) == 0 )
+	{
+		pid_t pid;
+		if ( (pid = fork()) == 0 )
+		{ // child
+
+			dup2(psiStartInfo->hStdInput,  fileno(stdin));
+			dup2(psiStartInfo->hStdOutput, fileno(stdout));
+			dup2(psiStartInfo->hStdError,  fileno(stderr));
+
+			system("/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \"");
+			exit(EXIT_SUCCESS);
+		}
+		else
+		{ // parent 
+			pProcInfo->hProcess = pid;
+			
+		}
+	}
+
+
+
+	return 1;
+}
+
+uint32_t user_hook_WaitForSingleObject(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+
+	/*
+	DWORD WINAPI WaitForSingleObject(
+	  HANDLE hHandle,
+	  DWORD dwMilliseconds
+	);
+	*/
+
+	va_list vl;
+	va_start(vl, hook);
+
+	int32_t hHandle = va_arg(vl, int32_t);
+	/*int32_t dwMilliseconds = */va_arg(vl, int32_t);
+	va_end(vl);
+
+	int status;
+	while(1)
+	{
+		if (waitpid(hHandle, &status, WNOHANG) != 0)
+			break;
+		sleep(1);
+	}
+
+	return 0;
+}
+
+
+uint32_t user_hook_exit(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+	int code = va_arg(vl,  int);
+	va_end(vl);
+
+	printf("exit(%i)\n",code);
 	opts.steps = 0;
 	return 0;
 }
+
+uint32_t user_hook_accept(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	int s 					= va_arg(vl,  int);
+	struct sockaddr* addr 	= va_arg(vl,  struct sockaddr *);
+	socklen_t* addrlen 			= va_arg(vl,  socklen_t *);
+	va_end(vl);
+
+    return accept(s, addr, addrlen);
+}
+
+uint32_t user_hook_bind(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	int s 					= va_arg(vl,  int);
+	struct sockaddr* addr 	= va_arg(vl,  struct sockaddr *);
+	socklen_t addrlen = va_arg(vl,  socklen_t );
+
+	va_end(vl);
+
+    return bind(s, addr, addrlen);
+}
+
+uint32_t user_hook_closesocket(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+	int s 					= va_arg(vl,  int);
+	va_end(vl);
+
+    return close(s);
+}
+
+uint32_t user_hook_connect(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	int s 					= va_arg(vl,  int);
+	struct sockaddr* addr 	= va_arg(vl,  struct sockaddr *);
+	socklen_t addrlen = va_arg(vl,  socklen_t);
+
+	va_end(vl);
+
+    return connect(s, addr, addrlen);
+}
+
+uint32_t user_hook_listen(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	int s 					= va_arg(vl,  int);
+	int backlog			 	= va_arg(vl,  int);
+	va_end(vl);
+
+    return listen(s, backlog);
+}
+
+uint32_t user_hook_recv(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	int s = va_arg(vl,  int);
+	char* buf = va_arg(vl,  char *);
+	int len = va_arg(vl,  int);
+	int flags = va_arg(vl,  int);
+	va_end(vl);
+
+	return recv(s, buf, len,  flags);
+}
+
+uint32_t user_hook_send(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	int s = va_arg(vl,  int);
+	char* buf = va_arg(vl,  char *);
+	int len = va_arg(vl,  int);
+	int flags = va_arg(vl,  int);
+	va_end(vl);
+
+	return send(s, buf, len,  flags);
+}
+
+
+uint32_t user_hook_socket(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+	/* int socket(int domain, int type, int protocol); */
+	int domain = va_arg(vl,  int);
+	int type = va_arg(vl,  int);
+	int protocol = va_arg(vl, int);
+	va_end(vl);
+
+	printf("socket(%i, %i, %i)\n",domain, type, protocol);
+
+	return socket(domain, type, protocol);
+}
+
+uint32_t user_hook_WSASocket(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+	/* int socket(int domain, int type, int protocol); */
+	int domain = va_arg(vl,  int);
+	int type = va_arg(vl,  int);
+	int protocol = va_arg(vl, int);
+	va_arg(vl, int);
+	va_arg(vl, int);
+	va_arg(vl, int);
+
+	va_end(vl);
+
+	printf("WSASocket(%i, %i, %i)\n",domain, type, protocol);
+
+	return socket(domain, type, protocol);
+}
+
 
 int graph_draw(struct emu_graph *graph);
 
@@ -1643,18 +1885,20 @@ int test(struct emu *e)
 //	int i=0;
 	struct emu_cpu *cpu = emu_cpu_get(e);
 	struct emu_memory *mem = emu_memory_get(e);
-	struct emu_env_w32 *env = emu_env_w32_new(e);
-	struct emu_env_linux *lenv = emu_env_linux_new(e);
 
-	struct emu_profile *profile_copy = lenv->profile;
-	lenv->profile = env->profile;
+//	struct emu_profile *profile_copy = lenv->profile;
+
+
+	struct emu_env *env = emu_env_new(e);
+
+//	lenv->profile = wenv->profile;
 
 	/* IAT for sqlslammer */
 	emu_memory_write_dword(mem, 0x42AE1018, 0x7c801D77);
 	emu_memory_write_dword(mem, 0x42ae1010, 0x7c80ADA0);
 	emu_memory_write_dword(mem, 0x7c80ADA0, 0x51EC8B55);
 
-	if ( env == 0 )
+	if ( env == NULL )
 	{
 		printf("%s \n", emu_strerror(e));
 		printf("%s \n", strerror(emu_errno(e)));
@@ -1662,10 +1906,29 @@ int test(struct emu *e)
 	}
 
 
-	emu_env_w32_export_hook(env, NULL, "ExitProcess", user_hook_ExitProcess, NULL);
-	emu_env_w32_export_hook(env, NULL, "ExitThread", user_hook_ExitThread, NULL);
+	emu_env_w32_export_hook(env, "ExitProcess", user_hook_ExitProcess, NULL);
+	emu_env_w32_export_hook(env, "ExitThread", user_hook_ExitThread, NULL);
 
-	emu_env_linux_syscall_hook(lenv, "exit", userhook_exit, NULL);
+	if ( opts.interactive == true )
+	{
+		emu_env_w32_export_hook(env, "CreateProcessA", user_hook_CreateProcess, NULL);
+		emu_env_w32_export_hook(env, "WaitForSingleObject", user_hook_WaitForSingleObject, NULL);
+
+		emu_env_w32_load_dll(env->env.win,"ws2_32.dll");
+		emu_env_w32_export_hook(env, "accept", user_hook_accept, NULL);
+		emu_env_w32_export_hook(env, "bind", user_hook_bind, NULL);
+		emu_env_w32_export_hook(env, "closesocket", user_hook_closesocket, NULL);
+		emu_env_w32_export_hook(env, "connect", user_hook_connect, NULL);
+		emu_env_w32_export_hook(env, "listen", user_hook_listen, NULL);
+		emu_env_w32_export_hook(env, "recv", user_hook_recv, NULL);
+		emu_env_w32_export_hook(env, "send", user_hook_send, NULL);
+		emu_env_w32_export_hook(env, "socket", user_hook_socket, NULL);
+		emu_env_w32_export_hook(env, "WSASocketA", user_hook_WSASocket, NULL);
+
+
+		emu_env_linux_syscall_hook(env, "exit", user_hook_exit, NULL);
+		emu_env_linux_syscall_hook(env, "socket", user_hook_socket, NULL);
+	}
 
 /*	uint32_t x;
 	for (x=0x7c800000;x<0x7c902400;x++)
@@ -1726,7 +1989,7 @@ int test(struct emu *e)
 		if ( cpu->repeat_current_instr == false )
 			eipsave = emu_cpu_eip_get(emu_cpu_get(e));
 
-		struct emu_env_w32_dll_export *dllhook = NULL;
+		struct emu_env_hook *hook = NULL;
 		struct emu_vertex *ev = NULL;
 		struct instr_vertex *iv = NULL;
 
@@ -1750,40 +2013,40 @@ int test(struct emu *e)
 			}
 		}
 
-		dllhook = emu_env_w32_eip_check(env);
+		hook = emu_env_w32_eip_check(env);
 
-		if ( dllhook != NULL )
+		if ( hook != NULL )
 		{
 			 
 			if ( opts.graphfile != NULL )
 			{
-				if ( ev->data != NULL && strcmp(dllhook->fnname, "CreateProcessA") == 0)
+				if ( ev->data != NULL && strcmp(hook->hook.win->fnname, "CreateProcessA") == 0)
 				{
 					ev = emu_vertex_new();
 					emu_graph_vertex_add(graph, ev);
 				}
 
 //				fnname_from_profile(env->profile, dllhook->fnname);
-				iv = instr_vertex_new(eipsave,dllhook->fnname);
+				iv = instr_vertex_new(eipsave,hook->hook.win->fnname);
 				emu_vertex_data_set(ev, iv);
 
 				// get the dll
 				int numdlls=0;
-				while ( env->loaded_dlls[numdlls] != NULL )
+				while ( env->env.win->loaded_dlls[numdlls] != NULL )
 				{
-					if ( eipsave > env->loaded_dlls[numdlls]->baseaddr && 
-						 eipsave < env->loaded_dlls[numdlls]->baseaddr + env->loaded_dlls[numdlls]->imagesize )
+					if ( eipsave > env->env.win->loaded_dlls[numdlls]->baseaddr && 
+						 eipsave < env->env.win->loaded_dlls[numdlls]->baseaddr + env->env.win->loaded_dlls[numdlls]->imagesize )
 					{
-						iv->dll = env->loaded_dlls[numdlls];
+						iv->dll = env->env.win->loaded_dlls[numdlls];
 					}
 					numdlls++;
 				}
 
 			}
 
-			if ( dllhook->fnhook == NULL )
+			if ( hook->hook.win->fnhook == NULL )
 			{
-				printf("unhooked call to %s\n", dllhook->fnname);
+				printf("unhooked call to %s\n", hook->hook.win->fnname);
 				break;
 			}
 
@@ -1800,17 +2063,17 @@ int test(struct emu *e)
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
 			}
 
-			struct emu_env_linux_syscall *syscall =NULL;
+			struct emu_env_hook *hook =NULL;
 			if ( ret != -1 )
 			{
 
-				if ( ( syscall = emu_env_linux_syscall_check(lenv)) != NULL )
+				if ( ( hook = emu_env_linux_syscall_check(env)) != NULL )
 				{
 					if ( opts.graphfile != NULL && ev->data == NULL )
 					{
-						iv = instr_vertex_new(eipsave, syscall->name);
+						iv = instr_vertex_new(eipsave, hook->hook.lin->name);
 						emu_vertex_data_set(ev, iv);
-						iv->syscall = syscall;
+						iv->syscall = hook->hook.lin;
 					}
 				}
 				else
@@ -1834,7 +2097,7 @@ int test(struct emu *e)
 
 			if ( ret != -1 )
 			{
-				if ( syscall == NULL )
+				if ( hook == NULL )
 				{
 
 					if ( opts.verbose >= 2 )
@@ -1850,8 +2113,8 @@ int test(struct emu *e)
 				}
 				else
 				{
-					if ( syscall->fnhook != NULL )
-						syscall->fnhook(lenv, syscall);
+					if ( hook->hook.lin->fnhook != NULL )
+						hook->hook.lin->fnhook(env, hook);
 					else
 						break;
 				}
@@ -1896,10 +2159,6 @@ int test(struct emu *e)
 
 	emu_profile_debug(env->profile);
 	emu_profile_dump(env->profile, opts.profile_file);
-
-	lenv->profile = profile_copy;
-	emu_env_w32_free(env);
-	emu_env_linux_free(lenv);
 
 	if (eh != NULL)
 		emu_hashtable_free(eh);
@@ -2176,6 +2435,7 @@ void print_help()
 		{"h", "help"        , NULL		, "show this help"},
 		{"S", "stdin"		, NULL		, "read shellcode/buffer from stdin, works with -g"},
 		{"o", "offset"		, "[INT|HEX]", "manual offset for shellcode, accepts int and hexvalues"},
+		{"i", "interactive"	, NULL		, "proxy api calls to the host operating system"},
 	};
 
 	int i;
@@ -2451,10 +2711,11 @@ int main(int argc, char *argv[])
 			{"offset"			, 1, 0, 'o'},
 			{"argos-csi"		, 1, 0, 'a'},
 			{"profile"			, 1, 0, 'p'},
+			{"interactive"		, 1, 0, 'i'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vs:t:ld:gG:hSo:a:p:", long_options, &option_index);
+		c = getopt_long (argc, argv, "vs:t:ld:gG:hSo:a:p:i", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -2516,6 +2777,11 @@ int main(int argc, char *argv[])
 		case 'p':
 			opts.profile_file = strdup(optarg);
 			printf("profile %s\n", opts.profile_file);
+			break;
+
+
+		case 'i':
+			opts.interactive = true;
 			break;
 
 		default:

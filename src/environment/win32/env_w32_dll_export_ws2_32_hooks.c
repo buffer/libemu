@@ -47,13 +47,14 @@
 #include "emu/emu_cpu_stack.h"
 #include "emu/emu_hashtable.h"
 #include "emu/emu_string.h"
+#include "emu/environment/emu_env.h"
 #include "emu/environment/emu_profile.h"
 #include "emu/environment/win32/emu_env_w32.h"
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/environment/win32/env_w32_dll_export_ws2_32_hooks.h"
 
-int32_t	env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_accept(struct emu_env *env, struct emu_env_hook *hook)
 {
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -86,23 +87,26 @@ int32_t	env_w32_hook_accept(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
 
 	printf("accept(s=%i, addr=%x, addrlen=%i);\n", s, addr, addrlen);
 
-	int a = 67;
-
-#ifdef HAVE_INTERACTIVE_HOOKS
-	struct sockaddr sa;
-	socklen_t sasize = sizeof(struct sockaddr);
-	a=accept(s, &sa, &sasize);
-#endif
-
-	printf("accept %i \n", a);	
-	emu_cpu_reg32_set(c, eax, a);
-	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", a);
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		struct sockaddr sa;
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s,
+											   &sa,
+											   &addrlen);
+	}else
+	{
+		returnvalue	= 68;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
-int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_bind(struct emu_env *env, struct emu_env_hook *hook)
 {
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -160,21 +164,27 @@ int32_t	env_w32_hook_bind(struct emu_env_w32 *env, struct emu_env_w32_dll_export
 	printf("bind(s=%i, name=%x, namelen=%i\n", s, name, namelen);
 
 
-	int retval = 0;
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s,
+											   &sa,
+											   namelen);
+	}else
+	{
+		returnvalue	= 0;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	retval = bind(s, &sa, sizeof(struct sockaddr));
-#endif 
-
-    emu_cpu_reg32_set(c, eax, retval);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", retval);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
 
-int32_t	env_w32_hook_closesocket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_closesocket(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -194,12 +204,17 @@ int closesocket(
 	POP_DWORD(c, &s);
 	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	close((int)s);
-#endif 
-
-	emu_cpu_reg32_set(c, eax, 0);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s);
+	}else
+	{
+		returnvalue	= 0;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -207,7 +222,7 @@ int closesocket(
 
 
 
-int32_t	env_w32_hook_connect(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_connect(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -257,24 +272,26 @@ int connect(
 	POP_DWORD(c, &namelen);
 	emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
 
-	int retval = 0;
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	struct sockaddr_in si;
-	si.sin_port = htons(4444);
-	si.sin_family = AF_INET;
-	si.sin_addr.s_addr = inet_addr("127.0.0.1");
-	retval = connect(s, (struct sockaddr *)&si, sizeof(struct sockaddr_in));
-#endif
-
-	emu_cpu_reg32_set(c, eax, retval);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", retval);
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s,
+											   &sa,
+											   namelen);
+	}else
+	{
+		returnvalue	= 0;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
-int32_t	env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_listen(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -303,20 +320,26 @@ int32_t	env_w32_hook_listen(struct emu_env_w32 *env, struct emu_env_w32_dll_expo
 
 	printf("listen(s=%i,  backlog=%i)\n", s,  backlog);
 
-	int retval = 0;
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	retval = listen(s, backlog);
-#endif
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s,
+											   backlog);
+	}else
+	{
+		returnvalue	= 0;
+	}
 
-	emu_cpu_reg32_set(c, eax, retval);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", retval);
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
-int32_t	env_w32_hook_recv(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_recv(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -357,28 +380,38 @@ int recv(
 	char *buffer = (char *)malloc(len);
 	memset(buffer, 0, len);
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	len = recv(s, buffer, len, flags); 
-#else
-	if (rand()%100 < 40)
-		len = 0;
-#endif
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s,
+											   buffer,
+											   len,
+											   flags);
+	}else
+	{
+		if (rand()%100 < 40)
+			returnvalue = 0;
+		else
+			returnvalue = len;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+
 	
 	printf("recv(%i, 0x%08x, %i) == %i \n", s, buf, xlen, (int32_t)len);
-	if ((int32_t)len > 0)
+	if ((int32_t)returnvalue > 0)
 		emu_memory_write_block(emu_memory_get(env->emu), buf, buffer, len);
 	free(buffer);
 
 
-	emu_cpu_reg32_set(c, eax, len);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", len);
-
 	emu_cpu_eip_set(c, eip_save);
+	
 	return 0;
 }
 
 
-int32_t	env_w32_hook_send(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_send(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -412,23 +445,31 @@ int send(
 	printf("send(%i, 0x%08x, %i,  %i)\n", s, buf, len, flags);
 	emu_memory_read_block(emu_memory_get(env->emu), buf, buffer, len);
 
-	int retval = len;
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	len = send(s, buffer, len, flags);
-	printf("send %i (of %i) bytes\n", retval,  len);
-#endif
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s,
+											   buffer,
+											   len,
+											   flags);
+	}
+	else
+	{
+		returnvalue = len;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
-	emu_cpu_reg32_set(c, eax, retval);
 	free(buffer);
 
-	printf("eip_save is %08x\n",  eip_save);
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
 
-int32_t	env_w32_hook_sendto(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_sendto(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -480,7 +521,7 @@ int sendto(
 	return 0;
 }
 
-int32_t	env_w32_hook_socket(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_socket(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -512,22 +553,26 @@ SOCKET WSAAPI socket(
 	POP_DWORD(c, &protocol);
 	emu_profile_argument_add_int(env->profile, "int", "protocol", protocol);
 
-	int s = 111;
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	s=socket(af, type, protocol);
-#endif
-
-	printf("socket %i \n", s);
-	emu_cpu_reg32_set(c, eax, s);
-
-	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", s);
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   af,
+											   type,
+											   protocol);
+	}else
+	{
+			returnvalue = 65;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
-int32_t	env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_WSASocketA(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
@@ -582,22 +627,30 @@ int32_t	env_w32_hook_WSASocketA(struct emu_env_w32 *env, struct emu_env_w32_dll_
 	printf("SOCKET WSASocket(af=%i, type=%i, protocol=%i, lpProtocolInfo=%x, group=%i, dwFlags=%i);\n",
 		   af, type, protocol, protocolinfo, group,  flags);
 
-	int s = 113;
 
-#ifdef HAVE_INTERACTIVE_HOOKS
-	s=socket(af, type, protocol);
-#endif
-
-	printf("socket %i \n", s);
-	emu_cpu_reg32_set(c, eax, s);
-	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", s);
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   af,
+											   type,
+											   protocol,
+											   NULL,
+											   NULL,
+											   NULL);
+	}else
+	{
+		returnvalue = 66;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
 
-int32_t	env_w32_hook_WSAStartup(struct emu_env_w32 *env, struct emu_env_w32_dll_export *ex)
+int32_t	env_w32_hook_WSAStartup(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
