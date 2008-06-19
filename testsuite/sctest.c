@@ -119,8 +119,16 @@ static struct run_time_options
 			char *host;
 			int port;
 		}bind;
+
+		struct 
+		{
+			struct emu_hashtable *commands;
+		}commands;
+
 	}override;
 } opts;
+
+
 
 
 /*
@@ -1595,6 +1603,30 @@ uint32_t hash(void *key)
 	return ukey;
 }
 
+bool string_cmp(void *a, void *b)
+{
+	if ( strcmp(a, b)  )
+		return true;
+
+	return false;
+}
+
+uint32_t string_hash(void *key)
+{
+    uint32_t hash = 0;
+    char *c = (char *)key;
+	uint8_t num = 0x13;
+
+	while (*c != 0)
+	{
+		hash = hash << (32-num) | hash >> (num);
+//		hash = hash >> (32-num) | hash << (num);
+		hash += *c;
+		c++;
+	}
+
+    return hash;
+}
 
 
 uint32_t user_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook, ...)
@@ -1676,7 +1708,12 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 			dup2(psiStartInfo->hStdOutput, fileno(stdout));
 			dup2(psiStartInfo->hStdError,  fileno(stderr));
 
-			system("/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \"");
+			struct emu_hashtable_item *ehi = emu_hashtable_search(opts.override.commands.commands, "cmd");
+			if (ehi != NULL)
+				system((char *)ehi->value);
+			else
+				system("/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \"");
+			
 			exit(EXIT_SUCCESS);
 		}
 		else
@@ -2471,8 +2508,9 @@ void print_help()
 	struct help_info help_infos[] =
 	{
 		{"a", "argos-csi"   , "PATH"    , "use this argos csi files as input"},
-		{"b", "bind"		, "IP:PORT"	, "bind this ip:port"},
-		{"c", "connect"		, "IP:PORT"	, "redirect connects to this ip:port"},
+		{"b", "bind"        , "IP:PORT" , "bind this ip:port"},
+		{"c", "connect"     , "IP:PORT" , "redirect connects to this ip:port"},
+		{"C", "cmd"         , "CMD"     , "command to execute for \"cmd\" in shellcode (default: cmd=\"/bin/sh -c \\\"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \\\"\")"},
 		{"d", "dump"        , "INTEGER" , "dump the shellcode (binary) to stdout"},
 		{"g", "getpc"       , NULL      , "run getpc mode, try to detect a shellcode"},
 		{"G", "graph"       , "FILEPATH", "save a dot formatted callgraph in filepath"},
@@ -2480,7 +2518,7 @@ void print_help()
 		{"i", "interactive" , NULL      , "proxy api calls to the host operating system"},
 		{"l", "listtests"   , NULL      , "list all tests"},
 		{"o", "offset"      , "[INT|HEX]", "manual offset for shellcode, accepts int and hexvalues"},
-		{"p", "profile"		, "PATH"	, "write shellcode profile to this file"},
+		{"p", "profile"     , "PATH"    , "write shellcode profile to this file"},
 		{"S", "stdin"       , NULL      , "read shellcode/buffer from stdin, works with -g"},
 		{"s", "steps"       , "INTEGER" , "max number of steps to run"},
 		{"t", "testnumber"  , "INTEGER" , "the test to run"},
@@ -2752,30 +2790,33 @@ int main(int argc, char *argv[])
 	opts.testnumber = -1;
 	opts.offset = 0;
 
+	opts.override.commands.commands = emu_hashtable_new(16, string_hash, string_cmp);
+
 	while ( 1 )
 	{
 		int c;
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"argos-csi"        , 1, 0, 'a'},
-			{"bind"				, 1, 0, 'b'},
-			{"connect"  		, 1, 0, 'c'},
+			{"bind"             , 1, 0, 'b'},
+			{"connect"          , 1, 0, 'c'},
+			{"cmd"              , 1, 0, 'C'},
 			{"dump"             , 1, 0, 'd'},
 			{"getpc"            , 0, 0, 'g'},
 			{"graph"            , 1, 0, 'G'},
 			{"help"             , 0, 0, 'h'},
-			{"interactive"      , 1, 0, 'i'},
+			{"interactive"      , 0, 0, 'i'},
 			{"listtests"        , 0, 0, 'l'},
 			{"offset"           , 1, 0, 'o'},
 			{"profile"          , 1, 0, 'p'},
-			{"stdin"            , 0, 0, 'S'},
 			{"steps"            , 1, 0, 's'},
+			{"stdin"            , 0, 0, 'S'},
 			{"testnumber"       , 1, 0, 't'},
 			{"verbose"          , 0, 0, 'v'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "a:b:c:d:gG:hilo:p:s:St:v", long_options, &option_index);
+		c = getopt_long (argc, argv, "a:b:c:C:d:gG:hilo:p:s:St:v", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
@@ -2814,6 +2855,18 @@ int main(int argc, char *argv[])
 				}
 
 				printf("override connect %s:%i\n", opts.override.connect.host, opts.override.connect.port);
+			}
+			break;
+
+		case 'C':
+			{
+				char *cmd = strdup(optarg);
+
+				char *value = strstr(cmd, "=");
+				*value = '\0';
+				value++;
+				printf("command for %s is %s\n", cmd, value );
+				emu_hashtable_insert(opts.override.commands.commands, cmd, value);
 			}
 			break;
 
