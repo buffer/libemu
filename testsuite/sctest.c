@@ -106,6 +106,20 @@ static struct run_time_options
 	int offset;
 	char *profile_file;
 	bool interactive;
+
+	struct 
+	{
+		struct
+		{
+			char *host;
+			int port;
+		}connect;
+		struct 
+		{
+			char *host;
+			int port;
+		}bind;
+	}override;
 } opts;
 
 
@@ -1740,6 +1754,11 @@ uint32_t user_hook_accept(struct emu_env *env, struct emu_env_hook *hook, ...)
     return accept(s, addr, addrlen);
 }
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+
 uint32_t user_hook_bind(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
@@ -1751,6 +1770,18 @@ uint32_t user_hook_bind(struct emu_env *env, struct emu_env_hook *hook, ...)
 	int s 					= va_arg(vl,  int);
 	struct sockaddr* addr 	= va_arg(vl,  struct sockaddr *);
 	socklen_t addrlen = va_arg(vl,  socklen_t );
+
+	if (opts.override.bind.host != NULL )
+	{
+		struct sockaddr_in *si = (struct sockaddr_in *)addr;
+		si->sin_addr.s_addr = inet_addr(opts.override.bind.host);
+	}
+
+	if (opts.override.connect.port > 0)
+	{
+		struct sockaddr_in *si = (struct sockaddr_in *)addr;;
+		si->sin_port = htons(opts.override.bind.port);
+	}
 
 	va_end(vl);
 
@@ -1780,6 +1811,20 @@ uint32_t user_hook_connect(struct emu_env *env, struct emu_env_hook *hook, ...)
 
 	int s 					= va_arg(vl,  int);
 	struct sockaddr* addr 	= va_arg(vl,  struct sockaddr *);
+
+	if (opts.override.connect.host != NULL )
+	{
+		struct sockaddr_in *si = (struct sockaddr_in *)addr;
+		si->sin_addr.s_addr = inet_addr(opts.override.connect.host);
+	}
+
+	if (opts.override.connect.port > 0)
+	{
+		struct sockaddr_in *si = (struct sockaddr_in *)addr;;
+		si->sin_port = htons(opts.override.connect.port);
+	}
+
+
 	socklen_t addrlen = va_arg(vl,  socklen_t);
 
 	va_end(vl);
@@ -2425,17 +2470,21 @@ void print_help()
 
 	struct help_info help_infos[] =
 	{
-    	{"v", "verbose"     , NULL		, "be verbose, can be used multiple times, f.e. -vv"},
-		{"s", "steps"       , "INTEGER"	, "max number of steps to run"},
-		{"t", "testnumber"  , "INTEGER"	, "the test to run"},
-		{"l", "listtests"   , NULL		, "list all tests"},
-		{"d", "dump"        , "INTEGER"	, "dump the shellcode (binary) to stdout"},
-		{"g", "getpc"       , NULL		, "run getpc mode, try to detect a shellcode"},
+		{"a", "argos-csi"   , "PATH"    , "use this argos csi files as input"},
+		{"b", "bind"		, "IP:PORT"	, "bind this ip:port"},
+		{"c", "connect"		, "IP:PORT"	, "redirect connects to this ip:port"},
+		{"d", "dump"        , "INTEGER" , "dump the shellcode (binary) to stdout"},
+		{"g", "getpc"       , NULL      , "run getpc mode, try to detect a shellcode"},
 		{"G", "graph"       , "FILEPATH", "save a dot formatted callgraph in filepath"},
-		{"h", "help"        , NULL		, "show this help"},
-		{"S", "stdin"		, NULL		, "read shellcode/buffer from stdin, works with -g"},
-		{"o", "offset"		, "[INT|HEX]", "manual offset for shellcode, accepts int and hexvalues"},
-		{"i", "interactive"	, NULL		, "proxy api calls to the host operating system"},
+		{"h", "help"        , NULL      , "show this help"},
+		{"i", "interactive" , NULL      , "proxy api calls to the host operating system"},
+		{"l", "listtests"   , NULL      , "list all tests"},
+		{"o", "offset"      , "[INT|HEX]", "manual offset for shellcode, accepts int and hexvalues"},
+		{"p", "profile"		, "PATH"	, "write shellcode profile to this file"},
+		{"S", "stdin"       , NULL      , "read shellcode/buffer from stdin, works with -g"},
+		{"s", "steps"       , "INTEGER" , "max number of steps to run"},
+		{"t", "testnumber"  , "INTEGER" , "the test to run"},
+		{"v", "verbose"     , NULL              , "be verbose, can be used multiple times, f.e. -vv"},
 	};
 
 	int i;
@@ -2522,6 +2571,15 @@ int prepare_from_stdin_write(struct emu *e)
 		emu_cpu_reg32_set(cpu,j , 0);
 	}
 
+	emu_memory_write_dword(mem, 0xef787c3c,  4711);
+	emu_memory_write_dword(mem, 0x0,  4711);
+	emu_memory_write_dword(mem, 0x00416f9a,  4711);
+	emu_memory_write_dword(mem, 0x0044fcf7, 4711);
+	emu_memory_write_dword(mem, 0x00001265, 4711);
+	emu_memory_write_dword(mem, 0x00002583, 4711);
+	emu_memory_write_dword(mem, 0x00e000de, 4711);
+	emu_memory_write_dword(mem, 0x01001265, 4711);
+	emu_memory_write_dword(mem, 0x8a000066, 4711);
 
 	/* set the flags */
 	emu_cpu_eflags_set(cpu, 0);
@@ -2699,43 +2757,64 @@ int main(int argc, char *argv[])
 		int c;
 		int option_index = 0;
 		static struct option long_options[] = {
-			{"verbose"          , 0, 0, 'v'},
-			{"steps"            , 1, 0, 's'},
-			{"testnumber"       , 1, 0, 't'},
-			{"listtests"        , 0, 0, 'l'},
+			{"argos-csi"        , 1, 0, 'a'},
+			{"bind"				, 1, 0, 'b'},
+			{"connect"  		, 1, 0, 'c'},
 			{"dump"             , 1, 0, 'd'},
 			{"getpc"            , 0, 0, 'g'},
 			{"graph"            , 1, 0, 'G'},
-			{"help"				, 0, 0, 'h'},
-			{"stdin"			, 0, 0, 'S'},
-			{"offset"			, 1, 0, 'o'},
-			{"argos-csi"		, 1, 0, 'a'},
-			{"profile"			, 1, 0, 'p'},
-			{"interactive"		, 1, 0, 'i'},
+			{"help"             , 0, 0, 'h'},
+			{"interactive"      , 1, 0, 'i'},
+			{"listtests"        , 0, 0, 'l'},
+			{"offset"           , 1, 0, 'o'},
+			{"profile"          , 1, 0, 'p'},
+			{"stdin"            , 0, 0, 'S'},
+			{"steps"            , 1, 0, 's'},
+			{"testnumber"       , 1, 0, 't'},
+			{"verbose"          , 0, 0, 'v'},
 			{0, 0, 0, 0}
 		};
 
-		c = getopt_long (argc, argv, "vs:t:ld:gG:hSo:a:p:i", long_options, &option_index);
+		c = getopt_long (argc, argv, "a:b:c:d:gG:hilo:p:s:St:v", long_options, &option_index);
 		if ( c == -1 )
 			break;
 
 		switch ( c )
 		{
-		case 'v':
-			opts.verbose++;
+
+		case 'a':
+			opts.from_argos_csi = strdup(optarg);
+			printf("argos-csi %s\n", opts.from_argos_csi);
 			break;
 
-		case 's':
-			opts.steps = atoi(optarg);
+		case 'b':
+			{
+				opts.override.bind.host = strdup(optarg);
+				char *port;
+				if (( port = strstr(opts.override.bind.host, ":")) != NULL)
+				{
+					*port = '\0';
+					port++;
+					opts.override.bind.port = atoi(port);
+				}
+
+				printf("override bind %s:%i\n", opts.override.bind.host, opts.override.bind.port);
+			}
 			break;
 
-		case 't':
-			opts.testnumber = atoi(optarg);
-			break;
+		case 'c':
+			{
+				opts.override.connect.host = strdup(optarg);
+				char *port;
+				if (( port = strstr(opts.override.connect.host, ":")) != NULL)
+				{
+					*port = '\0';
+					port++;
+					opts.override.connect.port = atoi(port);
+				}
 
-		case 'l':
-			list_tests();
-			return 0;
+				printf("override connect %s:%i\n", opts.override.connect.host, opts.override.connect.port);
+			}
 			break;
 
 		case 'd':
@@ -2757,8 +2836,13 @@ int main(int argc, char *argv[])
 			exit(0);
 			break;
 
-		case 'S':
-			opts.from_stdin = true;
+		case 'i':
+			opts.interactive = true;
+			break;
+
+		case 'l':
+			list_tests();
+			return 0;
 			break;
 
 		case 'o':
@@ -2769,20 +2853,33 @@ int main(int argc, char *argv[])
 			printf("offset %i (0x%x)\n", opts.offset, (unsigned int)opts.offset);
 			break;
 
-		case 'a':
-			opts.from_argos_csi = strdup(optarg);
-			printf("argos-csi %s\n", opts.from_argos_csi);
-			break;
 
 		case 'p':
 			opts.profile_file = strdup(optarg);
 			printf("profile %s\n", opts.profile_file);
 			break;
 
-
-		case 'i':
-			opts.interactive = true;
+		case 's':
+			opts.steps = atoi(optarg);
 			break;
+
+
+		case 'S':
+			opts.from_stdin = true;
+			break;
+
+		case 't':
+			opts.testnumber = atoi(optarg);
+			break;
+
+		case 'v':
+			opts.verbose++;
+			break;
+
+
+
+
+
 
 		default:
 			printf ("?? getopt returned character code 0%o ??\n", c);
