@@ -37,6 +37,7 @@ enum emu_log_level
 	EMU_LOG_DEBUG
 };
 
+typedef void (*emu_log_logcb)(struct emu *e, enum emu_log_level level, const char *msg);
 
 struct emu_logging *emu_log_new();
 void emu_log_free(struct emu_logging *el);
@@ -45,6 +46,7 @@ void emu_log_level_set(struct emu_logging *el, enum emu_log_level level);
 
 void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...);
 
+void emu_log_set_logcb(struct emu_logging *el, emu_log_logcb logcb);
 
 #define logInfo(e, format...) emu_log(e, EMU_LOG_INFO, format)
 

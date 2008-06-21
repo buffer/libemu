@@ -33,10 +33,13 @@
 #include "emu/emu.h"
 #include "emu/emu_log.h"
 
+
+
 struct emu_logging
 {
 	enum emu_log_level loglevel;
-	void (*emu_log_fn)(struct emu *e, enum emu_log_level level, const char *msg);
+
+	emu_log_logcb logcb;
 };
 
 
@@ -80,14 +83,19 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...)
 	vasprintf(&message, format, ap);
 	va_end(ap);
 
-	if ( el->emu_log_fn == NULL )
+	if ( el->logcb == NULL )
 	{
 		const char *lev[] = {"none","\033[32;1minfo\033[0m","\033[31;1mdebug\033[0m"};
 		fprintf(stdout,"[emu 0x%08x %s ] ",(unsigned int)e, lev[level]);
 		fprintf(stdout,"%s", message);
 	}
 	else
-		el->emu_log_fn(e, level, message);
+		el->logcb(e, level, message);
 
 	free(message);
+}
+
+void emu_log_set_logcb(struct emu_logging *el, emu_log_logcb logcb)
+{
+	el->logcb = logcb;
 }
