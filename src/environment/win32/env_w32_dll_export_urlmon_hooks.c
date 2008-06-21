@@ -34,6 +34,7 @@
 
 #include "../../../config.h"
 #include "emu/emu.h"
+#include "emu/emu_log.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
@@ -49,8 +50,8 @@
 
 int32_t	env_w32_hook_URLDownloadToFileA(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -104,7 +105,7 @@ HRESULT URLDownloadToFile(
 
 
 
-//	printf(" %s -> %s\n", emu_string_char(url), emu_string_char(filename));
+//	logDebug(env->emu, " %s -> %s\n", emu_string_char(url), emu_string_char(filename));
 
 	emu_string_free(url);
 	emu_string_free(filename);

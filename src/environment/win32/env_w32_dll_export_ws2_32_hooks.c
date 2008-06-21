@@ -41,6 +41,7 @@
 
 #include "../../../config.h"
 #include "emu/emu.h"
+#include "emu/emu_log.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
@@ -85,7 +86,7 @@ int32_t	env_w32_hook_accept(struct emu_env *env, struct emu_env_hook *hook)
 	emu_profile_argument_add_ptr(env->profile, "int", "addrlen", addrlen);
 	emu_profile_argument_add_none(env->profile);
 
-	printf("accept(s=%i, addr=%x, addrlen=%i);\n", s, addr, addrlen);
+	logDebug(env->emu, "accept(s=%i, addr=%x, addrlen=%i);\n", s, addr, addrlen);
 
 	uint32_t returnvalue;
 	if ( hook->hook.win->userhook != NULL )
@@ -161,7 +162,7 @@ int32_t	env_w32_hook_bind(struct emu_env *env, struct emu_env_hook *hook)
 	POP_DWORD(c, &namelen);
 	emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
 
-	printf("bind(s=%i, name=%x, namelen=%i\n", s, name, namelen);
+	logDebug(env->emu, "bind(s=%i, name=%x, namelen=%i\n", s, name, namelen);
 
 
 	uint32_t returnvalue;
@@ -186,8 +187,8 @@ int32_t	env_w32_hook_bind(struct emu_env *env, struct emu_env_hook *hook)
 
 int32_t	env_w32_hook_closesocket(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -224,8 +225,8 @@ int closesocket(
 
 int32_t	env_w32_hook_connect(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -293,8 +294,8 @@ int connect(
 
 int32_t	env_w32_hook_listen(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -318,7 +319,7 @@ int32_t	env_w32_hook_listen(struct emu_env *env, struct emu_env_hook *hook)
 	POP_DWORD(c, &backlog);
 	emu_profile_argument_add_int(env->profile, "int", "backlog", backlog);
 
-	printf("listen(s=%i,  backlog=%i)\n", s,  backlog);
+	logDebug(env->emu, "listen(s=%i,  backlog=%i)\n", s,  backlog);
 
 
 	uint32_t returnvalue;
@@ -341,8 +342,8 @@ int32_t	env_w32_hook_listen(struct emu_env *env, struct emu_env_hook *hook)
 
 int32_t	env_w32_hook_recv(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -399,7 +400,7 @@ int recv(
 	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
 	
-	printf("recv(%i, 0x%08x, %i) == %i \n", s, buf, xlen, (int32_t)len);
+	logDebug(env->emu, "recv(%i, 0x%08x, %i) == %i \n", s, buf, xlen, (int32_t)len);
 	if ((int32_t)returnvalue > 0)
 		emu_memory_write_block(emu_memory_get(env->emu), buf, buffer, len);
 	free(buffer);
@@ -413,8 +414,8 @@ int recv(
 
 int32_t	env_w32_hook_send(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -442,7 +443,7 @@ int send(
 	POP_DWORD(c, &flags);
 
 	char *buffer = (char *)malloc(len);
-	printf("send(%i, 0x%08x, %i,  %i)\n", s, buf, len, flags);
+	logDebug(env->emu, "send(%i, 0x%08x, %i,  %i)\n", s, buf, len, flags);
 	emu_memory_read_block(emu_memory_get(env->emu), buf, buffer, len);
 
 
@@ -471,8 +472,8 @@ int send(
 
 int32_t	env_w32_hook_sendto(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -516,15 +517,15 @@ int sendto(
 	emu_cpu_reg32_set(c, eax, retval);
 	free(buffer);
 
-	printf("eip_save is %08x\n",  eip_save);
+	logDebug(env->emu, "eip_save is %08x\n",  eip_save);
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
 
 int32_t	env_w32_hook_socket(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -574,8 +575,8 @@ SOCKET WSAAPI socket(
 
 int32_t	env_w32_hook_WSASocketA(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -624,7 +625,7 @@ int32_t	env_w32_hook_WSASocketA(struct emu_env *env, struct emu_env_hook *hook)
 	emu_profile_argument_add_int(env->profile, "DWORD", "dwFlags", flags);
 
 
-	printf("SOCKET WSASocket(af=%i, type=%i, protocol=%i, lpProtocolInfo=%x, group=%i, dwFlags=%i);\n",
+	logDebug(env->emu, "SOCKET WSASocket(af=%i, type=%i, protocol=%i, lpProtocolInfo=%x, group=%i, dwFlags=%i);\n",
 		   af, type, protocol, protocolinfo, group,  flags);
 
 
@@ -652,8 +653,8 @@ int32_t	env_w32_hook_WSASocketA(struct emu_env *env, struct emu_env_hook *hook)
 
 int32_t	env_w32_hook_WSAStartup(struct emu_env *env, struct emu_env_hook *hook)
 {
-	printf("Hook me Captain Cook!\n");
-	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 
@@ -671,7 +672,7 @@ int WSAStartup(
 	
 	uint32_t wsaversionreq;
 	POP_DWORD(c, &wsaversionreq);
-	printf("WSAStartup version %x\n", wsaversionreq);
+	logDebug(env->emu, "WSAStartup version %x\n", wsaversionreq);
 	emu_profile_argument_add_int(env->profile, "WORD", "wVersionRequested", wsaversionreq);
 
 	uint32_t wsadata;
