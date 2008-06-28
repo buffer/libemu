@@ -121,18 +121,18 @@ AC_MSG_RESULT($enable_debug)
 
 
 
-dnl **************************************************
-dnl * interactive hooks                              *
-dnl **************************************************
-
-AC_MSG_CHECKING(if hooks should be interactive)
-AC_ARG_ENABLE([interactive-hooks],
-		[AS_HELP_STRING(--enable-interactive-hooks, enable interactive hooks (dangerous!)[[default=no]])],
-		[enable_interactive_hooks=${enableval}], [enable_interactive_hooks="yes"])
-if test x"$enable_interactive_hooks" = "xyes"; then
-	AC_DEFINE([HAVE_INTERACTIVE_HOOKS], 1, [enable interactive hooks])
-fi
-AC_MSG_RESULT($enable_interactive_hooks)
+#dnl **************************************************
+#dnl * interactive hooks                              *
+#dnl **************************************************
+#
+#AC_MSG_CHECKING(if hooks should be interactive)
+#AC_ARG_ENABLE([interactive-hooks],
+#		[AS_HELP_STRING(--enable-interactive-hooks, enable interactive hooks (dangerous!)[[default=no]])],
+#		[enable_interactive_hooks=${enableval}], [enable_interactive_hooks="yes"])
+#if test x"$enable_interactive_hooks" = "xyes"; then
+#	AC_DEFINE([HAVE_INTERACTIVE_HOOKS], 1, [enable interactive hooks])
+#fi
+#AC_MSG_RESULT($enable_interactive_hooks)
 
 
 dnl **************************************************
@@ -247,8 +247,6 @@ AC_OUTPUT
 
 echo
 echo "*** libemu configuration ***"
-echo "general"
-echo " - interactive hooks               : $enable_interactive_hooks"
 echo ""
 echo "bindings"
 echo " - python                          : $enable_python"
