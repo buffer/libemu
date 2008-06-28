@@ -1684,16 +1684,16 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 	va_list vl;
 	va_start(vl, hook);
 
-	/* char *pszImageName				  = */ va_arg(vl, char *);
+	/* char *pszImageName				  = */ (void)va_arg(vl, char *);
 	char *pszCmdLine                      = va_arg(vl, char *);               
-	/* void *psaProcess, 				  = */ va_arg(vl, void *);
-	/* void *psaThread,  				  = */ va_arg(vl, void *);
-	/* bool fInheritHandles,              = */ va_arg(vl, char *);
-	/* uint32_t fdwCreate,                = */ va_arg(vl, uint32_t);
-	/* void *pvEnvironment             	  = */ va_arg(vl, void *);
-	/* char *pszCurDir                 	  = */ va_arg(vl, char *);
-	STARTUPINFO *psiStartInfo       	  =  va_arg(vl, STARTUPINFO *);
-	PROCESS_INFORMATION *pProcInfo  	  =  va_arg(vl, PROCESS_INFORMATION *); 
+	/* void *psaProcess, 				  = */ (void)va_arg(vl, void *);
+	/* void *psaThread,  				  = */ (void)va_arg(vl, void *);
+	/* bool fInheritHandles,              = */ (void)va_arg(vl, char *);
+	/* uint32_t fdwCreate,                = */ (void)va_arg(vl, uint32_t);
+	/* void *pvEnvironment             	  = */ (void)va_arg(vl, void *);
+	/* char *pszCurDir                 	  = */ (void)va_arg(vl, char *);
+	STARTUPINFO *psiStartInfo       	  = va_arg(vl, STARTUPINFO *);
+	PROCESS_INFORMATION *pProcInfo  	  = va_arg(vl, PROCESS_INFORMATION *); 
 
 	va_end(vl);
 	printf("CreateProcess(%s)\n",pszCmdLine);
@@ -1745,7 +1745,7 @@ uint32_t user_hook_WaitForSingleObject(struct emu_env *env, struct emu_env_hook 
 	va_start(vl, hook);
 
 	int32_t hHandle = va_arg(vl, int32_t);
-	/*int32_t dwMilliseconds = */va_arg(vl, int32_t);
+	/*int32_t dwMilliseconds = */ (void)va_arg(vl, int32_t);
 	va_end(vl);
 
 	int status;
@@ -1948,9 +1948,9 @@ uint32_t user_hook_WSASocket(struct emu_env *env, struct emu_env_hook *hook, ...
 	int domain = va_arg(vl,  int);
 	int type = va_arg(vl,  int);
 	int protocol = va_arg(vl, int);
-	va_arg(vl, int);
-	va_arg(vl, int);
-	va_arg(vl, int);
+	(void)va_arg(vl, int);
+	(void)va_arg(vl, int);
+	(void)va_arg(vl, int);
 
 	va_end(vl);
 
@@ -2837,6 +2837,12 @@ int main(int argc, char *argv[])
 					*port = '\0';
 					port++;
 					opts.override.bind.port = atoi(port);
+
+					if (*opts.override.bind.host == '\0')
+					{
+						free(opts.override.bind.host);
+						opts.override.bind.host = NULL;
+					}
 				}
 
 				printf("override bind %s:%i\n", opts.override.bind.host, opts.override.bind.port);
@@ -2852,6 +2858,13 @@ int main(int argc, char *argv[])
 					*port = '\0';
 					port++;
 					opts.override.connect.port = atoi(port);
+
+					if (*opts.override.connect.host == '\0')
+					{
+						free(opts.override.connect.host);
+						opts.override.connect.host = NULL;
+					}
+
 				}
 
 				printf("override connect %s:%i\n", opts.override.connect.host, opts.override.connect.port);
