@@ -149,13 +149,15 @@ int32_t instr_push_6a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Push imm8     
 	 * PUSH imm8  
 	 */
-	if (i->prefixes & PREFIX_OPSIZE)
+	if ( i->prefixes & PREFIX_OPSIZE )
 	{
-		PUSH_WORD(c, (uint16_t)((int8_t)*i->imm8));
+		uint16_t word = (uint16_t)((int8_t)*i->imm8);
+		PUSH_WORD(c, word);
 	}
 	else
 	{
-		PUSH_DWORD(c, (uint32_t)((int8_t)*i->imm8));
+		uint32_t dword = (uint32_t)((int8_t)*i->imm8);
+		PUSH_DWORD(c, dword);
 	}
 
 	return 0;

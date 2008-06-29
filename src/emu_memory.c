@@ -275,12 +275,32 @@ int32_t emu_memory_read_byte(struct emu_memory *m, uint32_t addr, uint8_t *byte)
 
 int32_t emu_memory_read_word(struct emu_memory *m, uint32_t addr, uint16_t *word)
 {
+#if BYTE_ORDER == BIG_ENDIAN
+	uint16_t val;
+	int32_t retval = emu_memory_read_block(m, addr, &val, 2);
+	val =  ((val & 0xff00) >> 8) | 
+		   ((val & 0x00ff) << 8);
+	bcopy(&val,word,2);
+	return retval;
+#else
 	return emu_memory_read_block(m, addr, word, 2);
+#endif
 }
 
 int32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dword)
 {
+#if BYTE_ORDER == BIG_ENDIAN
+	uint32_t val;
+	int32_t retval =  emu_memory_read_block(m, addr, &val, 4);
+	val =  ((val & (0xff000000)) >> 24) | 
+		   ((val & (0x00ff0000)) >> 8)  | 
+		   ((val & (0x0000ff00)) << 8) | 
+		   ((val & (0x000000ff)) << 24);
+	memcpy(dword, &val, 4);
+	return retval;
+#else
 	return emu_memory_read_block(m, addr, dword, 4);
+#endif
 }
 
 int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
@@ -299,13 +319,13 @@ int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, s
 
 	if (OFFSET(addr) + len <= PAGE_SIZE)
 	{
-		memcpy(dest, address, len);
+		bcopy(address, dest, len);
 		return 0;
 	}
 	else
 	{
 		uint32_t cb = PAGE_SIZE - OFFSET(addr);
-		memcpy(dest, address, cb);
+		bcopy(address, dest, cb);
 		return emu_memory_read_block(m, oaddr + cb, dest + cb, len - cb);
 	}
 }
@@ -368,7 +388,15 @@ int32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word
 	if (m->read_only_access == true)
 		return 0;
 
+#if BYTE_ORDER == BIG_ENDIAN
+	uint16_t val;
+	bcopy(&word, &val, 2);
+	val = ((val & 0xff00) >> 8) | 
+		  ((val & 0x00ff) << 8);
+	return emu_memory_write_block(m, addr, &val, 2);
+#else
 	return emu_memory_write_block(m, addr, &word, 2);
+#endif
 }
 
 int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword)
@@ -376,7 +404,17 @@ int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dwo
 	if (m->read_only_access == true)
 		return 0;
 
+#if BYTE_ORDER == BIG_ENDIAN
+	uint32_t val;
+	bcopy(&dword, &val, 4);
+	val = ((val & (0xff000000)) >> 24) |
+		  ((val & (0x00ff0000)) >> 8)  |
+		  ((val & (0x0000ff00)) << 8)  |
+		  ((val & (0x000000ff)) << 24);
+	return emu_memory_write_block(m, addr, &val, 4);
+#else
 	return emu_memory_write_block(m, addr, &dword, 4);
+#endif
 }
 
 int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
@@ -399,13 +437,13 @@ int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, s
 
 	if (OFFSET(addr) + len <= PAGE_SIZE)
 	{
-		memcpy(address, src, len);
+		bcopy(src, address, len);
 		return 0;
 	}
 	else
 	{
 		uint32_t cb = PAGE_SIZE - OFFSET(addr);
-		memcpy(address, src, cb);
+		bcopy(src, address, cb);
 		return emu_memory_write_block(m, oaddr + cb, src + cb, len - cb);
 	}
 

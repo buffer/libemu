@@ -87,7 +87,9 @@ void emu_memory_mode_rw(struct emu_memory *m);
   return ret; }
 
 #define MEM_WORD_WRITE(cpu_p, addr, data) \
- { int32_t ret = emu_memory_write_word((cpu_p)->mem, addr, data); \
+ { uint16_t val; \
+ bcopy(&(data), &val, 2); \
+ int32_t ret = emu_memory_write_word((cpu_p)->mem, addr, val); \
  if( ret != 0 ) \
   return ret; }
 
@@ -97,7 +99,9 @@ void emu_memory_mode_rw(struct emu_memory *m);
   return ret; }
 
 #define MEM_DWORD_WRITE(cpu_p, addr, data) \
- { int32_t ret = emu_memory_write_dword((cpu_p)->mem, addr, data); \
+ { uint32_t val; \
+ bcopy(&(data), &val, 4); \
+ int32_t ret = emu_memory_write_dword((cpu_p)->mem, addr, val); \
  if( ret != 0 ) \
   return ret; }
 

@@ -67,9 +67,12 @@ int32_t instr_imul_69(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * word register <- r/m16 * immediate word                        
 			 * IMUL r16,r/m16,imm16         
 			 */
-
+#if BYTE_ORDER == BIG_ENDIAN
+			int16_t sexd;
+			bcopy(i->imm16, &sexd, 2);
+#else
 			int16_t sexd = (int16_t)*i->imm16;
-
+#endif
 			uint16_t m16;
 			MEM_WORD_READ(c, i->modrm.ea, &m16);
 
@@ -124,7 +127,13 @@ int32_t instr_imul_69(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * word register <- r/m16 * immediate word                        
 			 * IMUL r16,r/m16,imm16         
 			 */
+#if BYTE_ORDER == BIG_ENDIAN
+			int16_t sexd;
+			bcopy(i->imm16, &sexd, 2);
+#else
 			int16_t sexd = (int16_t)*i->imm16;
+#endif
+
 
 			INSTR_CALC(16,
 					   32,

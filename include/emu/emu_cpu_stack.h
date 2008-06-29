@@ -30,7 +30,8 @@
 
 #define PUSH_DWORD(cpu, arg)							\
 {														\
-	uint32_t pushme = arg;								\
+	uint32_t pushme;									\
+	bcopy(&(arg),  &pushme, 4);							\
 	if (cpu->reg[esp] < 4)								\
 	{													\
 		emu_errno_set((cpu)->emu, ENOMEM);				\
@@ -49,7 +50,8 @@
 
 #define PUSH_WORD(cpu, arg)								\
 {														\
-	uint16_t pushme  = arg;								\
+	uint16_t pushme;									\
+	bcopy(&(arg),  &pushme, 2);							\
 	if (cpu->reg[esp] < 2)								\
 	{													\
 		emu_errno_set((cpu)->emu, ENOMEM);				\

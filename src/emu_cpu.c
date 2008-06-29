@@ -845,13 +845,14 @@ int32_t emu_cpu_step(struct emu_cpu *c)
 			if( (c->instr.fpu.fpu_data[1] & 0x38) == 0x30 )
 			{
 				/* fnstenv volume 1, page 230 */
-				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x00, 0);
-				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x04, 0);
-				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x08, 0);
+				static int null = 0;
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x00, null);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x04, null);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x08, null);
 				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x0c, c->last_fpu_instr[1]);
-				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x10, 0);
-				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x14, 0);
-				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x18, 0);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x10, null);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x14, null);
+				MEM_DWORD_WRITE(c, c->instr.fpu.ea + 0x18, null);
 
 				TRACK_NEED_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);
 //				TRACK_INIT_FPU(c->instr, TRACK_FPU_LAST_INSTRUCTION);

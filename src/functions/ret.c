@@ -40,9 +40,14 @@ int32_t instr_ret_c2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * iw RET imm16  
 	 */
 	POP_DWORD(c, &c->eip);
-	
+
+#if BYTE_ORDER == BIG_ENDIAN
+	uint16_t val;
+	bcopy(i->imm16, &val, 2);
+	c->reg[esp] += val;
+#else
 	c->reg[esp] += *i->imm16;
-	
+#endif	
 	return 0;
 }
 

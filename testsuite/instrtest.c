@@ -435,8 +435,8 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "or ecx,[ebx+eax*4+0xdeadbeef]",
-//		.code = "\x03\x8c\x83\xef\xbe\xad\xde",
-//		.codesize = 7,
+		.code = "\x0b\x8c\x83\xef\xbe\xad\xde",
+		.codesize = 7,
 		.in_state.reg  = {0x2,0x1,0,0x1,0,0,0,0},
 		.in_state.mem_state = {0xdeadbef8, 0x44443333},
 		.out_state.reg  = {0x2,0x44443333,0,0x1,0,0,0,0},
@@ -457,8 +457,8 @@ struct instr_test tests[] =
 	/* 0d */
 	{
 		.instr = "or ax,0x1111",
-//		.code = "\x66\x05\x11\x11",
-//		.codesize = 4,
+		.code = "\x66\x0d\x11\x11",
+		.codesize = 4,
 		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
@@ -467,8 +467,8 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "or eax,0x11111111",
-//		.code = "\x05\x11\x11\x11\x11",
-//		.codesize = 5,
+		.code = "\x0d\x11\x11\x11\x11",
+		.codesize = 5,
 		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
@@ -633,8 +633,8 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "adc ecx,[ebx+eax*4+0xdeadbeef]",
-//		.code = "\x03\x8c\x83\xef\xbe\xad\xde",
-//		.codesize = 7,
+		.code = "\x13\x8c\x83\xef\xbe\xad\xde",
+		.codesize = 7,
 		.in_state.reg  = {0x2,0x1,0,0x1,0,0,0,0},
 		.in_state.mem_state = {0xdeadbef8, 0x44443333},
 		.out_state.reg  = {0x2,0x44443334,0,0x1,0,0,0,0},
@@ -654,8 +654,8 @@ struct instr_test tests[] =
 	/* 15 */
 	{
 		.instr = "adc ax,0x1111",
-//		.code = "\x66\x05\x11\x11",
-//		.codesize = 4,
+		.code = "\x66\x15\x11\x11",
+		.codesize = 4,
 		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x22223333,0,0,0,0,0,0,0},
@@ -664,8 +664,8 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "adc eax,0x11111111",
-//		.code = "\x05\x11\x11\x11\x11",
-//		.codesize = 5,
+		.code = "\x15\x11\x11\x11\x11",
+		.codesize = 5,
 		.in_state.reg  = {0x22222222,0,0,0,0,0,0,0},
 		.in_state.mem_state = {0, 0},
 		.out_state.reg  = {0x33333333,0,0,0,0,0,0,0},
@@ -693,16 +693,19 @@ struct instr_test tests[] =
 		.out_state.eip = 0xdeafcafe,
 	},
 	{
+		.instr = "jmp +16",
 		.code = "\xeb\x10", /* jmp +16*/
 		.codesize = 2,
 		.out_state.eip = (CODE_OFFSET + 2 + 0x10),
 	},
 	{
+		.instr = "jmp -1",
 		.code = "\xeb\xff", /* jmp -1 */
 		.codesize = 2,
 		.out_state.eip = (CODE_OFFSET + 2 + -1),
 	},
 	{
+		.instr = "jmp +0x01000000",
 		.code = "\xe9\x00\x00\x00\x01", /* jmp +0x01000000 */
 		.codesize = 5,
 		.out_state.eip = (CODE_OFFSET + 5 + 0x1000000),
@@ -718,10 +721,14 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "mov ax, 0xffff",
+		.code = "\x66\xb8\xff\xff",
+		.codesize = 4,
 		.out_state.reg = {0xffff,0,0,0,0,0,0,0},
 	},
 	{
 		.instr = "mov eax, 0xffffffff",
+		.code = "\xb8\xff\xff\xff\xff",
+		.codesize = 5,
 		.out_state.reg = {0xffffffff,0,0,0,0,0,0,0},
 	},
 	{
@@ -733,6 +740,8 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "xor dword [eax+0x1000], 0x11111111",
+		.code = "\x81\xb0\x00\x10\x00\x00\x11\x11\x11\x11",
+		.codesize = 10,
 		.in_state.mem_state = {0x2000, 0x22222222},
 		.in_state.reg = {0x1000,0,0,0,0,0,0,0},
 		.out_state.mem_state = {0x2000, 0x33333333},
@@ -741,6 +750,8 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "mov eax, [ebp+ecx*4-0x100]",
+		.code = "\x8b\x84\x8d\x00\xff\xff\xff",
+		.codesize = 7,
 		.in_state.mem_state = {0x140, 0x22222222},
 		.in_state.reg = {0x1000,0x10,0,0,0,0x200,0,0},
 		.in_state.mem_state = {0x140, 0x22222222},
@@ -748,6 +759,8 @@ struct instr_test tests[] =
 	},
 	{
 		.instr = "mov eax, [ebp+ecx*4-0x10000000]",
+		.code = "\x8b\x84\x8d\x00\x00\x00\xf0",
+		.codesize = 7,
 		.in_state.mem_state = {0x14000000, 0x22222222},
 		.in_state.reg = {0x1000,0x1000000,0,0,0,0x20000000,0,0},
 		.in_state.mem_state = {0x14000000, 0x22222222},

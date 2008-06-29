@@ -125,11 +125,21 @@ extern int64_t max_inttype_borders[][2][2];
 #define UINT(bits) uint##bits##_t
 
 #if !defined(INSTR_CALC)
+#if BYTE_ORDER == BIG_ENDIAN 
+#define INSTR_CALC(bits, a, b, c, operation)			\
+UINT(bits) operand_a; \
+UINT(bits) operand_b; \
+bcopy(&(a), &operand_a, bits/8); \
+bcopy(&(b), &operand_b, bits/8); \
+UINT(bits) operation_result = operand_a operation operand_b;    \
+bcopy(&operation_result, &(c), bits/8); 
+#else // ENDIAN
 #define INSTR_CALC(bits, a, b, c, operation)			\
 UINT(bits) operand_a = a;								\
 UINT(bits) operand_b = b;								\
 UINT(bits) operation_result = operand_a operation operand_b;	\
 c = operation_result;
+#endif // ENDIAN
 #endif // INSTR_CALC
 
 #if !defined(INSTR_SET_FLAG_ZF)

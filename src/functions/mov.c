@@ -269,8 +269,13 @@ int32_t instr_mov_bx_2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * Move imm16 to r16                                
 		 * MOV r16,imm16    
 		 */
-
+#if BYTE_ORDER == BIG_ENDIAN
+		bcopy(i->imm16, c->reg16[i->opc & 7], 2);
+#else
 		*c->reg16[i->opc & 7] = *i->imm16;
+#endif
+
+
 	}
 	else
 	{
@@ -327,8 +332,12 @@ int32_t instr_mov_c7(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		}
 		else
 		{
+#if BYTE_ORDER == BIG_ENDIAN
+			bcopy(i->imm16, c->reg16[i->modrm.rm], 2);
+#else
 			*c->reg16[i->modrm.rm] = *i->imm16;
-		}																	 
+#endif
+		}                                                                    
 	}
 	else
 	{

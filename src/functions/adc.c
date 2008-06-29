@@ -28,11 +28,23 @@
 #include <stdint.h>
 #include <stdio.h>
 
+
+#if BYTE_ORDER == BIG_ENDIAN 
+#define INSTR_CALC(bits, a, b, c, operation, cpu)			\
+UINT(bits) operand_a; \
+UINT(bits) operand_b; \
+bcopy(&(a), &operand_a, bits/8); \
+bcopy(&(b), &operand_b, bits/8); \
+UINT(bits) operation_result = operand_a operation operand_b operation ((cpu->eflags & (1 << f_cf))?1:0);	\
+bcopy(&operation_result, &(c), bits/8); 
+#else // ENDIAN
 #define INSTR_CALC(bits, a, b, c, operation, cpu)			\
 UINT(bits) operand_a = a;								\
 UINT(bits) operand_b = b;								\
 UINT(bits) operation_result = operand_a operation operand_b operation ((cpu->eflags & (1 << f_cf))?1:0);	\
 c = operation_result;
+#endif // ENDIAN
+
 
 #define INSTR_SET_FLAG_OF(cpu, operand,bits)											\
 {																				\
@@ -545,7 +557,7 @@ int32_t instr_group_1_83_adc(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * Add with CF sign-extended imm8 to r/m16
 			 * ADC r/m16,imm8  
 			 */
-			int16_t sexd = (int8_t)*i->imm16;
+			int16_t sexd = (int8_t)*i->imm8;
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
