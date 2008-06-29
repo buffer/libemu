@@ -345,6 +345,7 @@ int32_t	env_w32_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook)
 
 	POP_DWORD(c, &eip_save);
 
+	emu_profile_function_add(env->profile, "ExitProcess");
 /*
 VOID WINAPI ExitProcess(
   UINT uExitCode
@@ -353,7 +354,19 @@ VOID WINAPI ExitProcess(
 
 	uint32_t exitcode;
 	POP_DWORD(c, &exitcode);
+	emu_profile_argument_add_int(env->profile, "UINT", "uExitCode", exitcode);
 
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											  exitcode);
+	}else
+	{
+		returnvalue	= 0;
+	}
+
+	emu_profile_function_returnvalue_int_set(env->profile, "void", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -370,6 +383,7 @@ int32_t	env_w32_hook_ExitThread(struct emu_env *env, struct emu_env_hook *hook)
 
 	POP_DWORD(c, &eip_save);
 
+	emu_profile_function_add(env->profile, "ExitThread");
 /*
 VOID ExitThread(
   DWORD dwExitCode
@@ -379,7 +393,20 @@ VOID ExitThread(
 	uint32_t exitcode;
 	POP_DWORD(c, &exitcode);
 
+	emu_profile_argument_add_int(env->profile, "DWORD", "dwExitCode", exitcode);
 
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											  exitcode);
+	}else
+	{
+		returnvalue	= 0;
+	}
+
+
+	emu_profile_function_returnvalue_int_set(env->profile, "void", returnvalue);
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
@@ -876,16 +903,23 @@ int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env *env, struct emu
 
 	POP_DWORD(c, &eip_save);
 
+	emu_profile_function_add(env->profile, "SetUnhandledExceptionFilter");
 /*LPTOP_LEVEL_EXCEPTION_FILTER WINAPI SetUnhandledExceptionFilter(
   LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter
 );*/
 
 	uint32_t lpfilter;
 	POP_DWORD(c, &lpfilter);
+	emu_profile_argument_add_ptr(env->profile, "LPTOP_LEVEL_EXCEPTION_FILTER", "lpTopLevelExceptionFilter", lpfilter);
+	emu_profile_argument_add_none(env->profile);
+
 
 	logDebug(env->emu, "Exception filter %08x\n", lpfilter);
 
 	emu_cpu_reg32_set(c, eax, 0x7C81CDDA);
+
+	emu_profile_function_returnvalue_ptr_set(env->profile, "LPTOP_LEVEL_EXCEPTION_FILTER", 0x7C81CDDA);
+	emu_profile_argument_add_none(env->profile);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
