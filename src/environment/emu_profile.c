@@ -169,6 +169,17 @@ void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype,
 	emu_profile_argument_add(profile, argument);
 }
 
+void emu_profile_argument_add_bytea(struct emu_profile *profile, char *argtype, char *argname, unsigned char *data, uint32_t size)
+{
+
+    struct emu_profile_argument *argument = emu_profile_argument_new(render_bytea, argtype, argname);
+	argument->value.bytea.data = malloc(size);
+	memcpy(argument->value.bytea.data, data, size);
+	argument->value.bytea.size = size;
+	emu_profile_argument_add(profile, argument);
+}
+
+
 void emu_profile_argument_add_ptr(struct emu_profile *profile, char *argtype,  char *argname, uint32_t value)
 {
 	struct emu_profile_argument *argument = emu_profile_argument_new(render_ptr, argtype, argname);
@@ -278,6 +289,10 @@ uint32_t measure_size(struct emu_profile_argument *argument, bool followptr)
 		size += strlen(argument->value.tchar) +1;
 		break;
 
+	case render_bytea:
+		size += argument->value.bytea.size;
+		break;
+
 	case render_ptr:
 		{
 			size += 4;
@@ -354,6 +369,10 @@ int copy_data(struct emu_profile_argument *argument, uint8_t *addr, uint8_t **ne
 	case render_string:
 //		size += strlen(argument->value.tchar) +1;
 		strcpy((char *)addr, argument->value.tchar); 
+		break;
+
+	case render_bytea:
+		memcpy((char *)addr, argument->value.bytea.data, argument->value.bytea.size);
 		break;
 
 	case render_ptr:
@@ -463,6 +482,11 @@ void emu_profile_argument_free(struct emu_profile_argument *argument)
 			free(argument->value.tchar);
 		break;
 
+	case render_bytea:
+		if (argument->value.bytea.data != NULL)
+			free(argument->value.bytea.data);
+		break;
+
 	case render_ptr:
 		emu_profile_argument_free(argument->value.tptr.ptr);
 		break;
@@ -535,6 +559,10 @@ void emu_profile_argument_debug(struct emu_profile_argument *argument, int inden
 
 	case render_string:
 		printf("%s %s %s = \"%s\";\n", indents(indent), argument->argtype, argument->argname, argument->value.tchar);
+		break;
+
+	case render_bytea:
+		printf("%s %s %s = \"%s\" (%i bytes);\n", indents(indent), argument->argtype, argument->argname, ".binary.", argument->value.bytea.size);
 		break;
 
 	case render_ptr:
@@ -649,6 +677,14 @@ int emu_profile_dump_string_write(FILE *f, const char *string)
 	return -1;
 }
 
+int emu_profile_dump_bytea_write(FILE *f, const unsigned char *data, uint32_t size)
+{
+	emu_profile_dump_int_write(f, size);
+	if (fwrite(data, size, 1, f) == size)
+		return 0;
+	return -1;
+}
+
 
 int emu_profile_argument_dump(FILE *f, struct emu_profile_argument *argument)
 {
@@ -685,6 +721,10 @@ int emu_profile_argument_dump(FILE *f, struct emu_profile_argument *argument)
 
 	case render_string:
 		emu_profile_dump_string_write(f, argument->value.tchar);
+		break;
+
+	case render_bytea:
+		emu_profile_dump_bytea_write(f, argument->value.bytea.data, argument->value.bytea.size);
 		break;
 
 	case render_ip:
@@ -810,9 +850,18 @@ int emu_profile_dump_string_read(FILE *f, char **string)
 	if (fread(*string, 1, strsize, f) != strsize)
 		return -1;
 	return 0;
-
-	
 }
+
+int emu_profile_dump_bytea_read(FILE *f, unsigned char **data, uint32_t *size)
+{
+	emu_profile_dump_int_read(f, (int *)size);
+	*data = malloc(*size);
+	memset(*data, 0, *size);
+	if (fread(*data, 1, *size, f) != *size)
+		return -1;
+	return 0;
+}
+
 
 int emu_profile_argument_parse(FILE *f, struct emu_profile *profile)
 {
@@ -885,6 +934,15 @@ int emu_profile_argument_parse(FILE *f, struct emu_profile *profile)
 			char *string;
 			emu_profile_dump_string_read(f, &string);
 			emu_profile_argument_add_string(profile, argtype, argname, string);
+		}
+		break;
+
+	case render_bytea:
+		{
+			unsigned char *data;
+			uint32_t size;
+			emu_profile_dump_bytea_read(f, &data, &size);
+			emu_profile_argument_add_bytea(profile, argtype, argname, data, size);
 		}
 		break;
 

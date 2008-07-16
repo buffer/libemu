@@ -659,8 +659,12 @@ int32_t env_w32_hook_GetTickCount(struct emu_env *env, struct emu_env_hook *hook
 	uint32_t eip_save;
 
 	POP_DWORD(c, &eip_save);
+	emu_profile_function_add(env->profile, "GetTickCount");
 
-	emu_cpu_reg32_set(c, eax, (uint32_t)rand());
+	uint32_t tickcount = rand();
+	emu_profile_function_returnvalue_int_set(env->profile, "int", tickcount);
+
+	emu_cpu_reg32_set(c, eax, tickcount);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;

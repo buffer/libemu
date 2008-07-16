@@ -490,31 +490,78 @@ int sendto(
   int tolen
 );
 */
+	emu_profile_function_add(env->profile, "sendto");
+
 	uint32_t s;
 	POP_DWORD(c, &s);
+	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
-	uint32_t buf;
-	POP_DWORD(c, &buf);
+	uint32_t p_buf;
+	POP_DWORD(c, &p_buf);
+	emu_profile_argument_add_ptr(env->profile, "const char *", "buf", p_buf);
+	emu_profile_argument_add_none(env->profile);
+//
 
 	uint32_t len;
 	POP_DWORD(c, &len);
 
+	char *buffer = (char *)malloc(len);
+	emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
+
+//	emu_profile_argument_add_bytea(env->profile, "", "", (unsigned char *)buffer, (uint32_t)len);
+	emu_profile_argument_add_int(env->profile, "int", "len", len);
+
 	uint32_t flags;
 	POP_DWORD(c, &flags);
+	emu_profile_argument_add_int(env->profile, "int", "flags", flags);
 
 	uint32_t p_to;
 	POP_DWORD(c, &p_to);
 
+	struct sockaddr sa;
+	emu_memory_read_block(emu_memory_get(env->emu), p_to, &sa, sizeof(struct sockaddr));
+	if (sa.sa_family == AF_INET)
+	{
+		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
+		emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "name", p_to);
+		emu_profile_argument_struct_start(env->profile, "", "");
+		emu_profile_argument_add_short(env->profile, "short", "sin_family", si->sin_family);
+		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
+		emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
+		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
+		emu_profile_argument_struct_end(env->profile);
+		emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
+		emu_profile_argument_struct_end(env->profile);
+
+	}else
+	{
+		emu_profile_argument_struct_start(env->profile, "sockaddr *", "name");
+		emu_profile_argument_struct_end(env->profile);
+	}
+
+
 	uint32_t tolen;
 	POP_DWORD(c, &tolen);
+	emu_profile_argument_add_int(env->profile, "int", "tolen", tolen);
 
 
-	char *buffer = (char *)malloc(len);
-//	printf("send(%i, 0x%08x, %i,  %i)\n", s, buf, len, flags);
-	emu_memory_read_block(emu_memory_get(env->emu), buf, buffer, len);
-	int retval = len; //send(s, buffer, len, flags);
-//	printf("send %i (of %i) bytes\n", retval,  len);
-	emu_cpu_reg32_set(c, eax, retval);
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   s,
+											   buffer,
+											   len,
+											   &sa,
+											   tolen);
+	}else
+	{
+			returnvalue = len;
+	}
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+
+
 	free(buffer);
 
 	logDebug(env->emu, "eip_save is %08x\n",  eip_save);

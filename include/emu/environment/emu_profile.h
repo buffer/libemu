@@ -41,6 +41,7 @@ enum emu_profile_argument_render
 	render_short,
 	render_struct,
 	render_string,
+	render_bytea,
 	render_ip,
 	render_port,
 	render_array
@@ -63,6 +64,13 @@ struct emu_profile_argument
 		int16_t tshort;
 
 		char *tchar;
+
+		struct 
+		{
+			unsigned char *data;
+			uint32_t size;
+		} bytea;
+
 		struct 
 		{
 			emu_profile_argument_root *arguments;
@@ -131,6 +139,7 @@ void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype,
 void emu_profile_argument_add_ptr(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
 void emu_profile_argument_add_ip(struct emu_profile *profile, char *argtype,  char *argname, uint32_t value);
 void emu_profile_argument_add_port(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);
+void emu_profile_argument_add_bytea(struct emu_profile *profile, char *argtype, char *argname, unsigned char *data, uint32_t size);
 void emu_profile_argument_array_start(struct emu_profile* profile, const char* arraytype, const char* arrayname);
 void emu_profile_argument_array_end(struct emu_profile *profile);
 
