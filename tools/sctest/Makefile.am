@@ -1,0 +1,19 @@
+AUTOMAKE_OPTIONS = foreign
+
+AM_CPPFLAGS = -I../../include -I ../../.. -Werror -Wall -g
+AM_LDFLAGS = -lemu -L../../src 
+
+
+bin_PROGRAMS = sctest
+
+sctest_CPPFLAGS = ${LIB_CARGOS_INCDIR}  ${AM_CPPFLAGS}
+sctest_LDFLAGS =  ${LIB_CARGOS} ${LIB_CARGOS_LIBDIR} ${AM_LDFLAGS}
+sctest_LDADD = ../../src/libemu.la
+sctest_SOURCES = dot.c
+sctest_SOURCES = dot.h
+sctest_SOURCES += sctestmain.c
+sctest_SOURCES += sctestmain.h
+sctest_SOURCES += tests.c
+sctest_SOURCES += tests.h
+sctest_SOURCES += userhooks.c
+sctest_SOURCES += userhooks.h
