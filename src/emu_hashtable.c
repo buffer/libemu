@@ -210,3 +210,63 @@ void emu_hashtable_bucket_item_free(struct emu_hashtable_bucket_item *ehbi)
 {
 	free(ehbi);
 }
+
+
+
+/**
+ * string hashing function to avoid duplicate code
+ * algo is djb2 taken from http://www.cse.yorku.ca/~oz/hash.html
+ * 
+ * @param data   the string to hash
+ * 
+ * @return the hash
+ */
+uint32_t emu_hashtable_string_hash(void *key)
+{
+#ifdef LSOD_HASH
+    uint32_t hash = 0;
+    char *c = (char *)key;
+
+	while (*c != 0)
+	{
+		hash = hash << 19 | hash >> 13;
+		hash += *c;
+		c++;
+	}
+
+    return hash;
+#else
+	unsigned char *str = key;
+	unsigned long hash = 5381;
+	int c;
+
+	while ( (c = *str++) != 0 )
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+	return hash;
+#endif
+}
+
+bool emu_hashtable_string_cmp(void *a, void *b)
+{
+	if ( strcmp(a, b) == 0 )
+		return true;
+
+	return false;
+}
+
+uint32_t emu_hashtable_ptr_hash(void *key)
+{
+	uint32_t ukey = (uint32_t)key;
+	ukey++;
+	return ukey;
+}
+
+bool emu_hashtable_ptr_cmp(void *a, void *b)
+{
+	if ( (uint32_t)a == (uint32_t)b )
+		return true;
+
+	return false;
+}
+

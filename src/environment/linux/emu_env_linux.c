@@ -35,16 +35,13 @@
 #include "emu/environment/linux/emu_env_linux.h"
 #include "emu/environment/linux/env_linux_syscalls.h"
 
-extern uint32_t dll_export_fnname_hash(void *key);
-extern bool dll_export_fnname_cmp(void *a, void *b);
-
 struct emu_env_linux *emu_env_linux_new(struct emu *e)
 {
 	struct emu_env_linux *eel = malloc(sizeof(struct emu_env_linux));
 	memset(eel, 0, sizeof(struct emu_env_linux));
 	eel->emu = e;
 
-	eel->syscall_hooks_by_name = emu_hashtable_new(256, dll_export_fnname_hash,  dll_export_fnname_cmp);
+	eel->syscall_hooks_by_name = emu_hashtable_new(256, emu_hashtable_string_hash,  emu_hashtable_string_cmp);
 	int i;
 	eel->syscall_hookx = malloc(sizeof(syscall_hooks));
 	eel->hooks = malloc(sizeof(struct emu_env_hook)*(sizeof(syscall_hooks)/sizeof(struct emu_env_linux_syscall)));

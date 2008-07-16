@@ -160,4 +160,12 @@ struct emu_hashtable_item *emu_hashtable_insert(struct emu_hashtable *eh, void *
  */
 bool emu_hashtable_delete(struct emu_hashtable *eh, void *key);
 
+
+uint32_t emu_hashtable_string_hash(void *data);
+bool emu_hashtable_string_cmp(void *a, void *b);
+
+uint32_t emu_hashtable_ptr_hash(void *data);
+bool emu_hashtable_ptr_cmp(void *a, void *b);
+
+
 #endif // EMU_HASHTABLE_H

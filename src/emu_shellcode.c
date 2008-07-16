@@ -51,22 +51,6 @@
 #define EMU_SHELLCODE_TEST_MAX_STEPS 128
 
 
-bool cmp_uint32_t(void *a, void *b)
-{
-	if ( (uint32_t)a == (uint32_t)b )
-		return true;
-
-	return false;
-}
-
-uint32_t hash_uint32_t(void *key)
-{
-	uint32_t ukey = (uint32_t)key;
-	ukey++;
-	return ukey;
-}
-
-
 int tested_positions_cmp(struct emu_list_item *a, struct emu_list_item *b)
 {
 	if ( ((struct emu_stats *)a->data)->cpu.steps > ((struct emu_stats *)b->data)->cpu.steps )
@@ -385,7 +369,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	emu_source_instruction_graph_create(e, etas, STATIC_OFFSET, size);
 	emu_memory_mode_rw(emu_memory_get(e));
 
-	struct emu_hashtable *eh = emu_hashtable_new(size+4/4, hash_uint32_t, cmp_uint32_t);
+	struct emu_hashtable *eh = emu_hashtable_new(size+4/4, emu_hashtable_ptr_hash, emu_hashtable_ptr_cmp);
 	struct emu_list_item *eli;
 //	struct emu_env_w32 *env = emu_env_w32_new(e);
 	

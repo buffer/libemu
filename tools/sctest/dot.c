@@ -118,7 +118,7 @@ int graph_draw(struct emu_graph *graph)
 	FILE *f = fopen(opts.graphfile,"w+");
 
 	struct emu_graph *sgraph = emu_graph_new();
-	struct emu_hashtable *ht = emu_hashtable_new(2047, hash, cmp);
+	struct emu_hashtable *ht = emu_hashtable_new(2047, emu_hashtable_ptr_hash, emu_hashtable_ptr_cmp);
 
 	struct emu_vertex *nev;
 	struct instr_vertex *niv=NULL;

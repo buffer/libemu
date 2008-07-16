@@ -117,49 +117,6 @@ static const char *flags[] = { "CF", "  ", "PF", "  " , "AF"  , "    ", "ZF", "S
 
 
 
-bool cmp(void *a, void *b)
-{
-	if ( (uint32_t)a == (uint32_t)b )
-		return true;
-
-	return false;
-}
-
-uint32_t hash(void *key)
-{
-	uint32_t ukey = (uint32_t)key;
-	ukey++;
-	return ukey;
-}
-
-bool string_cmp(void *a, void *b)
-{
-	if ( strcmp(a, b)  )
-		return true;
-
-	return false;
-}
-
-uint32_t string_hash(void *key)
-{
-    uint32_t hash = 0;
-    char *c = (char *)key;
-	uint8_t num = 0x13;
-
-	while (*c != 0)
-	{
-		hash = hash << (32-num) | hash >> (num);
-//		hash = hash >> (32-num) | hash << (num);
-		hash += *c;
-		c++;
-	}
-
-    return hash;
-}
-
-
-
-
 int graph_draw(struct emu_graph *graph);
 
 int test(struct emu *e)
@@ -251,7 +208,7 @@ int test(struct emu *e)
 	if ( opts.graphfile != NULL )
 	{
 		graph = emu_graph_new();
-		eh = emu_hashtable_new(2047, hash, cmp);
+		eh = emu_hashtable_new(2047, emu_hashtable_ptr_hash, emu_hashtable_ptr_cmp);
 	}
 
 
@@ -802,7 +759,7 @@ int main(int argc, char *argv[])
 	opts.testnumber = -1;
 	opts.offset = 0;
 
-	opts.override.commands.commands = emu_hashtable_new(16, string_hash, string_cmp);
+	opts.override.commands.commands = emu_hashtable_new(16, emu_hashtable_string_hash, emu_hashtable_string_cmp);
 
 	while ( 1 )
 	{
