@@ -25,6 +25,7 @@
  *
  *******************************************************************************/
 
+#include <endian.h>
 #include <stdint.h>
 
 #if BYTE_ORDER == BIG_ENDIAN 
@@ -33,7 +34,7 @@ UINT(bits) operand_a; \
 UINT(bits) operand_b; \
 bcopy(&(a), &operand_a, bits/8); \
 bcopy(&(b), &operand_b, bits/8); \
-UINT(bits) operation_result = operand_a operation operand_b;	
+UINT(bits) operation_result = operand_a operation operand_b;
 #else // ENDIAN
 #define INSTR_CALC(bits, a, b, operation)			\
 UINT(bits) operand_a = a;								\
@@ -46,7 +47,6 @@ UINT(bits) operation_result = operand_a operation operand_b;
 #include "emu/emu_cpu_data.h"
 
 #include "emu/emu_memory.h"
-
 
 #ifdef INSTR_CALC_AND_SET_FLAGS
 #undef INSTR_CALC_AND_SET_FLAGS
@@ -354,9 +354,6 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 dst, 
 									 *i->imm16, 
 									 -)
-
-			MEM_WORD_WRITE(c, i->modrm.ea, dst);
-
 		}
 		else
 		{
@@ -372,9 +369,6 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 dst, 
 									 i->imm, 
 									 -)
-
-			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
-
 		}
 	}
 	else
@@ -413,6 +407,16 @@ int32_t instr_group_1_81_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
+
+/* As the INSTR_CALC for big endian uses bcopy of the operands size, we have to create an operand of the size 
+ * and use it, the replacement aligned equal size operand is called imm 
+ */
+#if BYTE_ORDER == BIG_ENDIAN
+	 uint8_t imm8;
+	 bcopy(i->imm8, &imm8, 1);
+	 uint32_t imm = imm8;
+#endif
+
 	if ( i->modrm.mod != 3 )
 	{
 		if ( i->prefixes & PREFIX_OPSIZE )
@@ -425,15 +429,15 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 			 uint16_t dst;
 			 MEM_WORD_READ(c, i->modrm.ea, &dst);
-
 			 INSTR_CALC_AND_SET_FLAGS(16, 
 									  c, 
 									  dst,
+#if BYTE_ORDER == BIG_ENDIAN
+									  imm,
+#else
 									  *i->imm8, 
+#endif
 									  -)
-
-			 MEM_WORD_WRITE(c, i->modrm.ea, dst);
-
 		}
 		else
 		{
@@ -450,9 +454,13 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 dst,
-									 *i->imm8, 
+#if BYTE_ORDER == BIG_ENDIAN
+									  imm,
+#else
+									  *i->imm8, 
+#endif
+
 									 -)
-			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
 	}
 	else
@@ -467,7 +475,12 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
 									 *c->reg16[i->modrm.rm], 
-									 *i->imm8, 
+#if BYTE_ORDER == BIG_ENDIAN
+									  imm,
+#else
+									  *i->imm8, 
+#endif
+
 									 -)
 		}
 		else
@@ -480,7 +493,12 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
             INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 c->reg[i->modrm.rm], 
-									 *i->imm8, 
+#if BYTE_ORDER == BIG_ENDIAN
+									  imm,
+#else
+									  *i->imm8, 
+#endif
+
 									 -)
 		}
 	}
