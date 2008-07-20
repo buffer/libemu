@@ -17,3 +17,6 @@ uint32_t user_hook_send(struct emu_env *env, struct emu_env_hook *hook, ...);
 uint32_t user_hook_socket(struct emu_env *env, struct emu_env_hook *hook, ...);
 uint32_t user_hook_WSASocket(struct emu_env *env, struct emu_env_hook *hook, ...);
 
+uint32_t user_hook_CreateFile(struct emu_env *env, struct emu_env_hook *hook, ...);
+uint32_t user_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook, ...);
+uint32_t user_hook_CloseHandle(struct emu_env *env, struct emu_env_hook *hook, ...);

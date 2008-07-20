@@ -17,6 +17,6 @@ sctest_SOURCES += tests.c
 sctest_SOURCES += tests.h
 sctest_SOURCES += userhooks.c
 sctest_SOURCES += userhooks.h
-#sctest_SOURCES += nanny.c
-#sctest_SOURCES += nanny.h
+sctest_SOURCES += nanny.c
+sctest_SOURCES += nanny.h
 

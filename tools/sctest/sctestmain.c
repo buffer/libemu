@@ -95,6 +95,8 @@
 #include "options.h"
 #include "dot.h"
 #include "tests.h"
+#include "nanny.h"
+
 
 struct run_time_options opts;
 
@@ -130,6 +132,7 @@ int test(struct emu *e)
 
 	struct emu_env *env = emu_env_new(e);
 
+	struct nanny *na = nanny_new();
 //	lenv->profile = wenv->profile;
 
 	/* IAT for sqlslammer */
@@ -150,17 +153,24 @@ int test(struct emu *e)
 
 	if ( opts.interactive == true )
 	{
+
+		emu_env_w32_load_dll(env->env.win,"msvcrt.dll");
+		emu_env_w32_export_hook(env, "fclose", user_hook_fclose, na);
+		emu_env_w32_export_hook(env, "fopen", user_hook_fopen, na);
+		emu_env_w32_export_hook(env, "fwrite", user_hook_fwrite, na);
+
 		emu_env_w32_export_hook(env, "CreateProcessA", user_hook_CreateProcess, NULL);
 		emu_env_w32_export_hook(env, "WaitForSingleObject", user_hook_WaitForSingleObject, NULL);
+		emu_env_w32_export_hook(env, "CreateFileA", user_hook_CreateFile, na);
+		emu_env_w32_export_hook(env, "WriteFile", user_hook_WriteFile, na);
+		emu_env_w32_export_hook(env, "CloseHandle", user_hook_CloseHandle, na);
+
 
 		emu_env_w32_load_dll(env->env.win,"ws2_32.dll");
 		emu_env_w32_export_hook(env, "accept", user_hook_accept, NULL);
 		emu_env_w32_export_hook(env, "bind", user_hook_bind, NULL);
 		emu_env_w32_export_hook(env, "closesocket", user_hook_closesocket, NULL);
 		emu_env_w32_export_hook(env, "connect", user_hook_connect, NULL);
-		emu_env_w32_export_hook(env, "fclose", user_hook_fclose, NULL);
-		emu_env_w32_export_hook(env, "fopen", user_hook_fopen, NULL);
-		emu_env_w32_export_hook(env, "fwrite", user_hook_fwrite, NULL);
 
 		emu_env_w32_export_hook(env, "listen", user_hook_listen, NULL);
 		emu_env_w32_export_hook(env, "recv", user_hook_recv, NULL);
@@ -401,7 +411,9 @@ int test(struct emu *e)
 
 
 	emu_profile_debug(env->profile);
-	emu_profile_dump(env->profile, opts.profile_file);
+
+	if (opts.profile_file)
+		emu_profile_dump(env->profile, opts.profile_file);
 
 	if (eh != NULL)
 		emu_hashtable_free(eh);

@@ -85,6 +85,7 @@
 
 #include "userhooks.h"
 #include "options.h"
+#include "nanny.h"
 
 #include <stdint.h>
 #include <stdarg.h>
@@ -339,7 +340,24 @@ uint32_t user_hook_fclose(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-	return 0;
+//int fclose(FILE *fp);
+
+	va_list vl;
+	va_start(vl, hook);
+	FILE *f = va_arg(vl, FILE *);
+	va_end(vl);
+
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)f);
+
+	if (nf != NULL)
+	{
+		FILE *f = nf->real_file;
+		nanny_del_file(hook->hook.win->userdata, (uint32_t)f);
+    	return fclose(f);
+	}
+	else 
+		return 0;
+
 }
 
 
@@ -347,14 +365,51 @@ uint32_t user_hook_fopen(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-	return 0;
+
+	va_list vl;
+	va_start(vl, hook);
+
+	char *filename			= va_arg(vl,  char *);
+	/*char *mode 				= */(void)va_arg(vl,  char *);
+	va_end(vl);
+
+
+	char *localfile;
+	asprintf(&localfile, "/tmp/%s-XXXXXX",filename);
+	int fd = mkstemp(localfile);
+	close(fd);
+
+	FILE *f = fopen(localfile,"w");
+
+	uint32_t file;
+	nanny_add_file(hook->hook.win->userdata, localfile, &file, f);
+
+	return file;
 }
 
 uint32_t user_hook_fwrite(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
 	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-	return 0;
+
+/*       size_t fwrite(const void *ptr, size_t size, size_t nmemb,
+                     FILE *stream);
+*/
+	va_list vl;
+	va_start(vl, hook);
+	void *data = va_arg(vl, void *);
+	size_t size = va_arg(vl, size_t);
+	size_t nmemb = va_arg(vl, size_t);
+	FILE *f = va_arg(vl, FILE *);
+	va_end(vl);
+
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)f);
+
+	if (nf != NULL)
+		return fwrite(data, size, nmemb, nf->real_file);
+	else 
+		return size*nmemb;
+
 }
 
 
@@ -447,5 +502,114 @@ uint32_t user_hook_WSASocket(struct emu_env *env, struct emu_env_hook *hook, ...
 	printf("WSASocket(%i, %i, %i)\n",domain, type, protocol);
 
 	return socket(domain, type, protocol);
+}
+
+
+uint32_t user_hook_CreateFile(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+/*
+HANDLE CreateFile(
+  LPCTSTR lpFileName,
+  DWORD dwDesiredAccess,
+  DWORD dwShareMode,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  DWORD dwCreationDisposition,
+  DWORD dwFlagsAndAttributes,
+  HANDLE hTemplateFile
+);
+*/
+
+	va_list vl;
+	va_start(vl, hook);
+	char *lpFileName			= va_arg(vl, char *);
+	/*int dwDesiredAccess		=*/(void)va_arg(vl, int);
+	/*int dwShareMode			=*/(void)va_arg(vl, int);
+	/*int lpSecurityAttributes	=*/(void)va_arg(vl, int);
+	/*int dwCreationDisposition	=*/(void)va_arg(vl, int);
+	/*int dwFlagsAndAttributes	=*/(void)va_arg(vl, int);
+	/*int hTemplateFile			=*/(void)va_arg(vl, int);
+	va_end(vl);
+
+	char *localfile;
+	asprintf(&localfile, "/tmp/%s-XXXXXX",lpFileName);
+	int fd = mkstemp(localfile);
+	close(fd);
+
+	FILE *f = fopen(localfile,"w");
+
+	uint32_t handle;
+	nanny_add_file(hook->hook.win->userdata, localfile, &handle, f);
+
+	return (uint32_t)handle;
+}
+
+uint32_t user_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+/*
+BOOL WriteFile(
+  HANDLE hFile,
+  LPCVOID lpBuffer,
+  DWORD nNumberOfBytesToWrite,
+  LPDWORD lpNumberOfBytesWritten,
+  LPOVERLAPPED lpOverlapped
+);
+*/
+
+	va_list vl;
+	va_start(vl, hook);
+	FILE *hFile 					= va_arg(vl, FILE *);
+	void *lpBuffer 					= va_arg(vl, void *);
+	int   nNumberOfBytesToWrite 	= va_arg(vl, int);
+	/* int *lpNumberOfBytesWritten  =*/(void)va_arg(vl, int*);
+	/* int *lpOverlapped 		    =*/(void)va_arg(vl, int*);
+	va_end(vl);
+
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)hFile);
+
+	if (nf != NULL)
+		fwrite(lpBuffer, nNumberOfBytesToWrite, 1, nf->real_file);
+	else
+		printf("shellcode tried to write data to not existing handle\n");
+
+	return 1;
+
+}
+
+
+uint32_t user_hook_CloseHandle(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+/*
+BOOL CloseHandle(
+  HANDLE hObject
+);
+*/
+
+	va_list vl;
+	va_start(vl, hook);
+	FILE *hObject = va_arg(vl, FILE *);
+	va_end(vl);
+
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)hObject);
+
+	if (nf != NULL)
+	{
+		FILE *f = nf->real_file;
+		nanny_del_file(hook->hook.win->userdata, (uint32_t)hObject);
+		fclose(f);
+	}
+	else 
+	{
+		printf("shellcode tried to close not existing handle (maybe closed it already?)\n");
+	}
+
+
+	return 0;
+
 }
 
