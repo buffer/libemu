@@ -129,40 +129,22 @@ int32_t	env_w32_hook_bind(struct emu_env *env, struct emu_env_hook *hook)
 	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 
-	uint32_t name;
-	POP_DWORD(c, &name);
+	uint32_t p_name;
+	POP_DWORD(c, &p_name);
 	
 	
 
 	struct sockaddr sa;
 	
-	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
-	if (sa.sa_family == AF_INET)
-	{
-		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
-		emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "name", name);
-		emu_profile_argument_struct_start(env->profile, "", "");
-		emu_profile_argument_add_short(env->profile, "short", "sin_family", si->sin_family);
-		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
-		emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
-		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
-		emu_profile_argument_struct_end(env->profile);
-		emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
-		emu_profile_argument_struct_end(env->profile);
-
-	}else
-	{
-		emu_profile_argument_struct_start(env->profile, "sockaddr *", "name");
-		emu_profile_argument_struct_end(env->profile);
-	}
-
+	emu_memory_read_block(emu_memory_get(env->emu), p_name, &sa, sizeof(struct sockaddr));
+	emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_name, sa);
 
 
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
 	emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
 
-	logDebug(env->emu, "bind(s=%i, name=%x, namelen=%i\n", s, name, namelen);
+	logDebug(env->emu, "bind(s=%i, name=%x, namelen=%i\n", s, p_name, namelen);
 
 
 	uint32_t returnvalue;
@@ -245,29 +227,12 @@ int connect(
 	POP_DWORD(c, &s);
 	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
-	uint32_t name;
-	POP_DWORD(c, &name);
+	uint32_t p_name;
+	POP_DWORD(c, &p_name);
 	struct sockaddr sa;
 
-	emu_memory_read_block(emu_memory_get(env->emu), name, &sa, sizeof(struct sockaddr));
-	if (sa.sa_family == AF_INET)
-	{
-		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
-		emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "name", name);
-		emu_profile_argument_struct_start(env->profile, "", "");
-		emu_profile_argument_add_short(env->profile, "short", "sin_family", si->sin_family);
-		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
-		emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
-		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
-		emu_profile_argument_struct_end(env->profile);
-		emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
-		emu_profile_argument_struct_end(env->profile);
-
-	}else
-	{
-		emu_profile_argument_struct_start(env->profile, "sockaddr *", "name");
-		emu_profile_argument_struct_end(env->profile);
-	}
+	emu_memory_read_block(emu_memory_get(env->emu), p_name, &sa, sizeof(struct sockaddr));
+	emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_name, sa);
 
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
@@ -340,6 +305,13 @@ int32_t	env_w32_hook_listen(struct emu_env *env, struct emu_env_hook *hook)
 	return 0;
 }
 
+#define emu_assert(emu, x) \
+if (x) \
+{ \
+	printf("Insane value at %s:%i\n", __FILE__, __LINE__); \
+}
+
+
 int32_t	env_w32_hook_recv(struct emu_env *env, struct emu_env_hook *hook)
 {
 	logDebug(env->emu, "Hook me Captain Cook!\n");
@@ -378,8 +350,17 @@ int recv(
 	emu_profile_argument_add_int(env->profile, "int", "flags", flags);
 
 	uint32_t xlen = len;
-	char *buffer = (char *)malloc(len);
-	memset(buffer, 0, len);
+	if (xlen < 0 || xlen > 4096)
+	{
+
+		printf("BUG\n");
+		xlen = 4069;
+	}
+
+	emu_assert(env->emu, len < 0 || len > 4096);
+
+	char *buffer = (char *)malloc(xlen);
+	memset(buffer, 0, xlen);
 
 	uint32_t returnvalue;
 	if ( hook->hook.win->userhook != NULL )
@@ -387,14 +368,14 @@ int recv(
 		returnvalue = hook->hook.win->userhook(env, hook, 
 											   s,
 											   buffer,
-											   len,
+											   xlen,
 											   flags);
 	}else
 	{
 		if (rand()%100 < 40)
 			returnvalue = 0;
 		else
-			returnvalue = len;
+			returnvalue = xlen;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
 	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
@@ -422,6 +403,7 @@ int32_t	env_w32_hook_send(struct emu_env *env, struct emu_env_hook *hook)
 	uint32_t eip_save;
 
 	POP_DWORD(c, &eip_save);
+	emu_profile_function_add(env->profile, "send");
 /*
 int send(
   SOCKET s,
@@ -432,9 +414,11 @@ int send(
 */
 	uint32_t s;
 	POP_DWORD(c, &s);
+	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
-	uint32_t buf;
-	POP_DWORD(c, &buf);
+	uint32_t p_buf;
+	POP_DWORD(c, &p_buf);
+	emu_profile_argument_add_ptr(env->profile, "const char *", "buf", p_buf);
 
 	uint32_t len;
 	POP_DWORD(c, &len);
@@ -442,9 +426,15 @@ int send(
 	uint32_t flags;
 	POP_DWORD(c, &flags);
 
+
 	char *buffer = (char *)malloc(len);
-	logDebug(env->emu, "send(%i, 0x%08x, %i,  %i)\n", s, buf, len, flags);
-	emu_memory_read_block(emu_memory_get(env->emu), buf, buffer, len);
+	logDebug(env->emu, "send(%i, 0x%08x, %i,  %i)\n", s, p_buf, len, flags);
+	emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
+	emu_profile_argument_add_bytea(env->profile, "", "", (void *)buffer, len);
+
+	
+	emu_profile_argument_add_int(env->profile, "int", "len", len);
+	emu_profile_argument_add_int(env->profile, "int", "flags", flags);
 
 
 	uint32_t returnvalue;
@@ -520,24 +510,7 @@ int sendto(
 
 	struct sockaddr sa;
 	emu_memory_read_block(emu_memory_get(env->emu), p_to, &sa, sizeof(struct sockaddr));
-	if (sa.sa_family == AF_INET)
-	{
-		struct sockaddr_in *si = (struct sockaddr_in *)&sa;
-		emu_profile_argument_add_ptr(env->profile, "sockaddr_in *", "name", p_to);
-		emu_profile_argument_struct_start(env->profile, "", "");
-		emu_profile_argument_add_short(env->profile, "short", "sin_family", si->sin_family);
-		emu_profile_argument_add_port(env->profile, "unsigned short", "sin_port", si->sin_port);
-		emu_profile_argument_struct_start(env->profile, "in_addr", "sin_addr");
-		emu_profile_argument_add_ip(env->profile, "unsigned long", "s_addr", si->sin_addr.s_addr);
-		emu_profile_argument_struct_end(env->profile);
-		emu_profile_argument_add_string(env->profile, "char", "sin_zero", "       ");
-		emu_profile_argument_struct_end(env->profile);
-
-	}else
-	{
-		emu_profile_argument_struct_start(env->profile, "sockaddr *", "name");
-		emu_profile_argument_struct_end(env->profile);
-	}
+	emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_to, sa);
 
 
 	uint32_t tolen;
