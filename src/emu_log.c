@@ -51,7 +51,9 @@ struct emu_logging *emu_log_new()
 		return NULL;
 	}
 	memset(el, 0, sizeof(struct emu_logging));
-	
+
+	el->logcb = emu_log_default_logcb;
+
 	return el;
 }
 
@@ -83,14 +85,7 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...)
 	vasprintf(&message, format, ap);
 	va_end(ap);
 
-	if ( el->logcb == NULL )
-	{
-		const char *lev[] = {"none","\033[32;1minfo\033[0m","\033[31;1mdebug\033[0m"};
-		fprintf(stdout,"[emu 0x%08x %s ] ",(unsigned int)e, lev[level]);
-		fprintf(stdout,"%s", message);
-	}
-	else
-		el->logcb(e, level, message);
+	el->logcb(e, level, message);
 
 	free(message);
 }
@@ -98,4 +93,11 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...)
 void emu_log_set_logcb(struct emu_logging *el, emu_log_logcb logcb)
 {
 	el->logcb = logcb;
+}
+
+void emu_log_default_logcb(struct emu *e, enum emu_log_level level, const char *msg)
+{
+	const char *lev[] = {"none","\033[32;1minfo\033[0m","\033[31;1mdebug\033[0m"};
+	fprintf(stdout,"[emu 0x%08x %s ] ",(unsigned int)e, lev[level]);
+	fprintf(stdout,"%s", msg);
 }

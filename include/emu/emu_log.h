@@ -48,6 +48,8 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...);
 
 void emu_log_set_logcb(struct emu_logging *el, emu_log_logcb logcb);
 
+void emu_log_default_logcb(struct emu *e, enum emu_log_level level, const char *msg);
+
 #define logInfo(e, format...) emu_log(e, EMU_LOG_INFO, format)
 
 #ifdef DEBUG
