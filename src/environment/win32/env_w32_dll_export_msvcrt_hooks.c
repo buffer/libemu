@@ -94,3 +94,164 @@ intptr_t _wexecv(
 	return 0;
 }
 
+
+int32_t	env_w32_hook_fclose(struct emu_env *env, struct emu_env_hook *hook)
+{
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+int _fcloseall( void );
+int fclose( FILE *stream );
+*/
+	emu_profile_function_add(env->profile, "fclose");
+
+	uint32_t p_stream;
+	MEM_DWORD_READ(c, c->reg[esp], &p_stream);
+
+	emu_profile_argument_add_ptr(env->profile, "FILE *", "stream", p_stream);
+	emu_profile_argument_add_none(env->profile);
+
+
+	logDebug(env->emu, "fclose(0x%08x)\n", p_stream);
+	
+	emu_cpu_reg32_set(c, eax, 0);
+	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
+
+    emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+
+int32_t	env_w32_hook_fopen(struct emu_env *env, struct emu_env_hook *hook)
+{
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+FILE *fopen( const char *filename, const char *mode );
+FILE *_wfopen( const wchar_t *filename, const wchar_t *mode );
+*/
+	emu_profile_function_add(env->profile, "fopen");
+
+	uint32_t p_filename;
+	MEM_DWORD_READ(c, c->reg[esp], &p_filename);
+	emu_profile_argument_add_ptr(env->profile, "const char *", "filename", p_filename);
+
+	struct emu_string *filename = emu_string_new();
+	emu_memory_read_string(c->mem, p_filename, filename, 512);
+	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(filename));
+	
+	uint32_t p_mode;
+	MEM_DWORD_READ(c, c->reg[esp]+4, &p_mode);
+	struct emu_string *mode = emu_string_new();
+	emu_memory_read_string(c->mem, p_mode, mode, 512);
+	emu_profile_argument_add_ptr(env->profile, "const char *", "mode", p_mode);
+	emu_profile_argument_add_string(env->profile,  "", "", emu_string_char(mode));
+
+
+
+//	printf("fopen(%s, %s)\n", emu_string_char(filename), (char *)mode->data);
+	
+
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   emu_string_char(filename),
+											   emu_string_char(mode));
+	}else
+	{
+		returnvalue	= 0x89898989;
+	}
+
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_ptr_set(env->profile, "FILE *", returnvalue);
+	emu_profile_argument_add_none(env->profile);
+
+
+	emu_string_free(filename);
+	emu_string_free(mode);
+
+    emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	env_w32_hook_fwrite(struct emu_env *env, struct emu_env_hook *hook)
+{
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+size_t fwrite( const void *buffer, size_t size, size_t count, FILE *stream );
+*/
+	emu_profile_function_add(env->profile, "fwrite");
+
+	uint32_t p_buffer;
+	MEM_DWORD_READ(c, c->reg[esp], &p_buffer);
+	emu_profile_argument_add_ptr(env->profile, "const void *", "buffer", p_buffer);
+	
+
+    uint32_t size;
+	MEM_DWORD_READ(c, (c->reg[esp]+4), &size);
+
+
+
+	uint32_t count;
+	MEM_DWORD_READ(c, (c->reg[esp]+8), &count);
+
+	unsigned char *buffer = malloc(size*count);
+	emu_memory_read_block(emu_memory_get(env->emu), p_buffer, buffer, size*count);
+	emu_profile_argument_add_bytea(env->profile, "", "", buffer, size*count);
+
+
+	emu_profile_argument_add_int(env->profile, "size_t", "size", size);
+	emu_profile_argument_add_int(env->profile, "count_t", "count", count);
+
+	uint32_t p_stream;
+	MEM_DWORD_READ(c, c->reg[esp]+12, &p_stream);
+	emu_profile_argument_add_ptr(env->profile, "FILE *", "stream", p_stream);
+	emu_profile_argument_add_none(env->profile);
+	
+
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   buffer,
+											   size,
+											   count,
+											   p_stream);
+	}else
+	{
+		returnvalue	= size*count;
+	}
+
+
+	logDebug(env->emu, "fwrite(0x%08x, %d, %d, 0x%08x)\n", p_buffer, size, count, p_stream);
+	
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "size_t", returnvalue);
+
+    emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+

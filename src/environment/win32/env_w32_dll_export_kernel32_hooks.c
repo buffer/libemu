@@ -79,7 +79,22 @@ BOOL CloseHandle(
 
 	uint32_t object;
 	POP_DWORD(c, &object);
-	emu_profile_argument_add_int(env->profile, "Handle", "hObject", object);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hObject", object);
+
+
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   object);
+	}else
+	{
+		returnvalue	= 0;
+	}
+
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "BOOL", returnvalue);
+	
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -110,11 +125,12 @@ HANDLE CreateFile(
 */
 	emu_profile_function_add(env->profile, "CreateFile");
 
-	uint32_t filename;
-	POP_DWORD(c, &filename);
-	emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "lpFileName", filename);
-	emu_profile_argument_add_none(env->profile);
-
+	uint32_t p_filename;
+	POP_DWORD(c, &p_filename);
+	emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "lpFileName", p_filename);
+    struct emu_string *filename = emu_string_new();
+	emu_memory_read_string(emu_memory_get(env->emu), p_filename, filename, 256);
+	emu_profile_argument_add_string(env->profile,"",  "",  emu_string_char(filename));
 
 	uint32_t desiredaccess;
 	POP_DWORD(c, &desiredaccess);
@@ -139,9 +155,33 @@ HANDLE CreateFile(
 
 	uint32_t templatefile;
 	POP_DWORD(c, &templatefile);
-	emu_profile_argument_add_int(env->profile, "Handle", "hTemplateFile", templatefile);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hTemplateFile", templatefile);
+
+
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   emu_string_char(filename),
+											   desiredaccess,
+											   sharemode,
+											   securityattr,
+											   createdisp,
+											   flagsandattr,
+											   templatefile);
+	}else
+	{
+		returnvalue	= 0x8383838;
+	}
+
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "HANDLE", returnvalue);
+
+
 
 	emu_cpu_eip_set(c, eip_save);
+
+	emu_string_free(filename);
 	return 0;
 }
 
@@ -176,7 +216,11 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
 	uint32_t p_imagename;
 	POP_DWORD(c, &p_imagename);
 	emu_profile_argument_add_ptr(env->profile, "LPCWSTR", "pszImageName", p_imagename);
-	emu_profile_argument_add_none(env->profile);
+
+	struct emu_string *imagename = emu_string_new();
+	emu_memory_read_string(m, p_imagename, imagename, 1024);
+	emu_profile_argument_add_string(env->profile, "","", emu_string_char(imagename));
+
 
 	uint32_t p_cmdline;
 	POP_DWORD(c, &p_cmdline);
@@ -411,131 +455,6 @@ VOID ExitThread(
 	return 0;
 }
 
-int32_t	env_w32_hook_fclose(struct emu_env *env, struct emu_env_hook *hook)
-{
-	logDebug(env->emu, "Hook me Captain Cook!\n");
-	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
-	struct emu_cpu *c = emu_cpu_get(env->emu);
-
-	uint32_t eip_save;
-
-	POP_DWORD(c, &eip_save);
-
-/*
-int _fcloseall( void );
-int fclose( FILE *stream );
-*/
-	emu_profile_function_add(env->profile, "fclose");
-
-	uint32_t p_stream;
-	MEM_DWORD_READ(c, c->reg[esp], &p_stream);
-
-	emu_profile_argument_add_ptr(env->profile, "FILE *", "stream", p_stream);
-	emu_profile_argument_add_none(env->profile);
-
-
-	logDebug(env->emu, "fclose(0x%08x)\n", p_stream);
-	
-	emu_cpu_reg32_set(c, eax, 0);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
-
-    emu_cpu_eip_set(c, eip_save);
-	return 0;
-}
-
-
-int32_t	env_w32_hook_fopen(struct emu_env *env, struct emu_env_hook *hook)
-{
-	logDebug(env->emu, "Hook me Captain Cook!\n");
-	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
-	struct emu_cpu *c = emu_cpu_get(env->emu);
-
-	uint32_t eip_save;
-
-	POP_DWORD(c, &eip_save);
-
-/*
-FILE *fopen( const char *filename, const char *mode );
-FILE *_wfopen( const wchar_t *filename, const wchar_t *mode );
-*/
-	emu_profile_function_add(env->profile, "fopen");
-
-	uint32_t p_filename;
-	MEM_DWORD_READ(c, c->reg[esp], &p_filename);
-	emu_profile_argument_add_ptr(env->profile, "const char *", "filename", p_filename);
-
-	struct emu_string *filename = emu_string_new();
-	emu_memory_read_string(c->mem, p_filename, filename, 512);
-	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(filename));
-	emu_string_free(filename);
-	
-	uint32_t p_mode;
-	MEM_DWORD_READ(c, c->reg[esp]+4, &p_mode);
-	emu_profile_argument_add_ptr(env->profile, "const char *", "mode", p_mode);
-	emu_profile_argument_add_none(env->profile);
-
-//	struct emu_string *mode = emu_string_new();
-//	emu_memory_read_string(c->mem, p_mode, mode, 512);
-
-
-//	printf("fopen(%s, %s)\n", emu_string_char(filename), (char *)mode->data);
-	
-	
-	emu_cpu_reg32_set(c, eax, 0x89898989);
-	emu_profile_function_returnvalue_ptr_set(env->profile, "FILE *", 0x89898989);
-	emu_profile_argument_add_none(env->profile);
-
-    emu_cpu_eip_set(c, eip_save);
-	return 0;
-}
-
-int32_t	env_w32_hook_fwrite(struct emu_env *env, struct emu_env_hook *hook)
-{
-	logDebug(env->emu, "Hook me Captain Cook!\n");
-	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
-
-	struct emu_cpu *c = emu_cpu_get(env->emu);
-
-	uint32_t eip_save;
-
-	POP_DWORD(c, &eip_save);
-
-/*
-size_t fwrite( const void *buffer, size_t size, size_t count, FILE *stream );
-*/
-	emu_profile_function_add(env->profile, "fwrite");
-
-	uint32_t p_buffer;
-	MEM_DWORD_READ(c, c->reg[esp], &p_buffer);
-	emu_profile_argument_add_ptr(env->profile, "const void *", "buffer", p_buffer);
-	emu_profile_argument_add_none(env->profile);
-
-    uint32_t size;
-	MEM_DWORD_READ(c, (c->reg[esp]+4), &size);
-	emu_profile_argument_add_int(env->profile, "size_t", "size", size);
-
-	uint32_t count;
-	MEM_DWORD_READ(c, (c->reg[esp]+8), &count);
-	emu_profile_argument_add_int(env->profile, "count_t", "count", count);
-
-	uint32_t p_stream;
-	MEM_DWORD_READ(c, c->reg[esp]+12, &p_stream);
-	emu_profile_argument_add_ptr(env->profile, "FILE *", "stream", p_stream);
-	emu_profile_argument_add_none(env->profile);
-	
-
-
-
-	logDebug(env->emu, "fwrite(0x%08x, %d, %d, 0x%08x)\n", p_buffer, size, count, p_stream);
-	
-	emu_cpu_reg32_set(c, eax, size*count);
-	emu_profile_function_returnvalue_int_set(env->profile, "size_t", size*count);
-
-    emu_cpu_eip_set(c, eip_save);
-	return 0;
-}
 
 int32_t env_w32_hook_GetProcAddress(struct emu_env *env, struct emu_env_hook *hook)
 {
@@ -556,8 +475,8 @@ FFARPROC WINAPI GetProcAddress(
 
 	uint32_t module;// = emu_cpu_reg32_get(c, esp);
 	POP_DWORD(c, &module);
-	emu_profile_argument_add_int(env->profile, "HMODULE", "hModule", module);
-
+	emu_profile_argument_add_ptr(env->profile, "HMODULE", "hModule", module);
+	emu_profile_argument_add_none(env->profile);
 //	printf("module ptr is %08x\n", module);
 
 	uint32_t p_procname;
@@ -794,6 +713,8 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env *env, struct emu_env_hook *hook)
 		{
 			logDebug(env->emu, "found dll %s, baseaddr is %08x \n",env->env.win->loaded_dlls[i]->dllname,env->env.win->loaded_dlls[i]->baseaddr);
 			emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
+			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", env->env.win->loaded_dlls[i]->baseaddr);
+			emu_profile_argument_add_none(env->profile);
 			found_dll = 1;
 		}
 	}
@@ -1029,6 +950,7 @@ int32_t	env_w32_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook)
 
 	POP_DWORD(c, &eip_save);
 
+	emu_profile_function_add(env->profile, "WriteFile");
 /*
 BOOL WriteFile(
   HANDLE hFile,
@@ -1040,22 +962,52 @@ BOOL WriteFile(
 */
 	uint32_t file;
 	POP_DWORD(c, &file);
+	emu_profile_argument_add_int(env->profile, "HANDLE", "hFile", file);
 
-	uint32_t buffer;
-	POP_DWORD(c,  &buffer);
+	uint32_t p_buffer;
+	POP_DWORD(c,  &p_buffer);
 
 	uint32_t bytestowrite;
 	POP_DWORD(c,  &bytestowrite);
 
-	uint32_t byteswritten;
-	POP_DWORD(c,  &byteswritten);
+	emu_profile_argument_add_ptr(env->profile, "LPCVOID", "lpBuffer", p_buffer);
+	unsigned char *buffer = malloc(bytestowrite);
+	emu_memory_read_block(emu_memory_get(env->emu), p_buffer, buffer, bytestowrite);
+	emu_profile_argument_add_bytea(env->profile, "", "", buffer, bytestowrite);
 
-	uint32_t overlapped;
-	POP_DWORD(c,  &overlapped);
+	emu_profile_argument_add_int(env->profile, "DWORD", "nNumberOfBytesToWrite", bytestowrite);
 
-	emu_memory_write_dword(emu_memory_get(env->emu), byteswritten, bytestowrite);
+	uint32_t p_byteswritten;
+	POP_DWORD(c,  &p_byteswritten);
+	emu_profile_argument_add_ptr(env->profile, "LPDWORD", "lpNumberOfBytesWritten", p_byteswritten);
+	emu_profile_argument_add_none(env->profile);
+	
+	uint32_t p_overlapped;
+	POP_DWORD(c,  &p_overlapped);
+	emu_profile_argument_add_ptr(env->profile, "LPOVERLAPPED", "lpOverlapped", p_overlapped);
+	emu_profile_argument_add_none(env->profile);
 
-	emu_cpu_reg32_set(c, eax, 32);
+
+	emu_memory_write_dword(emu_memory_get(env->emu), p_byteswritten, bytestowrite);
+
+
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   file,
+											   buffer,
+											   bytestowrite,
+											   p_byteswritten,
+											   p_overlapped);
+	}else
+	{
+		returnvalue	= 1;
+	}
+
+	emu_profile_function_returnvalue_int_set(env->profile, "BOOL", returnvalue);
+	emu_cpu_reg32_set(c, eax, returnvalue);
+
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;

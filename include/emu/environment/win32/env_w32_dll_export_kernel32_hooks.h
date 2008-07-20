@@ -33,9 +33,6 @@ int32_t env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
 int32_t env_w32_hook_DeleteFileA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_ExitThread(struct emu_env *env, struct emu_env_hook *hook);
-int32_t env_w32_hook_fclose(struct emu_env *env, struct emu_env_hook *hook);
-int32_t env_w32_hook_fopen(struct emu_env *env, struct emu_env_hook *hook);
-int32_t env_w32_hook_fwrite(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetProcAddress(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetSystemDirectoryA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetTickCount(struct emu_env *env, struct emu_env_hook *hook);
