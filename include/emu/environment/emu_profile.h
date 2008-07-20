@@ -26,6 +26,11 @@
  *******************************************************************************/
 
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include "emu/emu_list.h"
 #include "emu/emu_stack.h"
 
@@ -153,4 +158,8 @@ void emu_profile_function_returnvalue_ptr_set(struct emu_profile *profile, const
 
 
 void *emu_profile_function_argument_get(struct emu_profile_function *function, int argc);
-#endif
+
+void emu_profile_argument_add_sockaddr_ptr(struct emu_profile *profile, const char *name, uint32_t ptr, struct sockaddr sa);
+
+#endif                                                                                              
+

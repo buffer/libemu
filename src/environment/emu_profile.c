@@ -28,13 +28,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+
 
 
 #include "emu/environment/emu_profile.h"
+
+
+
 
 /*
 static char *renderings[] =
@@ -165,6 +165,8 @@ void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype,
 {
 
     struct emu_profile_argument *argument = emu_profile_argument_new(render_string, argtype, argname);
+	if (value == NULL)
+		value = "";
 	argument->value.tchar = strdup(value);
 	emu_profile_argument_add(profile, argument);
 }
@@ -202,6 +204,30 @@ void emu_profile_argument_add_port(struct emu_profile *profile,	char *argtype,  
 	emu_profile_argument_add(profile, argument);
 }
 
+void emu_profile_argument_add_sockaddr_ptr(struct emu_profile *profile, const char *name, uint32_t ptr, struct sockaddr sa)
+{
+
+	if ( sa.sa_family == AF_INET )
+	{                                                                                          
+		struct sockaddr_in *si = (struct sockaddr_in *)&sa;                                    
+		emu_profile_argument_add_ptr(profile, "sockaddr_in *", (char*)name, ptr);               
+		emu_profile_argument_struct_start(profile, "", "");                                    
+		emu_profile_argument_add_short(profile, "short", "sin_family", si->sin_family);        
+		emu_profile_argument_add_port(profile, "unsigned short", "sin_port", si->sin_port);    
+		emu_profile_argument_struct_start(profile, "in_addr", "sin_addr");                     
+		emu_profile_argument_add_ip(profile, "unsigned long", "s_addr", si->sin_addr.s_addr);  
+		emu_profile_argument_struct_end(profile);                                              
+		emu_profile_argument_add_string(profile, "char", "sin_zero", "       ");               
+		emu_profile_argument_struct_end(profile);                                              
+
+	}
+	else
+	{                                                                                          
+		emu_profile_argument_struct_start(profile, "sockaddr *", "name");                      
+		emu_profile_argument_struct_end(profile);                                              
+	}                                                                                          
+
+}
 
 struct emu_profile_function *emu_profile_function_new()
 {
