@@ -209,6 +209,8 @@ int32_t instr_mov_a1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * MOV EAX,moffs32* 
 		 */
 		MEM_DWORD_READ(c, i->disp, &c->reg[eax]);
+		
+		TRACK_INIT_REG32(c->instr, eax);
 	}
 	return 0;
 }
