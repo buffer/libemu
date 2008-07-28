@@ -930,10 +930,21 @@ UINT WINAPI WinExec(
 	emu_profile_argument_add_int(env->profile, "UINT", "uCmdShow", show);
 	
 
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   emu_string_char(cmdstr),
+											   show);
+	}else
+	{
+		returnvalue	= 32;
+	}
 
 
-	emu_cpu_reg32_set(c, eax, 32);
-	emu_profile_function_returnvalue_int_set(env->profile, "UINT WINAPI", 32);
+
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_profile_function_returnvalue_int_set(env->profile, "UINT WINAPI", returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
