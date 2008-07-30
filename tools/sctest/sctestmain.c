@@ -127,13 +127,10 @@ int test(struct emu *e)
 	struct emu_cpu *cpu = emu_cpu_get(e);
 	struct emu_memory *mem = emu_memory_get(e);
 
-//	struct emu_profile *profile_copy = lenv->profile;
-
-
 	struct emu_env *env = emu_env_new(e);
+	env->profile = emu_profile_new();
 
 	struct nanny *na = nanny_new();
-//	lenv->profile = wenv->profile;
 
 	/* IAT for sqlslammer */
 	emu_memory_write_dword(mem, 0x42AE1018, 0x7c801D77);
@@ -410,6 +407,7 @@ int test(struct emu *e)
 	}
 
 
+
 	emu_profile_debug(env->profile);
 
 	if (opts.profile_file)
@@ -420,6 +418,8 @@ int test(struct emu *e)
 
 	if (graph != NULL)
 		emu_graph_free(graph);
+
+
 	return 0;
 }
 
