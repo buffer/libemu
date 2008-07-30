@@ -68,37 +68,28 @@ HRESULT URLDownloadToFile(
   LPBINDSTATUSCALLBACK lpfnCB
 );
 */
-	emu_profile_function_add(env->profile, "URLDownloadToFile");
 
 	uint32_t p_caller;
 	POP_DWORD(c, &p_caller);
-	emu_profile_argument_add_ptr(env->profile, "LPUNKNOWN", "pCaller", p_caller);
-	emu_profile_argument_add_none(env->profile);
 
 	uint32_t p_url;
 	POP_DWORD(c, &p_url);
-	emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "szURL", p_url);
 
     struct emu_string *url = emu_string_new();
 	emu_memory_read_string(c->mem, p_url, url, 512);
-	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(url)); 
 
 
 	uint32_t p_filename;
 	POP_DWORD(c, &p_filename);
-	emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "szFileName", p_filename);
 
 	struct emu_string *filename = emu_string_new();
 	emu_memory_read_string(c->mem, p_filename, filename, 512);
-	emu_profile_argument_add_string(env->profile, "", "", emu_string_char(filename)); 
 
 	uint32_t reserved;
 	POP_DWORD(c, &reserved);
-	emu_profile_argument_add_int(env->profile, "DWORD", "dwReserved", reserved);
 
 	uint32_t statuscallbackfn;
 	POP_DWORD(c, &statuscallbackfn);
-	emu_profile_argument_add_int(env->profile, "LPBINDSTATUSCALLBACK", "lpfnCB", statuscallbackfn);
 
 
 
@@ -107,9 +98,25 @@ HRESULT URLDownloadToFile(
 
 //	logDebug(env->emu, " %s -> %s\n", emu_string_char(url), emu_string_char(filename));
 
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "URLDownloadToFile");
+
+		emu_profile_argument_add_ptr(env->profile, "LPUNKNOWN", "pCaller", p_caller);
+		emu_profile_argument_add_none(env->profile);
+		emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "szURL", p_url);
+		emu_profile_argument_add_string(env->profile, "", "", emu_string_char(url)); 
+		emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "szFileName", p_filename);
+		emu_profile_argument_add_string(env->profile, "", "", emu_string_char(filename)); 
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwReserved", reserved);
+		emu_profile_argument_add_int(env->profile, "LPBINDSTATUSCALLBACK", "lpfnCB", statuscallbackfn);
+
+		emu_profile_function_returnvalue_int_set(env->profile, "HRESULT", 0);
+	}
+
+
 	emu_string_free(url);
 	emu_string_free(filename);
-	emu_profile_function_returnvalue_int_set(env->profile, "HRESULT", 0);
     emu_cpu_eip_set(c, eip_save);
 	return 0;
 }

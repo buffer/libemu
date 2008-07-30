@@ -69,22 +69,15 @@ int32_t	env_w32_hook_accept(struct emu_env *env, struct emu_env_hook *hook)
   int* addrlen
 );*/
 
-	emu_profile_function_add(env->profile, "accept");
 
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t addr;
 	POP_DWORD(c, &addr);
-	emu_profile_argument_add_ptr(env->profile, "sockaddr *", "addr", addr);
-	emu_profile_argument_struct_start(env->profile, "", "");
-	emu_profile_argument_struct_end(env->profile);
 
 	uint32_t addrlen;
 	POP_DWORD(c, &addrlen);
-	emu_profile_argument_add_ptr(env->profile, "int", "addrlen", addrlen);
-	emu_profile_argument_add_none(env->profile);
 
 	logDebug(env->emu, "accept(s=%i, addr=%x, addrlen=%i);\n", s, addr, addrlen);
 
@@ -101,7 +94,19 @@ int32_t	env_w32_hook_accept(struct emu_env *env, struct emu_env_hook *hook)
 		returnvalue	= 68;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "accept");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_argument_add_ptr(env->profile, "sockaddr *", "addr", addr);
+		emu_profile_argument_struct_start(env->profile, "", "");
+		emu_profile_argument_struct_end(env->profile);
+		emu_profile_argument_add_ptr(env->profile, "int", "addrlen", addrlen);
+		emu_profile_argument_add_none(env->profile);
+
+		emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
+	}
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -123,10 +128,9 @@ int32_t	env_w32_hook_bind(struct emu_env *env, struct emu_env_hook *hook)
 ); 
 */
 
-	emu_profile_function_add(env->profile, "bind");
+
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 
 	uint32_t p_name;
@@ -137,12 +141,12 @@ int32_t	env_w32_hook_bind(struct emu_env *env, struct emu_env_hook *hook)
 	struct sockaddr sa;
 	
 	emu_memory_read_block(emu_memory_get(env->emu), p_name, &sa, sizeof(struct sockaddr));
-	emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_name, sa);
+
 
 
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
-	emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
+
 
 	logDebug(env->emu, "bind(s=%i, name=%x, namelen=%i\n", s, p_name, namelen);
 
@@ -159,8 +163,15 @@ int32_t	env_w32_hook_bind(struct emu_env *env, struct emu_env_hook *hook)
 		returnvalue	= 0;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "bind");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_name, sa);
+		emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
+		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+	}
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -182,10 +193,8 @@ int closesocket(
   SOCKET s
 );
 */
-	emu_profile_function_add(env->profile, "closesocket");
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t returnvalue;
 	if ( hook->hook.win->userhook != NULL )
@@ -197,7 +206,14 @@ int closesocket(
 		returnvalue	= 0;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "closesocket");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+	}
+	
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -222,21 +238,17 @@ int connect(
   int namelen
 )
 */
-	emu_profile_function_add(env->profile, "connect");
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t p_name;
 	POP_DWORD(c, &p_name);
 	struct sockaddr sa;
 
 	emu_memory_read_block(emu_memory_get(env->emu), p_name, &sa, sizeof(struct sockaddr));
-	emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_name, sa);
 
 	uint32_t namelen;
 	POP_DWORD(c, &namelen);
-	emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
 
 
 	uint32_t returnvalue;
@@ -251,7 +263,17 @@ int connect(
 		returnvalue	= 0;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "connect");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_name, sa);
+		emu_profile_argument_add_int(env->profile, "int", "namelen", namelen);
+		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+	}
+	
+
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -273,16 +295,13 @@ int32_t	env_w32_hook_listen(struct emu_env *env, struct emu_env_hook *hook)
   int backlog
 );
 */
-	emu_profile_function_add(env->profile, "listen");
 
 
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t backlog;
 	POP_DWORD(c, &backlog);
-	emu_profile_argument_add_int(env->profile, "int", "backlog", backlog);
 
 	logDebug(env->emu, "listen(s=%i,  backlog=%i)\n", s,  backlog);
 
@@ -299,7 +318,15 @@ int32_t	env_w32_hook_listen(struct emu_env *env, struct emu_env_hook *hook)
 	}
 
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "listen");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_argument_add_int(env->profile, "int", "backlog", backlog);
+		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+	}
+	
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -330,24 +357,18 @@ int recv(
   int flags
 );
 */
-	emu_profile_function_add(env->profile, "recv");
 
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t buf;
 	POP_DWORD(c, &buf);
-	emu_profile_argument_add_ptr(env->profile, "char *", "buf", buf);
-	emu_profile_argument_add_none(env->profile);
 
 	uint32_t len;
 	POP_DWORD(c, &len);
-	emu_profile_argument_add_int(env->profile, "int", "len", len);
 
 	uint32_t flags;
 	POP_DWORD(c, &flags);
-	emu_profile_argument_add_int(env->profile, "int", "flags", flags);
 
 	uint32_t xlen = len;
 	if (xlen < 0 || xlen > 4096)
@@ -378,7 +399,6 @@ int recv(
 			returnvalue = xlen;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 
 	
 	logDebug(env->emu, "recv(%i, 0x%08x, %i) == %i \n", s, buf, xlen, (int32_t)len);
@@ -386,6 +406,16 @@ int recv(
 		emu_memory_write_block(emu_memory_get(env->emu), buf, buffer, len);
 	free(buffer);
 
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "recv");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_argument_add_ptr(env->profile, "char *", "buf", buf);
+		emu_profile_argument_add_none(env->profile);
+		emu_profile_argument_add_int(env->profile, "int", "len", len);
+		emu_profile_argument_add_int(env->profile, "int", "flags", flags);
+		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+	}
 
 	emu_cpu_eip_set(c, eip_save);
 	
@@ -403,7 +433,6 @@ int32_t	env_w32_hook_send(struct emu_env *env, struct emu_env_hook *hook)
 	uint32_t eip_save;
 
 	POP_DWORD(c, &eip_save);
-	emu_profile_function_add(env->profile, "send");
 /*
 int send(
   SOCKET s,
@@ -414,11 +443,9 @@ int send(
 */
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t p_buf;
 	POP_DWORD(c, &p_buf);
-	emu_profile_argument_add_ptr(env->profile, "const char *", "buf", p_buf);
 
 	uint32_t len;
 	POP_DWORD(c, &len);
@@ -430,12 +457,6 @@ int send(
 	char *buffer = (char *)malloc(len);
 	logDebug(env->emu, "send(%i, 0x%08x, %i,  %i)\n", s, p_buf, len, flags);
 	emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
-	emu_profile_argument_add_bytea(env->profile, "", "", (void *)buffer, len);
-
-	
-	emu_profile_argument_add_int(env->profile, "int", "len", len);
-	emu_profile_argument_add_int(env->profile, "int", "flags", flags);
-
 
 	uint32_t returnvalue;
 	if ( hook->hook.win->userhook != NULL )
@@ -450,8 +471,20 @@ int send(
 	{
 		returnvalue = len;
 	}
+
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+
+	if ( env->profile != NULL )
+	{
+		emu_profile_function_add(env->profile, "send");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_argument_add_ptr(env->profile, "const char *", "buf", p_buf);
+		emu_profile_argument_add_bytea(env->profile, "", "", (void *)buffer, len);
+		emu_profile_argument_add_int(env->profile, "int", "len", len);
+		emu_profile_argument_add_int(env->profile, "int", "flags", flags);
+
+		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+	}
 
 	free(buffer);
 
@@ -480,16 +513,12 @@ int sendto(
   int tolen
 );
 */
-	emu_profile_function_add(env->profile, "sendto");
 
 	uint32_t s;
 	POP_DWORD(c, &s);
-	emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
 
 	uint32_t p_buf;
 	POP_DWORD(c, &p_buf);
-	emu_profile_argument_add_ptr(env->profile, "const char *", "buf", p_buf);
-	emu_profile_argument_add_none(env->profile);
 //
 
 	uint32_t len;
@@ -499,24 +528,19 @@ int sendto(
 	emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
 
 //	emu_profile_argument_add_bytea(env->profile, "", "", (unsigned char *)buffer, (uint32_t)len);
-	emu_profile_argument_add_int(env->profile, "int", "len", len);
 
 	uint32_t flags;
 	POP_DWORD(c, &flags);
-	emu_profile_argument_add_int(env->profile, "int", "flags", flags);
 
 	uint32_t p_to;
 	POP_DWORD(c, &p_to);
 
 	struct sockaddr sa;
 	emu_memory_read_block(emu_memory_get(env->emu), p_to, &sa, sizeof(struct sockaddr));
-	emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_to, sa);
 
 
 	uint32_t tolen;
 	POP_DWORD(c, &tolen);
-	emu_profile_argument_add_int(env->profile, "int", "tolen", tolen);
-
 
 	uint32_t returnvalue;
 	if ( hook->hook.win->userhook != NULL )
@@ -532,7 +556,21 @@ int sendto(
 			returnvalue = len;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "sendto");
+		emu_profile_argument_add_int(env->profile, "SOCKET", "s", s);
+		emu_profile_argument_add_ptr(env->profile, "const char *", "buf", p_buf);
+		emu_profile_argument_add_none(env->profile);
+		emu_profile_argument_add_int(env->profile, "int", "len", len);
+		emu_profile_argument_add_int(env->profile, "int", "flags", flags);
+		emu_profile_argument_add_sockaddr_ptr(env->profile, "name", p_to, sa);
+		emu_profile_argument_add_int(env->profile, "int", "tolen", tolen);
+
+		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
+	}
+	
 
 
 	free(buffer);
@@ -560,19 +598,15 @@ SOCKET WSAAPI socket(
 );
 */
 
-	emu_profile_function_add(env->profile, "socket");
 
 	uint32_t af;
 	POP_DWORD(c, &af);
-	emu_profile_argument_add_int(env->profile, "int", "af", af);
 
 	uint32_t type;
 	POP_DWORD(c, &type);
-	emu_profile_argument_add_int(env->profile, "int", "type", type);
 
 	uint32_t protocol;
 	POP_DWORD(c, &protocol);
-	emu_profile_argument_add_int(env->profile, "int", "protocol", protocol);
 
 
 	uint32_t returnvalue;
@@ -587,7 +621,16 @@ SOCKET WSAAPI socket(
 			returnvalue = 65;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "socket");
+		emu_profile_argument_add_int(env->profile, "int", "af", af);
+		emu_profile_argument_add_int(env->profile, "int", "type", type);
+		emu_profile_argument_add_int(env->profile, "int", "protocol", protocol);
+		emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
+	}
+	
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -614,35 +657,28 @@ int32_t	env_w32_hook_WSASocketA(struct emu_env *env, struct emu_env_hook *hook)
   DWORD dwFlags
 ); */
 
-	emu_profile_function_add(env->profile, "WSASocket");
 
 	uint32_t af;
 	POP_DWORD(c, &af);
-	emu_profile_argument_add_int(env->profile, "int", "af", af);
 
 
 
 	uint32_t type;
 	POP_DWORD(c, &type);
-	emu_profile_argument_add_int(env->profile, "int", "type", type);
 
 	uint32_t protocol;
 	POP_DWORD(c, &protocol);
-	emu_profile_argument_add_int(env->profile, "int", "protocol", protocol);
 
 	uint32_t protocolinfo;
 	POP_DWORD(c, &protocolinfo);
-	emu_profile_argument_add_int(env->profile, "LPWSAPROTOCOL_INFO", "lpProtocolInfo", protocolinfo);
 
 
 	uint32_t group;
 	POP_DWORD(c, &group);
-	emu_profile_argument_add_int(env->profile, "GROUP", "g", group);
 
 
 	uint32_t flags;
 	POP_DWORD(c, &flags);
-	emu_profile_argument_add_int(env->profile, "DWORD", "dwFlags", flags);
 
 
 	logDebug(env->emu, "SOCKET WSASocket(af=%i, type=%i, protocol=%i, lpProtocolInfo=%x, group=%i, dwFlags=%i);\n",
@@ -664,7 +700,20 @@ int32_t	env_w32_hook_WSASocketA(struct emu_env *env, struct emu_env_hook *hook)
 		returnvalue = 66;
 	}
 	emu_cpu_reg32_set(c, eax, returnvalue);
-	emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "WSASocket");
+		emu_profile_argument_add_int(env->profile, "int", "af", af);
+		emu_profile_argument_add_int(env->profile, "int", "type", type);
+		emu_profile_argument_add_int(env->profile, "int", "protocol", protocol);
+		emu_profile_argument_add_int(env->profile, "LPWSAPROTOCOL_INFO", "lpProtocolInfo", protocolinfo);
+		emu_profile_argument_add_int(env->profile, "GROUP", "g", group);
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwFlags", flags);
+
+		emu_profile_function_returnvalue_int_set(env->profile, "SOCKET", returnvalue);
+	}
+	
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -688,19 +737,23 @@ int WSAStartup(
   LPWSADATA lpWSAData
 );
 */
-	emu_profile_function_add(env->profile, "WSAStartup");
 	
 	uint32_t wsaversionreq;
 	POP_DWORD(c, &wsaversionreq);
 	logDebug(env->emu, "WSAStartup version %x\n", wsaversionreq);
-	emu_profile_argument_add_int(env->profile, "WORD", "wVersionRequested", wsaversionreq);
 
 	uint32_t wsadata;
 	POP_DWORD(c, &wsadata);
-	emu_profile_argument_add_int(env->profile, "LPWSADATA", "lpWSAData", wsadata);
 
 
-	emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "WSAStartup");
+		emu_profile_argument_add_int(env->profile, "WORD", "wVersionRequested", wsaversionreq);
+		emu_profile_argument_add_int(env->profile, "LPWSADATA", "lpWSAData", wsadata);
+		emu_profile_function_returnvalue_int_set(env->profile, "int", 0);
+	}
+	
 	emu_cpu_reg32_set(c, eax, 0x0);
 
 	emu_cpu_eip_set(c, eip_save);

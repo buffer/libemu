@@ -340,6 +340,7 @@ int32_t emu_env_w32_export_hook(struct emu_env *env,
 		}
 		numdlls++;
 	}
+	printf("hooking %s failed\n", exportname);
 	return -1;
 }
 
