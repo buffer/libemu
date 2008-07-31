@@ -93,8 +93,22 @@ HRESULT URLDownloadToFile(
 
 
 
+	uint32_t returnvalue=0;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   NULL,
+											   emu_string_char(url),
+											   emu_string_char(filename),
+											   0,
+											   NULL);
+	}else
+	{
+		returnvalue = 0;
+	}
 
 
+	emu_cpu_reg32_set(c, eax, returnvalue);
 
 //	logDebug(env->emu, " %s -> %s\n", emu_string_char(url), emu_string_char(filename));
 
@@ -111,7 +125,7 @@ HRESULT URLDownloadToFile(
 		emu_profile_argument_add_int(env->profile, "DWORD", "dwReserved", reserved);
 		emu_profile_argument_add_int(env->profile, "LPBINDSTATUSCALLBACK", "lpfnCB", statuscallbackfn);
 
-		emu_profile_function_returnvalue_int_set(env->profile, "HRESULT", 0);
+		emu_profile_function_returnvalue_int_set(env->profile, "HRESULT", returnvalue);
 	}
 
 
