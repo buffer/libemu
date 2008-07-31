@@ -175,6 +175,9 @@ int test(struct emu *e)
 		emu_env_w32_export_hook(env, "socket", user_hook_socket, NULL);
 		emu_env_w32_export_hook(env, "WSASocketA", user_hook_WSASocket, NULL);
 
+		emu_env_w32_load_dll(env->env.win,"urlmon.dll");
+		emu_env_w32_export_hook(env, "URLDownloadToFileA", user_hook_URLDownloadToFile, NULL);
+
 
 		emu_env_linux_syscall_hook(env, "exit", user_hook_exit, NULL);
 		emu_env_linux_syscall_hook(env, "socket", user_hook_socket, NULL);

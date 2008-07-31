@@ -610,6 +610,28 @@ BOOL CloseHandle(
 
 
 	return 0;
-
 }
+
+
+
+uint32_t user_hook_URLDownloadToFile(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	va_list vl;
+	va_start(vl, hook);
+
+	/*void * pCaller    = */(void)va_arg(vl, void *);
+	char * szURL      = va_arg(vl, char *);
+	char * szFileName = va_arg(vl, char *);
+	/*int    dwReserved = */(void)va_arg(vl, int   );
+	/*void * lpfnCB     = */(void)va_arg(vl, void *);
+
+
+	printf("download %s -> %s\n", szURL, szFileName);
+
+	return 0;
+}
+
 
