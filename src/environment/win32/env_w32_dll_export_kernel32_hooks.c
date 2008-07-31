@@ -751,7 +751,7 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env *env, struct emu_env_hook *hook)
 	char *dllname = emu_string_char(dllstr);
 
 
-	int i;
+	int i=0;
 	int found_dll = 0;
 	for (i=0; env->env.win->loaded_dlls[i] != NULL; i++)
 	{
@@ -760,6 +760,7 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env *env, struct emu_env_hook *hook)
 			logDebug(env->emu, "found dll %s, baseaddr is %08x \n",env->env.win->loaded_dlls[i]->dllname,env->env.win->loaded_dlls[i]->baseaddr);
 			emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
 			found_dll = 1;
+			break;
 		}
 	}
 	
@@ -785,7 +786,7 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env *env, struct emu_env_hook *hook)
 		emu_profile_argument_add_string(env->profile, "", "", dllname);
 		if (found_dll == 1)
 		{
-			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", env->env.win->loaded_dlls[i]->baseaddr);
+			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", c->reg[eax]);
 			emu_profile_argument_add_none(env->profile);
 		}else
 		{
