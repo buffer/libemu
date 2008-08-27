@@ -91,6 +91,12 @@
 #include <stdarg.h>
 
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+
+
 uint32_t user_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
@@ -138,6 +144,36 @@ VOID ExitThread(
 
 }
 
+#include <string.h>
+
+void append(struct emu_string *to, const char *dir, char *data, int size)
+{
+	data[size] = '\0';
+
+	char *saveptr = data;
+
+	while (size>0)
+	{
+		if (*saveptr == '\r' )
+			*saveptr = ' ';
+		saveptr++;
+		size--;
+	}
+
+	saveptr = NULL;
+
+
+	char *tok = strtok_r(data, "\n", &saveptr);
+//	printf("line %s:%s\n",dir, tok);
+	emu_string_append_format(to, "%s %s\n", dir, tok);
+	while ( (tok = strtok_r(NULL,"\n",&saveptr)) != NULL)
+	{
+		emu_string_append_format(to, "%s %s\n", dir, tok);
+//		printf("line %s:%s\n",dir, tok);
+	}
+
+}
+
 uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
 	printf("Hook me Captain Cook!\n");
@@ -154,34 +190,137 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 	/* uint32_t fdwCreate,                = */ (void)va_arg(vl, uint32_t);
 	/* void *pvEnvironment             	  = */ (void)va_arg(vl, void *);
 	/* char *pszCurDir                 	  = */ (void)va_arg(vl, char *);
-	STARTUPINFO *psiStartInfo       	  = va_arg(vl, STARTUPINFO *);
-	PROCESS_INFORMATION *pProcInfo  	  = va_arg(vl, PROCESS_INFORMATION *); 
+	STARTUPINFO *psiStartInfo             = va_arg(vl, STARTUPINFO *);
+	PROCESS_INFORMATION *pProcInfo        = va_arg(vl, PROCESS_INFORMATION *); 
 
 	va_end(vl);
 	printf("CreateProcess(%s)\n",pszCmdLine);
 
 	if ( pszCmdLine != NULL && strncasecmp(pszCmdLine, "cmd", 3) == 0 )
 	{
-		pid_t pid;
-		if ( (pid = fork()) == 0 )
-		{ // child
+		pid_t child;
+		pid_t spy;
 
-			dup2(psiStartInfo->hStdInput,  fileno(stdin));
-			dup2(psiStartInfo->hStdOutput, fileno(stdout));
-			dup2(psiStartInfo->hStdError,  fileno(stderr));
 
-			struct emu_hashtable_item *ehi = emu_hashtable_search(opts.override.commands.commands, "cmd");
-			if (ehi != NULL)
-				system((char *)ehi->value);
-			else
-				system("/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \"");
-			
-			exit(EXIT_SUCCESS);
-		}
-		else
+
+		if ( (spy = fork()) == 0 )
+		{ // spy
+
+			int in[2];
+			int out[2];
+			int err[2];
+
+			socketpair( AF_UNIX, SOCK_STREAM, 0, in );
+			socketpair( AF_UNIX, SOCK_STREAM, 0, out );
+			socketpair( AF_UNIX, SOCK_STREAM, 0, err );
+
+			if ( (child=fork()) == 0 )
+			{ // child
+
+				close(in[0]);
+				close(out[1]);
+				close(err[1]);
+
+				dup2(in[1], fileno(stdin));
+				dup2(out[0], fileno(stdout));
+				dup2(err[0], fileno(stderr));
+
+				struct emu_hashtable_item *ehi = emu_hashtable_search(opts.override.commands.commands, "cmd");
+				if ( ehi != NULL )
+					system((char *)ehi->value);
+				else
+					system("/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \"");
+
+				close(in[1]);
+				close(out[0]);
+				close(err[0]);
+
+
+				exit(EXIT_SUCCESS);
+			} else
+			{
+				struct emu_string *io = emu_string_new();
+				close(in[1]);
+				close(out[0]);
+				close(err[0]);
+				fd_set socks;
+
+				fcntl(psiStartInfo->hStdInput,F_SETFL,O_NONBLOCK);
+				fcntl(out[1],F_SETFL,O_NONBLOCK);
+				fcntl(err[1],F_SETFL,O_NONBLOCK);
+
+				char buf[1025];
+
+				while ( 1 )
+				{
+					FD_ZERO(&socks);
+					FD_SET(psiStartInfo->hStdInput,&socks);
+					FD_SET(out[1],&socks);
+					FD_SET(err[1],&socks);
+
+					int highsock = MAX(psiStartInfo->hStdInput, MAX(out[1], err[1]));
+
+
+					struct timeval timeout = { 10, 0};
+
+					int action = select(highsock+1, &socks, NULL, NULL, &timeout);
+//					printf("select %i\n",action);
+
+					if ( action > 0 )
+					{
+						if ( FD_ISSET(psiStartInfo->hStdInput, &socks) )
+						{
+							int size = read(psiStartInfo->hStdInput, buf, 1024);
+//							printf("read %i in '%.*s'\n",size,size,buf);
+							if ( size > 0 )
+								write(in[0], buf, size);
+							else
+								goto exit_now;
+							append(io, "in  >", buf, size);
+						}
+						if ( FD_ISSET(out[1], &socks) )
+						{
+							int size = read(out[1], buf, 1024);
+//							printf("read %i out '%.*s'\n",size,size,buf);
+							if ( size > 0 )
+								write(psiStartInfo->hStdOutput, buf, size);
+							else
+								goto exit_now;
+							append(io, "out <", buf, size);
+						}
+						if ( FD_ISSET(err[1], &socks) )
+						{
+							int size = read(err[1], buf, 1024);
+//							printf("read %i err '%.*s'\n",size,size,buf);
+							if ( size > 0 )
+								write(psiStartInfo->hStdError, buf, size);
+							else
+								goto exit_now;
+							append(io, "err <", buf, size);
+						}
+
+					} else
+					{
+						printf("timeout, killing cmd prompt\n");
+						kill(child, SIGKILL);
+
+exit_now:
+						printf("spy dies\n");
+						printf("session was\n%s\n", emu_string_char(io));
+						emu_string_free(io);
+						close(in[0]);
+						close(out[1]);
+						close(err[1]);
+						exit(EXIT_SUCCESS);
+					}
+
+				}
+			} // spy
+
+
+		} else
 		{ // parent 
-			pProcInfo->hProcess = pid;
-			
+			pProcInfo->hProcess = spy;
 		}
 	}
 
@@ -252,11 +391,6 @@ uint32_t user_hook_accept(struct emu_env *env, struct emu_env_hook *hook, ...)
 
     return accept(s, addr, addrlen);
 }
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 
 uint32_t user_hook_bind(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
@@ -627,6 +761,8 @@ uint32_t user_hook_URLDownloadToFile(struct emu_env *env, struct emu_env_hook *h
 	char * szFileName = va_arg(vl, char *);
 	/*int    dwReserved = */(void)va_arg(vl, int   );
 	/*void * lpfnCB     = */(void)va_arg(vl, void *);
+
+	va_end(vl);
 
 
 	printf("download %s -> %s\n", szURL, szFileName);
