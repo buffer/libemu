@@ -28,6 +28,16 @@
 
 #include "emu/emu_cpu_data.h"
 
+
+/**
+ * int type min/max for signed/unsigned int to 32bits size 
+ *  
+ * access is 
+ * max_inittype_border[bits/8][signed|unsigned][min|max] 
+ *  
+ * where signed/min is 0 
+ * and unsigned/max is 1 
+ */
 int64_t max_inttype_borders[][2][2] =                                            
 {                                                                          
 	{                                                                      

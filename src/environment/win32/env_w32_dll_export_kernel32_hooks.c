@@ -326,9 +326,9 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
 		emu_profile_argument_add_ptr(env->profile, "LPSTARTUPINFOW", "psiStartInfo", p_startinfo);
 		emu_profile_argument_struct_start(env->profile, "", "");
 		emu_profile_argument_add_int(env->profile, "DWORD",  "cb"               , si->cb);                                                   
-		emu_profile_argument_add_int(env->profile, "LPTSTR", "lpReserved"       , (unsigned int)si->lpReserved);
-		emu_profile_argument_add_int(env->profile, "LPTSTR", "lpDesktop"        , (unsigned int)si->lpDesktop);
-		emu_profile_argument_add_int(env->profile, "LPTSTR", "lpTitle"          , (unsigned int)si->lpTitle);
+		emu_profile_argument_add_int(env->profile, "LPTSTR", "lpReserved"       , (uint32_t)(uintptr_t)si->lpReserved);
+		emu_profile_argument_add_int(env->profile, "LPTSTR", "lpDesktop"        , (uint32_t)(uintptr_t)si->lpDesktop);
+		emu_profile_argument_add_int(env->profile, "LPTSTR", "lpTitle"          , (uint32_t)(uintptr_t)si->lpTitle);
 		emu_profile_argument_add_int(env->profile, "DWORD",  "dwX"              , si->dwX);
 		emu_profile_argument_add_int(env->profile, "DWORD",  "dwY"              , si->dwY);
 		emu_profile_argument_add_int(env->profile, "DWORD",  "dwXSize"          , si->dwXSize);
@@ -339,7 +339,7 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
 		emu_profile_argument_add_int(env->profile, "DWORD",  "dwFlags"          , si->dwFlags);
 		emu_profile_argument_add_int(env->profile, "WORD",   "wShowWindow"      , si->wShowWindow);
 		emu_profile_argument_add_int(env->profile, "WORD",   "cbReserved2"      , si->cbReserved2);
-		emu_profile_argument_add_int(env->profile, "LPBYTE", "lpReserved2"      , (unsigned int)si->lpReserved2);
+		emu_profile_argument_add_int(env->profile, "LPBYTE", "lpReserved2"      , (uint32_t)(uintptr_t)si->lpReserved2);
 		emu_profile_argument_add_int(env->profile, "HANDLE", "hStdInput"        , si->hStdInput);                                            
 		emu_profile_argument_add_int(env->profile, "HANDLE", "hStdOutput"       , si->hStdOutput);                                           
 		emu_profile_argument_add_int(env->profile, "HANDLE", "hStdError"        , si->hStdError);                                           

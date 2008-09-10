@@ -195,35 +195,20 @@ struct addr_instr dup_data[] =
 };
 
 
-bool cmp(void *a, void *b)
-{
-	if ((uint32_t)a == (uint32_t)b)
-		return true;
-
-	return false;
-}
-
-uint32_t hash(void *key)
-{
-	uint32_t ukey = (uint32_t)key;
-	ukey++;
-	return ukey;
-}
-
 int main()
 {
-	struct emu_hashtable *eh = emu_hashtable_new(4095, hash, cmp);
+	struct emu_hashtable *eh = emu_hashtable_new(4095, emu_hashtable_ptr_hash, emu_hashtable_ptr_cmp);
 	int i;
 	for (i=0;i<sizeof(insert_data)/sizeof(struct addr_instr);i++)
 	{
-		emu_hashtable_insert(eh, (void *)insert_data[i].addr, (void *)insert_data[i].instr);
+		emu_hashtable_insert(eh, (void *)(uintptr_t)insert_data[i].addr, (void *)(uintptr_t)insert_data[i].instr);
 	}
 
 
 	struct emu_hashtable_item *ehi;
 	for (i=0;i<sizeof(insert_data)/sizeof(struct addr_instr);i++)
 	{
-		ehi = emu_hashtable_search(eh, (void *)insert_data[i].addr);
+		ehi = emu_hashtable_search(eh, (void *)(uintptr_t)insert_data[i].addr);
 
 		if (strcmp(insert_data[i].instr, (char *)ehi->value) != 0 )
 		{
@@ -236,7 +221,7 @@ int main()
 
 	for (i=0;i<sizeof(dup_data)/sizeof(struct addr_instr);i++)
 	{
-		emu_hashtable_insert(eh, (void *)dup_data[i].addr, (void *)dup_data[i].instr);
+		emu_hashtable_insert(eh, (void *)(uintptr_t)dup_data[i].addr, (void *)dup_data[i].instr);
 	}
 
 	ehi = emu_hashtable_search(eh, (void *)0x0012fc90);

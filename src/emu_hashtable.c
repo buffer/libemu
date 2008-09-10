@@ -257,14 +257,14 @@ bool emu_hashtable_string_cmp(void *a, void *b)
 
 uint32_t emu_hashtable_ptr_hash(void *key)
 {
-	uint32_t ukey = (uint32_t)key;
+	uint32_t ukey = (uint32_t)(uintptr_t)key;
 	ukey++;
 	return ukey;
 }
 
 bool emu_hashtable_ptr_cmp(void *a, void *b)
 {
-	if ( (uint32_t)a == (uint32_t)b )
+	if ( (uintptr_t)a == (uintptr_t)b )
 		return true;
 
 	return false;

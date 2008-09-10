@@ -145,7 +145,7 @@ void emu_profile_argument_add_none(struct emu_profile *profile)
 	emu_profile_argument_add(profile, argument);
 }
 
-void emu_profile_argument_add_int(struct emu_profile *profile, char *argtype, char *argname, int value)
+void emu_profile_argument_add_int(struct emu_profile *profile, char *argtype, char *argname, int32_t value)
 {
 
     struct emu_profile_argument *argument = emu_profile_argument_new(render_int, argtype, argname);
@@ -321,7 +321,7 @@ uint32_t measure_size(struct emu_profile_argument *argument, bool followptr)
 
 	case render_ptr:
 		{
-			size += 4;
+			size += sizeof(uintptr_t); // += 4;
 			if (followptr)
 				size += measure_size(argument->value.tptr.ptr, followptr);
 		}
@@ -347,6 +347,7 @@ int copy_data(struct emu_profile_argument *argument, uint8_t *addr, uint8_t **ne
 {
 //	printf("%s : %i \n", __PRETTY_FUNCTION__, __LINE__);
 
+	uintptr_t *addrp = (uintptr_t *)addr;
 	uint32_t *addr32 = (uint32_t *)addr;
 	uint16_t *addr16 = (uint16_t *)addr;
 
@@ -405,7 +406,7 @@ int copy_data(struct emu_profile_argument *argument, uint8_t *addr, uint8_t **ne
 		{
 //			size += 4;
 //			size += measure_size(argument->value.tptr.ptr, false);
-			*addr32 = (uint32_t)*next;
+			*addrp = (uintptr_t)*next;
 
 			copy_data(argument->value.tptr.ptr, *next, next);
 		}

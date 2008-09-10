@@ -81,7 +81,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 
 
 	struct emu_queue *eq = emu_queue_new();
-	emu_queue_enqueue(eq, (void *)((uint32_t)eipoffset+STATIC_OFFSET));
+	emu_queue_enqueue(eq, (void *)((uintptr_t)(uint32_t)eipoffset+STATIC_OFFSET));
 
 //	struct emu_list_root *tested_positions = emu_list_create();
 
@@ -90,7 +90,7 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 	while ( !emu_queue_empty(eq) )
 	{
 		
-		uint32_t current_offset = (uint32_t)emu_queue_dequeue(eq);
+		uint32_t current_offset = (uint32_t)(uintptr_t)emu_queue_dequeue(eq);
 
 		/* init the cpu/memory 
 		 * scooped to keep number of used varnames small 
@@ -206,7 +206,7 @@ traversal:
 							logDebug(e, "loop %s:%i\n", __FILE__, __LINE__);
 
 							struct emu_tracking_info *current_pos_ti_diff = (struct emu_tracking_info *)emu_queue_dequeue(bfs_queue);
-							struct emu_hashtable_item *current_pos_ht = emu_hashtable_search(etas->static_instr_table, (void *)current_pos_ti_diff->eip);
+							struct emu_hashtable_item *current_pos_ht = emu_hashtable_search(etas->static_instr_table, (void *)(uintptr_t)(uint32_t)current_pos_ti_diff->eip);
 							if (current_pos_ht == NULL)
 							{
 								logDebug(e, "current_pos_ht is NULL?\n");
@@ -262,7 +262,7 @@ traversal:
 							{
 								logDebug(e, "found position which satiesfies the requirements %i %08x\n", current_pos_satii->eip, current_pos_satii->eip);
 								emu_tracking_info_debug_print(&current_pos_satii->track.init);
-								emu_queue_enqueue(eq, (void *)((uint32_t)current_pos_satii->eip));
+								emu_queue_enqueue(eq, (void *)((uintptr_t)(uint32_t)current_pos_satii->eip));
 							}
 							emu_tracking_info_free( current_pos_ti_diff);
 						}

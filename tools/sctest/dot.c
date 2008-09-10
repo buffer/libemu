@@ -146,7 +146,7 @@ int graph_draw(struct emu_graph *graph)
 			continue;
 
 
-		printf("vertex %08x\n", (unsigned int)ev);
+		printf("vertex %p\n", (void *)ev);
 
 		// find the first in a chain
 		iv = (struct instr_vertex *)ev->data;
@@ -160,7 +160,7 @@ int graph_draw(struct emu_graph *graph)
 				break;
 
 			ev = xev;
-			printf(" -> vertex %08x\n",(unsigned int)ev);
+			printf(" -> vertex %p\n",(void *)ev);
 		}
 
 
@@ -172,7 +172,7 @@ int graph_draw(struct emu_graph *graph)
 
 		iv = (struct instr_vertex *)ev->data;
 
-		printf("going forwards from %08x\n", (unsigned int)ev);
+		printf("going forwards from %p\n", (void *)ev);
 		while ( emu_edges_length(ev->edges) == 1 && emu_edges_length(ev->backedges) <= 1 && ev->color != black && iv->dll == NULL && iv->syscall == NULL )
 		{
 			ev->color = black;
@@ -187,12 +187,12 @@ int graph_draw(struct emu_graph *graph)
 
 			iv = (struct instr_vertex *)ev->data;
 			emu_string_append_char(niv->instr_string, emu_string_char(iv->instr_string));
-			printf(" -> vertex %08x\n",(unsigned int)ev);
+			printf(" -> vertex %p\n",(void *)ev);
 		}
 
 		ev->color = black;
 
-		printf("copying edges for %08x\n",(unsigned int)ev);
+		printf("copying edges for %p\n",(void *)ev);
 		struct emu_edge *ee;
 		for ( ee = emu_edges_first(ev->edges); !emu_edges_attail(ee); ee = emu_edges_next(ee) )
 		{
@@ -204,7 +204,7 @@ int graph_draw(struct emu_graph *graph)
 				struct emu_edge *nee = emu_vertex_edge_add(nev, to);
 				nee->count = ee->count;
 				nee->data = ee->data;
-				printf(" -> %08x\n", (unsigned int)to);
+				printf(" -> %p\n", (void *)to);
 			}
 		}
 
@@ -253,9 +253,9 @@ int graph_draw(struct emu_graph *graph)
 			continue;
 #endif // 0
 		if ( iv->dll != NULL || iv->syscall != NULL )
-			fprintf(f, "\t %i [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",(unsigned int)iv, emu_string_char(iv->instr_string));
+			fprintf(f, "\t \"%p\" [shape=box, style=filled, color=\".7 .3 1.0\", label = \"%s\"]\n",(void *)iv, emu_string_char(iv->instr_string));
 		else
-			fprintf(f, "\t %i [shape=box, label = \"%s\"]\n",(unsigned int)iv, emu_string_char(iv->instr_string));
+			fprintf(f, "\t \"%p\" [shape=box, label = \"%s\"]\n",(void *)iv, emu_string_char(iv->instr_string));
 	}
 
 	for ( ev = emu_vertexes_first(graph->vertexes); !emu_vertexes_attail(ev); ev = emu_vertexes_next(ev) )
@@ -269,9 +269,9 @@ int graph_draw(struct emu_graph *graph)
 			struct emu_string *fs = emu_string_new();
 
 			if ( ee->data != (void *)0x0 )
-				emu_string_append_format(fs, "\t %i -> %i [style = dashed", (unsigned int)ivfrom, (unsigned int)ivto);
+				emu_string_append_format(fs, "\t \"%p\" -> \"%p\" [style = dashed", (void *)ivfrom, (void *)ivto);
 			else
-				emu_string_append_format(fs, "\t %i -> %i [style = bold", (unsigned int)ivfrom, (unsigned int)ivto);
+				emu_string_append_format(fs, "\t \"%p\" -> \"%p\" [style = bold", (void *)ivfrom, (void *)ivto);
 
 			if ( ee->count > 100 )
 				emu_string_append_char(fs, ", color=red");

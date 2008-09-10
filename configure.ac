@@ -250,6 +250,8 @@ AC_OUTPUT
 echo
 echo "*** libemu configuration ***"
 echo ""
+echo "debug                              : $enable_debug"
+echo ""
 echo "bindings"
 echo " - python                          : $enable_python"
 echo ""

@@ -168,22 +168,6 @@ void emu_source_and_track_instr_info_free_void(void *x)
 	emu_source_and_track_instr_info_free((struct emu_source_and_track_instr_info *)x);
 }
 
-bool emu_source_and_track_instr_info_cmp(void *a, void *b)
-{
-	if ((uint32_t)a == (uint32_t)b)
-		return true;
-
-	return false;
-}
-
-uint32_t emu_source_and_track_instr_info_hash(void *key)
-{
-	uint32_t ukey = (uint32_t)key;
-	ukey++;
-	return ukey;
-}
-
-
 void emu_tracking_info_diff(struct emu_tracking_info *a, struct emu_tracking_info *b, struct emu_tracking_info *result)
 {
 	int i;
@@ -273,7 +257,7 @@ void emu_tracking_info_debug_print(struct emu_tracking_info *a)
 
 	int i;
 
-	printf("tracking_info %08x :\n\tregs: ", (unsigned int)a);
+	printf("tracking_info %08x :\n\tregs: ", (unsigned int)(uintptr_t)a);
 	for ( i=0; i<7; i++ )
 	{
 		if ( a->reg[i] > 0 )

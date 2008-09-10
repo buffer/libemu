@@ -44,7 +44,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 	struct emu_cpu *c = emu_cpu_get(e);
 
 	es->static_instr_graph = emu_graph_new();
-	es->static_instr_table = emu_hashtable_new(datasize/2, emu_source_and_track_instr_info_hash,  emu_source_and_track_instr_info_cmp);
+	es->static_instr_table = emu_hashtable_new(datasize/2, emu_hashtable_ptr_hash,  emu_hashtable_ptr_cmp);
 	es->static_instr_graph->vertex_destructor = emu_source_and_track_instr_info_free_void;
 
 	uint32_t i;
@@ -67,7 +67,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
         struct emu_source_and_track_instr_info *etii = emu_source_and_track_instr_info_new(c,i);
 		struct emu_vertex *ev = emu_vertex_new();
 		ev->data = etii;
-		emu_hashtable_insert(es->static_instr_table, (void *)i, ev);
+		emu_hashtable_insert(es->static_instr_table, (void *)(uintptr_t)i, ev);
 		emu_graph_vertex_add(es->static_instr_graph, ev);
 	}
 
@@ -76,7 +76,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 	{
 		struct emu_source_and_track_instr_info *etii = (struct emu_source_and_track_instr_info *)ev->data;
 
-		struct emu_hashtable_item *ehi = emu_hashtable_search(es->static_instr_table, (void *)etii->source.norm_pos);
+		struct emu_hashtable_item *ehi = emu_hashtable_search(es->static_instr_table, (void *)(uintptr_t)etii->source.norm_pos);
 //		printf("NORM from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.norm_pos);
 		if (ehi != NULL)
 		{
@@ -91,7 +91,7 @@ uint32_t emu_source_instruction_graph_create(struct emu *e, struct emu_track_and
 		if (etii->source.has_cond_pos == 1)
 		{
 //			printf("COND from %08x to %08x\n",((struct emu_source_and_track_instr_info *)ev->data)->eip, etii->source.cond_pos);
-			ehi = emu_hashtable_search(es->static_instr_table, (void *)etii->source.cond_pos);
+			ehi = emu_hashtable_search(es->static_instr_table, (void *)(uintptr_t)etii->source.cond_pos);
 			if (ehi != NULL)
 			{
 				struct emu_vertex *to = (struct emu_vertex *)ehi->value;

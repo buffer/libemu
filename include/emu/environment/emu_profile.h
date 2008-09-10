@@ -138,7 +138,7 @@ void emu_profile_function_debug(struct emu_profile_function *function);
 void emu_profile_argument_debug(struct emu_profile_argument *argument, int indent);
 
 void emu_profile_argument_add_none(struct emu_profile *profile);
-void emu_profile_argument_add_int(struct emu_profile *profile, char *argtype, char *argname, int value);
+void emu_profile_argument_add_int(struct emu_profile *profile, char *argtype, char *argname, int32_t value);
 void emu_profile_argument_add_short(struct emu_profile *profile, char *argtype, char *argname, int16_t value);
 void emu_profile_argument_add_string(struct emu_profile *profile, char *argtype,  char *argname, char *value);
 void emu_profile_argument_add_ptr(struct emu_profile *profile,	char *argtype,  char *argname, uint32_t value);

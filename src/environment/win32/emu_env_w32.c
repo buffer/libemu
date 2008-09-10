@@ -290,7 +290,7 @@ struct emu_env_hook *emu_env_w32_eip_check(struct emu_env *env)
 			logDebug(env->env.win->emu, "eip %08x is within %s\n",eip, env->env.win->loaded_dlls[numdlls]->dllname);
 			struct emu_env_w32_dll *dll = env->env.win->loaded_dlls[numdlls];
 
-			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnptr, (void *)(eip - dll->baseaddr));
+			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnptr, (void *)(uintptr_t)(eip - dll->baseaddr));
 
 			if ( ehi == NULL )
 			{

@@ -253,7 +253,7 @@ int test(struct emu *e)
 		if ( opts.graphfile != NULL )
 		{
 
-			ehi = emu_hashtable_search(eh, (void *)eipsave);
+			ehi = emu_hashtable_search(eh, (void *)(uintptr_t)eipsave);
 			if ( ehi != NULL )
 				ev = (struct emu_vertex *)ehi->value;
 
@@ -262,7 +262,7 @@ int test(struct emu *e)
 				ev = emu_vertex_new();
 				emu_graph_vertex_add(graph, ev);
 
-				emu_hashtable_insert(eh, (void *)eipsave, ev);
+				emu_hashtable_insert(eh, (void *)(uintptr_t)eipsave, ev);
 			}
 		}
 

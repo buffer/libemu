@@ -95,7 +95,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
-
+#include <string.h>
 
 uint32_t user_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook, ...)
 {
@@ -144,7 +144,7 @@ VOID ExitThread(
 
 }
 
-#include <string.h>
+
 
 void append(struct emu_string *to, const char *dir, char *data, int size)
 {
@@ -481,12 +481,12 @@ uint32_t user_hook_fclose(struct emu_env *env, struct emu_env_hook *hook, ...)
 	FILE *f = va_arg(vl, FILE *);
 	va_end(vl);
 
-	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)f);
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)f);
 
 	if (nf != NULL)
 	{
 		FILE *f = nf->real_file;
-		nanny_del_file(hook->hook.win->userdata, (uint32_t)f);
+		nanny_del_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)f);
     	return fclose(f);
 	}
 	else 
@@ -537,7 +537,7 @@ uint32_t user_hook_fwrite(struct emu_env *env, struct emu_env_hook *hook, ...)
 	FILE *f = va_arg(vl, FILE *);
 	va_end(vl);
 
-	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)f);
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)f);
 
 	if (nf != NULL)
 		return fwrite(data, size, nmemb, nf->real_file);
@@ -702,7 +702,7 @@ BOOL WriteFile(
 	/* int *lpOverlapped 		    =*/(void)va_arg(vl, int*);
 	va_end(vl);
 
-	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)hFile);
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)hFile);
 
 	if (nf != NULL)
 		fwrite(lpBuffer, nNumberOfBytesToWrite, 1, nf->real_file);
@@ -729,12 +729,12 @@ BOOL CloseHandle(
 	FILE *hObject = va_arg(vl, FILE *);
 	va_end(vl);
 
-	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)hObject);
+	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)hObject);
 
 	if (nf != NULL)
 	{
 		FILE *f = nf->real_file;
-		nanny_del_file(hook->hook.win->userdata, (uint32_t)hObject);
+		nanny_del_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)hObject);
 		fclose(f);
 	}
 	else 

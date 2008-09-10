@@ -74,7 +74,7 @@ void emu_env_w32_dll_exports_copy(struct emu_env_w32_dll *to,struct emu_env_w32_
 		hook->type = emu_env_type_win32;
 		hook->hook.win = ex;
 
-		emu_hashtable_insert(to->exports_by_fnptr, (void *)from[i].virtualaddr, hook);
-		emu_hashtable_insert(to->exports_by_fnname, (void *)from[i].fnname, hook);
+		emu_hashtable_insert(to->exports_by_fnptr, (void *)(uintptr_t)from[i].virtualaddr, hook);
+		emu_hashtable_insert(to->exports_by_fnname, (void *)(uintptr_t)from[i].fnname, hook);
 	}
 }

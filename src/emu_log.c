@@ -98,6 +98,6 @@ void emu_log_set_logcb(struct emu_logging *el, emu_log_logcb logcb)
 void emu_log_default_logcb(struct emu *e, enum emu_log_level level, const char *msg)
 {
 	const char *lev[] = {"none","\033[32;1minfo\033[0m","\033[31;1mdebug\033[0m"};
-	fprintf(stdout,"[emu 0x%08x %s ] ",(unsigned int)e, lev[level]);
+	fprintf(stdout,"[emu 0x%p %s ] ",(void *)e, lev[level]);
 	fprintf(stdout,"%s", msg);
 }
