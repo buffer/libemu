@@ -331,7 +331,9 @@ int32_t emu_env_w32_export_hook(struct emu_env *env,
 			struct emu_hashtable_item *ehi = emu_hashtable_search(env->env.win->loaded_dlls[numdlls]->exports_by_fnname, (void *)exportname);
 			if (ehi != NULL)
 			{
+#if 0
 				printf("hooked %s\n",  exportname);
+#endif
 				struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
 				hook->hook.win->userhook = fnhook;
 				hook->hook.win->userdata = userdata;
@@ -340,7 +342,9 @@ int32_t emu_env_w32_export_hook(struct emu_env *env,
 		}
 		numdlls++;
 	}
+#if 0
 	printf("hooking %s failed\n", exportname);
+#endif
 	return -1;
 }
 
