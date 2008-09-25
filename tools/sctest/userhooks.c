@@ -485,9 +485,9 @@ uint32_t user_hook_fclose(struct emu_env *env, struct emu_env_hook *hook, ...)
 
 	if (nf != NULL)
 	{
-		FILE *f = nf->real_file;
+		FILE *ef = nf->real_file;
 		nanny_del_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)f);
-    	return fclose(f);
+    	return fclose(ef);
 	}
 	else 
 		return 0;

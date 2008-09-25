@@ -265,22 +265,29 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
 
 
 	STARTUPINFO *si = malloc(sizeof(STARTUPINFO));
-	emu_memory_read_block(m, p_startinfo, si, sizeof(STARTUPINFO));
-	
+	memset(si, 0, sizeof(STARTUPINFO));
+
+	emu_memory_read_dword(m, p_startinfo + 15 * 4, (uint32_t *)&si->hStdInput);
+	emu_memory_read_dword(m, p_startinfo + 16 * 4, (uint32_t *)&si->hStdOutput);
+	emu_memory_read_dword(m, p_startinfo + 17 * 4, (uint32_t *)&si->hStdError);
+
 
 	uint32_t p_procinfo;
 	POP_DWORD(c, &p_procinfo);
 
 	PROCESS_INFORMATION *pi = malloc(sizeof(PROCESS_INFORMATION));
-	emu_memory_read_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
+	memset(pi, 0, sizeof(PROCESS_INFORMATION));
 
-	pi->dwProcessId = 4711;
-	pi->dwThreadId = 4712;
 	pi->hProcess = 4713;
 	pi->hThread = 4714;
+	pi->dwProcessId = 4711;
+	pi->dwThreadId = 4712;
 
 	emu_memory_write_block(m, p_procinfo, pi, sizeof(PROCESS_INFORMATION));
-
+	emu_memory_write_dword(m, p_procinfo+0*4, pi->hProcess);
+	emu_memory_write_dword(m, p_procinfo+1*4, pi->hThread);
+	emu_memory_write_dword(m, p_procinfo+2*4, pi->dwProcessId);
+	emu_memory_write_dword(m, p_procinfo+3*4, pi->dwThreadId);
 
 	uint32_t returnvalue;
 	if ( hook->hook.win->userhook != NULL )

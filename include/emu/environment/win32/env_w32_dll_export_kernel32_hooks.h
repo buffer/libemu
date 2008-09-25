@@ -57,31 +57,33 @@ int32_t env_w32_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook);
 
 typedef struct _PROCESS_INFORMATION 
 {
-	HANDLE hProcess;
-	HANDLE hThread;
-	DWORD dwProcessId;
-	DWORD dwThreadId;
+	HANDLE hProcess;         /* 00 */
+	HANDLE hThread;          /* 01 */
+	DWORD dwProcessId;       /* 02 */
+	DWORD dwThreadId;        /* 03 */
 }PROCESS_INFORMATION, *LPPROCESS_INFORMATION;
 
 
-typedef struct _STARTUPINFO {
-  DWORD cb;
-  LPTSTR lpReserved;
-  LPTSTR lpDesktop;
-  LPTSTR lpTitle;
-  DWORD dwX;
-  DWORD dwY;
-  DWORD dwXSize;
-  DWORD dwYSize;
-  DWORD dwXCountChars;
-  DWORD dwYCountChars;
-  DWORD dwFillAttribute;
-  DWORD dwFlags;
-  WORD wShowWindow;
-  WORD cbReserved2;
-  LPBYTE lpReserved2;
-  HANDLE hStdInput;
-  HANDLE hStdOutput;
-  HANDLE hStdError;
+typedef struct _STARTUPINFO
+{
+	DWORD cb;				 /* 00 */
+	LPTSTR lpReserved;		 /* 01 */
+	LPTSTR lpDesktop;		 /* 02 */
+	LPTSTR lpTitle;			 /* 03 */
+	DWORD dwX;				 /* 04 */
+	DWORD dwY;				 /* 05 */
+	DWORD dwXSize;			 /* 06 */
+	DWORD dwYSize;			 /* 07 */
+	DWORD dwXCountChars;	 /* 08 */
+	DWORD dwYCountChars;	 /* 09 */
+	DWORD dwFillAttribute;	 /* 10 */
+	DWORD dwFlags;			 /* 11 */
+	WORD wShowWindow;		 /* 12 */
+	WORD cbReserved2;		 /* 13 */
+	LPBYTE lpReserved2;		 /* 14 */
+	HANDLE hStdInput;		 /* 15 */
+	HANDLE hStdOutput;		 /* 16 */
+	HANDLE hStdError;		 /* 17 */
 } STARTUPINFO, *LPSTARTUPINFO;
+
 
