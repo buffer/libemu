@@ -451,7 +451,7 @@ int getpctest()
 
 void dump(int n)
 {
-	if ( n > numtests() || n < 0 )
+	if ( n >= numtests() || n < 0 )
 		return;
 
 	int i;

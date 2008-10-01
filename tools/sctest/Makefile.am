@@ -4,6 +4,10 @@ AM_CPPFLAGS = -I../../include -I ../../.. -Werror -Wall -g
 AM_LDFLAGS = -lemu -L../../src 
 
 
+# if you want to compile without tests, uncomment the following line:
+#AM_CPPFLAGS += -D_NO_TESTS
+
+
 bin_PROGRAMS = sctest
 
 sctest_CPPFLAGS = ${LIB_CARGOS_INCDIR}  ${AM_CPPFLAGS}

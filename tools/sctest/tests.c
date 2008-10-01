@@ -3,7 +3,7 @@
 
 struct instr_test tests[] = 
 {
-
+#ifndef _NO_TESTS
 /*  {
 		.instr = "instr",
 		.in_state.reg  = {0,0,0,0,0,0,0,0 },
@@ -1374,10 +1374,15 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},*/
+#endif // _NO_TESTS
 
 };
 
 int numtests()
 {
+#ifndef _NO_TESTS
 	return sizeof(tests)/sizeof(struct instr_test);
+#else
+	return 0;
+#endif
 }
