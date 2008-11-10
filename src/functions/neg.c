@@ -29,18 +29,18 @@
 #include <errno.h>
 
 #define INSTR_CALC(bits, a, cpu) \
-UINT(bits) operand_a = a; \
-UINT(bits) operation_result = 0-operand_a; 
+UINTOF(bits) operand_a = a; \
+UINTOF(bits) operation_result = 0-operand_a; 
 
 #define INSTR_SET_FLAG_OF(cpu, bits) \
 { \
-	int64_t sx = (INT(bits))operand_a; \
+	int64_t sx = (INTOF(bits))operand_a; \
 	int64_t sz = 0; \
  \
 	sz = 0-sx; \
  \
 	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
-	|| sz != (INT(bits))operation_result )									    \
+	|| sz != (INTOF(bits))operation_result )									    \
 	{                                                                           \
 		CPU_FLAG_SET(cpu, f_of);                                                 \
 	}else                                                                       \

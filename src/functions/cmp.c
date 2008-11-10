@@ -30,16 +30,16 @@
 
 #if BYTE_ORDER == BIG_ENDIAN 
 #define INSTR_CALC(bits, a, b, operation)			\
-UINT(bits) operand_a; \
-UINT(bits) operand_b; \
+UINTOF(bits) operand_a; \
+UINTOF(bits) operand_b; \
 bcopy(&(a), &operand_a, bits/8); \
 bcopy(&(b), &operand_b, bits/8); \
-UINT(bits) operation_result = operand_a operation operand_b;
+UINTOF(bits) operation_result = operand_a operation operand_b;
 #else // ENDIAN
 #define INSTR_CALC(bits, a, b, operation)			\
-UINT(bits) operand_a = a;								\
-UINT(bits) operand_b = b;								\
-UINT(bits) operation_result = operand_a operation operand_b;	
+UINTOF(bits) operand_a = a;								\
+UINTOF(bits) operand_b = b;								\
+UINTOF(bits) operation_result = operand_a operation operand_b;	
 #endif // ENDIAN
 
 

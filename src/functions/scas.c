@@ -29,9 +29,9 @@
 #include <errno.h>
 
 #define INSTR_CALC(bits, a, b) \
-UINT(bits) operation_result = (a) - (b); \
-UINT(bits) operand_a = a; \
-UINT(bits) operand_b = b;
+UINTOF(bits) operation_result = (a) - (b); \
+UINTOF(bits) operand_a = a; \
+UINTOF(bits) operand_b = b;
 
 
 #include "emu/emu.h"

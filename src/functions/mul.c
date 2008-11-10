@@ -30,9 +30,9 @@
 #include <string.h>
 
 #define INSTR_CALC(inbits, outbits, cpu, a, b) \
-UINT(inbits) operand_a = a; \
-UINT(inbits) operand_b = b; \
-UINT(outbits) operation_result = operand_a * operand_b; \
+UINTOF(inbits) operand_a = a; \
+UINTOF(inbits) operand_b = b; \
+UINTOF(outbits) operation_result = operand_a * operand_b; \
 
 #include "emu/emu.h"
 #include "emu/emu_cpu.h"

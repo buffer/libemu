@@ -29,8 +29,8 @@
 #include <errno.h>
 
 #define INSTR_CALC(bits, a, cpu) \
-UINT(bits) operand_a = a; \
-UINT(bits) operation_result = ~operand_a; \
+UINTOF(bits) operand_a = a; \
+UINTOF(bits) operation_result = ~operand_a; \
 a = operation_result; 
 
 #include "emu/emu.h"

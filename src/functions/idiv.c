@@ -36,8 +36,8 @@
 		emu_errno_set(cpu->emu,EINVAL); \
 		return -1; \
 	} \
-	INT(dbits) q_result = (INT(dbits))dividend / (INT(bits))divisor; \
-	INT(dbits) r_result = (INT(dbits))dividend % (INT(bits))divisor; \
+	INTOF(dbits) q_result = (INTOF(dbits))dividend / (INTOF(bits))divisor; \
+	INTOF(dbits) r_result = (INTOF(dbits))dividend % (INTOF(bits))divisor; \
 \
 	quotient = q_result; \
 	remainder = r_result; \

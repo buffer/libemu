@@ -121,23 +121,23 @@ struct emu_cpu
 
 extern int64_t max_inttype_borders[][2][2];
 
-#define INT(bits) int##bits##_t
-#define UINT(bits) uint##bits##_t
+#define INTOF(bits) int##bits##_t
+#define UINTOF(bits) uint##bits##_t
 
 #if !defined(INSTR_CALC)
 #if BYTE_ORDER == BIG_ENDIAN 
 #define INSTR_CALC(bits, a, b, c, operation)			\
-UINT(bits) operand_a; \
-UINT(bits) operand_b; \
+UINTOF(bits) operand_a; \
+UINTOF(bits) operand_b; \
 bcopy(&(a), &operand_a, bits/8); \
 bcopy(&(b), &operand_b, bits/8); \
-UINT(bits) operation_result = operand_a operation operand_b;    \
+UINTOF(bits) operation_result = operand_a operation operand_b;    \
 bcopy(&operation_result, &(c), bits/8); 
 #else // ENDIAN
 #define INSTR_CALC(bits, a, b, c, operation)			\
-UINT(bits) operand_a = a;								\
-UINT(bits) operand_b = b;								\
-UINT(bits) operation_result = operand_a operation operand_b;	\
+UINTOF(bits) operand_a = a;								\
+UINTOF(bits) operand_b = b;								\
+UINTOF(bits) operation_result = operand_a operation operand_b;	\
 c = operation_result;
 #endif // ENDIAN
 #endif // INSTR_CALC
@@ -181,14 +181,14 @@ c = operation_result;
 #if !defined(INSTR_SET_FLAG_OF)
 #define INSTR_SET_FLAG_OF(cpu, operand, bits)								\
 {																				\
-	int64_t sx = (INT(bits))operand_a;                                   \
-	int64_t sy = (INT(bits))operand_b;                                   \
+	int64_t sx = (INTOF(bits))operand_a;                                   \
+	int64_t sy = (INTOF(bits))operand_b;                                   \
 	int64_t sz = 0;                                                             \
 																				\
 	sz = sx operand sy;															\
 																				\
 	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
-	|| sz != (INT(bits))operation_result )									    \
+	|| sz != (INTOF(bits))operation_result )									    \
 	{                                                                           \
 		CPU_FLAG_SET(cpu, f_of);                                                 \
 	}else                                                                       \

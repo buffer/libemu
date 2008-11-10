@@ -29,7 +29,7 @@
 #include <errno.h>
 
 #define INSTR_CALC(bits, a, b, cpu) \
-UINT(bits) operation_result = (a); \
+UINTOF(bits) operation_result = (a); \
 uint8_t operand_b = (b); \
 { \
 	operand_b &= 0x1f; \
@@ -39,7 +39,7 @@ uint8_t operand_b = (b); \
 		{ \
 			CPU_FLAG_SET(cpu, f_cf); \
 		} \
-		operation_result = (UINT(bits))((INT(bits))operation_result >> operand_b); \
+		operation_result = (UINTOF(bits))((INTOF(bits))operation_result >> operand_b); \
 		if( operand_b == 1 ) \
 		{ \
 			CPU_FLAG_UNSET(cpu, f_of); \

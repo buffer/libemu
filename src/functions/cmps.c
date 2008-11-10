@@ -29,9 +29,9 @@
 #include <errno.h>
 
 #define INSTR_CALC(bits, a, b) \
-UINT(bits) operand_a = a; \
-UINT(bits) operand_b = b; \
-UINT(bits) operation_result = operand_a - operand_b; 
+UINTOF(bits) operand_a = a; \
+UINTOF(bits) operand_b = b; \
+UINTOF(bits) operation_result = operand_a - operand_b; 
 //printf(" a %02x b %02x c %02x \n",operand_a, operand_b, operation_result);
 
 

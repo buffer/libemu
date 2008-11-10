@@ -28,20 +28,20 @@
 #include <stdint.h>
 
 #define INSTR_CALC(bits, a)						\
-UINT(bits) operand_a = a;								\
-UINT(bits) operation_result = operand_a+1;				\
+UINTOF(bits) operand_a = a;								\
+UINTOF(bits) operation_result = operand_a+1;				\
 a = operation_result;
 
 
 
 #define INSTR_SET_FLAG_OF(cpu, bits)									\
 {																				\
-	int64_t sz = (INT(bits))operand_a;                                            \
+	int64_t sz = (INTOF(bits))operand_a;                                            \
 																				\
 	sz++;																	\
 																				\
 	if (sz < max_inttype_borders[sizeof(operation_result)][0][0] || sz > max_inttype_borders[sizeof(operation_result)][0][1] \
-	|| sz != (INT(bits))operation_result )									    \
+	|| sz != (INTOF(bits))operation_result )									    \
 	{                                                                           \
 		CPU_FLAG_SET(cpu, f_of);                                                \
 	}else                                                                       \

@@ -28,9 +28,9 @@
 #include <stdint.h>
 
 #define INSTR_CALC(inbits, outbits, cpu, a, b) \
-INT(inbits) operand_a = (INT(inbits))a; \
-INT(inbits) operand_b = (INT(inbits))b; \
-INT(outbits) operation_result = operand_a * operand_b; \
+INTOF(inbits) operand_a = (INTOF(inbits))a; \
+INTOF(inbits) operand_b = (INTOF(inbits))b; \
+INTOF(outbits) operation_result = operand_a * operand_b; \
 
 
 #include "emu/emu_cpu.h"
