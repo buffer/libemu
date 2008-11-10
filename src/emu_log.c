@@ -82,8 +82,11 @@ void emu_log(struct emu *e, enum emu_log_level level, const char *format, ...)
 	char            *message;
 
 	va_start(ap, format);
-	vasprintf(&message, format, ap);
+	int va = vasprintf(&message, format, ap);
 	va_end(ap);
+
+	if (va == -1)
+		message = strdup("failed to allocate memory in vasprintf\n");
 
 	el->logcb(e, level, message);
 

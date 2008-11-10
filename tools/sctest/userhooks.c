@@ -250,17 +250,18 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 				dup2(out[0], fileno(stdout));
 				dup2(err[0], fileno(stderr));
 
+				int sys = -1;
 				struct emu_hashtable_item *ehi = emu_hashtable_search(opts.override.commands.commands, "cmd");
 				if ( ehi != NULL )
-					system((char *)ehi->value);
+					sys = system((char *)ehi->value);
 				else
-					system("/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \"");
+					sys = system("/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\\windows\\system32\\cmd_orig.exe' \"");
 
 				close(in[1]);
 				close(out[0]);
 				close(err[0]);
 
-				printf("process ended!\n");
+				printf("process ended (%i)!\n", sys);
 				exit(EXIT_SUCCESS);
 			} else
 			{
@@ -290,15 +291,16 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 
 					int action = select(highsock+1, &socks, NULL, NULL, &timeout);
 //					printf("select %i\n",action);
-
+					int written = -1;
 					if ( action > 0 )
 					{
 						if ( FD_ISSET(psiStartInfo->hStdInput, &socks) )
 						{
 							int size = read(psiStartInfo->hStdInput, buf, 1024);
+							
 //							printf("read %i in '%.*s'\n",size,size,buf);
 							if ( size > 0 )
-								write(in[0], buf, size);
+								written = write(in[0], buf, size);
 							else
 								goto exit_now;
 							append(io, "in  >", buf, size);
@@ -308,7 +310,7 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 							int size = read(out[1], buf, 1024);
 //							printf("read %i out '%.*s'\n",size,size,buf);
 							if ( size > 0 )
-								write(psiStartInfo->hStdOutput, buf, size);
+								written = write(psiStartInfo->hStdOutput, buf, size);
 							else
 								goto exit_now;
 							append(io, "out <", buf, size);
@@ -318,7 +320,7 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 							int size = read(err[1], buf, 1024);
 //							printf("read %i err '%.*s'\n",size,size,buf);
 							if ( size > 0 )
-								write(psiStartInfo->hStdOutput, buf, size);
+								written = write(psiStartInfo->hStdOutput, buf, size);
 							else
 								goto exit_now;
 							append(io, "err <", buf, size);
@@ -538,7 +540,10 @@ uint32_t user_hook_fopen(struct emu_env *env, struct emu_env_hook *hook, ...)
 
 
 	char *localfile;
-	asprintf(&localfile, "/tmp/%s-XXXXXX",filename);
+
+	if ( asprintf(&localfile, "/tmp/%s-XXXXXX",filename) == -1)
+		exit(-1);
+
 	int fd = mkstemp(localfile);
 	close(fd);
 
@@ -696,7 +701,10 @@ HANDLE CreateFile(
 	va_end(vl);
 
 	char *localfile;
-	asprintf(&localfile, "/tmp/%s-XXXXXX",lpFileName);
+
+	if ( asprintf(&localfile, "/tmp/%s-XXXXXX",lpFileName) == -1)
+		exit(-1);
+
 	int fd = mkstemp(localfile);
 	close(fd);
 
@@ -722,6 +730,7 @@ BOOL WriteFile(
 );
 */
 
+	int written = -1;
 	va_list vl;
 	va_start(vl, hook);
 	FILE *hFile 					= va_arg(vl, FILE *);
@@ -734,7 +743,7 @@ BOOL WriteFile(
 	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)hFile);
 
 	if (nf != NULL)
-		fwrite(lpBuffer, nNumberOfBytesToWrite, 1, nf->real_file);
+		written = fwrite(lpBuffer, nNumberOfBytesToWrite, 1, nf->real_file);
 	else
 		printf("shellcode tried to write data to not existing handle\n");
 

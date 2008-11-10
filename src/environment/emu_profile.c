@@ -977,16 +977,16 @@ int emu_profile_argument_parse(FILE *f, struct emu_profile *profile)
 		{
 
 			uint32_t x = 0;
-			fread(&x, 4, 1, f);
-			emu_profile_argument_add_port(profile, argtype, argname, x);
+			if ( fread(&x, 4, 1, f) == 4)
+				emu_profile_argument_add_port(profile, argtype, argname, x);
 		}
 		break;
 
 	case render_ip:
 		{
 			uint32_t x = -1;
-        	fread(&x, 4, 1, f);
-			emu_profile_argument_add_ip(profile, argtype, argname, x);
+        	if ( fread(&x, 4, 1, f) == 4)
+				emu_profile_argument_add_ip(profile, argtype, argname, x);
 		}
 		break;
 

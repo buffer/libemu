@@ -4,8 +4,8 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([libemu], [0.1.0], [nepenthesdev@gmail.com])
-AM_INIT_AUTOMAKE([libemu], [0.1.0])
+AC_INIT([libemu], [0.2.0], [nepenthesdev@gmail.com])
+AM_INIT_AUTOMAKE([libemu], [0.2.0])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/libemu)

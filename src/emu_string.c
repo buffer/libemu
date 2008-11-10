@@ -74,8 +74,11 @@ void emu_string_append_format(struct emu_string *s, const char *format, ...)
 	char            *message;
 
 	va_start(ap, format);
-	vasprintf(&message, format, ap);
+	int va = vasprintf(&message, format, ap);
 	va_end(ap);
+
+	if (va == -1)
+		exit(-1);
 
 	emu_string_append_char(s, message);
 	free(message);

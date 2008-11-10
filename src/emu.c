@@ -113,8 +113,11 @@ void emu_strerror_set(struct emu *e, const char *format, ...)
 	va_list         ap;
 	char            *message;
 	va_start(ap, format);
-	vasprintf(&message, format, ap);
+	int va = vasprintf(&message, format, ap);
 	va_end(ap);
+
+	if (va == -1)
+		return;
 
 	e->errorstr = message;
 }
