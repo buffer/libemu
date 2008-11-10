@@ -148,30 +148,55 @@ VOID ExitThread(
 
 void append(struct emu_string *to, const char *dir, char *data, int size)
 {
-	data[size] = '\0';
-
 	char *saveptr = data;
 
-	while (size>0)
+	struct emu_string *sanestr = emu_string_new();
+
+
+	int i;
+	for (i=0;i<size;i++)
 	{
-		if (*saveptr == '\r' )
-			*saveptr = ' ';
-		saveptr++;
-		size--;
+		if (data[i] == '\r')
+		{
+
+		}else
+		if ( isprint(data[i]))// || isblank(data[i]))
+		{
+			emu_string_append_format(sanestr, "%c", data[i]);
+		}
+		else
+		if (data[i] == '\n')
+		{
+			emu_string_append_char(sanestr, "\n");
+		}
+		else
+		if (data[i] == '\t')
+		{
+			emu_string_append_char(sanestr, "\t");
+		} 
+		else
+		{
+			emu_string_append_format(sanestr, "\\x%02x", (unsigned char)data[i]);
+		}
 	}
 
 	saveptr = NULL;
 
 
-	char *tok = strtok_r(data, "\n", &saveptr);
+	char *tok;
+	tok  = strtok_r(sanestr->data, "\n", &saveptr);
 //	printf("line %s:%s\n",dir, tok);
-	emu_string_append_format(to, "%s %s\n", dir, tok);
-	while ( (tok = strtok_r(NULL,"\n",&saveptr)) != NULL)
+	if (tok != NULL)
 	{
-		emu_string_append_format(to, "%s %s\n", dir, tok);
+		emu_string_append_format(to, "%s %s\n", dir, tok); 
+		while ( (tok = strtok_r(NULL,"\n",&saveptr)) != NULL )
+		{
+			emu_string_append_format(to, "%s %s\n", dir, tok);
 //		printf("line %s:%s\n",dir, tok);
-	}
+		}
 
+	}
+	emu_string_free(sanestr);
 }
 
 uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook, ...)
@@ -235,7 +260,7 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 				close(out[0]);
 				close(err[0]);
 
-
+				printf("process ended!\n");
 				exit(EXIT_SUCCESS);
 			} else
 			{
@@ -249,7 +274,7 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 				fcntl(out[1],F_SETFL,O_NONBLOCK);
 				fcntl(err[1],F_SETFL,O_NONBLOCK);
 
-				char buf[1025];
+				char buf[1048];
 
 				while ( 1 )
 				{
@@ -293,7 +318,7 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 							int size = read(err[1], buf, 1024);
 //							printf("read %i err '%.*s'\n",size,size,buf);
 							if ( size > 0 )
-								write(psiStartInfo->hStdError, buf, size);
+								write(psiStartInfo->hStdOutput, buf, size);
 							else
 								goto exit_now;
 							append(io, "err <", buf, size);
@@ -357,6 +382,7 @@ uint32_t user_hook_WaitForSingleObject(struct emu_env *env, struct emu_env_hook 
 		sleep(1);
 	}
 
+	printf("process exited with status %i\n",status);
 	return 0;
 }
 
@@ -385,11 +411,14 @@ uint32_t user_hook_accept(struct emu_env *env, struct emu_env_hook *hook, ...)
 	va_start(vl, hook);
 
 	int s 					= va_arg(vl,  int);
-	struct sockaddr* addr 	= va_arg(vl,  struct sockaddr *);
-	socklen_t* addrlen 			= va_arg(vl,  socklen_t *);
+	/*struct sockaddr* addr 	= */(void)va_arg(vl,  struct sockaddr *);
+	/*socklen_t* addrlen 		= */(void)va_arg(vl,  socklen_t *);
 	va_end(vl);
 
-    return accept(s, addr, addrlen);
+	struct sockaddr sa;
+	socklen_t st = sizeof(struct sockaddr);
+
+    return accept(s, &sa, &st);
 }
 
 uint32_t user_hook_bind(struct emu_env *env, struct emu_env_hook *hook, ...)

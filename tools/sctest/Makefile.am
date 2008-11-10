@@ -16,7 +16,6 @@ sctest_LDADD = ../../src/libemu.la
 sctest_SOURCES = dot.c
 sctest_SOURCES += dot.h
 sctest_SOURCES += sctestmain.c
-sctest_SOURCES += sctestmain.h
 sctest_SOURCES += tests.c
 sctest_SOURCES += tests.h
 sctest_SOURCES += userhooks.c
