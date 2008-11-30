@@ -222,8 +222,8 @@ int32_t instr_mov_88(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_89(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_8a(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_8b(struct emu_cpu *c, struct emu_cpu_instruction *i);
-/*int32_t instr_mov_8c(struct emu_cpu *c, struct instruction *i);
-int32_t instr_mov_8e(struct emu_cpu *c, struct instruction *i);*/
+int32_t instr_mov_8c(struct emu_cpu *c, struct emu_cpu_instruction *i);
+/*int32_t instr_mov_8e(struct emu_cpu *c, struct instruction *i);*/
 int32_t instr_mov_a0(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_a1(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_a2(struct emu_cpu *c, struct emu_cpu_instruction *i);
@@ -286,14 +286,22 @@ int32_t instr_imul_6b(struct emu_cpu *c, struct emu_cpu_instruction *i);
 /*int32_t instr_imul_0f_af(struct emu_cpu *c, struct instruction *i);*/
 
 /* misc */
+int32_t instr_daa_27(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_das_2f(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_aas_3f(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_lea_8d(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_cbw_98(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_cwd_99(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_wait_9b(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_pushf_9c(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_popf_9d(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_sahf_9e(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_lahf_9f(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_cmc_f5(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_clc_f8(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_stc_f9(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_cld_fc(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_std_fd(struct emu_cpu *c, struct emu_cpu_instruction *i);
-int32_t instr_cbw_98(struct emu_cpu *c, struct emu_cpu_instruction *i);
-int32_t instr_cwd_99(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* group 2*/
 int32_t instr_group_2_c0(struct emu_cpu *c, struct emu_cpu_instruction *i);

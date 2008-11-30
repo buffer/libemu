@@ -29,14 +29,108 @@
 
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
-
 #include "emu/emu_memory.h"
+#include "emu/emu_log.h"
 
 int32_t prefix_fn(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* dummy */
 	return 0;
 }
+
+
+int32_t instr_daa_27(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* 27
+	 * Decimal Adjust AL after Addition
+	 * DAA
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 183*/
+	STUB(c);
+	return 0;
+}
+
+
+int32_t instr_das_2f(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* F2
+	 * Decimal Adjust AL after Subtraction
+	 * DAS
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 185*/
+	STUB(c);
+	return 0;
+}
+
+int32_t instr_aas_3f(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* 3F
+	 * ASCII Adjust AL After Subtraction
+	 * aas
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 60*/
+	STUB(c);
+	return 0;
+}
+
+
+
+
+int32_t instr_wait_9b(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* 9B
+	 * Wait
+	 * wait
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 747*/
+	STUB(c);
+	return 0;
+}
+
+int32_t instr_pushf_9c(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* 9C
+	 * Push EFLAGS Register onto the Stack
+	 * pushf
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 627*/
+	STUB(c);
+	return 0;
+}
+
+int32_t instr_popf_9d(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* 9D
+	 * Pop Stack into EFLAGS Register
+	 * popf
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 578*/
+	STUB(c);
+	return 0;
+}
+
+int32_t instr_sahf_9e(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* 9E
+	 * Store AH into Flags
+	 * SAHF
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 661*/
+	STUB(c);
+	return 0;
+}
+
+int32_t instr_lahf_9f(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/* 9F
+	 * Load Status Flags into AH Register
+	 * SAHF
+	 */
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 381*/
+	STUB(c);
+	return 0;
+}
+
 
 int32_t instr_cmc_f5(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {

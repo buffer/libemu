@@ -230,7 +230,7 @@ int test(struct emu *e)
 	for ( j=0;j<opts.steps;j++ )
 	{
 
-		if ( opts.verbose >= 2 )
+		if ( opts.verbose > 2 )
 		{
 			emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 			emu_cpu_debug_print(cpu);
@@ -309,7 +309,7 @@ int test(struct emu *e)
 
 			ret = emu_cpu_parse(emu_cpu_get(e));
 
-			if ( opts.verbose >= 1 )
+			if ( opts.verbose > 1 )
 			{
 				emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 				logDebug(e, "%s\n", cpu->instr_string);
@@ -352,7 +352,12 @@ int test(struct emu *e)
 			{
 				if ( hook == NULL )
 				{
-
+					if ( opts.verbose == 1 )
+					{
+						emu_log_level_set(emu_logging_get(e),EMU_LOG_INFO);
+						ret = emu_cpu_step(emu_cpu_get(e));
+						emu_log_level_set(emu_logging_get(e),EMU_LOG_NONE);
+					}else
 					if ( opts.verbose >= 2 )
 					{
 						emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
@@ -568,6 +573,7 @@ int prepare_from_stdin_write(struct emu *e)
 	/* set eip to the code */
 	emu_cpu_eip_set(emu_cpu_get(e), static_offset + opts.offset);
 
+	emu_memory_write_block(mem, 0x0012fe98, opts.scode,  opts.size);
 	emu_cpu_reg32_set(emu_cpu_get(e), esp, 0x0012fe98);
 
 //	free(opts.scode);

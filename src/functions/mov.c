@@ -33,6 +33,7 @@
 #include "emu/emu_memory.h"
 
 #include "emu/emu_track.h"
+#include "emu/emu_log.h"
 
 /*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 442*/
 
@@ -166,7 +167,8 @@ int32_t instr_mov_8c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	/* 8C /r  
 	 * Move segment register to r/m16                   
 	 * MOV r/m16,Sreg** 
-	 */																		 
+	 */
+	STUB(c);
 	return 0;
 }
 
@@ -176,6 +178,7 @@ int32_t instr_mov_8e(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * Move r/m16 to segment register                   
 	 * MOV Sreg,r/m16** 
 	 */																		 
+	STUB(c);
 	return 0;
 }
 

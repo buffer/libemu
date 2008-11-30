@@ -1,5 +1,170 @@
 		Changelog for libemu
 xx.11.2008
+ ( created with svn log -r HEAD:1385 | grep -v -- "----" | grep -v ^r | grep -v ^libemu | grep -v "^$")
+ - gcc 4.3.2 enforces return value checks for (v)asprintf, system, f(read|write), in most cases (ran out of memory) we can just bail out with exit(-1)
+ - there is no sctestmain.h
+ - fix sctest's append()
+ - accept using sane socklen_t value
+ - rename the INT(bits) and UINT(bits) macros to INTOF(bits) and UINTOF(bits) as INT collides on windows
+ - fixed off by one for dumping the tests
+ - added _NO_TESTS #define check for sctest to not compile any test cases into the library
+   this is required by Malzilla to include a Windows libemu binary in their distribution
+   that is not flagged by A/V (Bojan Spasic)
+ - nanny shadowed a local parameter
+ - createprocess did not work on x86_64 as the structs got different sizes, now we do not copy the structs, but only the values we want
+ - emu_env_w32 hook setup: status messages disabled, logging should be managed by the application
+ - emt64 fixes to allow compiling on x86_64 plattforms
+   maybe it is a bad habbit to store integer values on pointers to save some bytes
+   in this case I stored eip in a hashmap, using the hashmaps key pointer of type void * as store
+   compiling the code on a 64bit plattform .. made the cast invalid, as sizeof(void *) != sizeof(uint32_t)
+   therefore I had to cast to uintptr_t before casting to uint32_t in some places.
+   another thing is printing memory addresses, %08x works fine on 32bit plattforms, to be portable one should use %p, which does not prepend leading zeros.
+   
+ - sctest, for interactive cmd prompt sessions, allow recording the cmd prompt session
+   creates a 'spy' process with socketpairs, duping the filedescriptors, and multiplexing using select
+   basically, the spy reads from the sockets, and writes the data to the cmd prompt process using socketpairs
+   the cmd prompts stdout and stderr is written to a socketpair, which is read by the spy process, and gets written to the connection
+   the process id returned by CreateProcess(cmd) is the spy's process id, so WaitForSingleObject waits for the spy process to exit
+   the spy process exists if the cmd prompt ends (the socketpair gets closed), the connection gets closed, or we hit a timeout
+ - fix bug introduced by making profiles optional, env->env.win->loaded_dlls[i]->baseaddr is invalid if we found it, as the loop does not stop
+ - hook URLDownloadToFile in sctest
+ - allow hooking URLDwnloadToFile
+ - sctest, use the optional profiling
+ - win32/linux env: profiling is optional
+ - allow hooking WinExec
+ - improved backtracking: 64A1...      mov eax,[fs:...] now inits eax
+ - sctest
+   - implement hooks for fopen fwrite fclose CreateFile WriteFile CloseHandle
+     implement a nanny to make sure we do not use invalid filehandles
+     add the nanny to the Makefile
+   now sctest can emulate shellcodes which download files themselves, it will store the file in /tmp/<filename>-XXXXXX
+ - use emu_profile_argument_add_sockaddr_ptr where possible to save some lines
+ - move win32 fopen fclose fwrite hooks from env_w32_dll_export_kernel32_hooks to env_w32_dll_export_msvcrt_hooks
+ - profile GetProcAddress and WriteFile
+ - allow hooking for CreateFile WriteFile and CloseHandle
+ - to simplify profiling, create emu_profile_argument_add_sockaddr_ptr for use in connect&bind hooks
+ - implement default logger as callback
+ - porting to big endian broke cmp for lil endian, as endian.h was not included, and the big endian code did not honor argumentsizes for cmp reg{16,32} , imm8
+   fixed
+ - profile win32 sendto()
+ - introduce emu_hashmap_{ptr,string}_{hash,cmp} functions, to avoid further duplicated code, remove duplicate hashtable hash and cmp functions
+ - fix sctest Makefile
+ - split sctest in different files and move to tools/sctest/
+ - add hooks for win32 ExitProcess and ExitThread
+ - add profile information for ExitProcess, ExitThread and SetUnhandledExceptionFilter
+ - basic big endian support
+   - main problem is unaligned memory access leading to SIGBUS 
+     - imm16 is unaligned by default. all operations using imm16 have/had to be sanatized
+     - emu_memory access, reading/writing dwords and words requires inverting the byte order on big endian
+     - emu_memory has use bcopy to create aligned copies of vars
+     - emu_memory has to use bcopy instead of memcpy to access the memory, as memcpy sigbusses on unaligned memory
+     - the INSTR_CALC macro's have to use aligned copies of the values, I ported the required macros for sctest and instrtest, a some are left 'todo'
+     - instrtest uses nasm to create binary code from asm, nasm does not work correctly on sparc64, therefore the binary data for the test which failed on sparc64 due to nasm failure got added
+ - adc instr_group_1_83_adc used imm16 for 'ADC r/m16,imm8' instead of imm8, fixed
+ - sctest (void)va_arg calls, so gcc does not complain
+   - host is optional for --bind and --connect
+ - remove interactive-hooks from configure and README
+ - install profile and env headers to proper location
+ - emu_log_set_logcb introduced: void my_emu_logcb)(struct emu *e, enum emu_log_level level, const char *msg){ printf("%s", msg); emu_log_set_logcb(emu_logging_get(emu), my_emu_logcb);
+ - for the win32 environment s/printf/logDebug/g 
+ - add emu_env.h to include_HEADERS
+ - sctest, introduce --cmd to allow overriding commands 
+  example sctest --cmd cmd="/bin/sh -c \"cd ~/.wine/drive_c/; wine 'c:\windows\system32\cmd_orig.exe' \"" will execute a real windows shell using wine if cmd is executed by shellcode
+ - sctest, opts orderd by name, 
+   introduced --connect/-c and --bind/-b to override connect/binds when run --interactive
+ - Michal Spadlinski pointed out that instr_group_1_82 is an alias for instr_group_1_80
+   and the instr_group_3_f6 used instr_group_3_f7 instead of instr_group_3_f6
+ - restructured the process environment
+   now we have emu_env as the holder for linux and win32 as well as emu_env_hook for the api hooks.
+   env functions take emu_env and emu_env_hook as args, and access the required *thing* themselves
+   furthermore I introduced a different kind of hooking api calls using variadic callbackfunctions
+   the benefit is easy, the interactive hooks do not have to be part of libemu itself any longer
+   and hooking calls does not require access to the emu/cpu/memory
+   all you have to do is retrieve the arguments for the function to be hooked from the va_list using va_arg
+ - sctest got -i --interactive, using the interactive hooks from sctest itself
+ - scprofiler, more code
+ - profiling for socket in w32 env
+ - adjust sctest
+ - small list attail fix in run_and_track
+   init the env in run_and_track
+ - slightly smarter traversal
+   if traversal fails due to stack operations which are not track(ed|able), or something different
+   bruteforce the instructions 'infront' of the known, taking the static tree as input
+   from the result, take the first offset doing 256 steps
+   one might be able to speed this up, caching already tested positions using the hashtable which is given as parameter to run_and_track
+ - emu_profile_function_argument_get arg0 is return value
+ - instrtest tests for special cases of sib/modrm
+ - void *emu_profile_function_argument_get(struct emu_profile_function *function, int argc);
+   added, expected to work
+ - emu_profile supports shorts
+ - sctest, minor changes, try to reestablisch getpctest()
+ - scprofiler, testdummy for emu_profile_function_argument_get()
+ - env win32
+   - add msvcrt export section
+   - hook _execv
+ - emu_profile_{dump,parse} added
+ - emu_profile_function has returnvalue now
+ - sctest -p FILENAME dumps the profile
+ - profiling for recv fopen fwrite fclose added
+ - introduce render_array, required for arrays (used in execve() on linux), emu_profile_argument_array_start & emu_profile_argument_array_end
+ - profile alle required calls on linux
+ - some minor fixes in sctest
+ - auto* libcargos with --enable-cargos --with-cargos-lib= --with-cargos-inc=
+  sctest uses per-program specific CPPFLAGS and LDFLAGS to link libcargos if avalible
+ - sctest runs leakfree in graphmode
+ - emu_profile rename *_ref to *_ptr
+ - rename emu_profile_argument_{start,end} to emu_profile_argument_struct_{start,end}
+ - introduce render_none, usefull for refs where the actual value is uninteresting
+ - free the mallocs, emu_profile properly cleans up now
+ - sctest runs leakfree
+ - emu_profile introduces an api for storing function calls and parameters
+   storing return values is todo, as well as dumping/rereading the profiles
+ - improve sctest codequalitity, split profiling process into prepare() and test, allow reading shellcodes from argos csi files (prepare_argos(struct emu *e))
+   using the argos csi profiling will require proper linking with libcargos, which is not done by now.
+ - this change will introduce memory leaks
+ - python bindings auto* 
+ - python bindings, set library_dirs according to @libdir@, create setup.py via configure from setup.py.in
+ - sctest, hook linux syscall exit()
+ - linux env, add exit(), reorder fork
+ - env linux hook fork(), return 4711
+ - environments allow providing userdata now, accessing the userdata within a callback is possible using emu_env_linux_syscall->userdata or emu_env_w32_dll_export->userdata
+ - move python binding to bindings/python, integrate in autoconf using conditional dirs
+ - preliminary libemu python interface, currently only supports testing for shellcodes
+ - linux env, header Makefile.am
+ - fpu backwards traversal was dodgy, comparing fpu state with eflags does not make any sense
+   look at the src/emu_track.c diff to see the mess
+   when fixing, the size of the fpu state got shrinked to one bit, we don't need the others anyway
+   TRACK_FPU_LAST_INSTRUCTION had to be adjusted to comply with one bit vars
+ - sub reg32_a,reg32_b inits reg32_a if reg32_a == reg32_b
+ - proper linux syscall hooking, removed the int_cd code and created a linux environment
+   - lookup the syscalls name from a struct, in case of syscall groups like socketcall for accept,socket,connect,... provide a helper fn within the struct which returns the proper syscall name
+   - provide default syscall hooks for socketcall, dup2 and execve, stored in a struct
+   - for each environment, copy the struct, create a hashtable on (syscall_name, syscall_hook)
+   - use emu_env_linux_syscall_hook to overwrite default syscall hooks
+ - added the linux environment to sctest
+   - drawing graphs from linux shellcode is possible now
+ - first functional api hooks for int
+ - drafting int hooking for a linux env, the switch structure is way too long, structs are preferable, and the code should move to environment/linux, but at least it shows some basic actions for now
+'sctest -t 24 -s 100
+verbose = 0
+testing (#24) 'linux bindshell'         sys_socket(2)
+sys_bind(2)
+sys_listen(2)
+sys_accept(2)
+sys_dup2
+sys_dup2
+sys_dup2
+sys_dup2
+sys_dup2
+sys_execve
+cpu error error accessing 0x0000000b not mapped
+stepcount 73
+'
+ - add group3 to itables
+ - pkg-config support, now 'pkg-config --libs --cflags libemu' allows proper linking
+ - sctest -o for manual offset, understands hex and decimal
+ - instruction group, return -1 if group[i->modrm.opc] is NULL instead of calling NULL
+ - add emunids.c to testsuite, won't be build, is EXTRA_DIST
 
 
 

@@ -280,4 +280,7 @@ memcpy(((char *)&to)+4,&lower,4);
 emu_strerror_set((cpu_p)->emu, "The following function is unimplemented %s %s:%i (%s)", __PRETTY_FUNCTION__, __FILE__, __LINE__,  reason); \
 return -1; 
 
+#define STUB(cpu_p) \
+emu_log((cpu_p)->emu, EMU_LOG_INFO, "The following function is a stub %s %s:%i \n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
+
 #endif /*EMU_CPU_DATA_H_*/
