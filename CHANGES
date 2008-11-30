@@ -1,6 +1,23 @@
 		Changelog for libemu
-xx.11.2008
+
+30.11.2008 libemu 0.2.0
  ( created with svn log -r HEAD:1385 | grep -v -- "----" | grep -v ^r | grep -v ^libemu | grep -v "^$")
+ - stubs for 
+   - instr_daa_27
+   - instr_das_2f
+   - instr_aas_3f
+   - instr_wait_9b
+   - instr_pushf_9c
+   - instr_popf_9d
+   - instr_sahf_9e
+   - instr_lahf_9f
+   - instr_mov_8c
+   - instr_mov_8e
+   to support obfuscated nop slides (ADMmutate)
+ - changed sctest verbosity
+   -v be verbose, print level info
+   -vv print info & instructions
+   -vvv print info, instructions & cpu state
  - gcc 4.3.2 enforces return value checks for (v)asprintf, system, f(read|write), in most cases (ran out of memory) we can just bail out with exit(-1)
  - there is no sctestmain.h
  - fix sctest's append()
