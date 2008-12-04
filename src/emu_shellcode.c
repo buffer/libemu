@@ -117,6 +117,8 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 
 			/* set the flags */
 			emu_cpu_eflags_set(cpu,0x0);
+
+			cpu->tracking = etas;
 		}
 
 		emu_tracking_info_clear(&etas->track);

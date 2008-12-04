@@ -210,6 +210,7 @@ int32_t instr_lea_8d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		 * LEA r32,m 
 		 */
 		c->reg[i->modrm.opc] = i->modrm.ea;
+		TRACK_INIT_REG32(c->instr, i->modrm.opc);
 	}
 	return 0;
 
