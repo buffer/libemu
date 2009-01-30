@@ -47,7 +47,7 @@ int32_t env_linux_hook_exit(struct emu_env *env, struct emu_env_hook *hook)
 	printf("sys_exit(2)\n");
 	struct emu_cpu *c = emu_cpu_get(env->emu);
 	emu_profile_function_add(env->profile, "exit");
-	emu_profile_argument_add_ptr(env->profile, "int", "status", c->reg[ebx]);
+	emu_profile_argument_add_int(env->profile, "int", "status", c->reg[ebx]);
 
 	if (hook->hook.lin->userhook != NULL)
 	{

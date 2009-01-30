@@ -141,14 +141,9 @@ dnl **************************************************
 
 AC_ARG_ENABLE([python-bindings],
 		[  --enable-python-bindings    Compile bindings for Python],
-		[case "${enableval}" in
-			yes) enable_python=true ;;
-			no)  enable_python=false ;;
-			*) AC_MSG_ERROR([bad value ${enableval} for --enable-bython-bindings]) ;;
-		esac],
-		[enable_python=false])
+		[enable_python="$enableval"],[enable_python="no"])
 
-AM_CONDITIONAL([ENABLE_PYTHON_BINDINGS], [test x$enable_python = xtrue])
+AM_CONDITIONAL([ENABLE_PYTHON_BINDINGS], [test x$enable_python = xyes])
 
 dnl **************************************************
 dnl * libcargos                                      *
