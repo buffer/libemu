@@ -321,7 +321,7 @@ struct emu_cpu_instruction_info ii_onebyte[0x100] = {
 };
 
 struct emu_cpu_instruction_info ii_twobyte[0x100] = {
-	/* 00 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
+	/* 00 */ {instr_sldt_0f00, "sldt", {0, 0, II_MOD_REG_RM, 0, 0, 0, 0, 0}},
 	/* 01 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* 02 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* 03 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},

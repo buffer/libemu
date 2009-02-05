@@ -302,6 +302,7 @@ int32_t instr_clc_f8(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_stc_f9(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_cld_fc(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_std_fd(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_sldt_0f00(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* group 2*/
 int32_t instr_group_2_c0(struct emu_cpu *c, struct emu_cpu_instruction *i);

@@ -277,3 +277,46 @@ int32_t instr_esc_fpu_dx(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	return 0;
 }
+
+int32_t instr_sldt_0f00(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 692 */
+
+	STUB(c);
+
+	if( i->prefixes & PREFIX_OPSIZE )
+	{
+		/* 0F 00 /0
+		 * Stores segment selector from LDTR in r/m16
+		 * SLDT r/m16
+		 */
+
+		if( i->modrm.mod != 3 )
+		{
+			uint16_t word = 0;
+			MEM_WORD_WRITE(c, i->modrm.ea, word);
+		}
+		else
+		{
+			*c->reg16[i->modrm.rm] = 0;
+		}
+	}
+	else
+	{
+		/* 0F 00 /0
+		 * Store segment selector from LDTR in low-order 16 bits of r/m32
+		 * SLDT r/m32
+		 */
+
+		if( i->modrm.mod != 3 )
+		{
+			uint32_t word = 0;
+			MEM_DWORD_WRITE(c, i->modrm.ea, word);
+		}
+		else
+		{
+			c->reg[i->modrm.rm] = 0;
+		}
+	}
+	return 0;
+}
