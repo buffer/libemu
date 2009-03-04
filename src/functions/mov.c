@@ -91,6 +91,9 @@ int32_t instr_mov_89(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		else
 		{
 			c->reg[i->modrm.rm] = c->reg[i->modrm.opc];
+
+			TRACK_NEED_REG32(c->instr, i->modrm.opc);
+			TRACK_INIT_REG32(c->instr, i->modrm.rm);
 		}
 	}
 
