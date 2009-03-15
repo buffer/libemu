@@ -472,9 +472,9 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 	}
 
 	/* TODO make unstatic for threadsafety */
-	static uint8_t byte;
-	static uint8_t *opcode;
-	static uint32_t ret;
+	uint8_t byte;
+	uint8_t *opcode;
+	uint32_t ret;
 	
 	c->instr.prefixes = 0;
 	
