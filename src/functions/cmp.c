@@ -25,7 +25,8 @@
  *
  *******************************************************************************/
 
-#include <endian.h>
+#include <sys/types.h>
+#include <sys/param.h>
 #include <stdint.h>
 
 #if BYTE_ORDER == BIG_ENDIAN 
