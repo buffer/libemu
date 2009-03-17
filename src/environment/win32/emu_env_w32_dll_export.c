@@ -29,13 +29,11 @@
 #include <string.h>
 
 // for the socket hooks
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
