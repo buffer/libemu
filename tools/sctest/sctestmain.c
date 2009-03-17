@@ -50,9 +50,6 @@
 
 
 #include <errno.h>
-#include <sys/select.h>
-
-#include <sys/wait.h>
 
 #ifdef HAVE_LIBCARGOS
 #include <cargos-lib.h>
@@ -63,6 +60,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#include <sys/select.h>
+
+#include <sys/wait.h>
+
 
 #include "emu/emu.h"
 #include "emu/emu_memory.h"
