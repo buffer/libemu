@@ -47,7 +47,7 @@ struct emu_string
  * 
  * @return on success, pointer to the new and empty string, on failure NULL
  */
-struct emu_string *emu_string_new();
+struct emu_string *emu_string_new(void);
 
 /**
  * Free the string, free the bytes which got allocated.

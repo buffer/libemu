@@ -195,7 +195,7 @@ struct addr_instr dup_data[] =
 };
 
 
-int main()
+int main(void)
 {
 	struct emu_hashtable *eh = emu_hashtable_new(4095, emu_hashtable_ptr_hash, emu_hashtable_ptr_cmp);
 	int i;

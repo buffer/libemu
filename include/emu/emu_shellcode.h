@@ -65,7 +65,7 @@ struct emu_stats
 
 
 
-struct emu_stats *emu_stats_new();
+struct emu_stats *emu_stats_new(void);
 void emu_stats_free(struct emu_stats *es);
 
 

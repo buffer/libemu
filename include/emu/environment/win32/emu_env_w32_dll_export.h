@@ -47,7 +47,7 @@ struct emu_env_w32_dll_export
 	uint32_t	(*userhook)(struct emu_env *env, struct emu_env_hook *hook, ...);
 };
 
-struct emu_env_w32_dll_export *emu_env_w32_dll_export_new();
+struct emu_env_w32_dll_export *emu_env_w32_dll_export_new(void);
 void emu_env_w32_dll_export_copy(struct emu_env_w32_dll_export *to, struct emu_env_w32_dll_export *from);
 void emu_env_w32_dll_export_free(struct emu_env_w32_dll_export *exp);
 

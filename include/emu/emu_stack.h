@@ -41,7 +41,7 @@ struct emu_stack
 	struct emu_stack_item *back;
 };
 
-struct emu_stack *emu_stack_new();
+struct emu_stack *emu_stack_new(void);
 void emu_stack_free(struct emu_stack *es);
 void *emu_stack_front(struct emu_stack *es);
 void  emu_stack_push(struct emu_stack *es, void *data);

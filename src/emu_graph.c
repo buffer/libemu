@@ -37,7 +37,7 @@ source_list_functions(emu_vertexes,emu_vertex_root, emu_vertex, link);
 source_list_functions(emu_edges,emu_edge_root, emu_edge, link);
 
 
-struct emu_edge *emu_edge_new()
+struct emu_edge *emu_edge_new(void)
 {
 	struct emu_edge *ee = (struct emu_edge *)malloc(sizeof(struct emu_edge));
 	if( ee == NULL )
@@ -55,7 +55,7 @@ void emu_edge_free(struct emu_edge *ee)
 }
 
 
-struct emu_vertex *emu_vertex_new()
+struct emu_vertex *emu_vertex_new(void)
 {
 	struct emu_vertex *ev = (struct emu_vertex *)malloc(sizeof(struct emu_vertex));
 	if( ev == NULL )
@@ -125,7 +125,7 @@ struct emu_edge *emu_vertex_edge_add(struct emu_vertex *ev, struct emu_vertex *t
 	return ee;
 }
 
-struct emu_graph *emu_graph_new()
+struct emu_graph *emu_graph_new(void)
 {
 	struct emu_graph *eg = (struct emu_graph *)malloc(sizeof(struct emu_graph));
 	if( eg == NULL )

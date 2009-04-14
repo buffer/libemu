@@ -56,7 +56,7 @@ source_list_functions(emu_profile_functions,emu_profile_function_root, emu_profi
 
 source_list_functions(emu_profile_arguments,emu_profile_argument_root, emu_profile_argument, link);
 
-struct emu_profile *emu_profile_new()
+struct emu_profile *emu_profile_new(void)
 {
 	struct emu_profile *profile = malloc(sizeof(struct emu_profile));
 	memset(profile, 0, sizeof(struct emu_profile));
@@ -229,7 +229,7 @@ void emu_profile_argument_add_sockaddr_ptr(struct emu_profile *profile, const ch
 
 }
 
-struct emu_profile_function *emu_profile_function_new()
+struct emu_profile_function *emu_profile_function_new(void)
 {
 	struct emu_profile_function *function = malloc(sizeof(struct emu_profile_function));
 	memset(function, 0, sizeof(struct emu_profile_function));

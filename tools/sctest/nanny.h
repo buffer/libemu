@@ -31,7 +31,7 @@ struct nanny
 */
 };
 
-struct nanny *nanny_new();
+struct nanny *nanny_new(void);
 void nanny_free(struct nanny *nanny);
 
 struct nanny_file *nanny_add_file(struct nanny *na, const char *path, uint32_t *emu_file, FILE *real_file);

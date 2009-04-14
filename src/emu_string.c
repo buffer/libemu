@@ -34,7 +34,7 @@
 #include "emu/emu_string.h"
 
 
-struct emu_string *emu_string_new()
+struct emu_string *emu_string_new(void)
 {
     struct emu_string *s = (struct emu_string *)malloc(sizeof(struct emu_string));
     if( s == NULL )

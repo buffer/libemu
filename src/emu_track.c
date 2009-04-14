@@ -37,7 +37,7 @@
 #include "emu/emu_hashtable.h"
 #include "emu/emu_graph.h"
 
-struct emu_track_and_source *emu_track_and_source_new()
+struct emu_track_and_source *emu_track_and_source_new(void)
 {
 	struct emu_track_and_source *et = (struct emu_track_and_source *)malloc(sizeof(struct emu_track_and_source));
 	memset(et, 0, sizeof(struct emu_track_and_source));
@@ -179,7 +179,7 @@ void emu_tracking_info_diff(struct emu_tracking_info *a, struct emu_tracking_inf
 	result->fpu = a->fpu & ~b->fpu;
 }
 
-struct emu_tracking_info *emu_tracking_info_new()
+struct emu_tracking_info *emu_tracking_info_new(void)
 {
 	struct emu_tracking_info *eti = malloc(sizeof(struct emu_tracking_info));
 	memset(eti, 0, sizeof(struct emu_tracking_info));

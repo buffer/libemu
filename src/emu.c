@@ -46,7 +46,7 @@ struct emu
 };
 
 
-struct emu *emu_new()
+struct emu *emu_new(void)
 {
 	struct emu *e = (struct emu *)malloc(sizeof(struct emu));
 	if( e == NULL )

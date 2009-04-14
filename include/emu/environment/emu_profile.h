@@ -114,11 +114,11 @@ struct emu_profile
 };
 
 
-struct emu_profile *emu_profile_new();
+struct emu_profile *emu_profile_new(void);
 void emu_profile_free(struct emu_profile *profile);
 
 
-struct emu_profile_function *emu_profile_function_new();
+struct emu_profile_function *emu_profile_function_new(void);
 void emu_profile_function_free(struct emu_profile_function *function);
 
 

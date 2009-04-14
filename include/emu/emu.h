@@ -52,7 +52,7 @@ struct emu_fpu;
  * @return on success: the new emu
  *         on failure: NULL
  */
-struct emu *emu_new();
+struct emu *emu_new(void);
 
 /**
  * Free the emu

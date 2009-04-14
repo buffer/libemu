@@ -32,7 +32,7 @@
 
 #include "emu/emu_stack.h"
 
-struct emu_stack *emu_stack_new()
+struct emu_stack *emu_stack_new(void)
 {
 	struct emu_stack *es = malloc(sizeof(struct emu_stack));
 	memset(es, 0, sizeof(struct emu_stack));

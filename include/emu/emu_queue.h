@@ -36,7 +36,7 @@ struct emu_queue_item
 	void *data;
 };
 
-struct emu_queue_item *emu_queue_item_new();
+struct emu_queue_item *emu_queue_item_new(void);
 void emu_queue_item_free(struct emu_queue_item *eqi);
 
 struct emu_queue
@@ -51,7 +51,7 @@ struct emu_queue
  * @return on success: pointer to the new queue
  *         on failure: NULL
  */
-struct emu_queue *emu_queue_new();
+struct emu_queue *emu_queue_new(void);
 void emu_queue_free(struct emu_queue *eq);
 
 /**

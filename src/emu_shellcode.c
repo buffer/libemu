@@ -451,7 +451,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 	return offset - STATIC_OFFSET;
 }
 
-struct emu_stats *emu_stats_new()
+struct emu_stats *emu_stats_new(void)
 {
 	struct emu_stats *es = malloc(sizeof(struct emu_stats));
 	memset(es, 0, sizeof(struct emu_stats));

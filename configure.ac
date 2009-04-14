@@ -222,6 +222,8 @@ emu_data_dir=$datadir/emu
 
 AC_SUBST(emu_data_dir)
 
+CFLAGS="${CFLAGS} -Wstrict-prototypes"
+
 AC_CONFIG_FILES([Makefile
 		src/Makefile
 		src/functions/Makefile

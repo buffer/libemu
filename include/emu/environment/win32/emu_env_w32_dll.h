@@ -48,7 +48,7 @@ struct emu_env_w32_dll
 	struct emu_hashtable *exports_by_fnname;
 };
 
-struct emu_env_w32_dll *emu_env_w32_dll_new();
+struct emu_env_w32_dll *emu_env_w32_dll_new(void);
 void emu_env_w32_dll_free(struct emu_env_w32_dll *dll);
 void emu_env_w32_dll_exports_copy(struct emu_env_w32_dll *to, struct emu_env_w32_dll_export *from);
 

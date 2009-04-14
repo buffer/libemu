@@ -58,7 +58,7 @@ static uint16_t prefix_map[0x100];
 
 #include "emu/emu_cpu_itables.h"
 
-static void init_prefix_map()
+static void init_prefix_map(void)
 {
 	prefix_map[0x26] = PREFIX_ES_OVR;
 	prefix_map[0x2e] = PREFIX_CS_OVR;

@@ -34,7 +34,7 @@
 #include "emu/environment/win32/emu_env_w32_dll_export.h"
 #include "emu/emu_hashtable.h"
 
-struct emu_env_w32_dll *emu_env_w32_dll_new()
+struct emu_env_w32_dll *emu_env_w32_dll_new(void)
 {
 	struct emu_env_w32_dll *dll = (struct emu_env_w32_dll *)malloc(sizeof(struct emu_env_w32_dll));
 	memset(dll,0,sizeof(struct emu_env_w32_dll));

@@ -28,4 +28,4 @@ struct instr_test
 
 extern struct instr_test tests[];
 
-int numtests();
+int numtests(void);

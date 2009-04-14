@@ -170,7 +170,7 @@ bool emu_hashtable_delete(struct emu_hashtable *eh, void *key)
 
 
 
-struct emu_hashtable_bucket *emu_hashtable_bucket_new()
+struct emu_hashtable_bucket *emu_hashtable_bucket_new(void)
 {
 	struct emu_hashtable_bucket *ehb = (struct emu_hashtable_bucket *)malloc(sizeof(struct emu_hashtable_bucket));
 	if( ehb == NULL )

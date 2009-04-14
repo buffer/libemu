@@ -67,7 +67,7 @@ struct emu_hashtable_bucket
 	emu_hashtable_bucket_item_root *items;
 };
 
-struct emu_hashtable_bucket *emu_hashtable_bucket_new();
+struct emu_hashtable_bucket *emu_hashtable_bucket_new(void);
 void emu_hashtable_bucket_free(struct emu_hashtable_bucket *ehb);
 void emu_hashtable_bucket_item_add(struct emu_hashtable_bucket *ehb, struct emu_hashtable_bucket_item *ehbi);
 

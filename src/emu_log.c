@@ -43,7 +43,7 @@ struct emu_logging
 };
 
 
-struct emu_logging *emu_log_new()
+struct emu_logging *emu_log_new(void)
 {
 	struct emu_logging *el = (struct emu_logging *)malloc(sizeof(struct emu_logging));
 	if( el == NULL )

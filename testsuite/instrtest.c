@@ -771,7 +771,7 @@ struct instr_test tests[] =
 
 };
 
-int prepare()
+int prepare(void)
 {
 	int i;
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
@@ -1011,7 +1011,7 @@ int test(int n)
 	return 0;
 }
 
-void cleanup()
+void cleanup(void)
 {
 	int i;
 	for (i=0;i<sizeof(tests)/sizeof(struct instr_test);i++)
@@ -1020,7 +1020,7 @@ void cleanup()
 		
 }
 
-void dump_export_table()
+void dump_export_table(void)
 {
 /*	int i;
 	for (i=0;i<sizeof(mem_7c801000);i++)

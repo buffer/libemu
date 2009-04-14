@@ -49,7 +49,7 @@
 #include "emu/environment/win32/emu_env_w32_dll.h"
 #include "emu/emu_string.h"
 
-struct emu_env_w32_dll_export *emu_env_w32_dll_export_new()
+struct emu_env_w32_dll_export *emu_env_w32_dll_export_new(void)
 {
 	struct emu_env_w32_dll_export *exp = (struct emu_env_w32_dll_export *)malloc(sizeof(struct emu_env_w32_dll_export));
 	memset(exp,0,sizeof(struct emu_env_w32_dll_export));

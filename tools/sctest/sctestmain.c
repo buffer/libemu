@@ -438,7 +438,7 @@ int test(struct emu *e)
 
 
 
-int getpctest()
+int getpctest(void)
 {
 	struct emu *e = emu_new();
 
@@ -468,7 +468,7 @@ void dump(int n)
 		printf("%c", tests[n].code[i]);
 }
 
-void cleanup()
+void cleanup(void)
 {
 	return;
 
@@ -479,7 +479,7 @@ void cleanup()
 
 }
 
-void list_tests()
+void list_tests(void)
 {
 	int i;
 	for ( i=0;i<numtests();i++ )
@@ -487,7 +487,7 @@ void list_tests()
 }
 
 
-int prepare_from_stdin_read()
+int prepare_from_stdin_read(void)
 {
 	unsigned buffer[BUFSIZ];
 	int ret, eof=0;
@@ -728,7 +728,7 @@ int prepare(struct emu *emu)
 }
 
 
-void print_help()
+void print_help(void)
 {
 	struct help_info 
 	{

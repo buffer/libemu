@@ -109,14 +109,14 @@ struct emu_track_and_source
 };
 
 
-struct emu_track_and_source *emu_track_and_source_new();
+struct emu_track_and_source *emu_track_and_source_new(void);
 void emu_track_and_source_free(struct emu_track_and_source *et);
 
 int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *et);
 
 
 
-struct emu_tracking_info *emu_tracking_info_new();
+struct emu_tracking_info *emu_tracking_info_new(void);
 void emu_tracking_info_free(struct emu_tracking_info *eti);
 
 void emu_tracking_info_clear(struct emu_tracking_info *eti);

@@ -81,7 +81,7 @@ void instrtree(uint8_t *data, uint8_t datasize, uint8_t offset, uint16_t level)
 }
 
 
-int main()
+int main(void)
 {
     
 

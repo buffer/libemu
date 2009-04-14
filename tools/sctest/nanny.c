@@ -6,7 +6,7 @@
 #include "../../include/emu/emu_hashtable.h"
 
 
-struct nanny *nanny_new()
+struct nanny *nanny_new(void)
 {
 	struct nanny *na = malloc(sizeof(struct nanny));
 	memset(na, 0, sizeof(struct nanny));

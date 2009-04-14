@@ -33,7 +33,7 @@
 #include "emu/emu_memory.h"
 #include "emu/emu_log.h"
 
-int main()
+int main(void)
 {
 	struct emu *e = emu_new();
 	emu_log_level_set(emu_logging_get(e), EMU_LOG_DEBUG);
