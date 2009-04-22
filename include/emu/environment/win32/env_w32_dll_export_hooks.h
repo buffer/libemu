@@ -494,7 +494,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"GetTapeStatus", 0x0006B25F, NULL, NULL},
 	{"GetTempFileNameA", 0x000608FF, NULL, NULL},
 	{"GetTempFileNameW", 0x000359B7, NULL, NULL},
-	{"GetTempPathA", 0x00035DCA, NULL, NULL},
+	{"GetTempPathA", 0x00035DCA, env_w32_hook_GetTempPathA, NULL},
 	{"GetTempPathW", 0x00030789, NULL, NULL},
 	{"GetThreadContext", 0x0003970D, NULL, NULL},
 	{"GetThreadIOPendingFlag", 0x00062D09, NULL, NULL},

@@ -604,15 +604,15 @@ UINT GetSystemDirectory(
 	uint32_t size;
 	POP_DWORD(c, &size);
 
-
-	emu_memory_write_block(emu_memory_get(env->emu), p_buffer, "c:\\WINDOWS\\system32\x00", 20);
+	static char *sysdir = "c:\\WINDOWS\\system32";
+	emu_memory_write_block(emu_memory_get(env->emu), p_buffer, sysdir, 20);
 	emu_cpu_reg32_set(c, eax, 19);
 
 	if ( env->profile != NULL )
 	{
 		emu_profile_function_add(env->profile, "GetSystemDirectory");
 		emu_profile_argument_add_ptr(env->profile, "LPTSTR", "lpBuffer", p_buffer);
-		emu_profile_argument_add_none(env->profile);
+		emu_profile_argument_add_string(env->profile, "", "", sysdir);
 		emu_profile_argument_add_int(env->profile, "UINT", "uSize", size);
 		emu_profile_function_returnvalue_int_set(env->profile, "UINT", 19);
 	}
@@ -621,6 +621,47 @@ UINT GetSystemDirectory(
 	return 0;
 }
 
+int32_t env_w32_hook_GetTempPathA(struct emu_env *env, struct emu_env_hook *hook)
+{
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*
+DWORD WINAPI GetTempPath(
+  __in   DWORD nBufferLength,
+  __out  LPTSTR lpBuffer
+);
+*/
+
+	uint32_t bufferlength;
+	POP_DWORD(c, &bufferlength);
+
+	uint32_t p_buffer;
+	POP_DWORD(c, &p_buffer);
+
+	static char *path = "c:\\tmp\\";
+
+	emu_memory_write_block(emu_memory_get(env->emu), p_buffer, path, 8);
+	emu_cpu_reg32_set(c, eax, 7);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "GetTempPathA");
+		emu_profile_argument_add_int(env->profile, "DWORD", "nBufferLength", bufferlength);
+		emu_profile_argument_add_ptr(env->profile, "LPTSTR", "lpBuffer", p_buffer);
+		emu_profile_argument_add_string(env->profile, "", "", path);
+		emu_profile_function_returnvalue_int_set(env->profile, "DWORD", 7);
+	}
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
 
 int32_t env_w32_hook_GetTickCount(struct emu_env *env, struct emu_env_hook *hook)
 {

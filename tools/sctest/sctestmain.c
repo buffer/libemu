@@ -140,6 +140,7 @@ int test(struct emu *e)
 	emu_memory_write_dword(mem, 0x42AE1018, 0x7c801D77);
 	emu_memory_write_dword(mem, 0x42ae1010, 0x7c80ADA0);
 	emu_memory_write_dword(mem, 0x7c80ADA0, 0x51EC8B55);
+	emu_memory_write_byte(mem,  0x7c814eeb, 0xc3);
 
 	if ( env == NULL )
 	{
