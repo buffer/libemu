@@ -291,7 +291,7 @@ traversal:
 	}
 
 	emu_queue_free(eq);
-
+	emu_env_free(env);
 
 	/* sort all tested positions by the number of steps ascending */
 	emu_list_qsort(stats_tested_positions_list, tested_positions_cmp);
