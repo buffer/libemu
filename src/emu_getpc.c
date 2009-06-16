@@ -73,7 +73,8 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 		if ( emu_cpu_parse(c) != 0)
 			break;
 
-
+		if( (data + offset + c->instr.cpu.disp) > data+size || (data + offset + c->instr.cpu.disp) < data)
+			break;
 
 //		printf("call within %i bytes \n", c->instr.cpu.disp);
 		if (abs(c->instr.cpu.disp) > 512)
