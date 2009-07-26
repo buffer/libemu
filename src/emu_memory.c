@@ -238,6 +238,7 @@ static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 			emu_strerror_set(em->emu, "out of memory\n", addr);
 			return -1;
 		}
+		memset(em->pagetable[PAGESET(addr)][PAGE(addr)], 0, PAGE_SIZE);
 	}
 
 	return 0;
