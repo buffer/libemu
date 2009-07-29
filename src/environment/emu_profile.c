@@ -262,6 +262,8 @@ void emu_profile_function_free(struct emu_profile_function *function)
 void emu_profile_function_returnvalue_int_set(struct emu_profile *profile, const char *type, int value)
 {
 	struct emu_profile_function *function = emu_profile_functions_last(profile->functions);
+	if (function->return_value->argtype != NULL)
+		free(function->return_value->argtype);
 	function->return_value->argtype = strdup(type);
 	function->return_value->render = render_int;
 	function->return_value->value.tint = value;
@@ -270,6 +272,8 @@ void emu_profile_function_returnvalue_int_set(struct emu_profile *profile, const
 void emu_profile_function_returnvalue_ptr_set(struct emu_profile *profile, const char *type, int value)
 {
 	struct emu_profile_function *function = emu_profile_functions_last(profile->functions);
+	if (function->return_value->argtype != NULL)
+		free(function->return_value->argtype);
 	function->return_value->argtype = strdup(type);
 	function->return_value->render = render_ptr;
 	function->return_value->value.tptr.addr = value;
