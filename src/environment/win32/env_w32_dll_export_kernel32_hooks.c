@@ -370,6 +370,7 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
 	emu_cpu_reg32_set(c, eax, returnvalue);
 
 
+	emu_string_free(imagename);
 	emu_string_free(command);
 	free(pi);
 	free(si);

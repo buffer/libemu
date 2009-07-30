@@ -432,7 +432,7 @@ int test(struct emu *e)
 	if (graph != NULL)
 		emu_graph_free(graph);
 
-
+	emu_env_free(env);
 	return 0;
 }
 
