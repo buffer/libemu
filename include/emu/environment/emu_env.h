@@ -109,6 +109,7 @@ struct emu_env
 	struct emu *emu;
 //	struct env_helper *envs;
 	struct emu_profile *profile;
+	void *userdata;
 };
 
 struct emu_env *emu_env_new(struct emu *e);

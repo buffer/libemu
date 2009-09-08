@@ -134,7 +134,7 @@ struct emu_cpu *emu_cpu_new(struct emu *e)
 
 	}
 
-	c->instr_string = (char *)malloc(82);
+	c->instr_string = (char *)malloc(92);
 	c->repeat_current_instr = false;
 	init_prefix_map();
 	
