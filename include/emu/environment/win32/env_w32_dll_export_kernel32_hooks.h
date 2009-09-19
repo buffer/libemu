@@ -35,19 +35,20 @@ int32_t env_w32_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook)
 int32_t env_w32_hook_ExitThread(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetProcAddress(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetSystemDirectoryA(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook_GetTempPathA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetTickCount(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook__hwrite(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook__lclose(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook__lcreat(struct emu_env *env, struct emu_env_hook *hook);
-int32_t env_w32_hook__lwrite(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_LoadLibrayA(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook__lwrite(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_malloc(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_memset(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook_Sleep(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WaitForSingleObject(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WinExec(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook);
-int32_t env_w32_hook_GetTempPathA(struct emu_env *env, struct emu_env_hook *hook);
 
 #define HANDLE int32_t
 #define DWORD uint32_t

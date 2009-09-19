@@ -217,7 +217,6 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
   LPSTARTUPINFOW psiStartInfo, 
   LPPROCESS_INFORMATION pProcInfo
 );*/
-
 	
 
 	uint32_t p_imagename;
@@ -926,6 +925,38 @@ void *memset(
     emu_cpu_eip_set(c, eip_save);
 	return 0;
 
+}
+
+int32_t env_w32_hook_Sleep(struct emu_env *env, struct emu_env_hook *hook)
+{
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+
+/*VOID WINAPI Sleep(
+  __in  DWORD dwMilliseconds
+);
+*/
+
+	uint32_t dwMilliseconds;
+	POP_DWORD(c, &dwMilliseconds);
+
+	emu_cpu_reg32_set(c, eax, 0);
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "Sleep");
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwMilliseconds", dwMilliseconds);
+		emu_profile_function_returnvalue_int_set(env->profile, "void", 0);
+	}
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
 }
 
 int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env *env, struct emu_env_hook *hook)

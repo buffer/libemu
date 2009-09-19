@@ -868,7 +868,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"ShowConsoleCursor", 0x00071F64, NULL, NULL},
 	{"SignalObjectAndWait", 0x00036696, NULL, NULL},
 	{"SizeofResource", 0x0000BC69, NULL, NULL},
-	{"Sleep", 0x00002442, NULL, NULL},
+	{"Sleep", 0x00002442, env_w32_hook_Sleep, NULL},
 	{"SleepEx", 0x0000239C, NULL, NULL},
 	{"SuspendThread", 0x00039732, NULL, NULL},
 	{"SwitchToFiber", 0x00010672, NULL, NULL},
