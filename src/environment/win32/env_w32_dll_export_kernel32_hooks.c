@@ -1177,6 +1177,7 @@ BOOL WriteFile(
 
 	emu_cpu_reg32_set(c, eax, returnvalue);
 
+	free(buffer);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
