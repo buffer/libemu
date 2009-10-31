@@ -66,55 +66,23 @@ uint8_t emu_getpc_check(struct emu *e, uint8_t *data, uint32_t size, uint32_t of
 	{
 	/* call */
 	case 0xe8:
-		emu_memory_write_block(m, 0x1000, data+offset, MIN(size-offset, 6));
-		emu_cpu_eip_set(c, 0x1000);
+//		emu_memory_write_block(m, 0x1000, data+offset, MIN(size-offset, 6));
+		emu_memory_write_block(m, 0x1000, data, size);
+		emu_cpu_eip_set(c, 0x1000+offset);
 
 
 		if ( emu_cpu_parse(c) != 0)
 			break;
-
-		if( (data + offset + c->instr.cpu.disp) > data+size || (data + offset + c->instr.cpu.disp) < data)
-			break;
-
-//		printf("call within %i bytes \n", c->instr.cpu.disp);
+/*		
+		printf("data %p size %x offset %x disp %x\n", data, size, offset, c->instr.cpu.disp);
+		printf("data + offset + disp %p <-> %p data + size\n",  (data + offset + c->instr.cpu.disp), data+size);
+		printf("data + offset + disp %p <-> %p data \n",  (data + offset + c->instr.cpu.disp), data);
+*/
+		
 		if (abs(c->instr.cpu.disp) > 512)
 		{
 			break;
 		}
-		else
-		{
-
-//			printf("size is within\n");
-		}
-
-		if (c->instr.cpu.disp < 0)
-		{
-			if ( offset + c->instr.cpu.disp < 0  )
-			{
-				break;
-			}
-			else
-			{
-//				printf("eip is within\n");
-			}
-
-		}
-
-		if (c->instr.cpu.disp > 0)
-		{
-			if ( offset + c->instr.cpu.disp > size  )
-			{
-				break;
-			}
-			else
-			{
-//				printf("eip is _still_ within size: %i i: %i disp: %i (%i)\n", size, offset, c->instr.cpu.disp, size - offset + c->instr.cpu.disp);
-			}
-		}
-
-//		printf("writing from offset %i to offset %i\n", offset + MIN(c->instr.cpu.disp, 0), 0x1000+MIN(c->instr.cpu.disp, 0));
-		emu_memory_write_block(m, 0x1000 + MIN(c->instr.cpu.disp, 0), data + offset + MIN(c->instr.cpu.disp, 0), size - offset - MIN(c->instr.cpu.disp, 0));
-		emu_cpu_eip_set(c, 0x1000);
 
 		uint32_t espcopy = emu_cpu_reg32_get(c, esp);
 		int j;

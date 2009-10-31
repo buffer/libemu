@@ -448,6 +448,7 @@ int getpctest(void)
 
 	if ( opts.verbose > 1 )
 	{
+		emu_cpu_debugflag_set(emu_cpu_get(e), instruction_string);
 		emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
 	}
 

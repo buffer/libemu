@@ -278,8 +278,11 @@ traversal:
 								logDebug(e, "found position which satiesfies the requirements %i %08x\n", current_pos_satii->eip, current_pos_satii->eip);
 								current_pos_ht = emu_hashtable_search(etas->static_instr_table, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip);
 								current_pos_v = (struct emu_vertex *)current_pos_ht->value;
-								logDebug(e, "marking white %p %x: %s \n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
-								current_pos_v->color = white;
+								if(current_pos_satii->eip != current_offset )
+								{
+									logDebug(e, "marking white %p %x: %s \n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
+									current_pos_v->color = white;
+								}
 								emu_tracking_info_debug_print(&current_pos_satii->track.init);
 								emu_queue_enqueue(eq, (void *)((uintptr_t)(uint32_t)current_pos_satii->eip));
 							}
