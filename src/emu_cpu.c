@@ -432,7 +432,7 @@ void debug_instruction(struct emu_instruction *ei)
 #undef PREFIX_LOCK
 
 #include "libdasm.h"
-static uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t size, char *str)
+uint32_t dasm_print_instruction(uint32_t eip, uint8_t *data, uint32_t size, char *str)
 {
 	INSTRUCTION inst;
 
@@ -484,7 +484,12 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 	uint8_t dis[32];
 	emu_memory_read_block(c->mem,c->eip,dis,32);
-    uint32_t expected_instr_size = dasm_print_instruction(c->eip,dis,0,c->instr_string);
+
+	uint32_t expected_instr_size = 0;
+	if( CPU_DEBUG_FLAG_ISSET(c, instruction_string ) || CPU_DEBUG_FLAG_ISSET(c, instruction_size ) )
+	{
+		expected_instr_size = dasm_print_instruction(c->eip,dis,0,c->instr_string);
+	}
 
 	uint32_t eip_before = c->eip;
 	uint32_t eip_after = 0;
@@ -789,7 +794,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 //			logDebug(c->emu,"\n");
 
 			eip_after = c->eip;
-			if ( 0 && eip_after - eip_before != expected_instr_size)
+			if ( CPU_DEBUG_FLAG_ISSET(c, instruction_size ) && eip_after - eip_before != expected_instr_size)
 			{
 				logDebug(c->emu, "broken instr.cpu size %i %i\n",
 					   eip_after - eip_before,
@@ -902,4 +907,13 @@ int32_t emu_cpu_run(struct emu_cpu *c)
 	return steps;
 }
 
+void emu_cpu_debugflag_set(struct emu_cpu *c, uint8_t flag)
+{
+	CPU_DEBUG_FLAG_SET(c, flag);
+}
+
+void emu_cpu_debugflag_unset(struct emu_cpu *c, uint8_t flag)
+{
+	CPU_DEBUG_FLAG_UNSET(c, flag);	
+}
 

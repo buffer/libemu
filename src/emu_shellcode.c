@@ -219,8 +219,12 @@ traversal:
 							struct emu_source_and_track_instr_info *current_pos_satii = (struct emu_source_and_track_instr_info *)current_pos_v->data;
 
 							if (current_pos_v->color == red)
+							{
+								logDebug(e, "is red %p %x: %s\n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
 								continue;
+							}
 
+							logDebug(e, "marking red %p %x: %s \n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
 							current_pos_v->color = red;
 
 							while ( !emu_tracking_info_covers(&current_pos_satii->track.init, current_pos_ti_diff) || brute_force )
@@ -239,6 +243,8 @@ traversal:
 									for ( ee = emu_edges_first(current_pos_v->backedges); !emu_edges_attail(ee); ee=emu_edges_next(ee) )
 									{
 										ev = ee->destination;
+										struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)ev->data;
+										logDebug(e, "EnqueueLoop %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
 										struct emu_tracking_info *eti = emu_tracking_info_new();
 										emu_tracking_info_diff(current_pos_ti_diff, &current_pos_satii->track.init, eti);
 										eti->eip = ((struct emu_source_and_track_instr_info *)ev->data)->eip;
@@ -255,6 +261,8 @@ traversal:
 								{ /* follow the single link */
 
 									current_pos_v = emu_edges_first(current_pos_v->backedges)->destination;
+									struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)current_pos_v->data;
+									logDebug(e, "EnqueueSingle %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
 									current_pos_satii = (struct emu_source_and_track_instr_info *)current_pos_v->data;
 									emu_tracking_info_diff(current_pos_ti_diff, &current_pos_satii->track.init, current_pos_ti_diff);
 								}
@@ -262,7 +270,16 @@ traversal:
 
 							if ( emu_tracking_info_covers(&current_pos_satii->track.init, current_pos_ti_diff) || brute_force )
 							{
+								/**
+								 * we have a new starting point, this starting point may fail
+								 * too - if further backwards traversal is required
+								 * therefore we mark it white, so it can be processed again
+								 */
 								logDebug(e, "found position which satiesfies the requirements %i %08x\n", current_pos_satii->eip, current_pos_satii->eip);
+								current_pos_ht = emu_hashtable_search(etas->static_instr_table, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip);
+								current_pos_v = (struct emu_vertex *)current_pos_ht->value;
+								logDebug(e, "marking white %p %x: %s \n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
+								current_pos_v->color = white;
 								emu_tracking_info_debug_print(&current_pos_satii->track.init);
 								emu_queue_enqueue(eq, (void *)((uintptr_t)(uint32_t)current_pos_satii->eip));
 							}

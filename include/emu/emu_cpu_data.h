@@ -48,11 +48,24 @@ enum emu_cpu_flag {
 
 struct emu_track_and_source;
 
+
+#define CPU_DEBUG_FLAG_SET(cpu_p, fl) (cpu_p)->debugflags |= 1 << (fl)
+#define CPU_DEBUG_FLAG_UNSET(cpu_p, fl) (cpu_p)->debugflags &= ~(1 << (fl))
+#define CPU_DEBUG_FLAG_TOGGLE(cpu_p, fl) (cpu_p)->debugflags ^= 1 << (fl)
+#define CPU_DEBUG_FLAG_ISSET(cpu_p, fl) ((cpu_p)->debugflags & (1 << (fl)))
+
+enum emu_cpu_debug_flag {
+	instruction_string = 0,
+	instruction_size = 1,
+};
+
 struct emu_cpu
 {
 	struct emu *emu;
 	struct emu_memory *mem;
 	
+	uint32_t debugflags;
+
 	uint32_t eip;
 	uint32_t eflags;
 	uint32_t reg[8];

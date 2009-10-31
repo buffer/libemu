@@ -123,7 +123,8 @@ void emu_cpu_free(struct emu_cpu *c);
 
 void emu_cpu_debug_print(struct emu_cpu *c);
 
-
+void emu_cpu_debugflag_set(struct emu_cpu *c, uint8_t flag);
+void emu_cpu_debugflag_unset(struct emu_cpu *c, uint8_t flag);
 
 
 #endif /* HAVEEMU_CPU_H */

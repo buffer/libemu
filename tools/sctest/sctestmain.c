@@ -207,6 +207,9 @@ int test(struct emu *e)
 
 
 	/* run the code */
+	if( opts.verbose != 0 )
+		emu_cpu_debugflag_set(cpu, instruction_string);
+
 	if ( opts.verbose >= 2 )
 	{
 		emu_log_level_set(emu_logging_get(e),EMU_LOG_DEBUG);
