@@ -711,13 +711,37 @@ LONG _lcreat(
   int fnAttribute
 );
 */
-	uint32_t filename;
-	POP_DWORD(c, &filename);
+	uint32_t p_filename;
+	POP_DWORD(c, &p_filename);
+	struct emu_string *filename = emu_string_new();
+	emu_memory_read_string(emu_memory_get(env->emu), p_filename, filename, 256);
 
-	uint32_t attr;
-	POP_DWORD(c, &attr);
+	uint32_t fnAttribute;
+	POP_DWORD(c, &fnAttribute);
 
-	emu_cpu_reg32_set(c, eax, 4711); // filehandle
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   emu_string_char(filename),
+											   fnAttribute);
+	}else
+	{
+		returnvalue	= 4711;
+	}
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "_lcreat");
+		emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "lpFileName", p_filename);
+		emu_profile_argument_add_string(env->profile,"",  "",  emu_string_char(filename));
+		emu_profile_argument_add_int(env->profile, "int", "fnAttribute", fnAttribute);
+		emu_profile_function_returnvalue_int_set(env->profile, "LONG", returnvalue);
+	}
+
+	emu_string_free(filename);
+
+	emu_cpu_reg32_set(c, eax, returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -735,10 +759,31 @@ int32_t	env_w32_hook__lclose(struct emu_env *env, struct emu_env_hook *hook)
 	POP_DWORD(c, &eip_save);
 
 /*
-FIXME
+HFILE _lclose(
+    HFILE hFile	// handle to file to close
+   ); 
 */
 	uint32_t file;
 	POP_DWORD(c, &file);
+
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   file);
+	}else
+	{
+		returnvalue	= 0;
+	}
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "_lclose");
+		emu_profile_argument_add_int(env->profile, "HFile", "hFile", file);
+		emu_profile_function_returnvalue_int_set(env->profile, "HFILE", returnvalue);
+	}
+
+	emu_cpu_reg32_set(c, eax, returnvalue);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -765,13 +810,41 @@ LONG _lwrite(
 	uint32_t file;
 	POP_DWORD(c, &file);
 
-	uint32_t buffer;
-	POP_DWORD(c, &buffer);
+	uint32_t p_buffer;
+	POP_DWORD(c, &p_buffer);
 
 	uint32_t size;
 	POP_DWORD(c, &size);
 
-	emu_cpu_reg32_set(c, eax, size);
+
+	unsigned char *buffer = malloc(size);
+	emu_memory_read_block(emu_memory_get(env->emu), p_buffer, buffer, size);
+
+	uint32_t returnvalue;
+	if ( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, 
+											   file,
+											   buffer,
+											   size);
+	}else
+	{
+		returnvalue	= size;
+	}
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "_lwrite");
+		emu_profile_argument_add_int(env->profile, "HFile", "hFile", file);
+		emu_profile_argument_add_ptr(env->profile, "LPCSTR", "lpBuffer", p_buffer);
+		emu_profile_argument_add_bytea(env->profile, "", "", buffer, size);
+		emu_profile_argument_add_int(env->profile, "UINT", "cbWrite", size);
+		emu_profile_function_returnvalue_int_set(env->profile, "LONG", returnvalue);
+	}
+
+	emu_cpu_reg32_set(c, eax, returnvalue);
+
+	free(buffer);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
