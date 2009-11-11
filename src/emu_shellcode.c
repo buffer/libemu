@@ -243,6 +243,13 @@ traversal:
 									for ( ee = emu_edges_first(current_pos_v->backedges); !emu_edges_attail(ee); ee=emu_edges_next(ee) )
 									{
 										ev = ee->destination;
+										/**
+										 * ignore positions we've visited already 
+										 * avoids dos for jz 0 
+										 */
+										if( ev->color == red )
+											continue;
+
 										struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)ev->data;
 										logDebug(e, "EnqueueLoop %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
 										struct emu_tracking_info *eti = emu_tracking_info_new();
@@ -251,7 +258,8 @@ traversal:
 										emu_queue_enqueue(bfs_queue, eti);
 
 									}
-									/* the new possible positions and requirements got queued into the bfs queue, 
+								 	/**
+									 * the new possible positions and requirements got queued into the bfs queue, 
 									 *  we break here, so the new queued positions can try to work it out
 									 */
 									break;
