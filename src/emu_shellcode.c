@@ -267,10 +267,19 @@ traversal:
 								else
 								if ( current_pos_v->backlinks == 1 )
 								{ /* follow the single link */
-
+									/**
+									 * ignore loops	to self 
+									 * avoids dos for "\xe3\xfe\xe8" 
+									 *  
+									 */
+									if( current_pos_v == emu_edges_first(current_pos_v->backedges)->destination )
+										break;
+									
 									current_pos_v = emu_edges_first(current_pos_v->backedges)->destination;
+
+
 									struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)current_pos_v->data;
-									logDebug(e, "EnqueueSingle %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
+									logDebug(e, "EnqueueSingle %p %i %x %s\n", next_pos_satii, current_pos_v->color, next_pos_satii->eip, next_pos_satii->instrstring);
 									current_pos_satii = (struct emu_source_and_track_instr_info *)current_pos_v->data;
 									emu_tracking_info_diff(current_pos_ti_diff, &current_pos_satii->track.init, current_pos_ti_diff);
 								}
