@@ -283,7 +283,7 @@ traversal:
 									 * again, ignore already visited positions 
 									 * breaks the upper loop 
 									 */
-									if( ev->color == red )
+									if( current_pos_v->color == red )
 										break;
 
 
