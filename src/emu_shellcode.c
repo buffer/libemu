@@ -246,6 +246,8 @@ traversal:
 										/**
 										 * ignore positions we've visited already 
 										 * avoids dos for jz 0 
+										 *  
+										 * try the next position instead 
 										 */
 										if( ev->color == red )
 											continue;
@@ -270,12 +272,19 @@ traversal:
 									/**
 									 * ignore loops	to self 
 									 * avoids dos for "\xe3\xfe\xe8" 
+									 * breaks the upper loop 
 									 *  
 									 */
 									if( current_pos_v == emu_edges_first(current_pos_v->backedges)->destination )
 										break;
 									
 									current_pos_v = emu_edges_first(current_pos_v->backedges)->destination;
+									/**
+									 * again, ignore already visited positions 
+									 * breaks the upper loop 
+									 */
+									if( ev->color == red )
+										break;
 
 
 									struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)current_pos_v->data;
