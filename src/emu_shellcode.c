@@ -64,6 +64,87 @@ int tested_positions_cmp(struct emu_list_item *a, struct emu_list_item *b)
 }
 
 
+/**
+ * This function takes the emu, the offset and tries to run 
+ * steps iterations. If it fails due to uninitialized 
+ * registers/eflags it will try to use the information passed by 
+ * etas to traverse the instruction tree and find an instruction
+ * path in the tree which satisfies the initialization 
+ * requirements.
+ *  
+ * To avoid testing the same positions over and over, the 
+ * already-tested positions are held in the known_positions 
+ * hashtable.
+ *  
+ * The result is returned in the tested_positions_list.
+ * 
+ *  
+ * The function is called for every GetPC candidate in the 
+ * suspected shellcode, therefore the known_positions prevent 
+ * testing the same locations for different starting points in 
+ * the data too.
+ *  
+ * It is the vital part of libemu's shellcode detection, hard to
+ * understand, hard to improve and hard to fix.
+ *  
+ * Messing this function up, destroys libemu's shellcode 
+ * detection.
+ *  
+ * The function is a mess, given the complexity of the loops it 
+ * is too long and the variable names do not provide any help.
+ *  
+ * The bruteforce flag is useful, as it allows bfs even if some 
+ * instructions initializations are not set properly, but you'll 
+ * definitely miss its impact on the behaviour when making a 
+ * guess why something does not work. 
+ *  
+ * short explanation of the logic: 
+ *  
+ * the first starting point is our offset 
+ *  
+ * while we have starting points: 
+ *     run the shellcode: error?
+ *  	   no!
+ * 		   continue
+ *     yes!
+ *     use the current starting eip as starting point to bfs 
+ *     look for instructions which satisfy the requirements OR
+ *     brutefore
+ * 	       queue these new instructions as starting points
+ *  
+ *  
+ *  
+ * History has proven the the function to be susceptible to 
+ * denial of service attacks, running the system out of memory 
+ * or cycles. 
+ * So, if you experience a 'problem', this is the first place to 
+ * look at, and the last one you want to look at, if you want to
+ * cause a 'problem', same rules apply. 
+ *  
+ * This comment was written when patching one of these dos 
+ * problems 
+ * The known_positions arg has been unused for the time before, 
+ * seems like there was a good idea when writing the function 
+ * initially, but this good idea was abandoned once 'it worked'
+ *  
+ * 
+ * 
+ * @param e         the emu to run
+ * @param data      the data we run
+ * @param datasize  the data size
+ * @param eipoffset the offset for eip
+ * @param steps     how many steps to try running
+ * @param etas      the track and source tree - the substantial
+ *                  information to run the breath first search
+ * @param known_positions
+ *                  already tested positions
+ * @param stats_tested_positions_list
+ *                  the result list
+ * @param brute_force
+ *                  be aggressive?
+ * 
+ * @return 
+ */
 int32_t     emu_shellcode_run_and_track(struct emu *e, 
 										uint8_t *data, 
 										uint16_t datasize, 
@@ -191,6 +272,7 @@ traversal:
 							eti->eip = current_offset;
 							emu_tracking_info_debug_print(eti);
 							emu_queue_enqueue(bfs_queue, eti);
+							emu_hashtable_insert(known_positions, (void *)(uintptr_t)(uint32_t)current_offset, NULL);
 						}
 
 /*						{ // mark all vertexes white
@@ -201,7 +283,7 @@ traversal:
 								x->color = white;
 							}
 
-						}
+						}		 
 */
 						while ( !emu_queue_empty(bfs_queue) )
 						{
@@ -226,6 +308,8 @@ traversal:
 
 							logDebug(e, "marking red %p %x: %s \n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
 							current_pos_v->color = red;
+
+							emu_hashtable_insert(known_positions, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip, NULL);
 
 							while ( !emu_tracking_info_covers(&current_pos_satii->track.init, current_pos_ti_diff) || brute_force )
 							{
@@ -253,14 +337,22 @@ traversal:
 											continue;
 
 										struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)ev->data;
+										
+
+										if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)next_pos_satii->eip) != NULL)
+										{
+											logDebug(e, "EnqueueLoopKnown %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
+											continue;
+										}
+										
+
 										logDebug(e, "EnqueueLoop %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
 										struct emu_tracking_info *eti = emu_tracking_info_new();
 										emu_tracking_info_diff(current_pos_ti_diff, &current_pos_satii->track.init, eti);
-										eti->eip = ((struct emu_source_and_track_instr_info *)ev->data)->eip;
+										eti->eip = next_pos_satii->eip;
 										emu_queue_enqueue(bfs_queue, eti);
-
 									}
-								 	/**
+									/**
 									 * the new possible positions and requirements got queued into the bfs queue, 
 									 *  we break here, so the new queued positions can try to work it out
 									 */
@@ -286,9 +378,10 @@ traversal:
 									if( current_pos_v->color == red )
 										break;
 
-
+									current_pos_v->color = red;
+									
 									struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)current_pos_v->data;
-									logDebug(e, "EnqueueSingle %p %i %x %s\n", next_pos_satii, current_pos_v->color, next_pos_satii->eip, next_pos_satii->instrstring);
+									logDebug(e, "FollowSingle %p %i %x %s\n", next_pos_satii, current_pos_v->color, next_pos_satii->eip, next_pos_satii->instrstring);
 									current_pos_satii = (struct emu_source_and_track_instr_info *)current_pos_v->data;
 									emu_tracking_info_diff(current_pos_ti_diff, &current_pos_satii->track.init, current_pos_ti_diff);
 								}
@@ -304,6 +397,14 @@ traversal:
 								logDebug(e, "found position which satiesfies the requirements %i %08x\n", current_pos_satii->eip, current_pos_satii->eip);
 								current_pos_ht = emu_hashtable_search(etas->static_instr_table, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip);
 								current_pos_v = (struct emu_vertex *)current_pos_ht->value;
+
+								if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip) != NULL)
+								{
+									logDebug(e, "EnqueueKnown %p %x %s\n", current_pos_satii, current_pos_satii->eip, current_pos_satii->instrstring);
+									break;
+								}
+
+
 								if(current_pos_satii->eip != current_offset )
 								{
 									logDebug(e, "marking white %p %x: %s \n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
@@ -312,11 +413,13 @@ traversal:
 								emu_tracking_info_debug_print(&current_pos_satii->track.init);
 								emu_queue_enqueue(eq, (void *)((uintptr_t)(uint32_t)current_pos_satii->eip));
 							}
+//discard:
 							emu_tracking_info_free( current_pos_ti_diff);
 						}
 						emu_queue_free(bfs_queue);
 					}
-					/* the shellcode did not run correctly as he was missing instructions initializing required registers
+					/** 
+					 * the shellcode did not run correctly as he was missing instructions initializing required registers
 					 * we did what we could do in the prev lines of code to find better offsets to start from
 					 * the working offsets got queued into the main queue, so we break here to give them a chance
                      */
