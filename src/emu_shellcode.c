@@ -168,6 +168,16 @@ int32_t     emu_shellcode_run_and_track(struct emu *e,
 
 	struct emu_env *env = NULL;
 
+	{ // mark all vertexes white
+
+		struct emu_vertex *x;
+		for ( x= emu_vertexes_first(etas->static_instr_graph->vertexes); !emu_vertexes_attail(x); x = emu_vertexes_next(x))
+		{
+			x->color = white;
+		}
+
+	}		 
+
 	while ( !emu_queue_empty(eq) )
 	{
 		
@@ -271,20 +281,17 @@ traversal:
 							emu_tracking_info_diff(&cpu->instr.track.need, &etas->track, eti);
 							eti->eip = current_offset;
 							emu_tracking_info_debug_print(eti);
+
+							if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)current_offset) != NULL)
+							{
+								logDebug(e, "Known %p %x\n", eti, eti->eip);
+								continue;
+							}
+
 							emu_queue_enqueue(bfs_queue, eti);
 							emu_hashtable_insert(known_positions, (void *)(uintptr_t)(uint32_t)current_offset, NULL);
 						}
 
-/*						{ // mark all vertexes white
-
-							struct emu_vertex *x;
-							for ( x= emu_vertexes_first(etas->static_instr_graph->vertexes); !emu_vertexes_attail(x); x = emu_vertexes_next(x))
-							{
-								x->color = white;
-							}
-
-						}		 
-*/
 						while ( !emu_queue_empty(bfs_queue) )
 						{
 							logDebug(e, "loop %s:%i\n", __FILE__, __LINE__);
@@ -339,11 +346,6 @@ traversal:
 										struct emu_source_and_track_instr_info *next_pos_satii =  (struct emu_source_and_track_instr_info *)ev->data;
 										
 
-										if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)next_pos_satii->eip) != NULL)
-										{
-											logDebug(e, "EnqueueLoopKnown %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
-											continue;
-										}
 										
 
 										logDebug(e, "EnqueueLoop %p %x %s\n", next_pos_satii, next_pos_satii->eip, next_pos_satii->instrstring);
@@ -397,13 +399,6 @@ traversal:
 								logDebug(e, "found position which satiesfies the requirements %i %08x\n", current_pos_satii->eip, current_pos_satii->eip);
 								current_pos_ht = emu_hashtable_search(etas->static_instr_table, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip);
 								current_pos_v = (struct emu_vertex *)current_pos_ht->value;
-
-								if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip) != NULL)
-								{
-									logDebug(e, "EnqueueKnown %p %x %s\n", current_pos_satii, current_pos_satii->eip, current_pos_satii->instrstring);
-									break;
-								}
-
 
 								if(current_pos_satii->eip != current_offset )
 								{
@@ -534,10 +529,14 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 									results, false);
 	}
 
+	
+
 	/* for all positions we got, take the best, maybe take memory access into account later */
 	emu_list_qsort(results, tested_positions_cmp);
 	if ( ((struct emu_stats *)emu_list_first(results)->data)->cpu.steps != 256 )
 	{
+		emu_hashtable_free(eh);
+		eh = emu_hashtable_new(size+4/4, emu_hashtable_ptr_hash, emu_hashtable_ptr_cmp);
 		logDebug(e, "brute force!\n");
 		struct emu_list_root *new_results = emu_list_create();
 		for ( eli = emu_list_first(results); !emu_list_attail(eli); eli = emu_list_next(eli) )
