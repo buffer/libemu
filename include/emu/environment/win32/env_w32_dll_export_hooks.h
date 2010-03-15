@@ -918,7 +918,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"VirtualFree", 0x00009AE4, NULL, NULL},
 	{"VirtualFreeEx", 0x00009B02, NULL, NULL},
 	{"VirtualLock", 0x0002B13F, NULL, NULL},
-	{"VirtualProtect", 0x00001AD0, NULL, NULL},
+	{"VirtualProtect", 0x00001AD0, env_w32_hook_VirtualProtect, NULL},
 	{"VirtualProtectEx", 0x00001A5D, NULL, NULL},
 	{"VirtualQuery", 0x0000B9D1, NULL, NULL},
 	{"VirtualQueryEx", 0x0000B9A0, NULL, NULL},

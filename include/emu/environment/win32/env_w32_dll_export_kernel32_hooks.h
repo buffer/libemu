@@ -49,6 +49,7 @@ int32_t env_w32_hook_Sleep(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WaitForSingleObject(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WinExec(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook_VirtualProtect(struct emu_env *env, struct emu_env_hook *hook);
 
 #define HANDLE int32_t
 #define DWORD uint32_t
