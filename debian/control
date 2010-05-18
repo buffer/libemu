@@ -1,0 +1,18 @@
+Source: libemu
+Priority: extra
+Maintainer: Nepenthes Development Team <nepenthesdev@gmail.com>
+Build-Depends: debhelper (>= 7), autotools-dev
+Standards-Version: 3.8.1
+Section: libs
+Homepage: http://libemu.carnivore.it
+
+Package: libemu-dev
+Section: libdevel
+Architecture: any
+Depends: libemu (= ${binary:Version})
+Description: libemu development files
+
+Package: libemu
+Section: libs
+Architecture: any
+Description: libemu library
