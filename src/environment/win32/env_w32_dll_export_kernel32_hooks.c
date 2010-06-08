@@ -542,18 +542,15 @@ FFARPROC WINAPI GetProcAddress(
 
 			struct emu_env_w32_dll *dll = env->env.win->loaded_dlls[i];
 			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnname, (void *)emu_string_char(procname));
-
-			struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
-
 			if ( ehi == NULL )
 			{
 				break;
 			}
 			else
 			{
+				struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
 				logDebug(env->emu, "found %s at addr %08x\n",emu_string_char(procname), dll->baseaddr + hook->hook.win->virtualaddr );
 				emu_cpu_reg32_set(c, eax, dll->baseaddr + hook->hook.win->virtualaddr);
-
 				break;
 			}
 		}
