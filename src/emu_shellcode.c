@@ -285,13 +285,12 @@ traversal:
 							if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)current_offset) != NULL)
 							{
 								logDebug(e, "Known %p %x\n", eti, eti->eip);
-								continue;
+								break;
 							}
 
 							emu_queue_enqueue(bfs_queue, eti);
 							emu_hashtable_insert(known_positions, (void *)(uintptr_t)(uint32_t)current_offset, NULL);
 						}
-
 						while ( !emu_queue_empty(bfs_queue) )
 						{
 							logDebug(e, "loop %s:%i\n", __FILE__, __LINE__);
@@ -431,6 +430,7 @@ traversal:
 		es->cpu.steps = j;
 		struct emu_list_item *eli = emu_list_item_create();
 		eli->data = es;
+		logDebug(e, "INSERT %i %x steps %i\n", current_offset, current_offset, j);
 		emu_list_insert_last(stats_tested_positions_list, eli);
 	}
 
