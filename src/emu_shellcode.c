@@ -289,7 +289,6 @@ traversal:
 							}
 
 							emu_queue_enqueue(bfs_queue, eti);
-							emu_hashtable_insert(known_positions, (void *)(uintptr_t)(uint32_t)current_offset, NULL);
 						}
 						while ( !emu_queue_empty(bfs_queue) )
 						{
@@ -305,6 +304,13 @@ traversal:
 
 							struct emu_vertex *current_pos_v = (struct emu_vertex *)current_pos_ht->value;
 							struct emu_source_and_track_instr_info *current_pos_satii = (struct emu_source_and_track_instr_info *)current_pos_v->data;
+
+							if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)current_pos_satii->eip) != NULL )
+							{
+								logDebug(e, "Known Again %p %x\n", current_pos_satii, current_pos_satii->eip);
+								current_pos_v->color = red;
+								continue;
+							}
 
 							if (current_pos_v->color == red)
 							{
