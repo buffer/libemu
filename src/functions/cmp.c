@@ -415,7 +415,6 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 #if BYTE_ORDER == BIG_ENDIAN
 	 uint8_t imm8;
 	 bcopy(i->imm8, &imm8, 1);
-	 uint32_t imm = imm8;
 #endif
 
 	if ( i->modrm.mod != 3 )
@@ -430,14 +429,17 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 			 uint16_t dst;
 			 MEM_WORD_READ(c, i->modrm.ea, &dst);
+
+#if BYTE_ORDER == BIG_ENDIAN
+			int16_t sexd = (int8_t) imm8;
+#else
+			int16_t sexd = (int8_t) *i->imm8;
+#endif
+
 			 INSTR_CALC_AND_SET_FLAGS(16, 
 									  c, 
 									  dst,
-#if BYTE_ORDER == BIG_ENDIAN
-									  imm,
-#else
-									  *i->imm8, 
-#endif
+									  sexd,
 									  -)
 		}
 		else
@@ -452,15 +454,16 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			uint32_t dst;
 			MEM_DWORD_READ(c, i->modrm.ea, &dst);
 
+#if BYTE_ORDER == BIG_ENDIAN
+			int32_t sexd = (int8_t) imm8;
+#else
+			int32_t sexd = (int8_t) *i->imm8;
+#endif
+
 			INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 dst,
-#if BYTE_ORDER == BIG_ENDIAN
-									  imm,
-#else
-									  *i->imm8, 
-#endif
-
+									 sexd,
 									 -)
 		}
 	}
@@ -473,15 +476,16 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * CMP r/m16,imm8   
 			 */
 			
+#if BYTE_ORDER == BIG_ENDIAN
+			int16_t sexd = (int8_t) imm8;
+#else
+			int16_t sexd = (int8_t) *i->imm8;
+#endif
+						
 			INSTR_CALC_AND_SET_FLAGS(16, 
 									 c, 
-									 *c->reg16[i->modrm.rm], 
-#if BYTE_ORDER == BIG_ENDIAN
-									  imm,
-#else
-									  *i->imm8, 
-#endif
-
+									 *c->reg16[i->modrm.rm],
+									 sexd,
 									 -)
 		}
 		else
@@ -491,15 +495,16 @@ int32_t instr_group_1_83_cmp(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 * CMP r/m32,imm8   
 			 */
 
+#if BYTE_ORDER == BIG_ENDIAN
+			int32_t sexd = (int8_t) imm8;
+#else
+			int32_t sexd = (int8_t) *i->imm8;
+#endif
+
             INSTR_CALC_AND_SET_FLAGS(32, 
 									 c, 
 									 c->reg[i->modrm.rm], 
-#if BYTE_ORDER == BIG_ENDIAN
-									  imm,
-#else
-									  *i->imm8, 
-#endif
-
+									 sexd,
 									 -)
 		}
 	}
