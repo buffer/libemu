@@ -115,6 +115,11 @@ struct emu_env_w32_known_dll_segment urlmon_segments[] =
 
 struct emu_env_w32_known_dll known_dlls[] = 
 {
+	{ /* dummy entry for the PEB/LDR lists */
+		.dllname = "self",
+		.baseaddress = 0x41800000,
+		.imagesize = 0x00106000,
+	},
 	{
 		.dllname = "kernel32",
 		.baseaddress = 0x7C800000,
@@ -179,28 +184,125 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 //  7FFDF00C  A0 1E 25 00                                       %.
 	emu_memory_write_dword(mem,0x7ffdf00c,0x00251ea0);
 
-
 //  004170A4   8B70 1C          MOV ESI,DWORD PTR DS:[EAX+1C]
 //  00251EBC  58 1F 25 00                                      X%.
-	emu_memory_write_dword(mem,0x00251ebc,0x00251f58);
+//	emu_memory_write_dword(mem,0x00251ebc,0x00251f58);
 
 
 //	004170A7   AD               LODS DWORD PTR DS:[ESI]
 //  00251F58  20 20 25 00                                        %.
-	emu_memory_write_dword(mem,0x00251f58,0x00252020);
+//	emu_memory_write_dword(mem,0x00251f58,0x00252020);
 
 
 //	004170A8   8B40 08          MOV EAX,DWORD PTR DS:[EAX+8]             ; kernel32.7C800000
 //  00252028  00 00 80 7C     
-	emu_memory_write_dword(mem,0x00252028,0x7C800000);
+//	emu_memory_write_dword(mem,0x00252028,0x7C800000);
 
+
+	// http://www.nirsoft.net/kernel_struct/vista/UNICODE_STRING.html
+	typedef struct _UNICODE_STRING
+	{
+		uint16_t Length;
+		uint16_t MaximumLength;
+		uint32_t Buffer;
+	} UNICODE_STRING, *PUNICODE_STRING;
+
+	// PEB_LDR_DATA Structure
+	// http://msdn.microsoft.com/en-us/library/aa813708%28VS.85%29.aspx
+	typedef struct _LIST_ENTRY
+	{
+//		struct _LIST_ENTRY *Flink;
+		uint32_t Flink;
+		uint32_t Blink;
+//		struct _LIST_ENTRY *Blink;
+	} LIST_ENTRY, *PLIST_ENTRY; //, *RESTRICTED_POINTER PRLIST_ENTRY;
+
+	typedef uint32_t PVOID;
+	typedef unsigned char BYTE;
+	typedef uint32_t ULONG;
+
+	typedef struct _LDR_DATA_TABLE_ENTRY
+	{
+		/* 0x00 */ LIST_ENTRY InLoadOrderLinks;
+		/* 0x08 */ LIST_ENTRY InMemoryOrderLinks;
+		/* 0x0f */ LIST_ENTRY InInitializationOrderLinks;
+		/* 0x18 */ uint32_t DllBase;
+		/* 0x1c */ uint32_t EntryPoint;
+		/* 0x1f */ uint32_t Reserved3;
+		/* 0x24 */ UNICODE_STRING FullDllName;
+		/* 0x2c */ UNICODE_STRING BaseDllName;
+		/* 0x00 */ uint32_t Reserved5[3];
+		union
+		{
+			ULONG CheckSum;
+			PVOID Reserved6;
+		};
+		uint32_t TimeDateStamp;
+	} LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
+
+
+	// http://www.nirsoft.net/kernel_struct/vista/PEB_LDR_DATA.html
+	typedef struct _PEB_LDR_DATA
+	{
+		 /* 0x00 */ uint32_t Length;
+		 /* 0x04 */ uint8_t Initialized[4];
+		 /* 0x08 */ uint32_t SsHandle;
+		 /* 0x0c */ LIST_ENTRY InLoadOrderModuleList;
+		 /* 0x14 */ LIST_ENTRY InMemoryOrderModuleList;
+		 /* 0x1c */ LIST_ENTRY InInitializationOrderModuleList;
+		 /* 0x24 */ uint8_t EntryInProgress;
+	} PEB_LDR_DATA, *PPEB_LDR_DATA;
+
+	struct _PEB_LDR_DATA peb_ldr_data;
+	peb_ldr_data.InMemoryOrderModuleList.Flink = 0x00251ea0 + 0x1000 + offsetof(struct _LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+	peb_ldr_data.InInitializationOrderModuleList.Flink = 0x00251ea0 + 0x1000 + offsetof(struct _LDR_DATA_TABLE_ENTRY, InInitializationOrderLinks);
+
+	emu_memory_write_block(mem, 0x00251ea0, &peb_ldr_data, sizeof(peb_ldr_data));
+
+	uint32_t magic_offset = 0x00251ea0+0x1000;
+
+	struct _LDR_DATA_TABLE_ENTRY tables[16];
+	memset(tables, 0, sizeof(tables));
+
+	char names[16][64];
+	memset(names, 0, sizeof(names));
+
+	int i;
+	for ( i=0; known_dlls[i].dllname != NULL; i++ )
+	{
+		struct emu_env_w32_known_dll *from = known_dlls+i;
+		struct _LDR_DATA_TABLE_ENTRY *to = tables+i;
+		
+		to->DllBase = from->baseaddress;
+		to->BaseDllName.Length = (strlen(from->dllname) + strlen(".dll")) * 2 + 2;
+		to->BaseDllName.MaximumLength = to->BaseDllName.Length;// + 2;
+		to->BaseDllName.Buffer = magic_offset + sizeof(tables) + i * 64;
+
+		to->InMemoryOrderLinks.Blink = 0xaabbccdd;
+		to->InMemoryOrderLinks.Flink = magic_offset + (i+1) * sizeof(struct _LDR_DATA_TABLE_ENTRY) + offsetof(struct _LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+
+		to->InInitializationOrderLinks.Blink = 0xa1b2c3d4;
+		to->InInitializationOrderLinks.Flink = magic_offset + (i+1) * sizeof(struct _LDR_DATA_TABLE_ENTRY) + offsetof(struct _LDR_DATA_TABLE_ENTRY, InInitializationOrderLinks);
+
+		int j;		
+		for( j=0;j<strlen(from->dllname); j++ )
+			names[i][j*2] = from->dllname[j];
+
+		const char *dll = ".dll";
+		int k;
+		for( k=0;k<strlen(".dll"); k++ )
+			names[i][j*2+k*2] = dll[k];
+	}
+	emu_memory_write_block(mem, magic_offset, tables, sizeof(tables));
+	emu_memory_write_block(mem, magic_offset+sizeof(tables), names, sizeof(names));
 
 	// map kernel32.dll to emu's memory at 0x7c800000
-	if (emu_env_w32_load_dll(env,"kernel32.dll") == -1)
+	if (emu_env_w32_load_dll(env,"kernel32.dll") == -1 || emu_env_w32_load_dll(env,"ws2_32.dll") == -1 )
     {
 		free(env);
 		return NULL;
 	}
+
 
 	return env;
 }
@@ -226,7 +328,7 @@ int32_t emu_env_w32_load_dll(struct emu_env_w32 *env, char *dllname)
 	logDebug(env->emu, "trying to load dll %s\n", dllname);
 
 	int i;
-	for ( i=0; known_dlls[i].dllname != NULL; i++ )
+	for ( i=1; known_dlls[i].dllname != NULL; i++ )
 	{
 		
 		if ( strncasecmp(dllname, known_dlls[i].dllname, strlen(known_dlls[i].dllname)) == 0 )
