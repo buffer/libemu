@@ -37,6 +37,7 @@ int32_t env_w32_hook_GetProcAddress(struct emu_env *env, struct emu_env_hook *ho
 int32_t env_w32_hook_GetSystemDirectoryA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetTempPathA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_GetTickCount(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook_GetVersion(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook__hwrite(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook__lclose(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook__lcreat(struct emu_env *env, struct emu_env_hook *hook);

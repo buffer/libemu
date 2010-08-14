@@ -512,7 +512,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"GetUserDefaultUILanguage", 0x00013070, NULL, NULL},
 	{"GetUserGeoID", 0x0003798E, NULL, NULL},
 	{"GetVDMCurrentDirectories", 0x00067849, NULL, NULL},
-	{"GetVersion", 0x000111DA, NULL, NULL},
+	{"GetVersion", 0x000111DA, env_w32_hook_GetVersion, NULL},
 	{"GetVersionExA", 0x00012ADE, NULL, NULL},
 	{"GetVersionExW", 0x0000AE65, NULL, NULL},
 	{"GetVolumeInformationA", 0x00021BA5, NULL, NULL},

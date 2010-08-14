@@ -498,6 +498,28 @@ VOID ExitThread(
 	return 0;
 }
 
+int32_t env_w32_hook_GetVersion(struct emu_env *env, struct emu_env_hook *hook)
+{
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+	POP_DWORD(c, &eip_save);
+/*
+DWORD WINAPI GetVersion(void);
+*/
+	
+	uint32_t version = 0xa280105;
+	emu_cpu_reg32_set(c, eax, version);
+
+	if ( env->profile != NULL )
+	{
+		emu_profile_function_add(env->profile, "GetVersion");
+		emu_profile_function_returnvalue_int_set(env->profile, "DWORD WINAPI", version);
+	}
+
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
 
 int32_t env_w32_hook_GetProcAddress(struct emu_env *env, struct emu_env_hook *hook)
 {
