@@ -115,9 +115,13 @@ struct emu_env_w32_known_dll_segment urlmon_segments[] =
 
 struct emu_env_w32_known_dll known_dlls[] = 
 {
-	{ /* dummy entry for the PEB/LDR lists */
+	{ /* dummy entry for the PEB/LDR lists 
+	   * shares base address with kernel32
+	   * it should be possible to have this working without such
+	   * hacks, but ... for now it works
+	   */
 		.dllname = "self",
-		.baseaddress = 0x41800000,
+		.baseaddress = 0x7C800000,
 		.imagesize = 0x00106000,
 	},
 	{
