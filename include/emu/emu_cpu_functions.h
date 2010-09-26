@@ -232,6 +232,8 @@ int32_t instr_mov_bx_1(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_bx_2(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_c6(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_c7(struct emu_cpu *c, struct emu_cpu_instruction *i);
+
+int32_t instr_leave(struct emu_cpu *c, struct emu_cpu_instruction *i);
 															  
 /* pop */
 /*int32_t instr_pop_07(struct emu_cpu *c, struct instruction *i);

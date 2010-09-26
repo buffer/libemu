@@ -263,7 +263,7 @@ struct emu_cpu_instruction_info ii_onebyte[0x100] = {
 	/* c6 */ {instr_mov_c6, "mov", {0, 0, II_MOD_REG_RM, II_IMM8, 0, 0, 0, 0}},
 	/* c7 */ {instr_mov_c7, "mov", {0, 0, II_MOD_REG_RM, II_IMM, 0, 0, 0, 0}},
 	/* c8 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
-	/* c9 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
+	/* c9 */ {instr_leave, "leave", {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* ca */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* cb */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* cc */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},

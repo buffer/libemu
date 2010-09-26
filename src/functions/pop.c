@@ -153,3 +153,19 @@ int32_t instr_popad_61(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	return 0;
 }
 
+int32_t instr_mov_89(struct emu_cpu *c, struct emu_cpu_instruction *i);
+
+int32_t instr_leave(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+    struct emu_cpu_instruction back = *i;
+    // mov esp, ebp
+    // pop ebp
+    i->modrm.mod = 3;
+    i->modrm.opc = ebp;
+    i->modrm.rm = esp;
+    instr_mov_89(c, i);
+    i->opc = ebp;
+    instr_pop_5x(c, i);
+    *i = back;
+    return 0;
+}
