@@ -226,7 +226,7 @@ struct emu_cpu_instruction_info ii_onebyte[0x100] = {
 	/* a1 */ {instr_mov_a1, "mov", {0, 0, 0, 0, II_DISPF, 0, 0, 0}},
 	/* a2 */ {instr_mov_a2, "mov", {0, 0, 0, 0, II_DISPF, 0, 0, 0}},
 	/* a3 */ {instr_mov_a3, "mov", {0, 0, 0, 0, II_DISPF, 0, 0, 0}},
-	/* a4 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
+	/* a4 */ {instr_movsb, "movsb", {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* a5 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* a6 */ {instr_cmps_a6, "cmps", {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* a7 */ {instr_cmps_a7, "cmps", {0, 0, 0, 0, 0, 0, 0, 0}},

@@ -258,6 +258,50 @@ int32_t instr_mov_a3(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	return 0;
 }
 
+int32_t instr_movsb(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+    if (i->prefixes & PREFIX_OPSIZE ) {
+	UNIMPLEMENTED(c, SST);
+    }
+    if (i->prefixes & PREFIX_F3) {
+	/* Copy ECX bytes from DS:[ESI] to ES:[EDI] */
+	if (c->reg[ecx] > 0 )
+	{
+	    uint8_t tmp;
+	    c->reg[ecx]--;
+	    c->repeat_current_instr = true;
+	    MEM_BYTE_READ(c, c->reg[esi], &tmp);
+	    MEM_BYTE_WRITE(c, c->reg[edi], tmp);
+	    if ( !CPU_FLAG_ISSET(c,f_df) )
+	    { /* increment */
+		c->reg[edi] += 1;
+		c->reg[esi] += 1;
+	    }else
+	    { /* decrement */
+		c->reg[edi] -= 1;
+		c->reg[esi] -= 1;
+	    }
+	}
+	else
+	    c->repeat_current_instr = false;
+    } else {
+	/* a4 move ds:esi -> es->edi */
+	uint8_t tmp;
+	MEM_BYTE_READ(c, c->reg[esi], &tmp);
+	MEM_BYTE_WRITE(c, c->reg[edi], tmp);
+	if ( !CPU_FLAG_ISSET(c,f_df) )
+	{ /* increment */
+		c->reg[edi] += 1;
+		c->reg[esi] += 1;
+	} else
+	{ /* decrement */
+	    c->reg[edi] -= 1;
+	    c->reg[esi] -= 1;
+	}
+    }
+    return 0;
+}
+
 int32_t instr_mov_bx_1(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	/* B0+ rb 

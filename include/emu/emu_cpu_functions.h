@@ -228,6 +228,7 @@ int32_t instr_mov_a0(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_a1(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_a2(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_a3(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_movsb(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_bx_1(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_bx_2(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_mov_c6(struct emu_cpu *c, struct emu_cpu_instruction *i);
