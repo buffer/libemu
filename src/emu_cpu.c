@@ -650,7 +650,8 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 					c->instr.cpu.operand_size = OPSIZE_16;
 				else if( c->cpu_instr_info->format.imm_data == II_IMM32 || c->cpu_instr_info->format.disp_data == II_DISP32 )
 					c->instr.cpu.operand_size = OPSIZE_32;
-				else if( c->cpu_instr_info->format.imm_data == II_IMM || c->cpu_instr_info->format.disp_data == II_DISPF )
+				else if( c->cpu_instr_info->format.imm_data == II_IMM || c->cpu_instr_info->format.disp_data == II_DISPF
+					 || (c->cpu_instr_info->format.type && !c->instr.cpu.modrm.opc))
 				{
 					if( c->cpu_instr_info->format.w_bit == 1 && c->instr.cpu.w_bit == 0 )
 						c->instr.cpu.operand_size = OPSIZE_8;
@@ -664,7 +665,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 				}
 				
 				/* imm */
-				if( c->cpu_instr_info->format.imm_data != 0 )
+				if( c->cpu_instr_info->format.imm_data != 0 || (c->cpu_instr_info->format.type && !c->instr.cpu.modrm.opc))
 				{
 					if( c->instr.cpu.operand_size == OPSIZE_32 )
 					{
