@@ -163,7 +163,7 @@ int32_t instr_stc_f9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * STC 
 	 */
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 702*/
-	CPU_FLAG_UNSET(c,f_cf);
+	CPU_FLAG_SET(c,f_cf);
 	return 0;
 }
 
