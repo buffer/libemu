@@ -48,7 +48,11 @@ int32_t instr_group_10_8f_pop(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * POP m32 
 	 */	
 		uint32_t m32;
+		/* support pop dword fs:[0x00] */
+		enum emu_segment oldseg = emu_memory_segment_get(c->mem);
+		emu_memory_segment_select(c->mem, s_ss);
 		POP_DWORD(c, &m32);
+		emu_memory_segment_select(c->mem, oldseg);
 		MEM_DWORD_WRITE(c, i->modrm.ea, m32);
 	}
 

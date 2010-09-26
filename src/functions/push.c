@@ -250,7 +250,10 @@ int32_t instr_group_5_ff_push(struct emu_cpu *c, struct emu_cpu_instruction *i)
 			 */
 			uint32_t m32;
 			MEM_DWORD_READ(c,i->modrm.ea,&m32);
+			enum emu_segment oldseg = emu_memory_segment_get(c->mem);
+			emu_memory_segment_select(c->mem, s_ss);
 			PUSH_DWORD(c, m32);
+			emu_memory_segment_select(c->mem, oldseg);
 
 		}
 	}
