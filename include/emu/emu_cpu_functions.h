@@ -212,6 +212,9 @@ int32_t instr_jcc_0f8d(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_jcc_0f8e(struct emu_cpu *c, struct emu_cpu_instruction *i); 
 int32_t instr_jcc_0f8f(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
+int32_t instr_setcc_0f94(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_setcc_0f95(struct emu_cpu *c, struct emu_cpu_instruction *i);
+
 /* jump */
 int32_t instr_jmp_e9(struct emu_cpu *c, struct emu_cpu_instruction *i); 
 /*int32_t instr_jmp_ea(struct emu_cpu *c, struct instruction *i);*/ 

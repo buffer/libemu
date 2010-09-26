@@ -107,6 +107,38 @@ int32_t instr_jcc_73(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	return 0;
 }
 
+int32_t instr_setcc_0f94(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+    uint8_t b;
+	TRACK_NEED_EFLAG(c->instr, f_zf);
+	b = ZF_IS_ONE(c) ? 1 : 0;
+
+	/* 0f 94 sete r/m8 Set byte if equal (ZF = 1) */
+	if (i->modrm.mod != 3) {
+	    MEM_BYTE_WRITE(c, i->modrm.ea, b);
+	} else {
+	    *c->reg8[i->modrm.rm] = b;
+	    TRACK_INIT_REG8(c->instr, i->modrm.rm);
+	}
+	return 0;
+}
+
+int32_t instr_setcc_0f95(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+    uint8_t b;
+	TRACK_NEED_EFLAG(c->instr, f_zf);
+	b = ZF_IS_ZERO(c) ? 1 : 0;
+
+	/* 0f 94 setne r/m8 Set byte if not equal (ZF = 0) */
+	if (i->modrm.mod != 3) {
+	    MEM_BYTE_WRITE(c, i->modrm.ea, b);
+	} else {
+	    *c->reg8[i->modrm.rm] = b;
+	    TRACK_INIT_REG8(c->instr, i->modrm.rm);
+	}
+	return 0;
+}
+
 int32_t instr_jcc_74(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
 	SOURCE_COND_POS(c->instr, c->eip + i->disp);
