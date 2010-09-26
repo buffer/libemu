@@ -29,8 +29,10 @@
 
 #include "emu/emu_cpu.h"
 #include "emu/emu_cpu_data.h"
+#include "emu/emu_cpu_stack.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_log.h"
+#include <errno.h>
 
 int32_t prefix_fn(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
@@ -94,7 +96,9 @@ int32_t instr_pushf_9c(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * pushf
 	 */
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 627*/
-	STUB(c);
+
+        PUSH_DWORD(c, c->eflags);
+//	STUB(c);
 	return 0;
 }
 
@@ -105,7 +109,8 @@ int32_t instr_popf_9d(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	 * popf
 	 */
 	/*Intel Architecture Software Developer's Manual Volume 2: Instruction Set Reference (24319102.PDF) page 578*/
-	STUB(c);
+        POP_DWORD(c, &c->eflags);
+//	STUB(c);
 	return 0;
 }
 
