@@ -254,11 +254,11 @@ memcpy(&(to),&(from),4);
 
 #define DWORD_FROM_WORDS(to, upper, lower) \
 memcpy(&to,&lower,2); \
-memcpy(((char *)&to)+2,&lower,2); 
+memcpy(((char *)&to)+2,&upper,2); 
 
 #define QWORD_FROM_DWORDS(to, upper, lower) \
 memcpy(&to,&lower,4); \
-memcpy(((char *)&to)+4,&lower,4); 
+memcpy(((char *)&to)+4,&upper,4); 
 
 
 
