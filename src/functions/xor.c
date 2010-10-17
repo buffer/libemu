@@ -115,6 +115,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 *c->reg16[i->modrm.opc], 
 									 dst, 
 									 ^)
+			TRACK_NEED_REG16(c->instr, i->modrm.opc);
 			MEM_WORD_WRITE(c, i->modrm.ea, dst);
 		}
 		else
@@ -132,6 +133,7 @@ int32_t instr_xor_31(struct emu_cpu *c, struct emu_cpu_instruction *i)
 									 c->reg[i->modrm.opc], 
 									 dst, 
 									 ^)
+			TRACK_NEED_REG32(c->instr, i->modrm.opc);
 			MEM_DWORD_WRITE(c, i->modrm.ea, dst);
 		}
 	}
