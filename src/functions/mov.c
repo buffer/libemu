@@ -110,6 +110,7 @@ int32_t instr_mov_8a(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	if( i->modrm.mod != 3 )
 	{
 		MEM_BYTE_READ(c, i->modrm.ea, c->reg8[i->modrm.opc]);
+		TRACK_INIT_REG16(c->instr, i->modrm.opc);
 	}
 	else
 	{
@@ -131,6 +132,7 @@ int32_t instr_mov_8b(struct emu_cpu *c, struct emu_cpu_instruction *i)
 		if( i->modrm.mod != 3 )
 		{
 			MEM_WORD_READ(c, i->modrm.ea, c->reg16[i->modrm.opc]);
+			TRACK_INIT_REG16(c->instr, i->modrm.opc);
 		}
 		else
 		{
