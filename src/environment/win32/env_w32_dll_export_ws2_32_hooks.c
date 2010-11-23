@@ -373,10 +373,10 @@ int recv(
 	{
 
 		printf("BUG\n");
-		xlen = 4069;
+		xlen = 4096;
 	}
 
-	emu_assert(env->emu, len < 0 || len > 4096);
+	emu_assert(env->emu, xlen < 0 || xlen > 4096);
 
 	char *buffer = (char *)malloc(xlen);
 	memset(buffer, 0, xlen);
