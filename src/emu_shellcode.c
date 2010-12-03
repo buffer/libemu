@@ -285,6 +285,7 @@ traversal:
 							if( emu_hashtable_search(known_positions, (void *)(uintptr_t)(uint32_t)current_offset) != NULL)
 							{
 								logDebug(e, "Known %p %x\n", eti, eti->eip);
+								emu_tracking_info_free(eti);
 								break;
 							}
 
@@ -309,12 +310,14 @@ traversal:
 							{
 								logDebug(e, "Known Again %p %x\n", current_pos_satii, current_pos_satii->eip);
 								current_pos_v->color = red;
+								emu_tracking_info_free(current_pos_ti_diff);
 								continue;
 							}
 
 							if (current_pos_v->color == red)
 							{
 								logDebug(e, "is red %p %x: %s\n", (uintptr_t)current_pos_v, current_pos_satii->eip, current_pos_satii->instrstring);
+								emu_tracking_info_free(current_pos_ti_diff);
 								continue;
 							}
 
