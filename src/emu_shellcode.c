@@ -286,6 +286,7 @@ traversal:
 							{
 								logDebug(e, "Known %p %x\n", eti, eti->eip);
 								emu_tracking_info_free(eti);
+								emu_queue_free(bfs_queue);
 								break;
 							}
 
