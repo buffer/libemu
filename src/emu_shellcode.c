@@ -559,6 +559,7 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 		}
 
 		emu_list_concat(results, new_results);
+		emu_list_destroy(new_results);
 		emu_list_qsort(results, tested_positions_cmp);
 
 		/* uniq */
@@ -567,7 +568,11 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 			struct emu_list_item *next = emu_list_next(eli);
 			if (!emu_list_attail(next) &&
             	((struct emu_stats *)eli->data)->eip == ((struct emu_stats *)next->data)->eip )
+			{
+				emu_stats_free(next->data);
 				emu_list_remove(next);
+				free(next);
+			}
 		}
 	}
 
