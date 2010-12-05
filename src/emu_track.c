@@ -134,7 +134,10 @@ struct emu_source_and_track_instr_info *emu_source_and_track_instr_info_new(stru
 	memset(etii, 0, sizeof(struct emu_source_and_track_instr_info));
 
 	etii->eip = eip_before_instruction;
-	etii->instrstring = strdup(cpu->instr_string);
+	if( CPU_DEBUG_FLAG_ISSET(cpu, instruction_string ) || CPU_DEBUG_FLAG_ISSET(cpu, instruction_size ) )
+		etii->instrstring = strdup(cpu->instr_string);
+	else
+		etii->instrstring = NULL;
 
 	if ( cpu->instr.is_fpu )
 	{
