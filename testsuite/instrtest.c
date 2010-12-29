@@ -754,7 +754,6 @@ struct instr_test tests[] =
 		.codesize = 7,
 		.in_state.mem_state = {0x140, 0x22222222},
 		.in_state.reg = {0x1000,0x10,0,0,0,0x200,0,0},
-		.in_state.mem_state = {0x140, 0x22222222},
 		.out_state.reg = {0x22222222,0x10,0,0,0,0x200,0,0},
 	},
 	{
@@ -763,7 +762,6 @@ struct instr_test tests[] =
 		.codesize = 7,
 		.in_state.mem_state = {0x14000000, 0x22222222},
 		.in_state.reg = {0x1000,0x1000000,0,0,0,0x20000000,0,0},
-		.in_state.mem_state = {0x14000000, 0x22222222},
 		.out_state.reg = {0x22222222,0x1000000,0,0,0,0x20000000,0,0},
 	},
 
