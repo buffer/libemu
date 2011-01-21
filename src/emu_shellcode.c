@@ -57,7 +57,7 @@ int tested_positions_cmp(struct emu_list_item *a, struct emu_list_item *b)
 		return 0;
 	else
 	if ( ((struct emu_stats *)a->data)->cpu.steps == ((struct emu_stats *)b->data)->cpu.steps )
-    	if ( ((struct emu_stats *)a->data)->eip <= ((struct emu_stats *)b->data)->eip )
+		if ( ((struct emu_stats *)a->data)->eip < ((struct emu_stats *)b->data)->eip )
 			return 0;
 
 	return 1;
