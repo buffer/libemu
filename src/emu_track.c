@@ -97,21 +97,21 @@ int32_t emu_track_instruction_check(struct emu *e, struct emu_track_and_source *
 			if (i == esp)
 				continue;
 
-//			printf("0x%08x 0x%08x\n", c->instr.cpu.track.need.reg[i], et->reg[i]);
+//			printf("0x%08x 0x%08x\n", c->instr.track.need.reg[i], et->track.reg[i]);
 			if (c->instr.track.need.reg[i] > et->track.reg[i])
 				return -1;
 		}
 
 		for (i=0;i<8;i++)
 		{
-//			printf("0x%1x 0x%1x\n", (c->instr.cpu.track.need.eflags & 1 << i), (et->eflags & 1 << i));
+//			printf("0x%1x 0x%1x\n", (c->instr.track.need.eflags & 1 << i), (et->track.eflags & 1 << i));
 			if ( (c->instr.track.need.eflags & 1 << i) > (et->track.eflags & 1 << i))
 				return -1;
 		}
 
 		for (i=0;i<8;i++)
 		{
-//			printf("reg %i before %08x after %08x\n", i, et->reg[i], c->instr.cpu.track.init.reg[i]);
+//			printf("reg %i before %08x after %08x\n", i, et->track.reg[i], c->instr.track.init.reg[i]);
 			et->track.reg[i] |= c->instr.track.init.reg[i];
 		}
 
