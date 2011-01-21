@@ -423,8 +423,10 @@ int test(struct emu *e)
 	}
 
 
-
-	emu_profile_debug(env->profile);
+	if ( opts.verbose >= 1 )
+	{
+		emu_profile_debug(env->profile);
+	}
 
 	if (opts.profile_file)
 		emu_profile_dump(env->profile, opts.profile_file);
@@ -583,7 +585,7 @@ int prepare_from_stdin_write(struct emu *e)
 	emu_cpu_eip_set(emu_cpu_get(e), static_offset + opts.offset);
 
 	emu_memory_write_block(mem, 0x0012fe98, opts.scode,  opts.size);
-	emu_cpu_reg32_set(emu_cpu_get(e), esp, 0x0012fe98);
+	emu_cpu_reg32_set(emu_cpu_get(e), esp, CODE_OFFSET-50); //0x0012fe98);
 
 //	free(opts.scode);
 
