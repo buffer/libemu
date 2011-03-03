@@ -418,7 +418,7 @@ int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dwo
 #endif
 }
 
-int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len)
+int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, const void *src, size_t len)
 {
 	if (m->read_only_access == true)
 		return 0;

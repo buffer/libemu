@@ -54,7 +54,7 @@ int32_t emu_memory_read_string(struct emu_memory *m, uint32_t addr, struct emu_s
 int32_t emu_memory_write_byte(struct emu_memory *m, uint32_t addr, uint8_t byte);
 int32_t emu_memory_write_word(struct emu_memory *m, uint32_t addr, uint16_t word);
 int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dword);
-int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, void *src, size_t len);
+int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, const void *src, size_t len);
 
 /* segment selection */
 void emu_memory_segment_select(struct emu_memory *m, enum emu_segment s);
