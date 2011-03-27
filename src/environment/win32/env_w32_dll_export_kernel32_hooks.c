@@ -834,21 +834,27 @@ LONG _lwrite(
 
 	uint32_t size;
 	POP_DWORD(c, &size);
-
-
-	unsigned char *buffer = malloc(size);
-	emu_memory_read_block(emu_memory_get(env->emu), p_buffer, buffer, size);
-
 	uint32_t returnvalue;
-	if ( hook->hook.win->userhook != NULL )
+	unsigned char *buffer = NULL;
+
+	if( size < 1*1024*1024 )
 	{
-		returnvalue = hook->hook.win->userhook(env, hook, 
-											   file,
-											   buffer,
-											   size);
+		buffer = malloc(size);
+		emu_memory_read_block(emu_memory_get(env->emu), p_buffer, buffer, size);
+	
+		if ( hook->hook.win->userhook != NULL )
+		{
+			returnvalue = hook->hook.win->userhook(env, hook, 
+												   file,
+												   buffer,
+												   size);
+		}else
+		{
+			returnvalue	= size;
+		}
 	}else
 	{
-		returnvalue	= size;
+		returnvalue = -1;
 	}
 
 	if (env->profile != NULL)
@@ -856,14 +862,18 @@ LONG _lwrite(
 		emu_profile_function_add(env->profile, "_lwrite");
 		emu_profile_argument_add_int(env->profile, "HFile", "hFile", file);
 		emu_profile_argument_add_ptr(env->profile, "LPCSTR", "lpBuffer", p_buffer);
-		emu_profile_argument_add_bytea(env->profile, "", "", buffer, size);
+		if( size < 1*1024*1024 )
+			emu_profile_argument_add_bytea(env->profile, "", "", buffer, size);
+		else
+			emu_profile_argument_add_bytea(env->profile, "", "", buffer, 0);
 		emu_profile_argument_add_int(env->profile, "UINT", "cbWrite", size);
 		emu_profile_function_returnvalue_int_set(env->profile, "LONG", returnvalue);
 	}
 
 	emu_cpu_reg32_set(c, eax, returnvalue);
 
-	free(buffer);
+	if( buffer )
+		free(buffer);
 
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
@@ -892,41 +902,45 @@ int32_t	env_w32_hook_LoadLibrayA(struct emu_env *env, struct emu_env_hook *hook)
 
 
 	char *dllname = emu_string_char(dllstr);
-
+	
 
 	int i=0;
 	int found_dll = 0;
-	for (i=0; env->env.win->loaded_dlls[i] != NULL; i++)
+	if ( dllname != NULL )
 	{
-		if (strncasecmp(env->env.win->loaded_dlls[i]->dllname, dllname, strlen(env->env.win->loaded_dlls[i]->dllname)) == 0)
+		for (i=0; env->env.win->loaded_dlls[i] != NULL; i++)
 		{
-			logDebug(env->emu, "found dll %s, baseaddr is %08x \n",env->env.win->loaded_dlls[i]->dllname,env->env.win->loaded_dlls[i]->baseaddr);
-			emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
-			found_dll = 1;
-			break;
+			if (strncasecmp(env->env.win->loaded_dlls[i]->dllname, dllname, strlen(env->env.win->loaded_dlls[i]->dllname)) == 0)
+			{
+				logDebug(env->emu, "found dll %s, baseaddr is %08x \n",env->env.win->loaded_dlls[i]->dllname,env->env.win->loaded_dlls[i]->baseaddr);
+				emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
+				found_dll = 1;
+				break;
+			}
+		}
+		if (found_dll == 0)
+		{
+			if (emu_env_w32_load_dll(env->env.win, dllname) == 0)
+			{
+				emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
+				found_dll = 1;
+			}
+			else
+			{
+				logDebug(env->emu, "error could not find %s\n", dllname);
+				emu_cpu_reg32_set(c, eax, 0x0);
+			}
 		}
 	}
-	
-	if (found_dll == 0)
-	{
-        if (emu_env_w32_load_dll(env->env.win, dllname) == 0)
-        {
-            emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
-			found_dll = 1;
-        }
-        else
-        {
-            logDebug(env->emu, "error could not find %s\n", dllname);
-            emu_cpu_reg32_set(c, eax, 0x0);
-        }
-	}
-
 
 	if (env->profile != NULL)
 	{
 		emu_profile_function_add(env->profile, "LoadLibraryA");
 		emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "lpFileName", dllname_ptr);
-		emu_profile_argument_add_string(env->profile, "", "", dllname);
+		if ( dllname != NULL )
+			emu_profile_argument_add_string(env->profile, "", "", dllname);
+		else
+			emu_profile_argument_add_none(env->profile);
 		if (found_dll == 1)
 		{
 			emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE", c->reg[eax]);
@@ -966,14 +980,23 @@ void *malloc(
 	PUSH_DWORD(c, size);
 
 	logDebug(env->emu, "malloc %i bytes\n", size);
+	uint32_t addr = 0;
 
-	uint32_t addr;
-	if (emu_memory_alloc(c->mem, &addr, size) == -1)
-		emu_cpu_reg32_set(c, eax, 0);
-	else
-		emu_cpu_reg32_set(c, eax, addr);
+	if( size <= 1*1024*1024 )
+	{
+		if (emu_memory_alloc(c->mem, &addr, size) == -1)
+			emu_cpu_reg32_set(c, eax, 0);
+		else
+			emu_cpu_reg32_set(c, eax, addr);
+	}
 
 	
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "malloc");
+		emu_profile_argument_add_int(env->profile, "size_t", "size", size);
+		emu_profile_function_returnvalue_int_set(env->profile, "void *", addr);
+	}
     emu_cpu_eip_set(c, eip_save);
 	return 0;
 }

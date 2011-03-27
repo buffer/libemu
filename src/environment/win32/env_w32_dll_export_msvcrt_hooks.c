@@ -257,8 +257,8 @@ size_t fwrite( const void *buffer, size_t size, size_t count, FILE *stream );
 
 	if ( env->profile != NULL )
 	{
-		emu_profile_function_returnvalue_int_set(env->profile, "size_t", returnvalue);
 		emu_profile_function_add(env->profile, "fwrite");
+		emu_profile_function_returnvalue_int_set(env->profile, "size_t", returnvalue);
 		emu_profile_argument_add_ptr(env->profile, "const void *", "buffer", p_buffer);
 		emu_profile_argument_add_bytea(env->profile, "", "", buffer, size*count);
 		emu_profile_argument_add_int(env->profile, "size_t", "size", size);

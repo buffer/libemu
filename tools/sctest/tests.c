@@ -1476,6 +1476,35 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
+	{
+		.instr = "crash in loadlibrary",
+		.code =  "\x6A\xFE\xB8\x77\x1D\x80\x7C\xFF\xD0",
+		.codesize = 9,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "crash in fwrite",
+		.code = "\x6A\xFE\x6A\xFE\x6A\xFE\x6A\xFE\xB8\x3B\x17\xC1\x77\xFF\xD0",
+		.codesize = 15,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "crash in lwrite/hwrite",
+		.code = "\x6A\xFE\x6A\xFE\x6A\xFE\x6A\xFE\xB8\xE7\x8A\x83\x7C\xFF\xD0\x00\x00\x00",
+		.codesize = 18,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
+	{
+		.instr = "crash in malloc",
+		.code = "\x6A\xFE\x6A\xFE\xB8\x07\xC4\xBF\x77\xFF\xD0\x00\x00\x00\x00\x00\x00\x00\x00",
+		.codesize = 19,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
+
 	/*{
 		.instr = "",
 		.code =  
@@ -1485,6 +1514,7 @@ struct instr_test tests[] =
 	},*/
 #endif // _NO_TESTS
 
+	
 };
 
 int numtests()
