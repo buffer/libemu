@@ -452,23 +452,28 @@ int send(
 	POP_DWORD(c, &flags);
 
 
-	char *buffer = (char *)malloc(len);
-	logDebug(env->emu, "send(%i, 0x%08x, %i,  %i)\n", s, p_buf, len, flags);
-	emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
-
+	char *buffer = NULL;
 	uint32_t returnvalue;
-	if ( hook->hook.win->userhook != NULL )
+
+	if( len <= 64*1024 )
 	{
-		returnvalue = hook->hook.win->userhook(env, hook, 
-											   s,
-											   buffer,
-											   len,
-											   flags);
-	}
-	else
-	{
-		returnvalue = len;
-	}
+		buffer = (char *)malloc(len);
+		logDebug(env->emu, "send(%i, 0x%08x, %i,  %i)\n", s, p_buf, len, flags);
+		emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
+		if ( hook->hook.win->userhook != NULL )
+		{
+			returnvalue = hook->hook.win->userhook(env, hook, 
+												   s,
+												   buffer,
+												   len,
+												   flags);
+		}
+		else
+		{
+			returnvalue = len;
+		}
+	}else
+		returnvalue = -1;
 
 	emu_cpu_reg32_set(c, eax, returnvalue);
 
@@ -484,9 +489,11 @@ int send(
 		emu_profile_function_returnvalue_int_set(env->profile, "int", returnvalue);
 	}
 
-	free(buffer);
-
 	emu_cpu_eip_set(c, eip_save);
+
+	if( buffer != NULL )
+		free(buffer);
+
 	return 0;
 }
 
@@ -522,37 +529,39 @@ int sendto(
 	uint32_t len;
 	POP_DWORD(c, &len);
 
-	char *buffer = (char *)malloc(len);
-	emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
-
-//	emu_profile_argument_add_bytea(env->profile, "", "", (unsigned char *)buffer, (uint32_t)len);
-
 	uint32_t flags;
 	POP_DWORD(c, &flags);
 
 	uint32_t p_to;
 	POP_DWORD(c, &p_to);
 
-	struct sockaddr sa;
-	emu_memory_read_block(emu_memory_get(env->emu), p_to, &sa, sizeof(struct sockaddr));
-
-
 	uint32_t tolen;
 	POP_DWORD(c, &tolen);
 
+	char *buffer = NULL;
+	struct sockaddr sa;
 	uint32_t returnvalue;
-	if ( hook->hook.win->userhook != NULL )
+	if( len <= 64*1024 )
 	{
-		returnvalue = hook->hook.win->userhook(env, hook, 
-											   s,
-											   buffer,
-											   len,
-											   &sa,
-											   tolen);
-	}else
-	{
+		buffer = (char *)malloc(len);
+		emu_memory_read_block(emu_memory_get(env->emu), p_buf, buffer, len);
+		emu_memory_read_block(emu_memory_get(env->emu), p_to, &sa, sizeof(struct sockaddr));
+
+		if( hook->hook.win->userhook != NULL )
+		{
+			returnvalue = hook->hook.win->userhook(env, hook, 
+												   s,
+												   buffer,
+												   len,
+												   &sa,
+												   tolen);
+		} else
+		{
 			returnvalue = len;
-	}
+		}
+	} else
+		returnvalue	= -1;
+
 	emu_cpu_reg32_set(c, eax, returnvalue);
 
 	if (env->profile != NULL)
@@ -570,8 +579,8 @@ int sendto(
 	}
 	
 
-
-	free(buffer);
+	if( buffer != NULL )
+		free(buffer);
 
 	logDebug(env->emu, "eip_save is %08x\n",  eip_save);
 	emu_cpu_eip_set(c, eip_save);

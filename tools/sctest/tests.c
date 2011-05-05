@@ -1504,6 +1504,22 @@ struct instr_test tests[] =
 		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
 		.in_state.mem_state = {0, 0},
 	},
+	{
+		.instr = "crash in send",
+		.code = "\x6A\xFE\x6A\xFE\xB8\x8A\x42\xA1\x71\xFF\xD0\x00\x00\x00",
+		.codesize = 14,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
+
+	{
+		.instr = "crash in execve",
+		.code = "\xB8\xFF\xFF\xFF\xFF\xBB\xFF\xFF\xFF\xFF\xB9\xFF\xFF\xFF\xFF\x6A\xFF\x6A\xFF\x6A\xFF\x6A\xFF\x6A\xFF\x6A\xFF\x6A\xFF\x6A\xFF\x6A\xFF\x6A\xFF\xB0\x0B\xCD\x80\xCC",
+		.codesize = 40,
+		.in_state.reg  = {0,0xfffffe6c,0,0,0x12fe98,0x12ff74,0x12fe9c,0x12ff74}, // ollydbg
+		.in_state.mem_state = {0, 0},
+	},
+
 
 	/*{
 		.instr = "",

@@ -92,16 +92,21 @@ int32_t env_linux_hook_execve(struct emu_env *env, struct emu_env_hook *hook)
 	uint32_t p_arg = -1;
 	emu_memory_read_dword(emu_memory_get(c->emu), p_array, &p_arg);
 	int i=1;
-	char **argv = NULL;
+//	char **argv = NULL;
 	while (p_arg != 0)
 	{
-		argv = realloc(argv, (i+1) * sizeof(char *));
-		argv[i] = NULL;
-
+//		argv = realloc(argv, (i+1) * sizeof(char *));
+//		argv[i] = NULL;
 
 		struct emu_string *arg = emu_string_new();
 		emu_memory_read_string(emu_memory_get(c->emu), p_arg, arg, 128);
-		argv[i-1] = strdup(emu_string_char(arg));
+//		argv[i-1] = strdup(emu_string_char(arg));
+
+		if( emu_string_char(arg) == NULL )
+		{
+			emu_string_free(arg);
+			break;
+		}
 
 		if ( env->profile != NULL )
 		{
