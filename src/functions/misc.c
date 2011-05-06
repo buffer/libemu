@@ -332,3 +332,12 @@ int32_t instr_cpuid_0fa2(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	return 0;
 }
 
+int32_t instr_salc_d6(struct emu_cpu *c, struct emu_cpu_instruction *i)
+{
+	if( CPU_FLAG_ISSET(c, f_cf) )
+		*c->reg8[al] = 0xff;
+	else
+		*c->reg8[al] = 0;
+	return 0;
+}
+

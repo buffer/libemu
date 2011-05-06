@@ -32,6 +32,7 @@
 /* misc */
 int32_t prefix_fn(struct emu_cpu *c, struct emu_cpu_instruction *i);
 int32_t instr_cpuid_0fa2(struct emu_cpu *c, struct emu_cpu_instruction *i);
+int32_t instr_salc_d6(struct emu_cpu *c, struct emu_cpu_instruction *i);
 
 /* add */
 int32_t instr_add_00(struct emu_cpu *c, struct emu_cpu_instruction *i);

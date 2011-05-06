@@ -276,7 +276,7 @@ struct emu_cpu_instruction_info ii_onebyte[0x100] = {
 	/* d3 */ {instr_group_2_d3, "group2", {0, 0, II_MOD_YYY_RM, 0, 0, 0, 0, 0}},
 	/* d4 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* d5 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
-	/* d6 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
+	/* d6 */ {instr_salc_d6, "salc", {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* d7 */ {0, 0, {0, 0, 0, 0, 0, 0, 0, 0}},
 	/* d8 */ {instr_esc_fpu_dx, 0, {0, 0, 0, 0, 0, 0, 0, II_FPU_INSTR}},
 	/* d9 */ {instr_esc_fpu_dx, 0, {0, 0, 0, 0, 0, 0, 0, II_FPU_INSTR}},
