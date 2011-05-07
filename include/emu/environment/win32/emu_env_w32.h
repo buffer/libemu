@@ -56,6 +56,13 @@ struct emu_env_w32
 	 * the baseaddress for the env
 	 */
 	uint32_t	baseaddr;
+
+	/**
+	 * for SEH
+	 */
+	uint32_t last_good_eip;
+	uint32_t lastExceptionHandler;
+	uint32_t exception_count;
 };
 
 /**
@@ -105,5 +112,7 @@ int32_t emu_env_w32_export_hook(struct emu_env *env,
  */
 struct emu_env_hook *emu_env_w32_eip_check(struct emu_env *env);
 
+
+int32_t emu_env_w32_step_failed(struct emu_env *env);
 #endif
 

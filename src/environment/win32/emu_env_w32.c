@@ -627,6 +627,67 @@ int32_t emu_env_w32_export_hook(struct emu_env *env,
 	return -1;
 }
 
+int32_t emu_env_w32_step_failed(struct emu_env *env)
+{
+	uint32_t FS_SEGMENT_DEFAULT_OFFSET = 0x7ffdf000;
+	struct emu *e = env->emu;
+	int i=0;
+	int regs[8];
+	uint32_t seh = 0;
+	uint32_t seh_handler = 0;
+	const int default_handler = 0x7c800abc;
+	struct emu_memory *m = emu_memory_get(e);
+
+	//lets check and see if an exception handler has been set
+	if( emu_memory_read_dword( m, FS_SEGMENT_DEFAULT_OFFSET, &seh) == -1 )
+		return -1;
+	if( emu_memory_read_dword( m, seh+4, &seh_handler) == -1 )
+		return -1;
+	if( seh_handler == 0 )
+		return -1; //better to check to see if code section huh?
+	if( seh_handler == default_handler )
+		return -1;	//not a real one dummy we put in place..
+
+	if( seh_handler == env->env.win->lastExceptionHandler )
+	{
+		env->env.win->exception_count++; //really here is where we should walk the chain...
+		if( env->env.win->exception_count >= 2 )
+			return -1;
+		//if(seh == 0xFFFFFFFF) return -1;
+	} else
+	{
+		env->env.win->exception_count = 0;
+		env->env.win->lastExceptionHandler = seh_handler;
+	}
+
+	printf("\n%x\tException caught SEH=0x%x (seh foffset:%x)\n", env->env.win->last_good_eip, seh_handler, seh_handler);// - CODE_OFFSET);
+
+	//now take our saved esp, add two ints to stack (subtract 8) and set org esp pointer there.
+	uint32_t cur_esp = emu_cpu_reg32_get(emu_cpu_get(e), esp);
+	uint32_t new_esp = cur_esp - 8;
+
+	printf("\tcur_esp=%x new_esp=%x\n\n",cur_esp,new_esp);
+
+	emu_cpu_eip_set(emu_cpu_get(e), seh_handler);
+
+	regs[eax] = 0;
+	regs[ebx] = 0;
+	regs[esi] = 0;
+	regs[edi] = 0;
+	regs[ecx] = seh_handler;
+	regs[edx] = 0xDEADBEEF;	//unsure what this is was some ntdll addr 0x7C9032BC
+	regs[esp] = new_esp;
+
+	//update the registers with our new values
+	for( i=0;i<8;i++ )
+		emu_cpu_reg32_set( emu_cpu_get(e), i , regs[i]);
+
+	uint32_t write_at  = new_esp + 8;
+	emu_memory_write_dword(m, write_at, cur_esp); //write saved esp to stack
+
+	return 0; //dont break in final error test..give it a chance...to work in next step
+}
+
 #include "dlls/kernel32dll.c"
 #include "dlls/ws2_32dll.c"
 #include "dlls/msvcrtdll.c"
