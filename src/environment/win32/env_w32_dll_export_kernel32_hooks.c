@@ -815,7 +815,10 @@ FFARPROC WINAPI GetProcAddress(
 	int i;
 	for ( i=0; env->env.win->loaded_dlls[i] != NULL; i++ )
 	{
-		if ( env->env.win->loaded_dlls[i]->baseaddr == module )
+		if( emu_string_char(procname) == NULL )
+			break;
+
+		if( env->env.win->loaded_dlls[i]->baseaddr == module )
 		{
 			logDebug(env->emu, "dll is %s %08x %08x \n", 
 				   env->env.win->loaded_dlls[i]->dllname, 
@@ -844,8 +847,10 @@ FFARPROC WINAPI GetProcAddress(
 		emu_profile_argument_add_ptr(env->profile, "HMODULE", "hModule", module);
 		emu_profile_argument_add_none(env->profile);
 		emu_profile_argument_add_ptr(env->profile, "LPCSTR", "lpProcName", p_procname);
-		emu_profile_argument_add_string(env->profile, "", "", emu_string_char(procname));
-
+		if( emu_string_char(procname) != NULL )
+			emu_profile_argument_add_string(env->profile, "", "", emu_string_char(procname));
+		else
+			emu_profile_argument_add_none(env->profile);
 		emu_profile_function_returnvalue_ptr_set(env->profile, "FARPROC WINAPI", c->reg[eax]);
 		emu_profile_argument_add_none(env->profile);
 	}
