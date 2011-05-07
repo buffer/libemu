@@ -192,6 +192,68 @@ HANDLE CreateFile(
 	return 0;
 }
 
+int32_t	env_w32_hook_CreateFileMapping(struct emu_env *env, struct emu_env_hook *hook)
+{
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+
+	POP_DWORD(c, &eip_save);
+/*HANDLE WINAPI CreateFileMapping(
+  __in      HANDLE hFile,
+  __in_opt  LPSECURITY_ATTRIBUTES lpAttributes,
+  __in      DWORD flProtect,
+  __in      DWORD dwMaximumSizeHigh,
+  __in      DWORD dwMaximumSizeLow,
+  __in_opt  LPCTSTR lpName
+);
+*/
+
+	uint32_t hFile;
+	POP_DWORD(c, &hFile);
+
+	uint32_t lpAttributes;
+	POP_DWORD(c, &lpAttributes);
+
+	uint32_t flProtect;
+	POP_DWORD(c, &flProtect);
+
+	uint32_t dwMaximumSizeHigh;
+	POP_DWORD(c, &dwMaximumSizeHigh);
+
+	uint32_t dwMaximumSizeLow;
+	POP_DWORD(c, &dwMaximumSizeLow);
+
+	uint32_t p_lpName;
+	POP_DWORD(c, &p_lpName);
+	struct emu_string *Name = emu_string_new();
+	emu_memory_read_string(emu_memory_get(env->emu), p_lpName, Name, 256);
+
+
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "CreateFileMapping");
+		emu_profile_argument_add_int(env->profile, "HANDLE", "hFile", hFile);
+		emu_profile_argument_add_ptr(env->profile, "LPSECURITY_ATTRIBUTES", "lpSecurityAttributes", lpAttributes);
+		emu_profile_argument_add_none(env->profile);
+		emu_profile_argument_add_int(env->profile, "DWORD", "flProtect", flProtect);
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwMaximumSizeHigh", dwMaximumSizeHigh);
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwMaximumSizeLow", dwMaximumSizeLow);
+		emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "lpName", p_lpName);
+		emu_profile_argument_add_string(env->profile,"",  "",  emu_string_char(Name));
+
+		emu_profile_function_returnvalue_int_set(env->profile, "HANDLE", 0x123456);
+	}
+
+	emu_string_free(Name);
+
+	emu_cpu_reg32_set(c, eax, 0x123456);
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
 
 int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *hook)
 {
@@ -494,6 +556,47 @@ VOID ExitThread(
 	}
 
 	
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t env_w32_hook_GetFileSize(struct emu_env *env, struct emu_env_hook *hook)
+{
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+	struct emu_memory *mem = emu_memory_get(env->emu);
+	uint32_t eip_save;
+	uint32_t hFile;
+	uint32_t lpFileSizeHigh;
+
+/*
+ * DWORD WINAPI GetFileSize(
+ *   __in       HANDLE hFile,
+ *   __out_opt  LPDWORD lpFileSizeHigh
+ * );
+ */
+	POP_DWORD(c, &eip_save);
+	POP_DWORD(c, &hFile);
+	POP_DWORD(c, &lpFileSizeHigh);
+	
+	uint32_t filesize = 4711;
+	if( lpFileSizeHigh != 0 )
+		emu_memory_write_dword(mem, lpFileSizeHigh, 0);
+
+	emu_cpu_reg32_set(c, eax, filesize);
+
+	if ( env->profile != NULL )
+	{
+		emu_profile_function_add(env->profile, "GetFileSize");
+		emu_profile_argument_add_int(env->profile, "HANDLE", "hFile", hFile);
+		emu_profile_argument_add_ptr(env->profile, "LPDWORD", "lpFileSizeHigh", lpFileSizeHigh);
+		if( lpFileSizeHigh != 0 )
+			emu_profile_argument_add_int(env->profile, "", "", 0);
+		else
+			emu_profile_argument_add_none(env->profile);
+
+		emu_profile_function_returnvalue_int_set(env->profile, "DWORD WINAPI", c->reg[eax]);
+	}
+
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
@@ -1097,8 +1200,54 @@ void *memset(
 
     emu_cpu_eip_set(c, eip_save);
 	return 0;
-
 }
+
+int32_t env_w32_hook_MapViewOfFile(struct emu_env *env, struct emu_env_hook *hook)
+{
+
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+	POP_DWORD(c, &eip_save);
+
+/*LPVOID WINAPI MapViewOfFile(
+  __in  HANDLE hFileMappingObject,
+  __in  DWORD dwDesiredAccess,
+  __in  DWORD dwFileOffsetHigh,
+  __in  DWORD dwFileOffsetLow,
+  __in  SIZE_T dwNumberOfBytesToMap
+);*/
+
+
+	uint32_t hFileMappingObject;
+	POP_DWORD(c, &hFileMappingObject);
+	uint32_t dwDesiredAccess;
+	POP_DWORD(c, &dwDesiredAccess);
+	uint32_t dwFileOffsetHigh;
+	POP_DWORD(c, &dwFileOffsetHigh);
+	uint32_t dwFileOffsetLow;
+	POP_DWORD(c, &dwFileOffsetLow);
+	uint32_t dwNumberOfBytesToMap;
+	POP_DWORD(c, &dwNumberOfBytesToMap);
+
+	uint32_t dest = 0x5000000;
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "MapViewOfFile");
+		emu_profile_argument_add_int(env->profile, "DWORD", "hFileMappingObject  ",hFileMappingObject);  
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwDesiredAccess     ",dwDesiredAccess);
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwFileOffsetHigh    ",dwFileOffsetHigh);
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwFileOffsetLow     ",dwFileOffsetLow);
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwNumberOfBytesToMap",dwNumberOfBytesToMap);
+
+		emu_profile_function_returnvalue_int_set(env->profile, "LPVOID WINAPI", dest);
+	}
+
+	emu_cpu_reg32_set(c, eax, dest);
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
 
 int32_t env_w32_hook_Sleep(struct emu_env *env, struct emu_env_hook *hook)
 {
