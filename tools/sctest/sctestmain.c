@@ -567,7 +567,7 @@ int prepare_from_stdin_write(struct emu *e)
 	}
 
 	emu_memory_write_dword(mem, 0xef787c3c,  4711);
-	emu_memory_write_dword(mem, 0x0,  4711);
+//	emu_memory_write_dword(mem, 0x0,  4711);
 	emu_memory_write_dword(mem, 0x00416f9a,  4711);
 	emu_memory_write_dword(mem, 0x0044fcf7, 4711);
 	emu_memory_write_dword(mem, 0x00001265, 4711);
