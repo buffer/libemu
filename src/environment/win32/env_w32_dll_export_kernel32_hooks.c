@@ -1329,20 +1329,22 @@ int32_t env_w32_hook_MapViewOfFile(struct emu_env *env, struct emu_env_hook *hoo
 	uint32_t dwNumberOfBytesToMap;
 	POP_DWORD(c, &dwNumberOfBytesToMap);
 
-	uint32_t dest = 0x5000000;
+	uint32_t addr;
+	emu_memory_alloc(c->mem, &addr, 4711);
+
 	if (env->profile != NULL)
 	{
 		emu_profile_function_add(env->profile, "MapViewOfFile");
-		emu_profile_argument_add_int(env->profile, "DWORD", "hFileMappingObject  ",hFileMappingObject);  
+		emu_profile_argument_add_int(env->profile, "HANDLE", "hFileMappingObject  ",hFileMappingObject);  
 		emu_profile_argument_add_int(env->profile, "DWORD", "dwDesiredAccess     ",dwDesiredAccess);
 		emu_profile_argument_add_int(env->profile, "DWORD", "dwFileOffsetHigh    ",dwFileOffsetHigh);
 		emu_profile_argument_add_int(env->profile, "DWORD", "dwFileOffsetLow     ",dwFileOffsetLow);
-		emu_profile_argument_add_int(env->profile, "DWORD", "dwNumberOfBytesToMap",dwNumberOfBytesToMap);
+		emu_profile_argument_add_int(env->profile, "SIZE_T", "dwNumberOfBytesToMap",dwNumberOfBytesToMap);
 
-		emu_profile_function_returnvalue_int_set(env->profile, "LPVOID WINAPI", dest);
+		emu_profile_function_returnvalue_int_set(env->profile, "LPVOID WINAPI", addr);
 	}
 
-	emu_cpu_reg32_set(c, eax, dest);
+	emu_cpu_reg32_set(c, eax, addr);
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
