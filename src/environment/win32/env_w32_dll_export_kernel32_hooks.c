@@ -1704,19 +1704,20 @@ int32_t env_w32_hook_VirtualProtect(struct emu_env *env, struct emu_env_hook *ho
 	uint32_t oldprotect;
 	POP_DWORD(c, &oldprotect);
 
-        uint32_t returnvalue;
-        if ( hook->hook.win->userhook != NULL )
-        {
-                returnvalue = hook->hook.win->userhook(env, hook, p_address, size, newprotect, oldprotect);
-        } else
-        {
-                returnvalue = 1;
-        }
+	uint32_t returnvalue;
+	if( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, p_address, size, newprotect, oldprotect);
+	} else
+	{
+		returnvalue = 1;
+	}
 
-	if (env->profile != NULL)
+	if( env->profile != NULL )
 	{
 		emu_profile_function_add(env->profile, "VirtualProtect");
 		emu_profile_argument_add_ptr(env->profile, "LPCVOID", "lpAddress", p_address);
+		emu_profile_argument_add_none(env->profile);
 		emu_profile_argument_add_int(env->profile, "DWORD"  , "dwSize", size);
 		emu_profile_argument_add_int(env->profile, "DWORD"  , "flNewProtect", newprotect);
 		emu_profile_argument_add_int(env->profile, "PDWORD" , "lpflOldProtectt", newprotect);
@@ -1729,15 +1730,16 @@ int32_t env_w32_hook_VirtualProtect(struct emu_env *env, struct emu_env_hook *ho
 }
 
 
+
 int32_t env_w32_hook_VirtualProtectEx(struct emu_env *env, struct emu_env_hook *hook)
 {
-        logDebug(env->emu, "Hook me Captain Cook!\n");
-        logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+	logDebug(env->emu, "Hook me Captain Cook!\n");
+	logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
-        struct emu_cpu *c = emu_cpu_get(env->emu);
+	struct emu_cpu *c = emu_cpu_get(env->emu);
 
-        uint32_t eip_save;
-        POP_DWORD(c, &eip_save);
+	uint32_t eip_save;
+	POP_DWORD(c, &eip_save);
 
 
 /*
@@ -1752,40 +1754,42 @@ int32_t env_w32_hook_VirtualProtectEx(struct emu_env *env, struct emu_env_hook *
 	uint32_t h_process;
 	POP_DWORD(c, &h_process);
 
-        uint32_t p_address;
-        POP_DWORD(c, &p_address);
+	uint32_t p_address;
+	POP_DWORD(c, &p_address);
 
-        uint32_t size;
-        POP_DWORD(c, &size);
+	uint32_t size;
+	POP_DWORD(c, &size);
 
-        uint32_t newprotect;
-        POP_DWORD(c, &newprotect);
+	uint32_t newprotect;
+	POP_DWORD(c, &newprotect);
 
-        uint32_t oldprotect;
-        POP_DWORD(c, &oldprotect);
+	uint32_t oldprotect;
+	POP_DWORD(c, &oldprotect);
 
-        uint32_t returnvalue;
-        if ( hook->hook.win->userhook != NULL )
-        {
-                returnvalue = hook->hook.win->userhook(env, hook, p_address, size, newprotect, oldprotect);
-        } else
-        {
-                returnvalue = 1;
-        }
+	uint32_t returnvalue;
+	if( hook->hook.win->userhook != NULL )
+	{
+		returnvalue = hook->hook.win->userhook(env, hook, p_address, size, newprotect, oldprotect);
+	} else
+	{
+		returnvalue = 1;
+	}
 
-        if (env->profile != NULL)
-        {
+	if( env->profile != NULL )
+	{
 		emu_profile_function_add(env->profile, "VirtualProtectEx");
 		emu_profile_argument_add_ptr(env->profile, "HANDLE" , "hProcess", h_process);
+		emu_profile_argument_add_none(env->profile);
 		emu_profile_argument_add_ptr(env->profile, "LPCVOID", "lpAddress", p_address);
+		emu_profile_argument_add_none(env->profile);
 		emu_profile_argument_add_int(env->profile, "DWORD"  , "dwSize", size);
 		emu_profile_argument_add_int(env->profile, "DWORD"  , "flNewProtect", newprotect);
 		emu_profile_argument_add_int(env->profile, "PDWORD" , "lpflOldProtectt", newprotect);
 		emu_profile_function_returnvalue_int_set(env->profile, "BOOL", returnvalue);
-        }
+	}
 
-        emu_cpu_reg32_set(c, eax, returnvalue);
-        emu_cpu_eip_set(c, eip_save);
-        return 0;
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_cpu_eip_set(c, eip_save);
+
+	return 0;
 }
-
