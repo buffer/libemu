@@ -388,9 +388,14 @@ int test(struct emu *e)
 
 			if ( ret == -1 )
 			{
-				printf("cpu error %s\n", emu_strerror(e));
-				break;
-			}
+				/* step failed - maybe SEH */
+				if( emu_env_w32_step_failed(env) != 0 )
+				{
+					printf("cpu error %s\n", emu_strerror(e));
+					break;
+				}
+			}else
+				env->env.win->last_good_eip = emu_cpu_eip_get(emu_cpu_get(e)); //used in case of seh exception
 		}
 		if ( opts.graphfile != NULL )
 		{
@@ -587,6 +592,7 @@ int prepare_from_stdin_write(struct emu *e)
 	emu_memory_write_block(mem, 0x0012fe98, opts.scode,  opts.size);
 	emu_cpu_reg32_set(emu_cpu_get(e), esp, CODE_OFFSET-50); //0x0012fe98);
 
+	emu_memory_write_dword(mem, 0x7df7b0bb, 0x00000000); //UrldownloadToFile
 //	free(opts.scode);
 
 	return 0;
