@@ -31,6 +31,7 @@ int32_t env_w32_hook_CloseHandle(struct emu_env *env, struct emu_env_hook *hook)
 int32_t env_w32_hook_CreateFileA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_CreateFileMapping(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook_CreateProcessInternalA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_DeleteFileA(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_ExitProcess(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_ExitThread(struct emu_env *env, struct emu_env_hook *hook);
@@ -49,8 +50,10 @@ int32_t env_w32_hook__lwrite(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_malloc(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_memset(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_MapViewOfFile(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook_SetFilePointer(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_SetUnhandledExceptionFilter(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_Sleep(struct emu_env *env, struct emu_env_hook *hook);
+int32_t env_w32_hook_UnmapViewOfFile(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WaitForSingleObject(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WinExec(struct emu_env *env, struct emu_env_hook *hook);
 int32_t env_w32_hook_WriteFile(struct emu_env *env, struct emu_env_hook *hook);

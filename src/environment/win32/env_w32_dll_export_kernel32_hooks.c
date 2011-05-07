@@ -440,6 +440,105 @@ int32_t	env_w32_hook_CreateProcessA(struct emu_env *env, struct emu_env_hook *ho
 	return 0;
 }
 
+int32_t env_w32_hook_CreateProcessInternalA(struct emu_env *env, struct emu_env_hook *hook)
+{
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+	struct emu_memory *m = emu_memory_get(env->emu);
+
+	uint32_t eip_save;
+	POP_DWORD(c, &eip_save);
+
+/*
+ * DWORD WINAPI CreateProcessInternal(  
+ * __in         DWORD unknown1,                              // always (?) NULL  
+ * __in_opt     LPCTSTR lpApplicationName,  
+ * __inout_opt  LPTSTR lpCommandLine,  
+ * __in_opt     LPSECURITY_ATTRIBUTES lpProcessAttributes,  
+ * __in_opt     LPSECURITY_ATTRIBUTES lpThreadAttributes,  
+ * __in         BOOL bInheritHandles,  
+ * __in         DWORD dwCreationFlags,  
+ * __in_opt     LPVOID lpEnvironment,  
+ * __in_opt     LPCTSTR lpCurrentDirectory,  
+ * __in         LPSTARTUPINFO lpStartupInfo,  
+ * __out        LPPROCESS_INFORMATION lpProcessInformation,  
+ * __in         DWORD unknown2                               // always (?) NULL
+ * ;
+ */
+	uint32_t unknown1;
+	uint32_t lpApplicationName;
+	uint32_t lpCommandLine;
+	uint32_t lpProcessAttributes;
+	uint32_t lpThreadAttributes;
+	uint32_t bInheritHandles;
+	uint32_t dwCreationFlags;
+	uint32_t lpEnvironment;
+	uint32_t lpCurrentDirectory;
+	uint32_t lpStartupInfo;
+	uint32_t lpProcessInformation;
+	uint32_t unknown2;
+
+	POP_DWORD(c, &unknown1);
+	POP_DWORD(c, &lpApplicationName);
+	POP_DWORD(c, &lpCommandLine);
+	POP_DWORD(c, &lpProcessAttributes);
+	POP_DWORD(c, &lpThreadAttributes);
+	POP_DWORD(c, &bInheritHandles);
+	POP_DWORD(c, &dwCreationFlags);
+	POP_DWORD(c, &lpEnvironment);
+	POP_DWORD(c, &lpCurrentDirectory);
+	POP_DWORD(c, &lpStartupInfo);
+	POP_DWORD(c, &lpProcessInformation);
+	POP_DWORD(c, &unknown2);
+
+	struct emu_string *CommandLine = emu_string_new();
+	if( lpCommandLine !=0 )
+		emu_memory_read_string(m, lpCommandLine, CommandLine, 255);
+
+	uint32_t returnvalue = 0;
+	if ( env->profile != NULL )
+	{
+		emu_profile_function_add(env->profile, "CreateProcessInternal");
+		emu_profile_argument_add_int(env->profile, "DWORD", "unknown1", unknown1);
+
+		emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "lpApplicationName", lpApplicationName);
+		emu_profile_argument_add_none(env->profile);
+		
+		emu_profile_argument_add_ptr(env->profile, "LPTSTR", "lpCommandLine", lpCommandLine);
+		if( lpCommandLine != 0 )
+			emu_profile_argument_add_string(env->profile, "","", emu_string_char(CommandLine));
+		else
+			emu_profile_argument_add_none(env->profile);
+		
+		emu_profile_argument_add_ptr(env->profile, "LPSECURITY_ATTRIBUTES", "lpProcessAttributes", lpProcessAttributes);
+		emu_profile_argument_add_none(env->profile);
+
+		emu_profile_argument_add_ptr(env->profile, "LPSECURITY_ATTRIBUTES", "lpThreadAttributes", lpThreadAttributes);
+		emu_profile_argument_add_none(env->profile);
+
+		emu_profile_argument_add_int(env->profile, "BOOL", "bInheritHandles", bInheritHandles);
+		emu_profile_argument_add_int(env->profile, "DWORD", "dwCreationFlags", dwCreationFlags);
+		emu_profile_argument_add_ptr(env->profile, "LPVOID", "lpEnvironment", lpEnvironment);
+		emu_profile_argument_add_none(env->profile);
+		emu_profile_argument_add_ptr(env->profile, "LPCTSTR", "lpCurrentDirectory", lpCurrentDirectory);
+		emu_profile_argument_add_none(env->profile);
+
+		emu_profile_argument_add_ptr(env->profile, "LPSTARTUPINFO", "lpStartupInfo", lpStartupInfo);
+		emu_profile_argument_add_none(env->profile);
+
+		emu_profile_argument_add_ptr(env->profile, "PROCESS_INFORMATION", "lpProcessInformation",0x52f74c);
+		emu_profile_argument_add_none(env->profile);
+
+		emu_profile_argument_add_int(env->profile, "DWORD", "unknown2", unknown2);
+		emu_profile_function_returnvalue_int_set(env->profile, "DWORD WINAPI", returnvalue);
+	}
+
+	emu_string_free(CommandLine);
+	emu_cpu_reg32_set(c, eax, returnvalue);
+	emu_cpu_eip_set(c, eip_save);
+	return 1;
+}
+
+
 int32_t	env_w32_hook_DeleteFileA(struct emu_env *env, struct emu_env_hook *hook)
 {
 	logDebug(env->emu, "Hook me Captain Cook!\n");
@@ -1277,6 +1376,73 @@ int32_t env_w32_hook_Sleep(struct emu_env *env, struct emu_env_hook *hook)
 		emu_profile_function_returnvalue_int_set(env->profile, "void", 0);
 	}
 
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	env_w32_hook_UnmapViewOfFile(struct emu_env *env, struct emu_env_hook *hook)
+{
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+	POP_DWORD(c, &eip_save);
+
+/*
+ * BOOL WINAPI UnmapViewOfFile(
+ *   __in  LPCVOID lpBaseAddress
+ * ); 
+ */
+	uint32_t lpBaseAddress;
+
+	POP_DWORD(c, &lpBaseAddress);
+
+	emu_cpu_reg32_set(c, eax, 1);
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "UnmapViewOfFile");
+		emu_profile_argument_add_ptr(env->profile, "LPCVOID", "lpBaseAddress", lpBaseAddress);
+		emu_profile_argument_add_none(env->profile);
+		emu_profile_function_returnvalue_int_set(env->profile, "BOOL WINAPI", 1);
+	}
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
+int32_t	env_w32_hook_SetFilePointer(struct emu_env *env, struct emu_env_hook *hook)
+{
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+
+	uint32_t eip_save;
+	POP_DWORD(c, &eip_save);
+
+/*
+ * DWORD WINAPI SetFilePointer(
+ * __in         HANDLE hFile,
+ * __in         LONG lDistanceToMove,
+ * __inout_opt  PLONG lpDistanceToMoveHigh,
+ * __in         DWORD dwMoveMethod
+ *);
+ */
+	uint32_t hFile;
+	uint32_t lDistanceToMove;
+	uint32_t lpDistanceToMoveHigh;
+	uint32_t dwMoveMethod;
+
+	POP_DWORD(c, &hFile);
+	POP_DWORD(c, &lDistanceToMove);
+	POP_DWORD(c, &lpDistanceToMoveHigh);
+	POP_DWORD(c, &dwMoveMethod);
+
+	emu_cpu_reg32_set(c, eax, lDistanceToMove);
+	if (env->profile != NULL)
+	{
+		emu_profile_function_add(env->profile, "SetFilePointer");
+		emu_profile_argument_add_int(env->profile, "HANDLE", "hFile", hFile);
+		emu_profile_argument_add_int(env->profile, "LONG", "lDistanceToMove", lDistanceToMove);
+		emu_profile_argument_add_ptr(env->profile, "PLONG", "lpDistanceToMoveHigh", lpDistanceToMoveHigh);
+		emu_profile_argument_add_none(env->profile);
+		emu_profile_function_returnvalue_int_set(env->profile, "DWORD WINAPI", lDistanceToMove);
+	}
 	emu_cpu_eip_set(c, eip_save);
 	return 0;
 }
