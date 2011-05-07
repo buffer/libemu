@@ -498,6 +498,64 @@ VOID ExitThread(
 	return 0;
 }
 
+int32_t env_w32_hook_GetModuleHandleA(struct emu_env *env, struct emu_env_hook *hook)
+{
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+	uint32_t eip_save;
+	uint32_t filename;
+
+/*
+ * HMODULE WINAPI GetModuleHandle( __in_opt  LPCTSTR lpModuleName);
+ */
+
+	POP_DWORD(c, &eip_save);
+	POP_DWORD(c, &filename);
+
+	struct emu_memory *mem = emu_memory_get(env->emu);
+	struct emu_string *s_filename = emu_string_new();
+	emu_memory_read_string(mem, filename, s_filename, 256);
+
+	char *dllname = emu_string_char(s_filename);
+
+
+	int i=0;
+	int found_dll = 0;
+	emu_cpu_reg32_set(c, eax, 0); //default = fail
+
+	for( i=0; env->env.win->loaded_dlls[i] != NULL; i++ )
+	{
+		if( strncasecmp(env->env.win->loaded_dlls[i]->dllname, dllname, strlen(env->env.win->loaded_dlls[i]->dllname)) == 0 )
+		{
+			emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
+			found_dll = 1;
+			break;
+		}
+	}
+
+	if( found_dll == 0 )
+	{
+		if( emu_env_w32_load_dll(env->env.win, dllname) == 0 )
+		{
+			emu_cpu_reg32_set(c, eax, env->env.win->loaded_dlls[i]->baseaddr);
+			found_dll = 1;
+		}
+	}
+
+	if ( env->profile != NULL )
+	{
+		emu_profile_function_add(env->profile, "GetModuleHandleA");
+		emu_profile_argument_add_ptr(env->profile, "LPCSTR", "lpModuleName", filename);
+		emu_profile_argument_add_string(env->profile, "", "", emu_string_char(s_filename));
+
+		emu_profile_function_returnvalue_ptr_set(env->profile, "HMODULE WINAPI", c->reg[eax]);
+		emu_profile_argument_add_none(env->profile);
+	}
+
+	emu_string_free(s_filename);
+	emu_cpu_eip_set(c, eip_save);
+	return 0;
+}
+
 int32_t env_w32_hook_GetVersion(struct emu_env *env, struct emu_env_hook *hook)
 {
 	struct emu_cpu *c = emu_cpu_get(env->emu);

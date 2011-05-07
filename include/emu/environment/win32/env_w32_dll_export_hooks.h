@@ -34,7 +34,7 @@
 #include <emu/environment/win32/env_w32_dll_export_urlmon_hooks.h>
 #include <emu/environment/win32/env_w32_dll_export_ws2_32_hooks.h>
 #include <emu/environment/win32/env_w32_dll_export_msvcrt_hooks.h>
-
+#include <emu/environment/win32/env_w32_dll_export_shell32_hooks.h>
 
 struct emu_env_w32_dll_export kernel32_exports[] = 
 {
@@ -411,7 +411,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"GetMailslotInfo", 0x0005EB58, NULL, NULL},
 	{"GetModuleFileNameA", 0x0000B4CF, NULL, NULL},
 	{"GetModuleFileNameW", 0x0000B3D5, NULL, NULL},
-	{"GetModuleHandleA", 0x0000B6A1, NULL, NULL},
+	{"GetModuleHandleA", 0x0000B6A1, env_w32_hook_GetModuleHandleA, NULL},
 	{"GetModuleHandleExA", 0x0005EFE6, NULL, NULL},
 	{"GetModuleHandleExW", 0x0001FCC1, NULL, NULL},
 	{"GetModuleHandleW", 0x0000E43D, NULL, NULL},
@@ -3214,7 +3214,7 @@ struct emu_env_w32_dll_export shell32_exports[] =
 	{"SHGetPathFromIDListW", 0x00031000, NULL, NULL},
 	{"SHGetSettings", 0x0007FC05, NULL, NULL},
 	{"SHGetSpecialFolderLocation", 0x0002F793, NULL, NULL},
-	{"SHGetSpecialFolderPathA", 0x000F9C6E, NULL, NULL},
+	{"SHGetSpecialFolderPathA", 0x000F9C6E, env_hook_SHGetSpecialFolderPathA, NULL},
 	{"SHGetSpecialFolderPathW", 0x0002B1D8, NULL, NULL},
 	{"SHGetUnreadMailCountW", 0x000D4ED8, NULL, NULL},
 	{"SHHelpShortcuts_RunDLL", 0x000B3A1F, NULL, NULL},
