@@ -45,6 +45,7 @@ struct emu_env_w32_dll_export
     int32_t		(*fnhook)(struct emu_env *env, struct emu_env_hook *hook);
 	void 		*userdata;
 	uint32_t	(*userhook)(struct emu_env *env, struct emu_env_hook *hook, ...);
+	uint32_t	ordinal;
 };
 
 struct emu_env_w32_dll_export *emu_env_w32_dll_export_new(void);

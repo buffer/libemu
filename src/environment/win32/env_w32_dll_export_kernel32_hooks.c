@@ -808,36 +808,46 @@ FFARPROC WINAPI GetProcAddress(
 	
 
 	struct emu_string *procname = emu_string_new();
-	emu_memory_read_string(mem, p_procname, procname, 256);
+	if( p_procname >= 0x1000 )
+		emu_memory_read_string(mem, p_procname, procname, 256);
 
 	logDebug(env->emu, "procname name is '%s'\n", emu_string_char(procname));
 
 	int i;
 	for ( i=0; env->env.win->loaded_dlls[i] != NULL; i++ )
 	{
-		if( emu_string_char(procname) == NULL )
-			break;
-
 		if( env->env.win->loaded_dlls[i]->baseaddr == module )
 		{
 			logDebug(env->emu, "dll is %s %08x %08x \n", 
 				   env->env.win->loaded_dlls[i]->dllname, 
 				   module, 
 				   env->env.win->loaded_dlls[i]->baseaddr);
-
 			struct emu_env_w32_dll *dll = env->env.win->loaded_dlls[i];
-			struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnname, (void *)emu_string_char(procname));
-			if ( ehi == NULL )
-			{
-				break;
+			if( emu_string_char(procname) != NULL && p_procname >= 0x1000 )
+			{ /* 2nd argument is a string */
+				struct emu_hashtable_item *ehi = emu_hashtable_search(dll->exports_by_fnname, (void *)emu_string_char(procname));
+				if ( ehi != NULL )
+				{
+					struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
+					logDebug(env->emu, "found %s at addr %08x\n",emu_string_char(procname), dll->baseaddr + hook->hook.win->virtualaddr );
+					emu_cpu_reg32_set(c, eax, dll->baseaddr + hook->hook.win->virtualaddr);
+				}
+			}else
+			{ /* 2nd argument is ordinal */
+				int j;
+				for( j=0;dll->exportx[j].fnname != NULL; j++ )
+				{
+					struct emu_env_w32_dll_export *ex = &dll->exportx[j];
+					if( ex->ordinal == p_procname )
+					{
+						struct emu_env_hook *hook = &dll->hooks[j];
+//						emu_string_append_char(procname, ex->fnname);
+						logDebug(env->emu, "found %s for ordinal %i at addr %08x\n",ex->fnname, p_procname, dll->baseaddr + hook->hook.win->virtualaddr );
+						emu_cpu_reg32_set(c, eax, dll->baseaddr + hook->hook.win->virtualaddr);
+					}
+				}
 			}
-			else
-			{
-				struct emu_env_hook *hook = (struct emu_env_hook *)ehi->value;
-				logDebug(env->emu, "found %s at addr %08x\n",emu_string_char(procname), dll->baseaddr + hook->hook.win->virtualaddr );
-				emu_cpu_reg32_set(c, eax, dll->baseaddr + hook->hook.win->virtualaddr);
-				break;
-			}
+			break;
 		}
 	}
 
