@@ -35,6 +35,7 @@
 #include <emu/environment/win32/env_w32_dll_export_ws2_32_hooks.h>
 #include <emu/environment/win32/env_w32_dll_export_msvcrt_hooks.h>
 #include <emu/environment/win32/env_w32_dll_export_shell32_hooks.h>
+#include <emu/environment/win32/env_w32_dll_export_shdocvw_hooks.h>
 
 struct emu_env_w32_dll_export kernel32_exports[] = 
 {
@@ -5676,6 +5677,7 @@ struct emu_env_w32_dll_export shdocvw_exports[] =
 	{"SoftwareUpdateMessageBox", 0x000447B6, NULL, NULL},
 	{"URLQualifyA", 0x00044216, NULL, NULL},
 	{"URLQualifyW", 0x00044261, NULL, NULL},
+	{"IEWinMain", 0x00044262, env_w32_hook_IEWinMain, NULL, NULL, 101},
 	{0,0,NULL},
 };
 
