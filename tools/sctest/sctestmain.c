@@ -153,6 +153,9 @@ int test(struct emu *e)
 	emu_env_w32_export_hook(env, "ExitProcess", user_hook_ExitProcess, NULL);
 	emu_env_w32_export_hook(env, "ExitThread", user_hook_ExitThread, NULL);
 
+	emu_env_w32_load_dll(env->env.win,"shdocvw.dll");
+	emu_env_w32_export_hook(env, "IEWinMain", user_hook_IEWinMain, NULL);
+
 	if ( opts.interactive == true )
 	{
 

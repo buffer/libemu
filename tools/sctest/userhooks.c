@@ -813,4 +813,17 @@ uint32_t user_hook_URLDownloadToFile(struct emu_env *env, struct emu_env_hook *h
 	return 0;
 }
 
+uint32_t user_hook_IEWinMain(struct emu_env *env, struct emu_env_hook *hook, ...)
+{
+	printf("Hook me Captain Cook!\n");
+	printf("%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
 
+	va_list vl;
+	va_start(vl, hook);
+	/*char *CommandLine =*/ (void)va_arg(vl, char *);
+	/*int nShowWindow   =*/ (void)va_arg(vl, int);
+	va_end(vl);
+
+	opts.steps = 0;
+	return 0;
+}
