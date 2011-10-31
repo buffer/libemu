@@ -791,11 +791,14 @@ int prepare(void)
 				return -1;
 			}
 
-			int fr = 0;
-			fr = fwrite(use,strlen(use),1,f);
-			fr = fwrite(tests[i].instr,1,strlen(tests[i].instr),f);
+			if( fwrite(use,strlen(use),1,f) != 1 ||
+				fwrite(tests[i].instr,1,strlen(tests[i].instr),f) != strlen(tests[i].instr) )
+				exit(-1);
 			fclose(f);
-			fr = system("cd /tmp/; nasm foo.S");
+
+			if( system("cd /tmp/; nasm foo.S") != 0 )
+				exit(-1);
+
 			f=fopen("/tmp/foo","r");
 			if (f == NULL)
 			{
@@ -808,7 +811,8 @@ int prepare(void)
 			tests[i].codesize = ftell(f);
 			tests[i].code = malloc(tests[i].codesize);
 			fseek(f,0,SEEK_SET);
-			fr = fread(tests[i].code,1,tests[i].codesize,f);
+			if( fread(tests[i].code,1,tests[i].codesize,f) != tests[i].codesize )
+				exit(-1);
 			fclose(f);
 
 			unlink("/tmp/foo.S");

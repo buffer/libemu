@@ -330,6 +330,8 @@ uint32_t user_hook_CreateProcess(struct emu_env *env, struct emu_env_hook *hook,
 								goto exit_now;
 							append(io, "err <", buf, size);
 						}
+						if( written == -1 )
+							goto exit_now;
 
 					} else
 					{
@@ -735,7 +737,6 @@ BOOL WriteFile(
 );
 */
 
-	int written = -1;
 	va_list vl;
 	va_start(vl, hook);
 	FILE *hFile 					= va_arg(vl, FILE *);
@@ -748,7 +749,10 @@ BOOL WriteFile(
 	struct nanny_file *nf = nanny_get_file(hook->hook.win->userdata, (uint32_t)(uintptr_t)hFile);
 
 	if (nf != NULL)
-		written = fwrite(lpBuffer, nNumberOfBytesToWrite, 1, nf->real_file);
+	{
+		if( fwrite(lpBuffer, nNumberOfBytesToWrite, 1, nf->real_file) != 1 )
+			return 0;
+	}
 	else
 		printf("shellcode tried to write data to not existing handle\n");
 
