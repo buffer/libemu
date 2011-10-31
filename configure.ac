@@ -21,11 +21,11 @@ dnl Check for some target-specific stuff
 case "$host" in
 *-*-freebsd*)
   CPPFLAGS="$CPPFLAGS -I/usr/local/include -I/usr/src/contrib/file/"
-  LDFLAGS="$LDFLAGS -L/usr/local/lib -R/usr/local/lib"
+  LDFLAGS="$LDFLAGS -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
   ;;
 *-*-linux*)
   CPPFLAGS="$CPPFLAGS -D _GNU_SOURCE -I/usr/local/include"
-  LDFLAGS="$LDFLAGS -L/usr/local/lib -R/usr/local/lib"
+  LDFLAGS="$LDFLAGS -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
   ;;
 *-*-darwin*)
   CPPFLAGS="$CPPFLAGS -I/opt/local/include"
