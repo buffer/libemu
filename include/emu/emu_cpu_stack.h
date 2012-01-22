@@ -93,7 +93,8 @@
 if( ret != 0 ) \
 	return ret; \
 else \
-	cpu->reg[esp] += 4; }
+  if ( dst_p != &cpu->reg[esp] ) \
+  	cpu->reg[esp] += 4; }
 
 #define POP_WORD(cpu, dst_p) \
 { int32_t ret = emu_memory_read_word(cpu->mem, cpu->reg[esp], dst_p); \
