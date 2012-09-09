@@ -34,6 +34,9 @@ int32_t env_linux_hook_fork(struct emu_env *env, struct emu_env_hook *hook);
 /* 11 execve */
 int32_t env_linux_hook_execve(struct emu_env *env, struct emu_env_hook *hook);
 
+/* 15 chmod */
+int32_t env_linux_hook_chmod(struct emu_env *env, struct emu_env_hook *hook);
+
 /* 63 dup2 */
 int32_t env_linux_hook_dup2(struct emu_env *env, struct emu_env_hook *hook);
 

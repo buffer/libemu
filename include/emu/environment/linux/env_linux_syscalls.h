@@ -238,7 +238,7 @@ struct emu_env_linux_syscall syscall_hooks[] =
 	{ "capget"              		, NULL},
 	{ "capset"              		, NULL},
 	{ "chdir"               		, NULL},
-	{ "chmod"               		, NULL},
+	{ "chmod"               		, env_linux_hook_chmod},
 	{ "chown"               		, NULL},
 	{ "chroot"              		, NULL},
 	{ "clone"               		, NULL},

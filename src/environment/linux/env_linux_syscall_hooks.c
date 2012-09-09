@@ -60,6 +60,23 @@ int32_t env_linux_hook_exit(struct emu_env *env, struct emu_env_hook *hook)
 	return 0;
 }
 
+int32_t env_linux_hook_chmod(struct emu_env *env, struct emu_env_hook *hook)
+{
+	printf("sys_chmod(2)\n");
+	struct emu_cpu *c = emu_cpu_get(env->emu);
+	emu_profile_function_add(env->profile, "chmod");
+
+	if (hook->hook.lin->userhook != NULL)
+	{
+		uint32_t r = hook->hook.lin->userhook(env, hook, c->reg[ebx]);
+		emu_cpu_reg32_set(c, eax, r);
+	}else
+		emu_cpu_reg32_set(c, eax, 0);
+
+	return 0;
+}
+
+
 int32_t env_linux_hook_fork(struct emu_env *env, struct emu_env_hook *hook)
 {
 	printf("sys_fork(2)\n");
@@ -379,6 +396,9 @@ int32_t env_linux_hook_socketcall(struct emu_env *env, struct emu_env_hook *hook
 	case 17: // SYS_RECVMSG 
 		printf("sys_recvmsg(2)\n");
 		break;
+
+	default:
+		printf("syscall %i (%x) unknown",  c->reg[ebx], c->reg[ebx]);
 	}
 
 	return 0;
