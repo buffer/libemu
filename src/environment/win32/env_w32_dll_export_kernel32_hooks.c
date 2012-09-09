@@ -1808,3 +1808,54 @@ int32_t env_w32_hook_VirtualProtectEx(struct emu_env *env, struct emu_env_hook *
 
 	return 0;
 }
+
+int32_t env_w32_hook_TerminateThread(struct emu_env *env, struct emu_env_hook *hook)
+{
+        logDebug(env->emu, "Hook me Captain Cook!\n");
+        logDebug(env->emu, "%s:%i %s\n",__FILE__,__LINE__,__FUNCTION__);
+
+        struct emu_cpu *c = emu_cpu_get(env->emu);
+
+        uint32_t eip_save;
+
+        POP_DWORD(c, &eip_save);
+
+/*
+BOOL WINAPI TerminateThread(
+  HANDLE hThread,
+  DWORD dwExitCode
+);
+*/
+
+        uint32_t handle;
+        POP_DWORD(c, &handle);
+
+        uint32_t exitcode;
+        POP_DWORD(c, &exitcode);
+
+        logDebug(env->emu, "TerminateThread(hThread=%i,  dwExitCode=%i)\n", handle, exitcode);
+
+        uint32_t returnvalue;
+        if ( hook->hook.win->userhook != NULL )
+        {
+                returnvalue = hook->hook.win->userhook(env, hook,
+                                                                                           handle,
+                                                                                           exitcode);
+        }else
+        {
+                returnvalue     = 0;
+        }
+
+        if (env->profile != NULL)
+        {
+                emu_profile_function_add(env->profile, "TerminateThread");
+                emu_profile_argument_add_int(env->profile, "HANDLE", "hThread", handle);
+                emu_profile_argument_add_int(env->profile, "DWORD", "dwExitCode", exitcode);
+                emu_profile_function_returnvalue_int_set(env->profile, "BOOL", returnvalue);
+        }
+
+        emu_cpu_reg32_set(c, eax, returnvalue);
+        emu_cpu_eip_set(c, eip_save);
+        return 0;
+}
+

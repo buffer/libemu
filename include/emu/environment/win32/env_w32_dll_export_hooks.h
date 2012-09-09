@@ -878,7 +878,7 @@ struct emu_env_w32_dll_export kernel32_exports[] =
 	{"SystemTimeToTzSpecificLocalTime", 0x0002E9C1, NULL, NULL},
 	{"TerminateJobObject", 0x0006B2F7, NULL, NULL},
 	{"TerminateProcess", 0x00001E16, NULL, NULL},
-	{"TerminateThread", 0x0001CE03, NULL, NULL},
+	{"TerminateThread", 0x0001CE03, env_w32_hook_TerminateThread, NULL},
 	{"TermsrvAppInstallMode", 0x0001EFCE, NULL, NULL},
 	{"Thread32First", 0x00064062, NULL, NULL},
 	{"Thread32Next", 0x00064116, NULL, NULL},
