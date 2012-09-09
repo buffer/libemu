@@ -142,6 +142,9 @@ int test(struct emu *e)
 	emu_memory_write_dword(mem, 0x7c80ADA0, 0x51EC8B55);
 	emu_memory_write_byte(mem,  0x7c814eeb, 0xc3);
 
+	/* Export Address Table Access Filtering */
+	emu_memory_write_dword(mem, 0x7c80ffec, 0xc330408b);
+
 	if ( env == NULL )
 	{
 		printf("%s \n", emu_strerror(e));
