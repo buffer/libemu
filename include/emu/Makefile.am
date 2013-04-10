@@ -27,6 +27,7 @@ include_HEADERS += emu_source.h
 include_HEADERS += emu_stack.h
 include_HEADERS += emu_string.h
 include_HEADERS += emu_track.h
+include_HEADERS += emu_breakpoint.h
 
 
 #include_HEADERS = emu.h

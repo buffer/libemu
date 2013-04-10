@@ -38,6 +38,7 @@
 #include "emu/emu_memory.h"
 #include "emu/emu.h"
 #include "emu/emu_log.h"
+#include "emu/emu_breakpoint.h"
 
 static const char *regm[] = {
 	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"
@@ -484,6 +485,7 @@ int32_t emu_cpu_parse(struct emu_cpu *c)
 
 	uint8_t dis[32];
 	emu_memory_read_block(c->mem,c->eip,dis,32);
+	emu_breakpoint_check(c->mem,c->eip, EMU_ACCESS_EXECUTE);
 
 	uint32_t expected_instr_size = 0;
 	if( CPU_DEBUG_FLAG_ISSET(c, instruction_string ) || CPU_DEBUG_FLAG_ISSET(c, instruction_size ) )

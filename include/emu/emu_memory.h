@@ -38,6 +38,7 @@ enum emu_segment {
 struct emu;
 struct emu_memory;
 struct emu_string;
+struct emu_breakpoint;
 
 struct emu_memory *emu_memory_new(struct emu *e);
 void emu_memory_clear(struct emu_memory *em);
@@ -69,6 +70,9 @@ uint32_t emu_memory_get_usage(struct emu_memory *m);
 
 void emu_memory_mode_ro(struct emu_memory *m);
 void emu_memory_mode_rw(struct emu_memory *m);
+
+struct emu_breakpoint *emu_memory_get_breakpoint(struct emu_memory *m);
+struct emu *emu_memory_get_emu(struct emu_memory *m);
 
 
 #define MEM_BYTE_READ(cpu_p, addr, data_p) \

@@ -27,6 +27,7 @@ libemu_la_SOURCES += emu_stack.c
 libemu_la_SOURCES += emu_shellcode.c
 libemu_la_SOURCES += emu_source.c
 libemu_la_SOURCES += emu_track.c
+libemu_la_SOURCES += emu_breakpoint.c
 libemu_la_SOURCES += functions/aaa.c
 libemu_la_SOURCES += functions/adc.c
 libemu_la_SOURCES += functions/add.c
