@@ -119,11 +119,11 @@ int32_t instr_pop_0fa9(struct emu_cpu *c, struct emu_cpu_instruction *i)
 
 int32_t instr_popad_61(struct emu_cpu *c, struct emu_cpu_instruction *i)
 {
-	uint32_t j;
+	int32_t j;
 	
 	if( i->prefixes & PREFIX_OPSIZE )
 	{
-		for( j = 7; j < 8; j-- )
+		for( j = 7; j >= 0; j-- )
 		{
 			if( j != 4 )
 			{
@@ -137,7 +137,7 @@ int32_t instr_popad_61(struct emu_cpu *c, struct emu_cpu_instruction *i)
 	}
 	else
 	{
-		for( j = 7; j < 8; j-- )
+		for( j = 7; j >= 0; j-- )
 		{
 			if( j != 4 )
 			{
