@@ -34,6 +34,7 @@
 #include "emu/emu_log.h"
 #include "emu/emu_memory.h"
 #include "emu/emu_string.h"
+#include "emu/emu_breakpoint.h"
 
 
 #define PAGE_BITS 12 /* size of one page, 2^12 = 4096 */
@@ -62,6 +63,8 @@ struct emu_memory
 	uint32_t segment_table[6];
 
 	bool read_only_access;
+	
+	struct emu_breakpoint *breakpoint;
 };
 
 #if 1
@@ -86,12 +89,12 @@ struct emu_memory
 			{
 				if( m->pagetable[i][j] != NULL )
 				{
-					printf("    page %d allocated at 0x%08x\n", j, (int)m->pagetable[i][j]);
+					printf("	page %d allocated at 0x%08x\n", j, (int)m->pagetable[i][j]);
 					pages_used++;
 				}
 			}
 			
-			printf("    %d/%d pages used\n", pages_used, pages);
+			printf("	%d/%d pages used\n", pages_used, pages);
 			
 			pagesets_used++;
 		}
@@ -153,12 +156,21 @@ struct emu_memory *emu_memory_new(struct emu *e)
 
 	em->read_only_access = false;
 
+	em->breakpoint = emu_breakpoint_alloc(em);
+	if ( em->breakpoint == NULL ) 
+	{
+		return NULL;
+	}
+	
+
 	return em;
 }
 
 void emu_memory_free(struct emu_memory *m)
 {
 	int i, j;
+	
+	emu_breakpoint_free(m->breakpoint);
 	
 	for( i = 0; i < (1 << (32 - PAGESET_BITS - PAGE_BITS)); i++ )
 	{
@@ -306,6 +318,8 @@ int32_t emu_memory_read_dword(struct emu_memory *m, uint32_t addr, uint32_t *dwo
 
 int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, size_t len)
 {
+
+	emu_breakpoint_check(m, addr, EMU_ACCESS_READ);
 	uint32_t oaddr = addr; /* save original addr for recursive call */
 	addr += m->segment_offset;
 	
@@ -420,6 +434,7 @@ int32_t emu_memory_write_dword(struct emu_memory *m, uint32_t addr, uint32_t dwo
 
 int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, const void *src, size_t len)
 {
+	emu_breakpoint_check(m, addr, EMU_ACCESS_WRITE);
 	if (m->read_only_access == true)
 		return 0;
 
@@ -540,3 +555,15 @@ void emu_memory_mode_rw(struct emu_memory *m)
 	m->read_only_access = false;
 }
 
+
+/*  Everything below this is ugly.  */
+struct emu_breakpoint *emu_memory_get_breakpoint(struct emu_memory *m)
+{
+	return m->breakpoint;
+}
+
+
+struct emu *emu_memory_get_emu(struct emu_memory *m)
+{
+	return m->emu;
+}
