@@ -490,6 +490,7 @@ skip_rest:
 			op->type = OPERAND_TYPE_IMMEDIATE;
 			// Always sign-extend
 			oflags |= F_s;
+			break;
 		case AM_I:
 			op->type = OPERAND_TYPE_IMMEDIATE;
 			index  = (inst->modrm) ? 1 : 0;
