@@ -93,6 +93,11 @@ void emu_hashtable_free(struct emu_hashtable *eh)
 
 struct emu_hashtable_item *emu_hashtable_search(struct emu_hashtable *eh, void *key)
 {
+	if(eh->size == 0)
+	{
+		return NULL;
+	}
+
 	uint32_t first_hash = eh->hash(key) % eh->size;
 
 	struct emu_hashtable_bucket *ehb = 	eh->buckets[first_hash];
