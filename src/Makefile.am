@@ -2,7 +2,7 @@
 # Paul Baecher, Markus Koetter
 # $Id$
 
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = foreign subdir-objects
 
 
 

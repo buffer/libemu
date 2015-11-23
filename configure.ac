@@ -20,15 +20,15 @@ AC_C_BIGENDIAN
 dnl Check for some target-specific stuff
 case "$host" in
 *-*-freebsd*)
-  CPPFLAGS="$CPPFLAGS -I/usr/local/include -I/usr/src/contrib/file/"
+  CPPFLAGS="$CPPFLAGS -I/usr/local/include -I/usr/src/contrib/file/ -Wno-unused-local-typedefs"
   LDFLAGS="$LDFLAGS -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
   ;;
 *-*-linux*)
-  CPPFLAGS="$CPPFLAGS -D _GNU_SOURCE -I/usr/local/include"
+  CPPFLAGS="$CPPFLAGS -D _GNU_SOURCE -I/usr/local/include -Wno-unused-local-typedefs"
   LDFLAGS="$LDFLAGS -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
   ;;
 *-*-darwin*)
-  CPPFLAGS="$CPPFLAGS -I/opt/local/include"
+  CPPFLAGS="$CPPFLAGS -I/opt/local/include -Wno-unused-local-typedefs"
   LDFLAGS="$LDFLAGS -L/opt/local/lib"
   if test "$GCC" = "yes"; then
           CFLAGS="$CFLAGS -no-cpp-precomp"
