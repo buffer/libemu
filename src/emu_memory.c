@@ -171,16 +171,26 @@ void emu_memory_free(struct emu_memory *m)
 	int i, j;
 	
 	emu_breakpoint_free(m->breakpoint);
-	
+
 	for( i = 0; i < (1 << (32 - PAGESET_BITS - PAGE_BITS)); i++ )
 	{
 		if( m->pagetable[i] != NULL )
 		{
 			for( j = 0; j < PAGESET_SIZE; j++ )
-				if( m->pagetable[i][j] != NULL )
+				if( m->pagetable[i][j] != NULL ) {
 					free(m->pagetable[i][j]);
-			
+					m->pagetable[i][j] = NULL;
+				}
+			//free(m->pagetable[i]);
+		}
+	}
+
+	for( i = 0; i < (1 << (32 - PAGESET_BITS - PAGE_BITS)); i++ )
+	{
+		if( m->pagetable[i] != NULL )
+		{
 			free(m->pagetable[i]);
+			m->pagetable[i] = NULL;
 		}
 	}
 	
