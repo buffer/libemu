@@ -22,19 +22,24 @@ case "$host" in
 *-*-freebsd*)
   CPPFLAGS="$CPPFLAGS -I/usr/local/include -I/usr/src/contrib/file/ -Wno-unused-local-typedefs"
   LDFLAGS="$LDFLAGS -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
+  pkgconfigdir="/usr/lib/pkgconfig"
   ;;
 *-*-linux*)
   CPPFLAGS="$CPPFLAGS -D _GNU_SOURCE -I/usr/local/include -Wno-unused-local-typedefs"
   LDFLAGS="$LDFLAGS -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
+  pkgconfigdir="/usr/lib/pkgconfig"
   ;;
 *-*-darwin*)
   CPPFLAGS="$CPPFLAGS -I/opt/local/include -Wno-unused-local-typedefs"
   LDFLAGS="$LDFLAGS -L/opt/local/lib"
+  pkgconfigdir="/usr/local/lib/pkgconfig"
   if test "$GCC" = "yes"; then
-          CFLAGS="$CFLAGS -no-cpp-precomp"
+          CFLAGS="$CFLAGS -Wno-unused-local-typedefs -Wno-tautological-compare"
   fi
   ;;
 esac
+
+AC_SUBST([pkgconfigdir])
 
 # Checks for programs.
 AC_PROG_CC
