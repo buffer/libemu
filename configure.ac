@@ -8,7 +8,7 @@ AC_INIT([libemu], [0.2.0], [nepenthesdev@gmail.com])
 AM_INIT_AUTOMAKE([libemu], [0.2.0])
 AC_REVISION([$Id$])
 
-AC_PREFIX_DEFAULT(/opt/libemu)
+# AC_PREFIX_DEFAULT(/opt/libemu)
 AC_CONFIG_SRCDIR([include/emu/emu.h])
 AM_CONFIG_HEADER([config.h])
 # AM_MAINTAINER_MODE
