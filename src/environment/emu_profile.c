@@ -206,6 +206,9 @@ void emu_profile_argument_add_port(struct emu_profile *profile,	char *argtype,  
 
 void emu_profile_argument_add_sockaddr_ptr(struct emu_profile *profile, const char *name, uint32_t ptr, struct sockaddr sa)
 {
+#ifdef __APPLE__
+	sa.sa_family = sa.sa_len;
+#endif
 
 	if ( sa.sa_family == AF_INET )
 	{                                                                                          
