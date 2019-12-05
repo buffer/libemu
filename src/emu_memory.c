@@ -179,23 +179,18 @@ void emu_memory_free(struct emu_memory *m)
 		if( m->pagetable[i] != NULL )
 		{
 			for( j = 0; j < PAGESET_SIZE; j++ )
+            {
 				if( m->pagetable[i][j] != NULL ) {
 					free(m->pagetable[i][j]);
 					m->pagetable[i][j] = NULL;
 				}
-			//free(m->pagetable[i]);
+            }
+
+			free(m->pagetable[i]);
+            m->pagetable[i] = NULL;
 		}
 	}
 
-	for( i = 0; i < (1 << (32 - PAGESET_BITS - PAGE_BITS)); i++ )
-	{
-		if( m->pagetable[i] != NULL )
-		{
-			free(m->pagetable[i]);
-			m->pagetable[i] = NULL;
-		}
-	}
-	
 	free(m->pagetable);
 	free(m);
 }
