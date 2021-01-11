@@ -444,6 +444,9 @@ traversal:
 		emu_list_insert_last(stats_tested_positions_list, eli);
 	}
 
+
+	cpu->tracking = NULL;
+
 	emu_queue_free(eq);
 	emu_env_free(env);
 
