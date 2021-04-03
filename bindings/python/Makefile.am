@@ -6,7 +6,7 @@ all:
 	python setup.py build
 
 install: all
-	python setup.py install
+	python setup.py install --prefix=$(DESTDIR)$(prefix)
 
 clean:
 	python setup.py clean
