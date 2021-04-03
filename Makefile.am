@@ -1,5 +1,7 @@
 # $Id$
 
+ACLOCAL_AMFLAGS= -I m4
+
 AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src include testsuite doc bindings tools
