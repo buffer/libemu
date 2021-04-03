@@ -382,7 +382,7 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 		uint16_t Length;
 		uint16_t MaximumLength;
 		uint32_t Buffer;
-	} UNICODE_STRING, *PUNICODE_STRING;
+	} UNICODE_STRING; //, *PUNICODE_STRING
 
 	// PEB_LDR_DATA Structure
 	// http://msdn.microsoft.com/en-us/library/aa813708%28VS.85%29.aspx
@@ -392,10 +392,10 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 		uint32_t Flink;
 		uint32_t Blink;
 //		struct _LIST_ENTRY *Blink;
-	} LIST_ENTRY, *PLIST_ENTRY; //, *RESTRICTED_POINTER PRLIST_ENTRY;
+	} LIST_ENTRY; //, *PLIST_ENTRY, *RESTRICTED_POINTER PRLIST_ENTRY;
 
 	typedef uint32_t PVOID;
-	typedef unsigned char BYTE;
+	// typedef unsigned char BYTE;
 	typedef uint32_t ULONG;
 
 	typedef struct _LDR_DATA_TABLE_ENTRY
@@ -415,7 +415,7 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 			PVOID Reserved6;
 		};
 		uint32_t TimeDateStamp;
-	} LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
+	} LDR_DATA_TABLE_ENTRY; //, *PLDR_DATA_TABLE_ENTRY;
 
 
 	// http://www.nirsoft.net/kernel_struct/vista/PEB_LDR_DATA.html
@@ -428,17 +428,17 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 		 /* 0x14 */ LIST_ENTRY InMemoryOrderModuleList;
 		 /* 0x1c */ LIST_ENTRY InInitializationOrderModuleList;
 		 /* 0x24 */ uint8_t EntryInProgress;
-	} PEB_LDR_DATA, *PPEB_LDR_DATA;
+	} PEB_LDR_DATA; //, *PPEB_LDR_DATA;
 
-	struct _PEB_LDR_DATA peb_ldr_data;
-	peb_ldr_data.InMemoryOrderModuleList.Flink = 0x00251ea0 + 0x1000 + offsetof(struct _LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
-	peb_ldr_data.InInitializationOrderModuleList.Flink = 0x00251ea0 + 0x1000 + offsetof(struct _LDR_DATA_TABLE_ENTRY, InInitializationOrderLinks);
+	PEB_LDR_DATA peb_ldr_data;
+	peb_ldr_data.InMemoryOrderModuleList.Flink = 0x00251ea0 + 0x1000 + offsetof(LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+	peb_ldr_data.InInitializationOrderModuleList.Flink = 0x00251ea0 + 0x1000 + offsetof(LDR_DATA_TABLE_ENTRY, InInitializationOrderLinks);
 
 	emu_memory_write_block(mem, 0x00251ea0, &peb_ldr_data, sizeof(peb_ldr_data));
 
 	uint32_t magic_offset = 0x00251ea0+0x1000;
 
-	struct _LDR_DATA_TABLE_ENTRY tables[16];
+	LDR_DATA_TABLE_ENTRY tables[16];
 	memset(tables, 0, sizeof(tables));
 
 	char names[16][64];
@@ -448,7 +448,7 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 	for ( i=0; known_dlls[i].dllname != NULL; i++ )
 	{
 		struct emu_env_w32_known_dll *from = known_dlls+i;
-		struct _LDR_DATA_TABLE_ENTRY *to = tables+i;
+		LDR_DATA_TABLE_ENTRY *to = tables+i;
 		
 		to->DllBase = from->baseaddress;
 		to->BaseDllName.Length = (strlen(from->dllname) + strlen(".dll")) * 2 + 2;
@@ -456,10 +456,10 @@ struct emu_env_w32 *emu_env_w32_new(struct emu *e)
 		to->BaseDllName.Buffer = magic_offset + sizeof(tables) + i * 64;
 
 		to->InMemoryOrderLinks.Blink = 0xaabbccdd;
-		to->InMemoryOrderLinks.Flink = magic_offset + (i+1) * sizeof(struct _LDR_DATA_TABLE_ENTRY) + offsetof(struct _LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+		to->InMemoryOrderLinks.Flink = magic_offset + (i+1) * sizeof(struct _LDR_DATA_TABLE_ENTRY) + offsetof(LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
 
 		to->InInitializationOrderLinks.Blink = 0xa1b2c3d4;
-		to->InInitializationOrderLinks.Flink = magic_offset + (i+1) * sizeof(struct _LDR_DATA_TABLE_ENTRY) + offsetof(struct _LDR_DATA_TABLE_ENTRY, InInitializationOrderLinks);
+		to->InInitializationOrderLinks.Flink = magic_offset + (i+1) * sizeof(struct _LDR_DATA_TABLE_ENTRY) + offsetof(LDR_DATA_TABLE_ENTRY, InInitializationOrderLinks);
 
 		int j;		
 		for( j=0;j<strlen(from->dllname); j++ )
