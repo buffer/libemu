@@ -5,10 +5,11 @@
 
 AC_PREREQ(2.59)
 AC_INIT([libemu], [0.2.0], [nepenthesdev@gmail.com])
-AM_INIT_AUTOMAKE([libemu], [0.2.0])
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_REVISION([$Id$])
 
 # AC_PREFIX_DEFAULT(/opt/libemu)
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_SRCDIR([include/emu/emu.h])
 AM_CONFIG_HEADER([config.h])
 # AM_MAINTAINER_MODE
