@@ -6,7 +6,7 @@ libemu = Extension('libemu',
                     sources = ['libemu_module.c'],
                     include_dirs = ['../../include'],
                     library_dirs = ['../../src/.libs'],
-                    extra_link_args=['-Wl,-rpath=@LIBDIR@'],
+                    # extra_link_args=['-Wl,-rpath=@LIBDIR@'],
                     libraries = ['emu'],
                     )
 
