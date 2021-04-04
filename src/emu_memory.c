@@ -37,18 +37,18 @@
 #include "emu/emu_breakpoint.h"
 
 
-#define PAGE_BITS 12 /* size of one page, 2^12 = 4096 */
-#define PAGESET_BITS 10 /* number of pages in one pageset, 2^10 = 1024 */
+#define EMU_PAGE_BITS 12 /* size of one page, 2^12 = 4096 */
+#define EMU_PAGESET_BITS 10 /* number of pages in one pageset, 2^10 = 1024 */
 
-#ifndef PAGE_SIZE
-  #define PAGE_SIZE (1 << PAGE_BITS)
+#ifndef EMU_PAGE_SIZE
+  #define EMU_PAGE_SIZE (1 << EMU_PAGE_BITS)
 #endif
 
-#define PAGESET_SIZE (1 << PAGESET_BITS)
+#define EMU_PAGESET_SIZE (1 << EMU_PAGESET_BITS)
 
-#define PAGESET(x) ((x) >> (PAGESET_BITS + PAGE_BITS))
-#define PAGE(x) (((x) >> PAGE_BITS) & ((1 << PAGESET_BITS) - 1))
-#define OFFSET(x) (((1 << PAGE_BITS) - 1) & (x))
+#define PAGESET(x) ((x) >> (EMU_PAGESET_BITS + EMU_PAGE_BITS))
+#define PAGE(x) (((x) >> EMU_PAGE_BITS) & ((1 << EMU_PAGESET_BITS) - 1))
+#define OFFSET(x) (((1 << EMU_PAGE_BITS) - 1) & (x))
 
 #define FS_SEGMENT_DEFAULT_OFFSET 0x7ffdf000
 
@@ -72,7 +72,7 @@ struct emu_memory
 #if 1
 /*static void emu_memory_debug_pagetable(struct emu_memory *m)
 {
-	int pagesets = 1 << (32 - PAGESET_BITS - PAGE_BITS);
+	int pagesets = 1 << (32 - EMU_PAGESET_BITS - EMU_PAGE_BITS);
 	int pagesets_used = 0;
 	
 	printf("*** memory debug\n");
@@ -84,7 +84,7 @@ struct emu_memory
 		if( m->pagetable[i] != NULL )
 		{
 			printf("  pageset %d allocated at 0x%08x\n", i, (int)m->pagetable[i]);
-			int pages = 1 << (PAGESET_BITS);
+			int pages = 1 << (EMU_PAGESET_BITS);
 			int pages_used = 0;
 
 			for( j = 0; j < pages; j++ )
@@ -109,14 +109,14 @@ struct emu_memory
 static void emu_memory_debug_addr(uint32_t addr)
 {
 	printf("addr 0x%08x, pageset 0x%08x, page 0x%08x, offset 0x%08x\n",
-		addr, PAGESET(addr), PAGE(addr), OFFSET(addr));
+		addr, EMU_PAGESET(addr), EMU_PAGE(addr), OFFSET(addr));
 }*/
 #endif
 
 uint32_t emu_memory_get_usage(struct emu_memory *m)
 {
-	uint32_t usage = (1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *); /* pageset table */
-	int pagesets = 1 << (32 - PAGESET_BITS - PAGE_BITS);
+	uint32_t usage = (1 << (32 - EMU_PAGE_BITS - EMU_PAGESET_BITS)) * sizeof(void *); /* pageset table */
+	int pagesets = 1 << (32 - EMU_PAGESET_BITS - EMU_PAGE_BITS);
 	
 	int i, j;
 	
@@ -124,12 +124,12 @@ uint32_t emu_memory_get_usage(struct emu_memory *m)
 	{
 		if( m->pagetable[i] != NULL )
 		{
-			usage += PAGESET_SIZE * sizeof(void *);
-			int pages = 1 << (PAGESET_BITS);
+			usage += EMU_PAGESET_SIZE * sizeof(void *);
+			int pages = 1 << (EMU_PAGESET_BITS);
 
 			for( j = 0; j < pages; j++ )
 				if( m->pagetable[i][j] != NULL )
-					usage += PAGE_SIZE;
+					usage += EMU_PAGE_SIZE;
 		}
 	}
 	
@@ -147,12 +147,12 @@ struct emu_memory *emu_memory_new(struct emu *e)
 	
 	em->emu = e;
 	
-	em->pagetable = malloc((1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *));
+	em->pagetable = malloc((1 << (32 - EMU_PAGE_BITS - EMU_PAGESET_BITS)) * sizeof(void *));
 	if( em->pagetable == NULL )
 	{
 		return NULL;
 	}
-	memset(em->pagetable, 0, (1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *));
+	memset(em->pagetable, 0, (1 << (32 - EMU_PAGE_BITS - EMU_PAGESET_BITS)) * sizeof(void *));
 	
 	em->segment_table[s_fs] = FS_SEGMENT_DEFAULT_OFFSET;
 
@@ -174,11 +174,11 @@ void emu_memory_free(struct emu_memory *m)
 	
 	emu_breakpoint_free(m->breakpoint);
 
-	for( i = 0; i < (1 << (32 - PAGESET_BITS - PAGE_BITS)); i++ )
+	for( i = 0; i < (1 << (32 - EMU_PAGESET_BITS - EMU_PAGE_BITS)); i++ )
 	{
 		if( m->pagetable[i] != NULL )
 		{
-			for( j = 0; j < PAGESET_SIZE; j++ )
+			for( j = 0; j < EMU_PAGESET_SIZE; j++ )
             {
 				if( m->pagetable[i][j] != NULL ) {
 					free(m->pagetable[i][j]);
@@ -199,11 +199,11 @@ void emu_memory_clear(struct emu_memory *m)
 {
 	int i, j;
 	
-	for( i = 0; i < (1 << (32 - PAGESET_BITS - PAGE_BITS)); i++ )
+	for( i = 0; i < (1 << (32 - EMU_PAGESET_BITS - EMU_PAGE_BITS)); i++ )
 	{
 		if( m->pagetable[i] != NULL )
 		{
-			for( j = 0; j < PAGESET_SIZE; j++ )
+			for( j = 0; j < EMU_PAGESET_SIZE; j++ )
 				if( m->pagetable[i][j] != NULL )
 					free(m->pagetable[i][j]);
 			
@@ -211,7 +211,7 @@ void emu_memory_clear(struct emu_memory *m)
 		}
 	}
 
-	memset(m->pagetable, 0, (1 << (32 - PAGE_BITS - PAGESET_BITS)) * sizeof(void *));
+	memset(m->pagetable, 0, (1 << (32 - EMU_PAGE_BITS - EMU_PAGESET_BITS)) * sizeof(void *));
 	
 	m->segment_table[s_fs] = FS_SEGMENT_DEFAULT_OFFSET;
 
@@ -220,9 +220,9 @@ void emu_memory_clear(struct emu_memory *m)
 
 static inline int page_is_alloc(struct emu_memory *em, uint32_t addr)
 {
-	if( em->pagetable[PAGESET(addr)] != NULL )
+	if( em->pagetable[EMU_PAGESET(addr)] != NULL )
 	{
-		if( em->pagetable[PAGESET(addr)][PAGE(addr)] != NULL )
+		if( em->pagetable[EMU_PAGESET(addr)][EMU_PAGE(addr)] != NULL )
 		{
 			return -1;
 		} 
@@ -233,31 +233,31 @@ static inline int page_is_alloc(struct emu_memory *em, uint32_t addr)
 
 static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 {
-	if( em->pagetable[PAGESET(addr)] == NULL )
+	if( em->pagetable[EMU_PAGESET(addr)] == NULL )
 	{
-		em->pagetable[PAGESET(addr)] = malloc(PAGESET_SIZE * sizeof(void *));
+		em->pagetable[EMU_PAGESET(addr)] = malloc(EMU_PAGESET_SIZE * sizeof(void *));
 		
-		if( em->pagetable[PAGESET(addr)] == NULL )
+		if( em->pagetable[EMU_PAGESET(addr)] == NULL )
 		{
 			emu_errno_set(em->emu, ENOMEM);
 			emu_strerror_set(em->emu, "out of memory\n", addr);
 			return -1;
 		}
 		
-		memset(em->pagetable[PAGESET(addr)], 0, PAGESET_SIZE * sizeof(void *));
+		memset(em->pagetable[EMU_PAGESET(addr)], 0, EMU_PAGESET_SIZE * sizeof(void *));
 	}
 
-	if( em->pagetable[PAGESET(addr)][PAGE(addr)] == NULL )
+	if( em->pagetable[EMU_PAGESET(addr)][EMU_PAGE(addr)] == NULL )
 	{
-		em->pagetable[PAGESET(addr)][PAGE(addr)] = malloc(PAGE_SIZE);
+		em->pagetable[EMU_PAGESET(addr)][EMU_PAGE(addr)] = malloc(EMU_PAGE_SIZE);
 		
-		if( em->pagetable[PAGESET(addr)][PAGE(addr)] == NULL )
+		if( em->pagetable[EMU_PAGESET(addr)][EMU_PAGE(addr)] == NULL )
 		{
 			emu_errno_set(em->emu, ENOMEM);
 			emu_strerror_set(em->emu, "out of memory\n", addr);
 			return -1;
 		}
-		memset(em->pagetable[PAGESET(addr)][PAGE(addr)], 0, PAGE_SIZE);
+		memset(em->pagetable[EMU_PAGESET(addr)][EMU_PAGE(addr)], 0, EMU_PAGE_SIZE);
 	}
 
 	return 0;
@@ -265,11 +265,11 @@ static inline int page_alloc(struct emu_memory *em, uint32_t addr)
 
 static inline void *translate_addr(struct emu_memory *em, uint32_t addr)
 {
-	if( em->pagetable[PAGESET(addr)] != NULL )
+	if( em->pagetable[EMU_PAGESET(addr)] != NULL )
 	{
-		if( em->pagetable[PAGESET(addr)][PAGE(addr)] != NULL )
+		if( em->pagetable[EMU_PAGESET(addr)][EMU_PAGE(addr)] != NULL )
 		{
-			return em->pagetable[PAGESET(addr)][PAGE(addr)] + OFFSET(addr);
+			return em->pagetable[EMU_PAGESET(addr)][EMU_PAGE(addr)] + OFFSET(addr);
 		}
 	}
 	
@@ -339,14 +339,14 @@ int32_t emu_memory_read_block(struct emu_memory *m, uint32_t addr, void *dest, s
 		return -1;
 	}
 
-	if (OFFSET(addr) + len <= PAGE_SIZE)
+	if (OFFSET(addr) + len <= EMU_PAGE_SIZE)
 	{
 		bcopy(address, dest, len);
 		return 0;
 	}
 	else
 	{
-		uint32_t cb = PAGE_SIZE - OFFSET(addr);
+		uint32_t cb = EMU_PAGE_SIZE - OFFSET(addr);
 		bcopy(address, dest, cb);
 		return emu_memory_read_block(m, oaddr + cb, dest + cb, len - cb);
 	}
@@ -458,14 +458,14 @@ int32_t emu_memory_write_block(struct emu_memory *m, uint32_t addr, const void *
 		address = translate_addr(m, addr);
 	}
 
-	if (OFFSET(addr) + len <= PAGE_SIZE)
+	if (OFFSET(addr) + len <= EMU_PAGE_SIZE)
 	{
 		bcopy(src, address, len);
 		return 0;
 	}
 	else
 	{
-		uint32_t cb = PAGE_SIZE - OFFSET(addr);
+		uint32_t cb = EMU_PAGE_SIZE - OFFSET(addr);
 		bcopy(src, address, cb);
 		return emu_memory_write_block(m, oaddr + cb, src + cb, len - cb);
 	}
@@ -488,16 +488,16 @@ enum emu_segment emu_memory_segment_get(struct emu_memory *m)
 /* make sure a memory block of size *len* is allocated at *addr* */
 /*int32_t emu_memory_alloc_at(struct emu_memory *m, uint32_t addr, size_t len)
 {
-	len += addr % PAGE_SIZE;
-	addr = (addr >> PAGE_BITS) << PAGE_BITS;
+	len += addr % EMU_PAGE_SIZE;
+	addr = (addr >> EMU_PAGE_BITS) << EMU_PAGE_BITS;
 	
 	while( len > 0 )
 	{
-		if( len > PAGE_SIZE )
+		if( len > EMU_PAGE_SIZE )
 		{
-			len -= PAGE_SIZE;
+			len -= EMU_PAGE_SIZE;
 			page_alloc(m, addr);
-			addr += PAGE_SIZE;
+			addr += EMU_PAGE_SIZE;
 		}
 		else
 		{
@@ -513,9 +513,9 @@ int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len)
 {
 	*addr = 0x00200000;
 	
-	uint32_t pages = len / PAGE_SIZE;
+	uint32_t pages = len / EMU_PAGE_SIZE;
 	
-	if( len % PAGE_SIZE != 0 )
+	if( len % EMU_PAGE_SIZE != 0 )
 	{
 		pages++;
 	}
@@ -527,7 +527,7 @@ int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len)
 	{
 		for( i = 0; i < pages; i++ )
 		{
-			if( page_is_alloc(m, *addr + i * PAGE_SIZE) != 0 )
+			if( page_is_alloc(m, *addr + i * EMU_PAGE_SIZE) != 0 )
 			{
 				break;
 			}
@@ -537,7 +537,7 @@ int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len)
 		{
 			for( i = 0; i < pages; i++ )
 			{
-				if( page_alloc(m, *addr + i * PAGE_SIZE) )
+				if( page_alloc(m, *addr + i * EMU_PAGE_SIZE) )
 				{
 					return -1;
 				}
@@ -546,7 +546,7 @@ int32_t emu_memory_alloc(struct emu_memory *m, uint32_t *addr, size_t len)
 			return 0;
 		}
 		
-		*addr += len + PAGE_SIZE;
+		*addr += len + EMU_PAGE_SIZE;
 	}
 	
 	return -1;
