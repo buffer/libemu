@@ -3,14 +3,15 @@
 # Process this file with autoconf to produce a configure script.
 # $Id$
 
-AC_PREREQ(2.59)
-AC_INIT([libemu], [0.2.0], [nepenthesdev@gmail.com])
-AM_INIT_AUTOMAKE([libemu], [0.2.0])
+AC_PREREQ([2.59])
+AC_INIT([libemu],[0.2.0],[nepenthesdev@gmail.com])
+AM_INIT_AUTOMAKE
 AC_REVISION([$Id$])
 
 # AC_PREFIX_DEFAULT(/opt/libemu)
 AC_CONFIG_SRCDIR([include/emu/emu.h])
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIRS([m4])
 # AM_MAINTAINER_MODE
 
 AC_CANONICAL_HOST
@@ -25,6 +26,8 @@ case "$host" in
   pkgconfigdir="/usr/lib/pkgconfig"
   ;;
 *-*-linux*)
+  CC=clang
+  CFLAGS="-Wno-unused-local-typedefs"
   CPPFLAGS="$CPPFLAGS -D _GNU_SOURCE -I/usr/local/include -Wno-unused-local-typedefs"
   LDFLAGS="$LDFLAGS -L/usr/local/lib -Wl,-rpath,/usr/local/lib"
   pkgconfigdir="/usr/lib/pkgconfig"
@@ -44,7 +47,7 @@ AC_SUBST([pkgconfigdir])
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_MAKE_SET
-AC_PROG_LIBTOOL
+LT_INIT
 
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h strings.h unistd.h])
 
@@ -68,7 +71,9 @@ AC_C_INLINE
 AC_TYPE_UID_T
 AC_STRUCT_TM
 AC_TYPE_SIZE_T
-AC_TYPE_SIGNAL
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 
 
 AC_CHECK_SIZEOF(long)
@@ -76,7 +81,9 @@ AC_CHECK_SIZEOF(off_t)
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
-AC_TYPE_SIGNAL
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_CHECK_FUNCS([strndup inet_ntoa  memmove memset strdup strerror])
 
 # library soname
@@ -95,7 +102,7 @@ dnl **************************************************
 
 AC_MSG_CHECKING(for Large File System support)
 AC_ARG_ENABLE(lfs,
- AC_HELP_STRING([--enable-lfs],[Turn on Large File System (default)]),
+ AS_HELP_STRING([--enable-lfs],[Turn on Large File System (default)]),
  [case "$host" in
  *-*-linux*)
  case "${enableval}" in

@@ -17,12 +17,12 @@
 
 // Endianess conversion routines (thanks Ero)
 
-__inline__ BYTE FETCH8(BYTE *addr) {
+BYTE FETCH8(BYTE *addr) {
 	// So far byte cast seems to work on all tested platforms
 	return *(BYTE *)addr;	
 }
 
-__inline__ WORD FETCH16(BYTE *addr) {
+WORD FETCH16(BYTE *addr) {
 #if defined __X86__
 	// Direct cast only for x86
 	return *(WORD *)addr;
@@ -40,7 +40,7 @@ __inline__ WORD FETCH16(BYTE *addr) {
 #endif // __X86__
 }
 
-__inline__ DWORD FETCH32(BYTE *addr) {
+DWORD FETCH32(BYTE *addr) {
 #if defined __X86__
 	return *(DWORD *)addr;	
 #else
@@ -60,14 +60,15 @@ __inline__ DWORD FETCH32(BYTE *addr) {
 
 // Check for address/operand size override
 
-__inline__ enum Mode MODE_CHECK_ADDR(enum Mode mode, int flags) {
+enum Mode MODE_CHECK_ADDR(enum Mode mode, int flags) {
 	if (((mode == MODE_32) && (MASK_PREFIX_ADDR(flags) == 0)) ||
     	    ((mode == MODE_16) && (MASK_PREFIX_ADDR(flags) == 1)))
 		return MODE_32;
 	else 
 		return MODE_16;
 }
-__inline__ enum Mode MODE_CHECK_OPERAND(enum Mode mode, int flags) {
+
+enum Mode MODE_CHECK_OPERAND(enum Mode mode, int flags) {
 	if (((mode == MODE_32) && (MASK_PREFIX_OPERAND(flags) == 0)) ||
     	    ((mode == MODE_16) && (MASK_PREFIX_OPERAND(flags) == 1)))
 		return MODE_32;
