@@ -478,6 +478,12 @@ int32_t emu_shellcode_test(struct emu *e, uint8_t *data, uint16_t size)
 
 	uint32_t best_eip=0;
 */
+	// This check avoids a floating point exception further down the line
+	if(size < 2)
+	{
+		return -1;
+	}
+
 	uint32_t offset;
 	struct emu_list_root *el;
 	el = emu_list_create();
