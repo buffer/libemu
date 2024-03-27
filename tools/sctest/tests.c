@@ -1533,7 +1533,7 @@ struct instr_test tests[] =
 	
 };
 
-int numtests()
+int numtests(void)
 {
 #ifndef _NO_TESTS
 	return sizeof(tests)/sizeof(struct instr_test);
